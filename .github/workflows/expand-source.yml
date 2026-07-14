@@ -28,11 +28,11 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
-      - name: Detect verified source archive
+      - name: Detect verified source chunks
         id: source
         shell: bash
         run: |
-          if [ -f .release_source/TsaoSciComputation-1.0.1.zip ]; then
+          if compgen -G ".release_source/part-*" > /dev/null; then
             echo "present=true" >> "$GITHUB_OUTPUT"
           else
             echo "present=false" >> "$GITHUB_OUTPUT"
@@ -43,13 +43,15 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          archive=.release_source/TsaoSciComputation-1.0.1.zip
-          test -f "$archive"
-          echo "c32b6b28429ba80fe1a941332d07f73516ef29aa5195803d787a8a2d2a54d7b4  $archive" | sha256sum --check --strict
+          expected=7
+          count=$(find .release_source -maxdepth 1 -type f -name 'part-*' | wc -l)
+          test "$count" -eq "$expected"
+          cat .release_source/part-* | base64 --decode > /tmp/TsaoSciComputation-1.0.1.tar.zst
+          echo "4862f93186404e12b4a04d2a8cbcfbd037141ea503524208f4b2143e4bdaf73a  /tmp/TsaoSciComputation-1.0.1.tar.zst" | sha256sum --check --strict
 
           mkdir -p /tmp/unpacked
-          unzip -q "$archive" -d /tmp/unpacked
-          source_root=/tmp/unpacked/TsaoSciComputation-1.0.1
+          zstd --decompress --stdout /tmp/TsaoSciComputation-1.0.1.tar.zst | tar -xf - -C /tmp/unpacked
+          source_root=/tmp/unpacked/TsaoSciComputation
           test -f "$source_root/SKILL.md"
           test -f "$source_root/AUDIT_REPORT_2026-07-15.md"
           test "$(cat "$source_root/VERSION")" = "1.0.1"
