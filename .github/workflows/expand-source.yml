@@ -42,15 +42,15 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          expected=11
+          expected=16
           count=$(find .release_source -maxdepth 1 -type f -name 'part-*' | wc -l)
           test "$count" -eq "$expected"
 
-          cat .release_source/part-* | base64 --decode > /tmp/TsaoSciComputation-source.tar.gz
-          echo "5f377fc38fa6b174b99efaa0bb23f3ba6b6eeb588216ca9172997a189f25d7bc  /tmp/TsaoSciComputation-source.tar.gz" | sha256sum --check --strict
+          cat .release_source/part-* | base64 --decode > /tmp/TsaoSciComputation-source.tar.zst
+          echo "2a479e4c1e53e00f0f7a793761b9dce7e63c119ed69b54282b94da1707031ef9  /tmp/TsaoSciComputation-source.tar.zst" | sha256sum --check --strict
 
           mkdir -p /tmp/unpacked
-          tar -xzf /tmp/TsaoSciComputation-source.tar.gz -C /tmp/unpacked
+          zstd --decompress --stdout /tmp/TsaoSciComputation-source.tar.zst | tar -xf - -C /tmp/unpacked
           test -f /tmp/unpacked/TsaoSciComputation/SKILL.md
           test -f /tmp/unpacked/TsaoSciComputation/ACCEPTANCE_REPORT.md
 
