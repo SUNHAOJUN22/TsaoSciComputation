@@ -32,7 +32,7 @@ jobs:
         id: source
         shell: bash
         run: |
-          if compgen -G ".release_source/part-*" > /dev/null; then
+          if compgen -G ".audit_source_v101/part-*" > /dev/null; then
             echo "present=true" >> "$GITHUB_OUTPUT"
           else
             echo "present=false" >> "$GITHUB_OUTPUT"
@@ -44,9 +44,9 @@ jobs:
         run: |
           set -euo pipefail
           expected=21
-          count=$(find .release_source -maxdepth 1 -type f -name 'part-*' | wc -l)
+          count=$(find .audit_source_v101 -maxdepth 1 -type f -name 'part-*' | wc -l)
           test "$count" -eq "$expected"
-          cat .release_source/part-* | base64 --decode > /tmp/TsaoSciComputation-1.0.1.tar.zst
+          cat .audit_source_v101/part-* | base64 --decode > /tmp/TsaoSciComputation-1.0.1.tar.zst
           echo "4862f93186404e12b4a04d2a8cbcfbd037141ea503524208f4b2143e4bdaf73a  /tmp/TsaoSciComputation-1.0.1.tar.zst" | sha256sum --check --strict
 
           mkdir -p /tmp/unpacked
