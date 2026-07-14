@@ -42,17 +42,11 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          expected=20
+          expected=11
           count=$(find .release_source -maxdepth 1 -type f -name 'part-*' | wc -l)
           test "$count" -eq "$expected"
 
-          cat .release_source/part-* > /tmp/source.hex
-          python - <<'PY'
-          from pathlib import Path
-          Path('/tmp/TsaoSciComputation-source.tar.gz').write_bytes(
-              bytes.fromhex(Path('/tmp/source.hex').read_text(encoding='utf-8').strip())
-          )
-          PY
+          cat .release_source/part-* | base64 --decode > /tmp/TsaoSciComputation-source.tar.gz
           echo "5f377fc38fa6b174b99efaa0bb23f3ba6b6eeb588216ca9172997a189f25d7bc  /tmp/TsaoSciComputation-source.tar.gz" | sha256sum --check --strict
 
           mkdir -p /tmp/unpacked
