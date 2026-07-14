@@ -28,30 +28,27 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
-      - name: Detect verified source chunks
-        id: chunks
+      - name: Detect verified source archive
+        id: source
         shell: bash
         run: |
-          if compgen -G ".release_source/part-*" > /dev/null; then
+          if [ -f .release_source/TsaoSciComputation-1.0.1.zip ]; then
             echo "present=true" >> "$GITHUB_OUTPUT"
           else
             echo "present=false" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Verify, expand, validate and commit normal source tree
-        if: steps.chunks.outputs.present == 'true'
+        if: steps.source.outputs.present == 'true'
         shell: bash
         run: |
           set -euo pipefail
-          expected=15
-          count=$(find .release_source -maxdepth 1 -type f -name 'part-*' | wc -l)
-          test "$count" -eq "$expected"
-
-          cat .release_source/part-* | base64 --decode > /tmp/TsaoSciComputation-1.0.1.zip
-          echo "c32b6b28429ba80fe1a941332d07f73516ef29aa5195803d787a8a2d2a54d7b4  /tmp/TsaoSciComputation-1.0.1.zip" | sha256sum --check --strict
+          archive=.release_source/TsaoSciComputation-1.0.1.zip
+          test -f "$archive"
+          echo "c32b6b28429ba80fe1a941332d07f73516ef29aa5195803d787a8a2d2a54d7b4  $archive" | sha256sum --check --strict
 
           mkdir -p /tmp/unpacked
-          unzip -q /tmp/TsaoSciComputation-1.0.1.zip -d /tmp/unpacked
+          unzip -q "$archive" -d /tmp/unpacked
           source_root=/tmp/unpacked/TsaoSciComputation-1.0.1
           test -f "$source_root/SKILL.md"
           test -f "$source_root/AUDIT_REPORT_2026-07-15.md"
