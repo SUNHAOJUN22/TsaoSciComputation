@@ -1,0 +1,66 @@
+name: Expand validated source package
+
+on:
+  push:
+    paths:
+      - ".bootstrap_hex/**"
+      - ".github/workflows/expand-source.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: expand-source
+  cancel-in-progress: false
+
+jobs:
+  expand:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify, expand, and validate source
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected=12
+          count=$(find .bootstrap_hex -maxdepth 1 -type f -name 'part-*' | wc -l)
+          if [ "$count" -ne "$expected" ]; then
+            echo "Waiting for all source chunks: $count/$expected"
+            exit 1
+          fi
+
+          cat .bootstrap_hex/part-* > /tmp/source.hex
+          python - <<'PY'
+          from pathlib import Path
+          Path('/tmp/TsaoSciComputation.tar.gz').write_bytes(
+              bytes.fromhex(Path('/tmp/source.hex').read_text(encoding='utf-8').strip())
+          )
+          PY
+
+          echo "2937c5bd6374b381600a6e9f3e632d1adfcdd36b473296259d35c589ce3d15ee  /tmp/TsaoSciComputation.tar.gz" | sha256sum --check --strict
+
+          mkdir -p /tmp/unpacked
+          tar -xzf /tmp/TsaoSciComputation.tar.gz -C /tmp/unpacked
+          cp -a /tmp/unpacked/TsaoSciComputation/. .
+
+          rm -rf .bootstrap .bootstrap_hex
+          rm -f .github/workflows/expand-source.yml
+
+          python scripts/run_tests.py --verbose
+          python scripts/build_capability_index.py --check
+          python scripts/build_manifest.py --check
+
+      - name: Commit expanded repository
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Expand validated TsaoSciComputation source package"
+          git push
