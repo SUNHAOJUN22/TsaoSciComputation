@@ -1,4 +1,4 @@
-name: Expand verified TsaoSciComputation v1 source
+name: Expand verified TsaoSciComputation v1.0.1 source
 
 on:
   pull_request_target:
@@ -9,15 +9,16 @@ permissions:
   pull-requests: read
 
 concurrency:
-  group: expand-v1-${{ github.event.pull_request.number }}
+  group: expand-v101-${{ github.event.pull_request.number }}
   cancel-in-progress: false
 
 jobs:
   expand:
     if: >-
       github.event.pull_request.head.repo.full_name == github.repository &&
-      github.event.pull_request.head.ref == 'agent/release-v1.0.0'
+      github.event.pull_request.head.ref == 'agent/audit-v1.0.1'
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     steps:
       - name: Check out controlled release branch
         uses: actions/checkout@v4
@@ -42,32 +43,36 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          expected=16
+          expected=15
           count=$(find .release_source -maxdepth 1 -type f -name 'part-*' | wc -l)
           test "$count" -eq "$expected"
 
-          cat .release_source/part-* | base64 --decode > /tmp/TsaoSciComputation-source.tar.zst
-          echo "2a479e4c1e53e00f0f7a793761b9dce7e63c119ed69b54282b94da1707031ef9  /tmp/TsaoSciComputation-source.tar.zst" | sha256sum --check --strict
+          cat .release_source/part-* | base64 --decode > /tmp/TsaoSciComputation-1.0.1.zip
+          echo "c32b6b28429ba80fe1a941332d07f73516ef29aa5195803d787a8a2d2a54d7b4  /tmp/TsaoSciComputation-1.0.1.zip" | sha256sum --check --strict
 
           mkdir -p /tmp/unpacked
-          zstd --decompress --stdout /tmp/TsaoSciComputation-source.tar.zst | tar -xf - -C /tmp/unpacked
-          test -f /tmp/unpacked/TsaoSciComputation/SKILL.md
-          test -f /tmp/unpacked/TsaoSciComputation/ACCEPTANCE_REPORT.md
+          unzip -q /tmp/TsaoSciComputation-1.0.1.zip -d /tmp/unpacked
+          source_root=/tmp/unpacked/TsaoSciComputation-1.0.1
+          test -f "$source_root/SKILL.md"
+          test -f "$source_root/AUDIT_REPORT_2026-07-15.md"
+          test "$(cat "$source_root/VERSION")" = "1.0.1"
 
           find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
-          cp -a /tmp/unpacked/TsaoSciComputation/. .
+          cp -a "$source_root"/. .
 
-          python -m pip install --upgrade pip
           python -m pip install -e '.[validation]'
+          python scripts/audit_repository.py --json
+          python scripts/sync_package_assets.py --check
           python scripts/run_tests.py --verbose
           python scripts/build_capability_index.py --check
           python scripts/run_example_preflights.py
           python scripts/build_manifest.py --check
-          python scripts/package_release.py --output dist/TsaoSciComputation-1.0.0
+          python scripts/verify_wheel.py
+          SOURCE_DATE_EPOCH=1700000000 python scripts/package_release.py --output dist/TsaoSciComputation-1.0.1
           rm -rf dist
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
-          git commit -m "Release TsaoSciComputation v1.0.0"
+          git commit -m "Audit and release TsaoSciComputation v1.0.1"
           git push origin "HEAD:${{ github.event.pull_request.head.ref }}"
