@@ -28,31 +28,60 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
-      - name: Detect verified source chunks
+      - name: Detect verified patch chunks
         id: source
         shell: bash
         run: |
-          if compgen -G ".audit_source_v102/part-*" > /dev/null; then
+          if compgen -G ".audit_patch_v102/part-*" > /dev/null; then
             echo "present=true" >> "$GITHUB_OUTPUT"
           else
             echo "present=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Verify, expand, validate and commit normal source tree
+      - name: Reconstruct baseline, apply patch, validate and commit
         if: steps.source.outputs.present == 'true'
         shell: bash
         run: |
           set -euo pipefail
-          expected=16
-          count=$(find .audit_source_v102 -maxdepth 1 -type f -name 'part-*' | wc -l)
-          test "$count" -eq "$expected"
-          cat .audit_source_v102/part-* | base64 --decode > /tmp/TsaoSciComputation-1.0.2.zip
-          echo "39c284672bb0790c94f1945ca198ee6899060e0cc9e2fb20f0b055e2e5e0bcdd  /tmp/TsaoSciComputation-1.0.2.zip" | sha256sum --check --strict
+
+          baseline_expected=19
+          baseline_count=$(find .audit_source_v101 -maxdepth 1 -type f -name 'part-*' | wc -l)
+          test "$baseline_count" -eq "$baseline_expected"
+          cat .audit_source_v101/part-* | base64 --decode > /tmp/TsaoSciComputation-1.0.1.tar.zst
+          echo "4862f93186404e12b4a04d2a8cbcfbd037141ea503524208f4b2143e4bdaf73a  /tmp/TsaoSciComputation-1.0.1.tar.zst" | sha256sum --check --strict
 
           mkdir -p /tmp/unpacked
-          unzip -q /tmp/TsaoSciComputation-1.0.2.zip -d /tmp/unpacked
-          source_root=/tmp/unpacked/TsaoSciComputation-1.0.2
+          zstd --decompress --stdout /tmp/TsaoSciComputation-1.0.1.tar.zst | tar -xf - -C /tmp/unpacked
+          source_root=/tmp/unpacked/TsaoSciComputation
           test -f "$source_root/SKILL.md"
+          test "$(cat "$source_root/VERSION")" = "1.0.1"
+
+          patch_expected=18
+          patch_count=$(find .audit_patch_v102 -maxdepth 1 -type f -name 'part-*' | wc -l)
+          test "$patch_count" -eq "$patch_expected"
+          cat .audit_patch_v102/part-* | base64 --decode > /tmp/v102-patch.tar.zst
+          echo "834c6953164faa6e9d46acd79d3a3678c238275823ee6d347144d0a66b0759ad  /tmp/v102-patch.tar.zst" | sha256sum --check --strict
+
+          mkdir -p /tmp/patch
+          zstd --decompress --stdout /tmp/v102-patch.tar.zst | tar -xf - -C /tmp/patch
+          cp -a /tmp/patch/v102-patch/files/. "$source_root"/
+          python - <<'PY'
+          import json
+          import shutil
+          from pathlib import Path
+
+          root = Path('/tmp/unpacked/TsaoSciComputation').resolve()
+          deleted = json.loads(Path('/tmp/patch/v102-patch/deleted.json').read_text(encoding='utf-8'))
+          for relative in deleted:
+              target = (root / relative).resolve(strict=False)
+              if target != root and root not in target.parents:
+                  raise SystemExit(f'unsafe deletion path: {relative}')
+              if target.is_dir():
+                  shutil.rmtree(target)
+              elif target.exists() or target.is_symlink():
+                  target.unlink()
+          PY
+
           test -f "$source_root/AUDIT_REPORT_2026-07-16.md"
           test "$(cat "$source_root/VERSION")" = "1.0.2"
 
@@ -70,6 +99,7 @@ jobs:
           python scripts/build_manifest.py --check
           python scripts/verify_wheel.py
           SOURCE_DATE_EPOCH=1700000000 python scripts/package_release.py --output dist/TsaoSciComputation-1.0.2
+          echo "91bd4dfa5b1863445908b958460f1340eaf6824f5741b237e7c91b413a3b530e  dist/TsaoSciComputation-1.0.2.zip" | sha256sum --check --strict
 
           rm -rf build dist .pytest_cache .mypy_cache .ruff_cache
           find . -type d -name __pycache__ -prune -exec rm -rf {} +
