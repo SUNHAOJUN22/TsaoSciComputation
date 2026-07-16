@@ -56,7 +56,7 @@ jobs:
           test -f "$source_root/SKILL.md"
           test "$(cat "$source_root/VERSION")" = "1.0.1"
 
-          patch_expected=18
+          patch_expected=10
           patch_count=$(find .audit_patch_v102 -maxdepth 1 -type f -name 'part-*' | wc -l)
           test "$patch_count" -eq "$patch_expected"
           cat .audit_patch_v102/part-* | base64 --decode > /tmp/v102-patch.tar.zst
