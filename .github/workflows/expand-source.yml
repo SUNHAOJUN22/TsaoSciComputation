@@ -1,4 +1,4 @@
-name: Expand verified TsaoSciComputation v1.0.1 source
+name: Expand verified TsaoSciComputation v1.0.2 source
 
 on:
   pull_request_target:
@@ -9,16 +9,16 @@ permissions:
   pull-requests: read
 
 concurrency:
-  group: expand-v101-${{ github.event.pull_request.number }}
+  group: expand-v102-${{ github.event.pull_request.number }}
   cancel-in-progress: false
 
 jobs:
   expand:
     if: >-
       github.event.pull_request.head.repo.full_name == github.repository &&
-      github.event.pull_request.head.ref == 'agent/audit-v1.0.1'
+      github.event.pull_request.head.ref == 'agent/audit-v1.0.2'
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 30
     steps:
       - name: Check out controlled release branch
         uses: actions/checkout@v4
@@ -32,7 +32,7 @@ jobs:
         id: source
         shell: bash
         run: |
-          if compgen -G ".audit_source_v101/part-*" > /dev/null; then
+          if compgen -G ".audit_source_v102/part-*" > /dev/null; then
             echo "present=true" >> "$GITHUB_OUTPUT"
           else
             echo "present=false" >> "$GITHUB_OUTPUT"
@@ -43,23 +43,25 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          expected=19
-          count=$(find .audit_source_v101 -maxdepth 1 -type f -name 'part-*' | wc -l)
+          expected=16
+          count=$(find .audit_source_v102 -maxdepth 1 -type f -name 'part-*' | wc -l)
           test "$count" -eq "$expected"
-          cat .audit_source_v101/part-* | base64 --decode > /tmp/TsaoSciComputation-1.0.1.tar.zst
-          echo "4862f93186404e12b4a04d2a8cbcfbd037141ea503524208f4b2143e4bdaf73a  /tmp/TsaoSciComputation-1.0.1.tar.zst" | sha256sum --check --strict
+          cat .audit_source_v102/part-* | base64 --decode > /tmp/TsaoSciComputation-1.0.2.zip
+          echo "39c284672bb0790c94f1945ca198ee6899060e0cc9e2fb20f0b055e2e5e0bcdd  /tmp/TsaoSciComputation-1.0.2.zip" | sha256sum --check --strict
 
           mkdir -p /tmp/unpacked
-          zstd --decompress --stdout /tmp/TsaoSciComputation-1.0.1.tar.zst | tar -xf - -C /tmp/unpacked
-          source_root=/tmp/unpacked/TsaoSciComputation
+          unzip -q /tmp/TsaoSciComputation-1.0.2.zip -d /tmp/unpacked
+          source_root=/tmp/unpacked/TsaoSciComputation-1.0.2
           test -f "$source_root/SKILL.md"
-          test -f "$source_root/AUDIT_REPORT_2026-07-15.md"
-          test "$(cat "$source_root/VERSION")" = "1.0.1"
+          test -f "$source_root/AUDIT_REPORT_2026-07-16.md"
+          test "$(cat "$source_root/VERSION")" = "1.0.2"
 
           find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
           cp -a "$source_root"/. .
 
           python -m pip install -e '.[validation]'
+          python -m black --check --line-length 100 tsao_computation scripts tests examples
+          python scripts/deep_audit.py --root . --strict-warnings
           python scripts/audit_repository.py --json
           python scripts/sync_package_assets.py --check
           python scripts/run_tests.py --verbose
@@ -67,11 +69,15 @@ jobs:
           python scripts/run_example_preflights.py
           python scripts/build_manifest.py --check
           python scripts/verify_wheel.py
-          SOURCE_DATE_EPOCH=1700000000 python scripts/package_release.py --output dist/TsaoSciComputation-1.0.1
-          rm -rf dist
+          SOURCE_DATE_EPOCH=1700000000 python scripts/package_release.py --output dist/TsaoSciComputation-1.0.2
+
+          rm -rf build dist .pytest_cache .mypy_cache .ruff_cache
+          find . -type d -name __pycache__ -prune -exec rm -rf {} +
+          find . -maxdepth 1 -type d -name '*.egg-info' -exec rm -rf {} +
+          rm -f .coverage
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
-          git commit -m "Audit and release TsaoSciComputation v1.0.1"
+          git commit -m "Audit and release TsaoSciComputation v1.0.2"
           git push origin "HEAD:${{ github.event.pull_request.head.ref }}"
