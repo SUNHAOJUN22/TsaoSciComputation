@@ -32,7 +32,6 @@ jobs:
           cp -a .release_source transfer-archives/
           cp -a .audit_source_v101 transfer-archives/
           cp -a .audit_patch_v102 transfer-archives/
-          find transfer-archives -type f -print0 | sort -z | xargs -0 sha256sum > transfer-archives/FILE_SHA256SUMS
           python - <<'PY'
           import json
           from pathlib import Path
@@ -41,8 +40,11 @@ jobs:
           for path in sorted(root.rglob('*')):
               if path.is_file():
                   records.append({'path': str(path.relative_to(root)), 'size_bytes': path.stat().st_size})
-          (root / 'FILE_INVENTORY.json').write_text(json.dumps(records, indent=2, sort_keys=True) + '\n')
+          Path('/tmp/FILE_INVENTORY.json').write_text(json.dumps(records, indent=2, sort_keys=True) + '\n')
           PY
+          find transfer-archives -type f -print0 | sort -z | xargs -0 sha256sum > /tmp/FILE_SHA256SUMS
+          mv /tmp/FILE_INVENTORY.json transfer-archives/FILE_INVENTORY.json
+          mv /tmp/FILE_SHA256SUMS transfer-archives/FILE_SHA256SUMS
 
       - name: Upload raw transfer archives
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08
