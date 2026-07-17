@@ -25,7 +25,7 @@ jobs:
           fetch-depth: 1
           persist-credentials: false
           show-progress: false
-      - name: Compute compact chunk statistics
+      - name: Compute exact chunk statistics
         id: stats
         shell: bash
         run: |
@@ -46,7 +46,7 @@ jobs:
               total_length += len(text)
               total_equals += equals
               invalid_total += invalid
-              records.append(f"{path.name[-3:]}m{len(text)%4}e{equals}t{trailing}i{invalid}")
+              records.append(f"{path.name[-3:]}L{len(text)}m{len(text)%4}e{equals}t{trailing}i{invalid}")
           print('summary=' + ','.join(records))
           print('total_mod=' + str(total_length % 4))
           print('total_equals=' + str(total_equals))
@@ -59,4 +59,4 @@ jobs:
     name: stats-${{ needs.inspect.outputs.summary }}-T${{ needs.inspect.outputs.total_mod }}E${{ needs.inspect.outputs.total_equals }}I${{ needs.inspect.outputs.invalid_total }}
     runs-on: ubuntu-latest
     steps:
-      - run: echo 'Encoding statistics captured in job name.'
+      - run: echo 'Exact encoding statistics captured in job name.'
