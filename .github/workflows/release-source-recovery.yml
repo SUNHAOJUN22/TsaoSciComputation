@@ -1,0 +1,135 @@
+name: Structural release source recovery
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  recover:
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'agent/audit-v1.0.2'
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [continuous-stream, independently-encoded-parts]
+    name: structural-recovery-${{ matrix.mode }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out trusted release archive
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+          show-progress: false
+
+      - name: Assemble candidate archive
+        shell: bash
+        env:
+          MODE: ${{ matrix.mode }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/recovery recovered
+          mapfile -d '' parts < <(find .release_source -maxdepth 1 -type f -name 'part-*' -print0 | sort -z)
+          test "${#parts[@]}" -eq 16
+          pad() {
+            local file=$1 rem
+            rem=$(( $(wc -c < "$file") % 4 ))
+            if [ "$rem" -ne 0 ]; then printf '%*s' $((4-rem)) '' | tr ' ' '=' >> "$file"; fi
+          }
+          if [ "$MODE" = continuous-stream ]; then
+            : > /tmp/recovery/encoded
+            for part in "${parts[@]}"; do tr -d '[:space:]' < "$part" >> /tmp/recovery/encoded; done
+            pad /tmp/recovery/encoded
+            base64 --decode /tmp/recovery/encoded > /tmp/recovery/source.tar.zst
+          else
+            : > /tmp/recovery/source.tar.zst
+            for part in "${parts[@]}"; do
+              tr -d '[:space:]' < "$part" > /tmp/recovery/one
+              pad /tmp/recovery/one
+              base64 --decode /tmp/recovery/one >> /tmp/recovery/source.tar.zst
+            done
+          fi
+          sha256sum /tmp/recovery/source.tar.zst | tee /tmp/recovery/archive.sha256
+          zstd --test /tmp/recovery/source.tar.zst
+          zstd --decompress --stdout /tmp/recovery/source.tar.zst > /tmp/recovery/source.tar
+
+      - name: Safely inspect and extract candidate
+        shell: bash
+        env:
+          MODE: ${{ matrix.mode }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import tarfile
+          from pathlib import Path, PurePosixPath
+
+          archive = Path('/tmp/recovery/source.tar')
+          out = Path('/tmp/recovery/unpacked')
+          out.mkdir(parents=True, exist_ok=True)
+          max_files = 10000
+          max_member = 100 * 1024 * 1024
+          max_total = 1024 * 1024 * 1024
+          with tarfile.open(archive, 'r:') as tf:
+              members = tf.getmembers()
+              if len(members) > max_files:
+                  raise SystemExit('too many archive members')
+              total = 0
+              for member in members:
+                  name = PurePosixPath(member.name)
+                  if not member.name or name.is_absolute() or '..' in name.parts:
+                      raise SystemExit(f'unsafe path: {member.name!r}')
+                  if member.isdev() or member.isfifo():
+                      raise SystemExit(f'unsafe special file: {member.name!r}')
+                  if member.size < 0 or member.size > max_member:
+                      raise SystemExit(f'unsafe member size: {member.name!r}')
+                  total += member.size
+                  if total > max_total:
+                      raise SystemExit('expanded size limit exceeded')
+                  if member.issym() or member.islnk():
+                      link = PurePosixPath(member.linkname)
+                      target = name.parent / link
+                      if link.is_absolute() or '..' in target.parts:
+                          raise SystemExit(f'unsafe link: {member.name!r}')
+              tf.extractall(out, members=members, filter='data')
+          roots = [p for p in out.iterdir() if p.is_dir()]
+          if len(roots) != 1:
+              raise SystemExit(f'unexpected archive roots: {[p.name for p in roots]}')
+          root = roots[0]
+          required = ['SKILL.md', 'README.md', 'README.zh-CN.md', 'VERSION', 'LICENSE', 'THIRD_PARTY.md']
+          missing = [name for name in required if not (root / name).is_file()]
+          if missing:
+              raise SystemExit(f'missing required files: {missing}')
+          version = (root / 'VERSION').read_text(encoding='utf-8').strip()
+          if version != '1.0.0':
+              raise SystemExit(f'unexpected release version: {version!r}')
+          actual = Path('/tmp/recovery/archive.sha256').read_text().split()[0]
+          manifest = {
+              'mode': '${{ matrix.mode }}',
+              'version': version,
+              'archive_sha256_actual': actual,
+              'archive_sha256_claimed': '2a479e4c1e53e00f0f7a793761b9dce7e63c119ed69b54282b94da1707031ef9',
+              'claimed_hash_matches': actual == '2a479e4c1e53e00f0f7a793761b9dce7e63c119ed69b54282b94da1707031ef9',
+              'members': len(members),
+              'expanded_bytes': total,
+              'claim_boundary': 'structural source recovery; no scientific solver execution',
+          }
+          (root / 'STRUCTURAL_RECOVERY_MANIFEST.json').write_text(json.dumps(manifest, indent=2, sort_keys=True) + '\n')
+          Path('/tmp/recovery/root.txt').write_text(str(root))
+          PY
+          root=$(cat /tmp/recovery/root.txt)
+          python -m compileall -q "$root"
+          cp -a "$root" recovered/TsaoSciComputation
+          find recovered/TsaoSciComputation -type f -print0 | sort -z | xargs -0 sha256sum > recovered/SHA256SUMS
+
+      - name: Upload structurally validated source
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08
+        with:
+          name: TsaoSciComputation-v1.0.0-structural-${{ matrix.mode }}
+          path: recovered
+          if-no-files-found: error
+          retention-days: 7
