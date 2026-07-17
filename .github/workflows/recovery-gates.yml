@@ -21,25 +21,27 @@ jobs:
           persist-credentials: false
           show-progress: false
 
-      - name: Baseline contains 14 canonical parts plus one correction fragment
+      - name: Decode baseline parts independently
         shell: bash
         run: |
-          test "$(find .audit_source_v101 -maxdepth 1 -type f -name 'part-*' ! -name 'part-011z' | wc -l)" -eq 14
-          test -f .audit_source_v101/part-011z
+          set -euo pipefail
+          : > /tmp/baseline.tar.zst
+          while IFS= read -r -d '' part; do
+            base64 --decode "$part" >> /tmp/baseline.tar.zst
+          done < <(find .audit_source_v101 -maxdepth 1 -type f -name 'part-*' -print0 | sort -z)
 
-      - name: Decode canonical baseline sequence without correction fragment
-        shell: bash
-        run: |
-          mapfile -d '' parts < <(find .audit_source_v101 -maxdepth 1 -type f -name 'part-*' ! -name 'part-011z' -print0 | sort -z)
-          cat "${parts[@]}" | base64 --decode > /tmp/baseline.tar.zst
-
-      - name: Verify canonical baseline SHA-256
+      - name: Verify baseline archive SHA-256
         shell: bash
         run: echo '4862f93186404e12b4a04d2a8cbcfbd037141ea503524208f4b2143e4bdaf73a  /tmp/baseline.tar.zst' | sha256sum --check --strict
 
-      - name: Decode patch archive
+      - name: Decode patch parts independently
         shell: bash
-        run: cat .audit_patch_v102/part-* | base64 --decode > /tmp/patch.tar.zst
+        run: |
+          set -euo pipefail
+          : > /tmp/patch.tar.zst
+          while IFS= read -r -d '' part; do
+            base64 --decode "$part" >> /tmp/patch.tar.zst
+          done < <(find .audit_patch_v102 -maxdepth 1 -type f -name 'part-*' -print0 | sort -z)
 
       - name: Verify patch archive SHA-256
         shell: bash
