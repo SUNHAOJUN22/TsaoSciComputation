@@ -1,0 +1,87 @@
+name: Export v1.0.2 transfer fragments
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  export:
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'agent/tsao-source-forensics'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      workflow_artifact_id: ${{ steps.locate.outputs.workflow_artifact_id }}
+      directories: ${{ steps.copy.outputs.directories }}
+    steps:
+      - name: Check out fixed v1.0.2 audit transfer commit
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: d0b761785305a68e8eb87f4c0853bb90265afdac
+          fetch-depth: 1
+          persist-credentials: false
+          show-progress: false
+      - name: Copy available transfer directories and inventory bytes
+        id: copy
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p v102-transfer
+          copied=()
+          for directory in .audit_patch_v102 .audit_source_v101; do
+            if [ -d "$directory" ]; then
+              cp -a "$directory" v102-transfer/
+              copied+=("$directory")
+            fi
+          done
+          test "${#copied[@]}" -gt 0
+          echo "directories=$(IFS=,; echo "${copied[*]}")" >> "$GITHUB_OUTPUT"
+          python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          root=Path('v102-transfer')
+          records=[]
+          for path in sorted(root.rglob('*')):
+              if path.is_file():
+                  data=path.read_bytes()
+                  records.append({'path':str(path.relative_to(root)),'size_bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()})
+          (root/'FILE_INVENTORY.json').write_text(json.dumps(records,indent=2,sort_keys=True)+'\n')
+          PY
+      - name: Upload hidden transfer directories
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08
+        with:
+          name: TsaoSciComputation-v102-transfer-fragments
+          path: v102-transfer
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7
+      - name: Locate v1.0.2 transfer artifact ID
+        id: locate
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3 4 5; do
+            curl --fail --silent --show-error --location -H 'Accept: application/vnd.github+json' -H "Authorization: Bearer $GH_TOKEN" -H 'X-GitHub-Api-Version: 2022-11-28' "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts?per_page=100" > /tmp/artifacts.json
+            artifact_id=$(python - <<'PY'
+          import json
+          d=json.load(open('/tmp/artifacts.json'))
+          m=[x for x in d.get('artifacts',[]) if x.get('name')=='TsaoSciComputation-v102-transfer-fragments']
+          print(m[0]['id'] if m else '')
+          PY
+            )
+            if [ -n "$artifact_id" ]; then echo "workflow_artifact_id=$artifact_id" >> "$GITHUB_OUTPUT"; exit 0; fi
+            sleep 2
+          done
+          echo 'workflow_artifact_id=' >> "$GITHUB_OUTPUT"
+  report:
+    needs: export
+    if: always()
+    name: v102-${{ needs.export.outputs.directories }}-artifact-${{ needs.export.outputs.workflow_artifact_id }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo 'v1.0.2 transfer artifact ID encoded in job name.'
