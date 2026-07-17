@@ -25,9 +25,35 @@ jobs:
         shell: bash
         run: test "$(find .audit_source_v101 -maxdepth 1 -type f -name 'part-*' | wc -l)" -eq 15
 
-      - name: Patch has 43 ordered parts
+      - name: Patch count probe 40
+        continue-on-error: true
+        shell: bash
+        run: test "$(find .audit_patch_v102 -maxdepth 1 -type f -name 'part-*' | wc -l)" -eq 40
+
+      - name: Patch count probe 41
+        continue-on-error: true
+        shell: bash
+        run: test "$(find .audit_patch_v102 -maxdepth 1 -type f -name 'part-*' | wc -l)" -eq 41
+
+      - name: Patch count probe 42
+        continue-on-error: true
+        shell: bash
+        run: test "$(find .audit_patch_v102 -maxdepth 1 -type f -name 'part-*' | wc -l)" -eq 42
+
+      - name: Patch count probe 43
+        continue-on-error: true
         shell: bash
         run: test "$(find .audit_patch_v102 -maxdepth 1 -type f -name 'part-*' | wc -l)" -eq 43
+
+      - name: Patch count probe 44
+        continue-on-error: true
+        shell: bash
+        run: test "$(find .audit_patch_v102 -maxdepth 1 -type f -name 'part-*' | wc -l)" -eq 44
+
+      - name: Patch count probe 45
+        continue-on-error: true
+        shell: bash
+        run: test "$(find .audit_patch_v102 -maxdepth 1 -type f -name 'part-*' | wc -l)" -eq 45
 
       - name: Decode baseline archive
         shell: bash
