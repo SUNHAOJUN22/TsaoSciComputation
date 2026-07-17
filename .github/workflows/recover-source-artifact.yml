@@ -1,0 +1,143 @@
+name: Recover audited source artifact
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: recover-source-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  recover:
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'agent/audit-v1.0.2'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out pull request source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 1
+
+      - name: Verify fixed source archives
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(find .audit_source_v101 -maxdepth 1 -type f -name 'part-*' | wc -l)" -eq 19
+          test "$(find .audit_patch_v102 -maxdepth 1 -type f -name 'part-*' | wc -l)" -eq 43
+          cat .audit_source_v101/part-* | base64 --decode > /tmp/TsaoSciComputation-1.0.1.tar.zst
+          echo '4862f93186404e12b4a04d2a8cbcfbd037141ea503524208f4b2143e4bdaf73a  /tmp/TsaoSciComputation-1.0.1.tar.zst' | sha256sum --check --strict
+          cat .audit_patch_v102/part-* | base64 --decode > /tmp/v102-patch.tar.zst
+          echo '7db7cc18b55077a605009d9b16a65d21c19e37e539eb6c567577eb4fdebac63a  /tmp/v102-patch.tar.zst' | sha256sum --check --strict
+          zstd --decompress --stdout /tmp/TsaoSciComputation-1.0.1.tar.zst > /tmp/baseline.tar
+          zstd --decompress --stdout /tmp/v102-patch.tar.zst > /tmp/patch.tar
+
+      - name: Safely assemble v1.0.2 source
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import shutil
+          import tarfile
+          from pathlib import Path, PurePosixPath
+
+          LIMIT_FILES = 10000
+          LIMIT_MEMBER = 100 * 1024 * 1024
+          LIMIT_TOTAL = 1024 * 1024 * 1024
+
+          def check(member):
+              name = PurePosixPath(member.name)
+              if not member.name or name.is_absolute() or '..' in name.parts:
+                  raise SystemExit(f'unsafe archive path: {member.name!r}')
+              if member.isdev() or member.isfifo():
+                  raise SystemExit(f'unsafe special file: {member.name!r}')
+              if member.size < 0 or member.size > LIMIT_MEMBER:
+                  raise SystemExit(f'unsafe member size: {member.name!r}')
+              if member.issym() or member.islnk():
+                  link = PurePosixPath(member.linkname)
+                  target = name.parent / link
+                  if link.is_absolute() or '..' in target.parts:
+                      raise SystemExit(f'unsafe archive link: {member.name!r} -> {member.linkname!r}')
+
+          def extract(archive, target):
+              target.mkdir(parents=True, exist_ok=True)
+              with tarfile.open(archive, 'r:') as tf:
+                  members = tf.getmembers()
+                  if len(members) > LIMIT_FILES:
+                      raise SystemExit('archive member limit exceeded')
+                  total = 0
+                  for member in members:
+                      check(member)
+                      total += member.size
+                      if total > LIMIT_TOTAL:
+                          raise SystemExit('archive expansion limit exceeded')
+                  tf.extractall(target, members=members, filter='data')
+              return {'members': len(members), 'expanded_bytes': total}
+
+          unpacked = Path('/tmp/unpacked')
+          patch_root = Path('/tmp/patch')
+          baseline_stats = extract(Path('/tmp/baseline.tar'), unpacked)
+          patch_stats = extract(Path('/tmp/patch.tar'), patch_root)
+          root = (unpacked / 'TsaoSciComputation').resolve()
+          if not (root / 'SKILL.md').is_file():
+              raise SystemExit('baseline root missing SKILL.md')
+          if (root / 'VERSION').read_text(encoding='utf-8').strip() != '1.0.1':
+              raise SystemExit('unexpected baseline version')
+
+          files_root = patch_root / 'v102-patch' / 'files'
+          for source in sorted(files_root.rglob('*')):
+              relative = source.relative_to(files_root)
+              destination = (root / relative).resolve(strict=False)
+              if destination != root and root not in destination.parents:
+                  raise SystemExit(f'unsafe patch target: {relative}')
+              if source.is_symlink():
+                  raise SystemExit(f'patch symlink rejected: {relative}')
+              if source.is_dir():
+                  destination.mkdir(parents=True, exist_ok=True)
+              elif source.is_file():
+                  destination.parent.mkdir(parents=True, exist_ok=True)
+                  shutil.copy2(source, destination)
+
+          deleted = json.loads((patch_root / 'v102-patch' / 'deleted.json').read_text(encoding='utf-8'))
+          for relative in deleted:
+              destination = (root / relative).resolve(strict=False)
+              if destination == root or root not in destination.parents:
+                  raise SystemExit(f'unsafe deletion: {relative}')
+              if destination.is_symlink() or destination.is_file():
+                  destination.unlink()
+              elif destination.is_dir():
+                  shutil.rmtree(destination)
+
+          required = ['SKILL.md', 'README.md', 'README.zh-CN.md', 'VERSION', 'LICENSE', 'THIRD_PARTY.md', 'pyproject.toml']
+          missing = [name for name in required if not (root / name).is_file()]
+          if missing:
+              raise SystemExit(f'missing required files: {missing}')
+          if (root / 'VERSION').read_text(encoding='utf-8').strip() != '1.0.2':
+              raise SystemExit('unexpected recovered version')
+
+          evidence = {
+              'baseline_sha256': '4862f93186404e12b4a04d2a8cbcfbd037141ea503524208f4b2143e4bdaf73a',
+              'patch_sha256': '7db7cc18b55077a605009d9b16a65d21c19e37e539eb6c567577eb4fdebac63a',
+              'baseline': baseline_stats,
+              'patch': patch_stats,
+              'version': '1.0.2',
+              'claim_boundary': 'static source recovery only; no third-party scientific solver execution',
+          }
+          (root / 'SOURCE_RECOVERY_MANIFEST.json').write_text(json.dumps(evidence, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+          PY
+          python -m compileall -q /tmp/unpacked/TsaoSciComputation/tsao_computation /tmp/unpacked/TsaoSciComputation/scripts /tmp/unpacked/TsaoSciComputation/tests /tmp/unpacked/TsaoSciComputation/examples
+          mkdir -p recovered
+          cp -a /tmp/unpacked/TsaoSciComputation recovered/
+          find recovered/TsaoSciComputation -type f -print0 | sort -z | xargs -0 sha256sum > recovered/SHA256SUMS
+
+      - name: Upload recovered ordinary source tree
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08
+        with:
+          name: TsaoSciComputation-v1.0.2-recovered-source
+          path: recovered
+          if-no-files-found: error
+          retention-days: 7
