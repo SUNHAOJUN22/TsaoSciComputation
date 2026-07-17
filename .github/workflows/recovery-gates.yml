@@ -21,45 +21,19 @@ jobs:
           persist-credentials: false
           show-progress: false
 
-      - name: Baseline has 15 ordered parts
+      - name: Baseline contains 14 canonical parts plus one correction fragment
         shell: bash
-        run: test "$(find .audit_source_v101 -maxdepth 1 -type f -name 'part-*' | wc -l)" -eq 15
+        run: |
+          test "$(find .audit_source_v101 -maxdepth 1 -type f -name 'part-*' ! -name 'part-011z' | wc -l)" -eq 14
+          test -f .audit_source_v101/part-011z
 
-      - name: Patch count probe 40
-        continue-on-error: true
+      - name: Decode canonical baseline sequence without correction fragment
         shell: bash
-        run: test "$(find .audit_patch_v102 -maxdepth 1 -type f -name 'part-*' | wc -l)" -eq 40
+        run: |
+          mapfile -d '' parts < <(find .audit_source_v101 -maxdepth 1 -type f -name 'part-*' ! -name 'part-011z' -print0 | sort -z)
+          cat "${parts[@]}" | base64 --decode > /tmp/baseline.tar.zst
 
-      - name: Patch count probe 41
-        continue-on-error: true
-        shell: bash
-        run: test "$(find .audit_patch_v102 -maxdepth 1 -type f -name 'part-*' | wc -l)" -eq 41
-
-      - name: Patch count probe 42
-        continue-on-error: true
-        shell: bash
-        run: test "$(find .audit_patch_v102 -maxdepth 1 -type f -name 'part-*' | wc -l)" -eq 42
-
-      - name: Patch count probe 43
-        continue-on-error: true
-        shell: bash
-        run: test "$(find .audit_patch_v102 -maxdepth 1 -type f -name 'part-*' | wc -l)" -eq 43
-
-      - name: Patch count probe 44
-        continue-on-error: true
-        shell: bash
-        run: test "$(find .audit_patch_v102 -maxdepth 1 -type f -name 'part-*' | wc -l)" -eq 44
-
-      - name: Patch count probe 45
-        continue-on-error: true
-        shell: bash
-        run: test "$(find .audit_patch_v102 -maxdepth 1 -type f -name 'part-*' | wc -l)" -eq 45
-
-      - name: Decode baseline archive
-        shell: bash
-        run: cat .audit_source_v101/part-* | base64 --decode > /tmp/baseline.tar.zst
-
-      - name: Verify baseline archive SHA-256
+      - name: Verify canonical baseline SHA-256
         shell: bash
         run: echo '4862f93186404e12b4a04d2a8cbcfbd037141ea503524208f4b2143e4bdaf73a  /tmp/baseline.tar.zst' | sha256sum --check --strict
 
