@@ -54,11 +54,12 @@ jobs:
           mv /tmp/FILE_INVENTORY.json transfer-archives/FILE_INVENTORY.json
           mv /tmp/FILE_SHA256SUMS transfer-archives/FILE_SHA256SUMS
 
-      - name: Upload raw transfer archives
+      - name: Upload raw transfer archives including dot directories
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08
         with:
           name: TsaoSciComputation-raw-transfer-archives
           path: transfer-archives
+          include-hidden-files: true
           if-no-files-found: error
           retention-days: 7
 
