@@ -1,0 +1,168 @@
+name: Zstandard prefix repair for part 002
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'agent/audit-v1.0.2'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    outputs:
+      summary: ${{ steps.repair.outputs.summary }}
+      best_character: ${{ steps.repair.outputs.best_character }}
+    steps:
+      - name: Check out trusted release chunks
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+          show-progress: false
+
+      - name: Score all 64 end-character candidates
+        id: repair
+        shell: bash
+        run: |
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import base64
+          import ctypes
+          import ctypes.util
+          import json
+          from pathlib import Path
+
+          ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+
+          class InBuffer(ctypes.Structure):
+              _fields_ = [('src', ctypes.c_void_p), ('size', ctypes.c_size_t), ('pos', ctypes.c_size_t)]
+
+          class OutBuffer(ctypes.Structure):
+              _fields_ = [('dst', ctypes.c_void_p), ('size', ctypes.c_size_t), ('pos', ctypes.c_size_t)]
+
+          lib = ctypes.CDLL(ctypes.util.find_library('zstd'))
+          lib.ZSTD_createDStream.restype = ctypes.c_void_p
+          lib.ZSTD_freeDStream.argtypes = [ctypes.c_void_p]
+          lib.ZSTD_initDStream.argtypes = [ctypes.c_void_p]
+          lib.ZSTD_initDStream.restype = ctypes.c_size_t
+          lib.ZSTD_decompressStream.argtypes = [ctypes.c_void_p, ctypes.POINTER(OutBuffer), ctypes.POINTER(InBuffer)]
+          lib.ZSTD_decompressStream.restype = ctypes.c_size_t
+          lib.ZSTD_isError.argtypes = [ctypes.c_size_t]
+          lib.ZSTD_isError.restype = ctypes.c_uint
+
+          texts = {
+              path.name: ''.join(path.read_text(encoding='ascii').split())
+              for path in sorted(Path('.release_source').glob('part-*'))
+          }
+
+          def decode(text: str) -> bytes:
+              remainder = len(text) % 4
+              if remainder == 1:
+                  raise ValueError('invalid Base64 length')
+              return base64.b64decode(text + '=' * ((4 - remainder) % 4), validate=True)
+
+          prefix = decode(texts['part-000']) + decode(texts['part-001'])
+          middle = b''.join(decode(texts[f'part-{index:03d}']) for index in range(3, 13))
+
+          def decompress_prefix(data: bytes):
+              stream = lib.ZSTD_createDStream()
+              if not stream:
+                  raise RuntimeError('ZSTD_createDStream failed')
+              try:
+                  init = lib.ZSTD_initDStream(stream)
+                  if lib.ZSTD_isError(init):
+                      raise RuntimeError('ZSTD_initDStream failed')
+                  src = ctypes.create_string_buffer(data)
+                  inbuf = InBuffer(ctypes.cast(src, ctypes.c_void_p), len(data), 0)
+                  chunks = []
+                  total = 0
+                  while inbuf.pos < inbuf.size:
+                      dst = ctypes.create_string_buffer(131072)
+                      outbuf = OutBuffer(ctypes.cast(dst, ctypes.c_void_p), len(dst), 0)
+                      before = inbuf.pos
+                      result = lib.ZSTD_decompressStream(stream, ctypes.byref(outbuf), ctypes.byref(inbuf))
+                      if outbuf.pos:
+                          chunks.append(dst.raw[:outbuf.pos])
+                          total += outbuf.pos
+                      if lib.ZSTD_isError(result):
+                          return False, int(inbuf.pos), total, b''.join(chunks)
+                      if inbuf.pos == before and outbuf.pos == 0:
+                          return False, int(inbuf.pos), total, b''.join(chunks)
+                  return True, int(inbuf.pos), total, b''.join(chunks)
+              finally:
+                  lib.ZSTD_freeDStream(stream)
+
+          def tar_score(data: bytes):
+              offset = 0
+              headers = 0
+              while offset + 512 <= len(data):
+                  block = data[offset:offset + 512]
+                  if block == b'\0' * 512:
+                      return headers, offset + 512
+                  field = block[148:156]
+                  try:
+                      expected = int(field.rstrip(b'\0 ').strip() or b'0', 8)
+                  except ValueError:
+                      break
+                  checksum = sum(block[:148]) + (32 * 8) + sum(block[156:])
+                  if checksum != expected:
+                      break
+                  raw_size = block[124:136].rstrip(b'\0 ').strip() or b'0'
+                  try:
+                      size = int(raw_size, 8)
+                  except ValueError:
+                      break
+                  next_offset = offset + 512 + ((size + 511) // 512) * 512
+                  if next_offset > len(data):
+                      return headers + 1, offset + 512
+                  headers += 1
+                  offset = next_offset
+              return headers, offset
+
+          records = []
+          for char in ALPHABET:
+              repaired = decode(texts['part-002'] + char)
+              valid, consumed, output_size, output = decompress_prefix(prefix + repaired + middle)
+              headers, tar_bytes = tar_score(output)
+              records.append({
+                  'character': char,
+                  'stream_valid': valid,
+                  'input_consumed': consumed,
+                  'output_size': output_size,
+                  'tar_headers': headers,
+                  'tar_bytes': tar_bytes,
+              })
+
+          records.sort(key=lambda item: (
+              item['stream_valid'], item['tar_headers'], item['tar_bytes'], item['output_size'], item['input_consumed']
+          ), reverse=True)
+          best_score = tuple(records[0][key] for key in ('stream_valid', 'tar_headers', 'tar_bytes', 'output_size', 'input_consumed'))
+          best = [item for item in records if tuple(item[key] for key in ('stream_valid', 'tar_headers', 'tar_bytes', 'output_size', 'input_consumed')) == best_score]
+          compact = ';'.join(
+              f"{item['character']}_{int(item['stream_valid'])}_{item['tar_headers']}_{item['tar_bytes']}_{item['output_size']}_{item['input_consumed']}"
+              for item in best[:8]
+          )
+          summary = f"N{len(best)}-{compact}"
+          print('summary=' + summary)
+          print('best_character=' + (best[0]['character'] if len(best) == 1 else ''))
+          Path('/tmp/part002-analysis.json').write_text(json.dumps({'best': best, 'all': records}, indent=2, sort_keys=True) + '\n')
+          PY
+
+      - name: Upload part 002 forensic analysis
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08
+        with:
+          name: TsaoSciComputation-part002-forensics
+          path: /tmp/part002-analysis.json
+          if-no-files-found: error
+          retention-days: 7
+
+  report:
+    needs: analyze
+    if: always()
+    name: part002-${{ needs.analyze.outputs.summary }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo 'Part 002 repair score encoded in job name.'
