@@ -1,0 +1,46 @@
+name: Source recovery integrity gates
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  gates:
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'agent/audit-v1.0.2'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out trusted base archives
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+          show-progress: false
+
+      - name: Baseline has 19 ordered parts
+        shell: bash
+        run: test "$(find .audit_source_v101 -maxdepth 1 -type f -name 'part-*' | wc -l)" -eq 19
+
+      - name: Patch has 43 ordered parts
+        shell: bash
+        run: test "$(find .audit_patch_v102 -maxdepth 1 -type f -name 'part-*' | wc -l)" -eq 43
+
+      - name: Decode baseline archive
+        shell: bash
+        run: cat .audit_source_v101/part-* | base64 --decode > /tmp/baseline.tar.zst
+
+      - name: Verify baseline archive SHA-256
+        shell: bash
+        run: echo '4862f93186404e12b4a04d2a8cbcfbd037141ea503524208f4b2143e4bdaf73a  /tmp/baseline.tar.zst' | sha256sum --check --strict
+
+      - name: Decode patch archive
+        shell: bash
+        run: cat .audit_patch_v102/part-* | base64 --decode > /tmp/patch.tar.zst
+
+      - name: Verify patch archive SHA-256
+        shell: bash
+        run: echo '7db7cc18b55077a605009d9b16a65d21c19e37e539eb6c567577eb4fdebac63a  /tmp/patch.tar.zst' | sha256sum --check --strict
