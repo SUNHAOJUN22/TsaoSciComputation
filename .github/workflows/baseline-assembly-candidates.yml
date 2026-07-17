@@ -1,0 +1,105 @@
+name: Baseline assembly candidates
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  candidate:
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'agent/audit-v1.0.2'
+    strategy:
+      fail-fast: false
+      matrix:
+        mode:
+          - stream-no-correction
+          - stream-all-lexical
+          - stream-correction-replaces-011
+          - stream-correction-last
+          - per-part-all-lexical
+          - per-part-no-correction
+          - per-part-correction-replaces-011
+    name: baseline-${{ matrix.mode }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out trusted base archives
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+          show-progress: false
+
+      - name: Assemble candidate and verify SHA-256
+        shell: bash
+        env:
+          MODE: ${{ matrix.mode }}
+        run: |
+          set -euo pipefail
+          expected=4862f93186404e12b4a04d2a8cbcfbd037141ea503524208f4b2143e4bdaf73a
+          work=/tmp/baseline-candidate
+          mkdir -p "$work"
+
+          canonical_parts() {
+            find .audit_source_v101 -maxdepth 1 -type f -name 'part-*' ! -name 'part-011z' -print0 | sort -z
+          }
+          all_parts() {
+            find .audit_source_v101 -maxdepth 1 -type f -name 'part-*' -print0 | sort -z
+          }
+          replacement_parts() {
+            printf '%s\0' \
+              .audit_source_v101/part-000 .audit_source_v101/part-001 \
+              .audit_source_v101/part-002 .audit_source_v101/part-003 \
+              .audit_source_v101/part-004 .audit_source_v101/part-005 \
+              .audit_source_v101/part-006 .audit_source_v101/part-007 \
+              .audit_source_v101/part-008 .audit_source_v101/part-009 \
+              .audit_source_v101/part-010 .audit_source_v101/part-011z \
+              .audit_source_v101/part-012 .audit_source_v101/part-013
+          }
+          correction_last_parts() {
+            canonical_parts
+            printf '%s\0' .audit_source_v101/part-011z
+          }
+          pad_stream() {
+            local file=$1 rem
+            rem=$(( $(wc -c < "$file") % 4 ))
+            if [ "$rem" -ne 0 ]; then
+              printf '%*s' $((4-rem)) '' | tr ' ' '=' >> "$file"
+            fi
+          }
+          decode_stream() {
+            local listing=$1
+            : > "$work/encoded"
+            while IFS= read -r -d '' part; do
+              tr -d '[:space:]' < "$part" >> "$work/encoded"
+            done < <($listing)
+            pad_stream "$work/encoded"
+            base64 --decode "$work/encoded" > "$work/archive"
+          }
+          decode_parts() {
+            local listing=$1
+            : > "$work/archive"
+            while IFS= read -r -d '' part; do
+              tr -d '[:space:]' < "$part" > "$work/one"
+              pad_stream "$work/one"
+              base64 --decode "$work/one" >> "$work/archive"
+            done < <($listing)
+          }
+
+          case "$MODE" in
+            stream-no-correction) decode_stream canonical_parts ;;
+            stream-all-lexical) decode_stream all_parts ;;
+            stream-correction-replaces-011) decode_stream replacement_parts ;;
+            stream-correction-last) decode_stream correction_last_parts ;;
+            per-part-all-lexical) decode_parts all_parts ;;
+            per-part-no-correction) decode_parts canonical_parts ;;
+            per-part-correction-replaces-011) decode_parts replacement_parts ;;
+            *) exit 2 ;;
+          esac
+
+          actual=$(sha256sum "$work/archive" | cut -d' ' -f1)
+          echo "mode=$MODE actual=$actual expected=$expected bytes=$(wc -c < "$work/archive")"
+          test "$actual" = "$expected"
