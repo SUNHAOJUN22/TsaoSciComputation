@@ -21,7 +21,7 @@ jobs:
           persist-credentials: false
           show-progress: false
 
-      - name: Repair two provably truncated Base64 chunks against release digest
+      - name: Repair three truncated Base64 chunks against release digest
         shell: bash
         run: |
           set -euo pipefail
@@ -29,7 +29,6 @@ jobs:
           python - <<'PY'
           import base64
           import hashlib
-          import itertools
           import json
           from pathlib import Path
 
@@ -38,68 +37,105 @@ jobs:
           paths = sorted(Path('.release_source').glob('part-*'))
           if len(paths) != 16:
               raise SystemExit(f'expected 16 release parts, found {len(paths)}')
-          texts = {p.name: ''.join(p.read_text(encoding='ascii').split()) for p in paths}
-
+          texts = {path.name: ''.join(path.read_text(encoding='ascii').split()) for path in paths}
+          valid_chars = set(alphabet + '=')
           for name, text in texts.items():
-              invalid = set(text) - set(alphabet + '=')
+              invalid = set(text) - valid_chars
               if invalid:
                   raise SystemExit(f'{name} contains invalid Base64 characters: {sorted(invalid)}')
 
-          damaged = ['part-013', 'part-014']
-          for name in damaged:
+          if len(texts['part-002']) != 11999 or len(texts['part-002']) % 4 != 3 or '=' in texts['part-002']:
+              raise SystemExit('part-002 no longer matches the measured one-character truncation signature')
+          for name in ('part-013', 'part-014'):
               text = texts[name]
               if len(text) % 4 != 3 or not text.endswith('=='):
-                  raise SystemExit(f'{name} does not match the proven one-character truncation signature')
+                  raise SystemExit(f'{name} no longer matches the measured one-character truncation signature')
 
-          def decode_normal(name: str, text: str) -> bytes:
+          damaged = {'part-002', 'part-013', 'part-014'}
+
+          def decode_complete(name: str, text: str) -> bytes:
               if name in damaged:
-                  raise AssertionError('damaged part must be repaired first')
+                  raise AssertionError('damaged part requires a candidate character')
               remainder = len(text) % 4
               if remainder == 1:
-                  raise SystemExit(f'{name} has unrecoverable Base64 length modulo 4 = 1')
+                  raise SystemExit(f'{name} has invalid Base64 length modulo 4 = 1')
               padded = text + ('=' * ((4 - remainder) % 4))
               return base64.b64decode(padded, validate=True)
 
-          fixed = {name: decode_normal(name, text) for name, text in texts.items() if name not in damaged}
-          candidates = {}
-          for name in damaged:
-              prefix = texts[name][:-2]
-              candidates[name] = {
-                  char: base64.b64decode(prefix + char + '==', validate=True)
+          fixed = {name: decode_complete(name, text) for name, text in texts.items() if name not in damaged}
+          candidates = {
+              'part-002': {
+                  char: base64.b64decode(texts['part-002'] + char, validate=True)
                   for char in alphabet
-              }
+              },
+              'part-013': {
+                  char: base64.b64decode(texts['part-013'][:-2] + char + '==', validate=True)
+                  for char in alphabet
+              },
+              'part-014': {
+                  char: base64.b64decode(texts['part-014'][:-2] + char + '==', validate=True)
+                  for char in alphabet
+              },
+          }
 
-          ordered_names = [p.name for p in paths]
-          solution = None
-          for first, second in itertools.product(alphabet, repeat=2):
-              chunks = []
-              for name in ordered_names:
-                  if name == 'part-013':
-                      chunks.append(candidates[name][first])
-                  elif name == 'part-014':
-                      chunks.append(candidates[name][second])
-                  else:
-                      chunks.append(fixed[name])
-              archive = b''.join(chunks)
-              digest = hashlib.sha256(archive).hexdigest()
-              if digest == expected:
-                  if solution is not None:
-                      raise SystemExit('digest repair is not unique')
-                  solution = (first, second, archive)
+          prefix = hashlib.sha256()
+          prefix.update(fixed['part-000'])
+          prefix.update(fixed['part-001'])
+          middle = b''.join(fixed[f'part-{index:03d}'] for index in range(3, 13))
+          suffix = fixed['part-015']
 
-          if solution is None:
-              raise SystemExit('no two-character repair matches the published release SHA-256')
+          solutions = []
+          for char_002 in alphabet:
+              after_002 = prefix.copy()
+              after_002.update(candidates['part-002'][char_002])
+              after_002.update(middle)
+              for char_013 in alphabet:
+                  after_013 = after_002.copy()
+                  after_013.update(candidates['part-013'][char_013])
+                  for char_014 in alphabet:
+                      final = after_013.copy()
+                      final.update(candidates['part-014'][char_014])
+                      final.update(suffix)
+                      if final.hexdigest() == expected:
+                          solutions.append((char_002, char_013, char_014))
 
-          first, second, archive = solution
+          if not solutions:
+              raise SystemExit('no three-character repair matches the published release SHA-256')
+          if len(solutions) != 1:
+              raise SystemExit(f'digest repair is not unique: {solutions!r}')
+
+          char_002, char_013, char_014 = solutions[0]
+          ordered_names = [path.name for path in paths]
+          chunks = []
+          for name in ordered_names:
+              if name == 'part-002':
+                  chunks.append(candidates[name][char_002])
+              elif name == 'part-013':
+                  chunks.append(candidates[name][char_013])
+              elif name == 'part-014':
+                  chunks.append(candidates[name][char_014])
+              else:
+                  chunks.append(fixed[name])
+          archive = b''.join(chunks)
+          actual = hashlib.sha256(archive).hexdigest()
+          if actual != expected:
+              raise SystemExit('internal repair verification failed')
+
           output = Path('/tmp/repair/TsaoSciComputation-v1.0.0.tar.zst')
           output.write_bytes(archive)
           evidence = {
               'expected_sha256': expected,
-              'actual_sha256': hashlib.sha256(archive).hexdigest(),
+              'actual_sha256': actual,
               'repair_is_unique': True,
-              'repair_space_checked': 64 ** 2,
-              'part-013_missing_base64_character': first,
-              'part-014_missing_base64_character': second,
+              'repair_space_checked': 64 ** 3,
+              'part-002_missing_base64_character': char_002,
+              'part-013_missing_base64_character': char_013,
+              'part-014_missing_base64_character': char_014,
+              'repair_positions': {
+                  'part-002': 'appended at truncated chunk boundary',
+                  'part-013': 'inserted immediately before trailing ==',
+                  'part-014': 'inserted immediately before trailing ==',
+              },
               'unchanged_parts': [name for name in ordered_names if name not in damaged],
               'claim_boundary': 'byte-exact archive recovery by published digest; no scientific solver execution',
           }
