@@ -1,0 +1,85 @@
+name: Transfer history forensics
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  history:
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'agent/tsao-source-forensics'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    outputs:
+      workflow_artifact_id: ${{ steps.locate.outputs.workflow_artifact_id }}
+    steps:
+      - name: Check out full trusted history
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+          show-progress: false
+      - name: Fetch all branch refs read-only
+        shell: bash
+        run: git fetch --no-tags origin '+refs/heads/*:refs/remotes/origin/*'
+      - name: Build transfer history evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p history-evidence
+          git log --all --reverse --date=iso-strict --format='COMMIT %H%nPARENTS %P%nAUTHOR %an <%ae>%nDATE %ad%nSUBJECT %s' --name-status -- .release_source > history-evidence/release-source-history.txt
+          git log --all --reverse --date=iso-strict --format='COMMIT %H%nPARENTS %P%nAUTHOR %an <%ae>%nDATE %ad%nSUBJECT %s' --name-status -- .audit_source_v101 > history-evidence/audit-source-v101-history.txt
+          git log --all --reverse --date=iso-strict --format='COMMIT %H%nPARENTS %P%nAUTHOR %an <%ae>%nDATE %ad%nSUBJECT %s' --name-status -- .audit_patch_v102 > history-evidence/audit-patch-v102-history.txt
+          python - <<'PY'
+          import json, subprocess
+          from pathlib import Path
+          dirs=['.release_source','.audit_source_v101','.audit_patch_v102']
+          out={}
+          for directory in dirs:
+              revs=subprocess.run(['git','rev-list','--all','--',directory],check=True,text=True,capture_output=True).stdout.split()
+              entries=[]
+              for rev in reversed(revs):
+                  subject=subprocess.run(['git','show','-s','--format=%s',rev],check=True,text=True,capture_output=True).stdout.strip()
+                  tree=subprocess.run(['git','ls-tree','-r','-l',rev,'--',directory],check=True,text=True,capture_output=True).stdout.splitlines()
+                  entries.append({'commit':rev,'subject':subject,'tree':tree})
+              out[directory]=entries
+          Path('history-evidence/history.json').write_text(json.dumps(out,indent=2,sort_keys=True)+'\n')
+          PY
+      - name: Upload transfer history
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08
+        with:
+          name: TsaoSciComputation-transfer-history
+          path: history-evidence
+          if-no-files-found: error
+          retention-days: 7
+      - name: Locate history artifact ID
+        id: locate
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3 4 5; do
+            curl --fail --silent --show-error --location -H 'Accept: application/vnd.github+json' -H "Authorization: Bearer $GH_TOKEN" -H 'X-GitHub-Api-Version: 2022-11-28' "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts?per_page=100" > /tmp/artifacts.json
+            artifact_id=$(python - <<'PY'
+          import json
+          d=json.load(open('/tmp/artifacts.json'))
+          m=[x for x in d.get('artifacts',[]) if x.get('name')=='TsaoSciComputation-transfer-history']
+          print(m[0]['id'] if m else '')
+          PY
+            )
+            if [ -n "$artifact_id" ]; then echo "workflow_artifact_id=$artifact_id" >> "$GITHUB_OUTPUT"; exit 0; fi
+            sleep 2
+          done
+          echo 'workflow_artifact_id=' >> "$GITHUB_OUTPUT"
+  report:
+    needs: history
+    if: always()
+    name: transfer-history-artifact-${{ needs.history.outputs.workflow_artifact_id }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo 'History artifact ID encoded in job name.'
