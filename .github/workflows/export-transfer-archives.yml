@@ -15,6 +15,7 @@ jobs:
     timeout-minutes: 10
     outputs:
       workflow_artifact_id: ${{ steps.locate.outputs.workflow_artifact_id }}
+      exported_directories: ${{ steps.inventory.outputs.exported_directories }}
     steps:
       - name: Check out trusted base archive bytes
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
@@ -25,13 +26,20 @@ jobs:
           show-progress: false
 
       - name: Build byte inventory
+        id: inventory
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p transfer-archives
-          cp -a .release_source transfer-archives/
-          cp -a .audit_source_v101 transfer-archives/
-          cp -a .audit_patch_v102 transfer-archives/
+          exported=()
+          for directory in .release_source .audit_source_v101 .audit_patch_v102; do
+            if [ -d "$directory" ]; then
+              cp -a "$directory" transfer-archives/
+              exported+=("$directory")
+            fi
+          done
+          test "${#exported[@]}" -gt 0
+          printf 'exported_directories=%s\n' "$(IFS=,; echo "${exported[*]}")" >> "$GITHUB_OUTPUT"
           python - <<'PY'
           import json
           from pathlib import Path
@@ -87,7 +95,7 @@ jobs:
   report:
     needs: export
     if: always()
-    name: raw-transfer-artifact-${{ needs.export.outputs.workflow_artifact_id }}
+    name: raw-transfer-${{ needs.export.outputs.exported_directories }}-artifact-${{ needs.export.outputs.workflow_artifact_id }}
     runs-on: ubuntu-latest
     steps:
       - run: echo 'Raw transfer artifact ID encoded in job name.'
