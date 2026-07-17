@@ -1,0 +1,214 @@
+name: One-shot safe source recovery v2.1
+
+on:
+  push:
+    branches:
+      - agent/tsao-v2.1-recovery
+    paths:
+      - .github/workflows/recover-source-v21.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: tsao-v21-source-recovery
+  cancel-in-progress: false
+
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Clone exact recovery branch
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone --no-tags --depth 1 --branch "$GITHUB_REF_NAME" \
+            "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" repo
+
+      - name: Verify, safely extract, statically audit and stage source
+        working-directory: repo
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          baseline_expected=19
+          patch_expected=43
+          baseline_count=$(find .audit_source_v101 -maxdepth 1 -type f -name 'part-*' | wc -l | tr -d ' ')
+          patch_count=$(find .audit_patch_v102 -maxdepth 1 -type f -name 'part-*' | wc -l | tr -d ' ')
+          test "$baseline_count" -eq "$baseline_expected"
+          test "$patch_count" -eq "$patch_expected"
+          test -n "$(find .audit_source_v101 -maxdepth 1 -type f -name 'part-*' -size +0c -print -quit)"
+          test -n "$(find .audit_patch_v102 -maxdepth 1 -type f -name 'part-*' -size +0c -print -quit)"
+
+          cat .audit_source_v101/part-* | base64 --decode > /tmp/TsaoSciComputation-1.0.1.tar.zst
+          echo '4862f93186404e12b4a04d2a8cbcfbd037141ea503524208f4b2143e4bdaf73a  /tmp/TsaoSciComputation-1.0.1.tar.zst' | sha256sum --check --strict
+          cat .audit_patch_v102/part-* | base64 --decode > /tmp/v102-patch.tar.zst
+          echo '7db7cc18b55077a605009d9b16a65d21c19e37e539eb6c567577eb4fdebac63a  /tmp/v102-patch.tar.zst' | sha256sum --check --strict
+
+          zstd --decompress --stdout /tmp/TsaoSciComputation-1.0.1.tar.zst > /tmp/baseline.tar
+          zstd --decompress --stdout /tmp/v102-patch.tar.zst > /tmp/patch.tar
+
+          python - <<'PY'
+          from __future__ import annotations
+
+          import json
+          import os
+          import shutil
+          import tarfile
+          from pathlib import Path, PurePosixPath
+
+          MAX_MEMBER = 128 * 1024 * 1024
+          MAX_TOTAL = 768 * 1024 * 1024
+
+          def validate_and_extract(archive: Path, destination: Path) -> None:
+              destination.mkdir(parents=True, exist_ok=True)
+              total = 0
+              with tarfile.open(archive, mode='r:') as tf:
+                  members = tf.getmembers()
+                  for member in members:
+                      name = PurePosixPath(member.name)
+                      if name.is_absolute() or '..' in name.parts:
+                          raise SystemExit(f'unsafe archive path: {member.name!r}')
+                      if member.isdev() or member.isfifo():
+                          raise SystemExit(f'unsafe archive member type: {member.name!r}')
+                      if member.size < 0 or member.size > MAX_MEMBER:
+                          raise SystemExit(f'archive member too large: {member.name!r} ({member.size})')
+                      total += member.size
+                      if total > MAX_TOTAL:
+                          raise SystemExit(f'archive expands beyond {MAX_TOTAL} bytes')
+                      if member.issym() or member.islnk():
+                          link = PurePosixPath(member.linkname)
+                          if link.is_absolute() or '..' in link.parts:
+                              raise SystemExit(
+                                  f'unsafe archive link: {member.name!r} -> {member.linkname!r}'
+                              )
+                  tf.extractall(destination, members=members, filter='data')
+
+          baseline = Path('/tmp/unpacked')
+          patch = Path('/tmp/patch')
+          validate_and_extract(Path('/tmp/baseline.tar'), baseline)
+          validate_and_extract(Path('/tmp/patch.tar'), patch)
+
+          source_root = (baseline / 'TsaoSciComputation').resolve()
+          if not source_root.is_dir():
+              raise SystemExit('baseline source root missing')
+          if (source_root / 'VERSION').read_text(encoding='utf-8').strip() != '1.0.1':
+              raise SystemExit('unexpected baseline version')
+
+          patch_files = (patch / 'v102-patch' / 'files').resolve()
+          if not patch_files.is_dir():
+              raise SystemExit('patch files directory missing')
+          for src in sorted(patch_files.rglob('*')):
+              rel = src.relative_to(patch_files)
+              dst = (source_root / rel).resolve(strict=False)
+              if dst != source_root and source_root not in dst.parents:
+                  raise SystemExit(f'patch target escapes source root: {rel}')
+              if src.is_symlink():
+                  raise SystemExit(f'patch symlink is not allowed: {rel}')
+              if src.is_dir():
+                  dst.mkdir(parents=True, exist_ok=True)
+              else:
+                  dst.parent.mkdir(parents=True, exist_ok=True)
+                  shutil.copy2(src, dst)
+
+          deleted_path = patch / 'v102-patch' / 'deleted.json'
+          deleted = json.loads(deleted_path.read_text(encoding='utf-8'))
+          if not isinstance(deleted, list) or not all(isinstance(x, str) for x in deleted):
+              raise SystemExit('deleted.json must be a list of paths')
+          for relative in deleted:
+              target = (source_root / relative).resolve(strict=False)
+              if target == source_root or source_root not in target.parents:
+                  raise SystemExit(f'unsafe deletion path: {relative!r}')
+              if target.is_symlink() or target.is_file():
+                  target.unlink(missing_ok=True)
+              elif target.is_dir():
+                  shutil.rmtree(target)
+
+          required = [
+              'SKILL.md', 'README.md', 'README.zh-CN.md', 'VERSION', 'LICENSE',
+              'THIRD_PARTY.md', 'pyproject.toml', 'scripts/run_tests.py',
+              'AUDIT_REPORT_2026-07-16.md',
+          ]
+          missing = [item for item in required if not (source_root / item).exists()]
+          if missing:
+              raise SystemExit(f'required restored files missing: {missing}')
+          if (source_root / 'VERSION').read_text(encoding='utf-8').strip() != '1.0.2':
+              raise SystemExit('restored version is not 1.0.2')
+
+          # Refuse obvious private-key material before executing source code.
+          forbidden_markers = (
+              b'-----BEGIN PRIVATE KEY-----',
+              b'-----BEGIN RSA PRIVATE KEY-----',
+              b'-----BEGIN OPENSSH PRIVATE KEY-----',
+          )
+          for candidate in source_root.rglob('*'):
+              if not candidate.is_file() or candidate.stat().st_size > 16 * 1024 * 1024:
+                  continue
+              data = candidate.read_bytes()
+              if any(marker in data for marker in forbidden_markers):
+                  raise SystemExit(f'private-key material found: {candidate.relative_to(source_root)}')
+
+          manifest = []
+          import hashlib
+          for candidate in sorted(source_root.rglob('*')):
+              if candidate.is_file():
+                  data = candidate.read_bytes()
+                  manifest.append({
+                      'path': candidate.relative_to(source_root).as_posix(),
+                      'size': len(data),
+                      'sha256': hashlib.sha256(data).hexdigest(),
+                      'executable': bool(candidate.stat().st_mode & 0o111),
+                  })
+          (source_root / 'SOURCE_RECOVERY_MANIFEST.json').write_text(
+              json.dumps(
+                  {
+                      'schema_version': '1.0',
+                      'baseline_sha256': '4862f93186404e12b4a04d2a8cbcfbd037141ea503524208f4b2143e4bdaf73a',
+                      'patch_sha256': '7db7cc18b55077a605009d9b16a65d21c19e37e539eb6c567577eb4fdebac63a',
+                      'file_count_before_manifest': len(manifest),
+                      'files': manifest,
+                  },
+                  ensure_ascii=False,
+                  indent=2,
+                  sort_keys=True,
+              ) + '\n',
+              encoding='utf-8',
+          )
+          (source_root / 'FORENSIC_BASELINE.md').write_text(
+              '# Forensic baseline\n\n'
+              '- **verified:** baseline and patch archive SHA-256 values matched the controlled workflow.\n'
+              '- **verified:** archives passed path, member-type, link and expansion-size checks.\n'
+              '- **verified:** restored source declares version `1.0.2`.\n'
+              '- **verified:** required root, packaging and test-entry files are present.\n'
+              '- **not yet verified:** project tests, scientific adapters and release package behavior.\n'
+              '- **not claimed:** execution of any third-party scientific solver.\n',
+              encoding='utf-8',
+          )
+          PY
+
+          source_root=/tmp/unpacked/TsaoSciComputation
+          python -m compileall -q "$source_root/tsao_computation" "$source_root/scripts" "$source_root/tests" "$source_root/examples"
+
+          tar --sort=name --mtime='UTC 2020-01-01' --owner=0 --group=0 --numeric-owner \
+            -czf /tmp/TsaoSciComputation-restored-v1.0.2.tar.gz -C /tmp/unpacked TsaoSciComputation
+
+          find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+          cp -a "$source_root"/. .
+          rm -f .github/workflows/recover-source-v21.yml
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Recover normal auditable v1.0.2 source tree [skip ci]'
+          git push origin "HEAD:${GITHUB_REF_NAME}"
+
+      - name: Upload restored source snapshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: TsaoSciComputation-restored-v1.0.2
+          path: /tmp/TsaoSciComputation-restored-v1.0.2.tar.gz
+          if-no-files-found: error
+          retention-days: 7
