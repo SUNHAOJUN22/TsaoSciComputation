@@ -1,0 +1,54 @@
+name: Release source chunk validity gates
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  release-parts:
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'agent/audit-v1.0.2'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out trusted release archive
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+          show-progress: false
+      - name: Validate part-000
+        run: base64 --decode .release_source/part-000 > /dev/null
+      - name: Validate part-001
+        run: base64 --decode .release_source/part-001 > /dev/null
+      - name: Validate part-002
+        run: base64 --decode .release_source/part-002 > /dev/null
+      - name: Validate part-003
+        run: base64 --decode .release_source/part-003 > /dev/null
+      - name: Validate part-004
+        run: base64 --decode .release_source/part-004 > /dev/null
+      - name: Validate part-005
+        run: base64 --decode .release_source/part-005 > /dev/null
+      - name: Validate part-006
+        run: base64 --decode .release_source/part-006 > /dev/null
+      - name: Validate part-007
+        run: base64 --decode .release_source/part-007 > /dev/null
+      - name: Validate part-008
+        run: base64 --decode .release_source/part-008 > /dev/null
+      - name: Validate part-009
+        run: base64 --decode .release_source/part-009 > /dev/null
+      - name: Validate part-010
+        run: base64 --decode .release_source/part-010 > /dev/null
+      - name: Validate part-011
+        run: base64 --decode .release_source/part-011 > /dev/null
+      - name: Validate part-012
+        run: base64 --decode .release_source/part-012 > /dev/null
+      - name: Validate part-013
+        run: base64 --decode .release_source/part-013 > /dev/null
+      - name: Validate part-014
+        run: base64 --decode .release_source/part-014 > /dev/null
+      - name: Validate part-015
+        run: base64 --decode .release_source/part-015 > /dev/null
