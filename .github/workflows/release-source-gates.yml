@@ -1,0 +1,61 @@
+name: Release source archive gates
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  candidate:
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'agent/audit-v1.0.2'
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [continuous-stream, independently-encoded-parts]
+    name: release-source-${{ matrix.mode }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out trusted base release archive
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+          show-progress: false
+      - name: Verify part count
+        run: test "$(find .release_source -maxdepth 1 -type f -name 'part-*' | wc -l)" -eq 16
+      - name: Assemble and verify release source
+        shell: bash
+        env:
+          MODE: ${{ matrix.mode }}
+        run: |
+          set -euo pipefail
+          work=/tmp/release-source
+          mkdir -p "$work"
+          mapfile -d '' parts < <(find .release_source -maxdepth 1 -type f -name 'part-*' -print0 | sort -z)
+          pad() {
+            local file=$1 rem
+            rem=$(( $(wc -c < "$file") % 4 ))
+            if [ "$rem" -ne 0 ]; then
+              printf '%*s' $((4-rem)) '' | tr ' ' '=' >> "$file"
+            fi
+          }
+          if [ "$MODE" = continuous-stream ]; then
+            : > "$work/encoded"
+            for part in "${parts[@]}"; do tr -d '[:space:]' < "$part" >> "$work/encoded"; done
+            pad "$work/encoded"
+            base64 --decode "$work/encoded" > "$work/source.tar.zst"
+          else
+            : > "$work/source.tar.zst"
+            for part in "${parts[@]}"; do
+              tr -d '[:space:]' < "$part" > "$work/one"
+              pad "$work/one"
+              base64 --decode "$work/one" >> "$work/source.tar.zst"
+            done
+          fi
+          actual=$(sha256sum "$work/source.tar.zst" | cut -d' ' -f1)
+          echo "mode=$MODE actual=$actual bytes=$(wc -c < "$work/source.tar.zst")"
+          test "$actual" = '2a479e4c1e53e00f0f7a793761b9dce7e63c119ed69b54282b94da1707031ef9'
