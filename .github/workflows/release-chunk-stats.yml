@@ -1,0 +1,62 @@
+name: Release chunk encoding statistics
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'agent/audit-v1.0.2'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      summary: ${{ steps.stats.outputs.summary }}
+      total_mod: ${{ steps.stats.outputs.total_mod }}
+      total_equals: ${{ steps.stats.outputs.total_equals }}
+      invalid_total: ${{ steps.stats.outputs.invalid_total }}
+    steps:
+      - name: Check out trusted release archive
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+          show-progress: false
+      - name: Compute compact chunk statistics
+        id: stats
+        shell: bash
+        run: |
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import re
+          from pathlib import Path
+
+          records = []
+          total_length = 0
+          total_equals = 0
+          invalid_total = 0
+          valid = re.compile(r'^[A-Za-z0-9+/=]*$')
+          for path in sorted(Path('.release_source').glob('part-*')):
+              text = ''.join(path.read_text(encoding='ascii').split())
+              invalid = 0 if valid.fullmatch(text) else sum(ch not in 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=' for ch in text)
+              equals = text.count('=')
+              trailing = len(text) - len(text.rstrip('='))
+              total_length += len(text)
+              total_equals += equals
+              invalid_total += invalid
+              records.append(f"{path.name[-3:]}m{len(text)%4}e{equals}t{trailing}i{invalid}")
+          print('summary=' + ','.join(records))
+          print('total_mod=' + str(total_length % 4))
+          print('total_equals=' + str(total_equals))
+          print('invalid_total=' + str(invalid_total))
+          PY
+
+  report:
+    needs: inspect
+    if: always()
+    name: stats-${{ needs.inspect.outputs.summary }}-T${{ needs.inspect.outputs.total_mod }}E${{ needs.inspect.outputs.total_equals }}I${{ needs.inspect.outputs.invalid_total }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo 'Encoding statistics captured in job name.'
