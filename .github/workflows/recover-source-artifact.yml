@@ -23,17 +23,39 @@ jobs:
           ref: ${{ github.event.pull_request.base.sha }}
           fetch-depth: 1
           persist-credentials: false
+          show-progress: false
 
       - name: Verify fixed source archives
         shell: bash
         run: |
           set -euo pipefail
-          test "$(find .audit_source_v101 -maxdepth 1 -type f -name 'part-*' | wc -l)" -eq 19
-          test "$(find .audit_patch_v102 -maxdepth 1 -type f -name 'part-*' | wc -l)" -eq 43
+          mkdir -p diagnostics
+          baseline_count=$(find .audit_source_v101 -maxdepth 1 -type f -name 'part-*' | wc -l)
+          patch_count=$(find .audit_patch_v102 -maxdepth 1 -type f -name 'part-*' | wc -l)
+          {
+            echo "base_sha=${{ github.event.pull_request.base.sha }}"
+            echo "baseline_count=$baseline_count"
+            echo "patch_count=$patch_count"
+            echo '[baseline parts]'
+            find .audit_source_v101 -maxdepth 1 -type f -name 'part-*' -printf '%f\n' | sort
+            echo '[patch parts]'
+            find .audit_patch_v102 -maxdepth 1 -type f -name 'part-*' -printf '%f\n' | sort
+          } > diagnostics/recovery.txt
           cat .audit_source_v101/part-* | base64 --decode > /tmp/TsaoSciComputation-1.0.1.tar.zst
-          echo '4862f93186404e12b4a04d2a8cbcfbd037141ea503524208f4b2143e4bdaf73a  /tmp/TsaoSciComputation-1.0.1.tar.zst' | sha256sum --check --strict
           cat .audit_patch_v102/part-* | base64 --decode > /tmp/v102-patch.tar.zst
-          echo '7db7cc18b55077a605009d9b16a65d21c19e37e539eb6c567577eb4fdebac63a  /tmp/v102-patch.tar.zst' | sha256sum --check --strict
+          baseline_sha=$(sha256sum /tmp/TsaoSciComputation-1.0.1.tar.zst | cut -d' ' -f1)
+          patch_sha=$(sha256sum /tmp/v102-patch.tar.zst | cut -d' ' -f1)
+          {
+            echo "baseline_sha=$baseline_sha"
+            echo "patch_sha=$patch_sha"
+            echo 'expected_baseline_sha=4862f93186404e12b4a04d2a8cbcfbd037141ea503524208f4b2143e4bdaf73a'
+            echo 'expected_patch_sha=7db7cc18b55077a605009d9b16a65d21c19e37e539eb6c567577eb4fdebac63a'
+          } >> diagnostics/recovery.txt
+          cat diagnostics/recovery.txt
+          test "$baseline_count" -eq 19
+          test "$patch_count" -eq 43
+          test "$baseline_sha" = '4862f93186404e12b4a04d2a8cbcfbd037141ea503524208f4b2143e4bdaf73a'
+          test "$patch_sha" = '7db7cc18b55077a605009d9b16a65d21c19e37e539eb6c567577eb4fdebac63a'
           zstd --decompress --stdout /tmp/TsaoSciComputation-1.0.1.tar.zst > /tmp/baseline.tar
           zstd --decompress --stdout /tmp/v102-patch.tar.zst > /tmp/patch.tar
 
@@ -137,9 +159,19 @@ jobs:
           find recovered/TsaoSciComputation -type f -print0 | sort -z | xargs -0 sha256sum > recovered/SHA256SUMS
 
       - name: Upload recovered ordinary source tree
+        if: success()
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08
         with:
           name: TsaoSciComputation-v1.0.2-recovered-source
           path: recovered
           if-no-files-found: error
+          retention-days: 7
+
+      - name: Upload recovery diagnostics
+        if: always()
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08
+        with:
+          name: TsaoSciComputation-v1.0.2-recovery-diagnostics
+          path: diagnostics
+          if-no-files-found: warn
           retention-days: 7
