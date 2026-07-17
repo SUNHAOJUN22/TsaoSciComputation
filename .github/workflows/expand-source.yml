@@ -60,7 +60,7 @@ jobs:
           patch_count=$(find .audit_patch_v102 -maxdepth 1 -type f -name 'part-*' | wc -l)
           test "$patch_count" -eq "$patch_expected"
           cat .audit_patch_v102/part-* | base64 --decode > /tmp/v102-patch.tar.zst
-          echo "834c6953164faa6e9d46acd79d3a3678c238275823ee6d347144d0a66b0759ad  /tmp/v102-patch.tar.zst" | sha256sum --check --strict
+          echo "7db7cc18b55077a605009d9b16a65d21c19e37e539eb6c567577eb4fdebac63a  /tmp/v102-patch.tar.zst" | sha256sum --check --strict
 
           mkdir -p /tmp/patch
           zstd --decompress --stdout /tmp/v102-patch.tar.zst | tar -xf - -C /tmp/patch
