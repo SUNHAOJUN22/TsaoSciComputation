@@ -1,0 +1,105 @@
+name: Release archive assembly forensics
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  assemble:
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'agent/audit-v1.0.2'
+    strategy:
+      fail-fast: false
+      matrix:
+        mode:
+          - stream-keep-padding
+          - stream-strip-internal-padding
+          - per-part-pad
+          - per-part-ignore-garbage
+    name: assemble-${{ matrix.mode }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      stream_keep_padding_sha: ${{ steps.hash.outputs.stream_keep_padding_sha }}
+      stream_strip_internal_padding_sha: ${{ steps.hash.outputs.stream_strip_internal_padding_sha }}
+      per_part_pad_sha: ${{ steps.hash.outputs.per_part_pad_sha }}
+      per_part_ignore_garbage_sha: ${{ steps.hash.outputs.per_part_ignore_garbage_sha }}
+    steps:
+      - name: Check out trusted release archive
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+          show-progress: false
+
+      - name: Assemble encoded or decoded candidate
+        shell: bash
+        env:
+          MODE: ${{ matrix.mode }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/forensics
+          mapfile -d '' parts < <(find .release_source -maxdepth 1 -type f -name 'part-*' -print0 | sort -z)
+          test "${#parts[@]}" -eq 16
+          pad_file() {
+            local file=$1 rem
+            rem=$(( $(wc -c < "$file") % 4 ))
+            if [ "$rem" -ne 0 ]; then printf '%*s' $((4-rem)) '' | tr ' ' '=' >> "$file"; fi
+          }
+          case "$MODE" in
+            stream-keep-padding)
+              : > /tmp/forensics/encoded
+              for part in "${parts[@]}"; do tr -d '[:space:]' < "$part" >> /tmp/forensics/encoded; done
+              pad_file /tmp/forensics/encoded
+              base64 --decode /tmp/forensics/encoded > /tmp/forensics/archive.zst
+              ;;
+            stream-strip-internal-padding)
+              : > /tmp/forensics/encoded
+              last=$(( ${#parts[@]} - 1 ))
+              for i in "${!parts[@]}"; do
+                if [ "$i" -lt "$last" ]; then tr -d '[:space:]=' < "${parts[$i]}" >> /tmp/forensics/encoded; else tr -d '[:space:]' < "${parts[$i]}" >> /tmp/forensics/encoded; fi
+              done
+              pad_file /tmp/forensics/encoded
+              base64 --decode /tmp/forensics/encoded > /tmp/forensics/archive.zst
+              ;;
+            per-part-pad)
+              : > /tmp/forensics/archive.zst
+              for part in "${parts[@]}"; do
+                tr -d '[:space:]' < "$part" > /tmp/forensics/one
+                pad_file /tmp/forensics/one
+                base64 --decode /tmp/forensics/one >> /tmp/forensics/archive.zst
+              done
+              ;;
+            per-part-ignore-garbage)
+              : > /tmp/forensics/archive.zst
+              for part in "${parts[@]}"; do base64 --ignore-garbage --decode "$part" >> /tmp/forensics/archive.zst; done
+              ;;
+          esac
+          test -s /tmp/forensics/archive.zst
+
+      - name: Record actual hash
+        id: hash
+        shell: bash
+        env:
+          MODE: ${{ matrix.mode }}
+        run: |
+          set -euo pipefail
+          sha=$(sha256sum /tmp/forensics/archive.zst | cut -d' ' -f1)
+          key=$(printf '%s' "$MODE" | tr '-' '_')_sha
+          echo "$key=$sha" >> "$GITHUB_OUTPUT"
+          echo "mode=$MODE sha=$sha bytes=$(wc -c < /tmp/forensics/archive.zst)"
+
+      - name: Validate Zstandard frame
+        shell: bash
+        run: zstd --test /tmp/forensics/archive.zst
+
+  report-stream-keep-padding:
+    needs: assemble
+    if: always()
+    name: candidate-hashes-recorded
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo 'Candidate hashes are recorded in matrix job logs; structural validity is represented by each matrix conclusion.'
