@@ -43,7 +43,7 @@ jobs:
           manifest = json.loads((root / 'manifest.json').read_text(encoding='utf-8'))
           expected = {
               'encoding': 'python-base85',
-              'parts': 15,
+              'parts': 24,
               'bundle_bytes': 332335,
               'encoded_chars': 415419,
               'bundle_sha256': 'f01ddbd1db634574e4e577c2cf4b568ae064b6c2e1be092776fa2e2d32280ffc',
