@@ -141,12 +141,15 @@ jobs:
           text=text.replace('result = subprocess.run(coverage_command, check=False)',
                             'result = subprocess.run(coverage_command, check=False)  # nosec B603')
           tests_runner.write_text(text)
+          PY
+          python -m ruff check --fix --unsafe-fixes tsao_computation scripts tests
+          python -m ruff format tsao_computation scripts tests
+          python - <<'PY'
+          from pathlib import Path
           process=Path('tsao_computation/security/process.py')
           text=process.read_text().replace('        shell=False,\n','        shell=False,  # nosec B603\n')
           process.write_text(text)
           PY
-          python -m ruff check --fix --unsafe-fixes tsao_computation scripts tests
-          python -m ruff format tsao_computation scripts tests
           export PYTEST_DISABLE_PLUGIN_AUTOLOAD=1
           python -m coverage erase
           python -m coverage run --branch -m pytest -q --junitxml=evidence/JUNIT_REMOTE_FINAL.xml
