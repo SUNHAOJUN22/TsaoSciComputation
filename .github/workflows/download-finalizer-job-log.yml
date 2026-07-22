@@ -1,0 +1,33 @@
+name: Download finalizer job log
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  download:
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'agent/final-main-v3'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Download exact failed job log
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          JOB_ID: '89007583647'
+        run: |
+          set -euo pipefail
+          gh api --method GET "repos/$REPOSITORY/actions/jobs/$JOB_ID/logs" > /tmp/FINALIZER_JOB.log
+          test -s /tmp/FINALIZER_JOB.log
+          tail -n 200 /tmp/FINALIZER_JOB.log
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: TsaoSciComputation-full-finalizer-job-log
+          path: /tmp/FINALIZER_JOB.log
+          if-no-files-found: error
+          retention-days: 7
