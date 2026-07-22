@@ -1,0 +1,50 @@
+name: Export all repository branches
+
+on:
+  push:
+    branches:
+      - agent/repo-export
+
+permissions:
+  contents: read
+
+concurrency:
+  group: export-all-repository-branches
+  cancel-in-progress: true
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out complete repository history
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+          persist-credentials: false
+
+      - name: Fetch and package every branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --prune origin '+refs/heads/*:refs/remotes/origin/*'
+          mkdir -p export/branches
+          git for-each-ref --format='%(refname:short)\t%(objectname)\t%(committerdate:iso8601)' refs/remotes/origin | LC_ALL=C sort > export/branches.tsv
+          git for-each-ref --format='%(refname:short)\t%(objectname)' refs/tags | LC_ALL=C sort > export/tags.tsv
+          git log --all --graph --decorate --oneline --date-order > export/history.txt
+          while IFS=$'\t' read -r ref sha date; do
+            [ "$ref" = 'origin/HEAD' ] && continue
+            branch=${ref#origin/}
+            safe=$(printf '%s' "$branch" | tr '/:' '__')
+            git archive --format=tar.gz --prefix="${safe}/" -o "export/branches/${safe}.tar.gz" "$sha"
+          done < export/branches.tsv
+          sha256sum export/branches/*.tar.gz > export/SHA256SUMS
+
+      - name: Upload complete branch inventory
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08
+        with:
+          name: TsaoSciComputation-all-branches
+          path: export
+          if-no-files-found: error
+          retention-days: 7
