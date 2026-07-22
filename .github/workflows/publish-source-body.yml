@@ -1,0 +1,89 @@
+name: Publish verified source body
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+
+permissions:
+  actions: read
+  contents: write
+
+concurrency:
+  group: publish-verified-source-body
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'agent/final-main-v3'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPOSITORY: ${{ github.repository }}
+      BASE_SHA: f8f6668ab275fe6d6650850b5bd60390f032cdf5
+      ARTIFACT_ID: '8539974166'
+    steps:
+      - name: Check out transport branch with complete history
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Download immutable verified source evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/source-evidence /tmp/final-source /tmp/main-workflows /tmp/publish-evidence
+          mkdir -p /tmp/source-evidence /tmp/final-source /tmp/publish-evidence
+          gh api --method GET "repos/$REPOSITORY/actions/artifacts/$ARTIFACT_ID/zip" > /tmp/source-evidence.zip
+          unzip -q /tmp/source-evidence.zip -d /tmp/source-evidence
+          echo 'ceca1b6afbfcecd34ba7507b38d501eb21948fe42311a640682847d485e71c4c  /tmp/source-evidence.zip' | sha256sum -c --strict
+          echo '5a839691f876ceb43e387fca51c584a02852403c1a88c8b85f034487148738f6  /tmp/source-evidence/TsaoSciComputation-3.0.0.tar.gz' | sha256sum -c --strict
+          tar -xzf /tmp/source-evidence/TsaoSciComputation-3.0.0.tar.gz -C /tmp/final-source
+          test "$(cat /tmp/final-source/TsaoSciComputation-3.0.0/VERSION)" = '3.0.0'
+          test -f /tmp/final-source/TsaoSciComputation-3.0.0/reports/REMOTE_FINALIZATION.json
+          cp -a /tmp/final-source/TsaoSciComputation-3.0.0/.github/workflows /tmp/publish-evidence/final-workflows
+          cp /tmp/final-source/TsaoSciComputation-3.0.0/manifest.json /tmp/publish-evidence/final-manifest.json
+
+      - name: Publish ordinary source without changing current workflow refs
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          test "$(git rev-parse origin/main)" = "$BASE_SHA"
+          git checkout -B main origin/main
+          cp -a .github/workflows /tmp/main-workflows
+          find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+          cp -a /tmp/final-source/TsaoSciComputation-3.0.0/. .
+          rm -rf .github/workflows
+          mkdir -p .github
+          cp -a /tmp/main-workflows .github/workflows
+          rm -rf dist .pytest_cache .mypy_cache .ruff_cache
+          find . -type d -name __pycache__ -prune -exec rm -rf {} +
+          find . -type f \( -name '*.pyc' -o -name '.coverage' \) -delete
+          python scripts/build_manifest.py
+          python scripts/build_manifest.py --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          if git diff --cached --name-only -- .github/workflows | grep -q .; then
+            echo 'Refusing to modify workflow files in source-body commit.' >&2
+            git diff --cached --name-status -- .github/workflows >&2
+            exit 1
+          fi
+          git commit -m 'Publish verified ordinary source body'
+          INTERMEDIATE_SHA=$(git rev-parse HEAD)
+          git push --force-with-lease="refs/heads/main:$BASE_SHA" origin HEAD:refs/heads/main
+          test "$(git ls-remote origin refs/heads/main | awk '{print $1}')" = "$INTERMEDIATE_SHA"
+          echo "$INTERMEDIATE_SHA" | tee /tmp/publish-evidence/INTERMEDIATE_MAIN_SHA
+
+      - name: Upload connector handoff evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: TsaoSciComputation-source-body-handoff
+          path: /tmp/publish-evidence
+          if-no-files-found: error
+          retention-days: 30
