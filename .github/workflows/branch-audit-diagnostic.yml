@@ -1,0 +1,54 @@
+name: Diagnose branch archive tags
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'agent/final-main-v3'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          fetch-tags: true
+      - name: Inspect archive tag plan
+        shell: bash
+        run: |
+          set -euo pipefail
+          exec > >(tee /tmp/BRANCH_AUDIT.log) 2>&1
+          git fetch --prune origin '+refs/heads/*:refs/remotes/origin/*'
+          git for-each-ref --format='%(refname:short)%09%(objectname)' refs/remotes/origin | sort | tee /tmp/branches.tsv
+          echo '--- existing archive tags ---'
+          git for-each-ref --format='%(refname:short)%09%(*objectname)%09%(objectname)' refs/tags/archive/pre-single-main-20260722 | sort || true
+          echo '--- candidate validation ---'
+          while IFS=$'\t' read -r ref sha; do
+            [ "$ref" = origin/HEAD ] && continue
+            branch=${ref#origin/}
+            [ "$branch" = main ] && continue
+            safe=$(printf '%s' "$branch" | sed 's/[^A-Za-z0-9._-]/-/g')
+            tag="archive/pre-single-main-20260722/${safe}-${sha:0:8}"
+            printf 'branch=%q sha=%q tag=%q\n' "$branch" "$sha" "$tag"
+            git check-ref-format "refs/tags/$tag"
+            if git rev-parse -q --verify "refs/tags/$tag^{}" >/dev/null; then
+              actual=$(git rev-parse "refs/tags/$tag^{}")
+              printf 'existing=%s expected=%s\n' "$actual" "$sha"
+              test "$actual" = "$sha"
+            else
+              echo 'new-tag'
+            fi
+          done < /tmp/branches.tsv
+      - if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: TsaoSciComputation-branch-audit-diagnostic
+          path: /tmp/BRANCH_AUDIT.log
+          if-no-files-found: error
+          retention-days: 7
