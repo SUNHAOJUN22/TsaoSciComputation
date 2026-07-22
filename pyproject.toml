@@ -15,7 +15,7 @@ classifiers = ["Programming Language :: Python :: 3", "License :: OSI Approved :
 
 [project.optional-dependencies]
 validation = ["pytest>=8", "coverage>=7", "jsonschema>=4", "PyYAML>=6"]
-quality = ["ruff>=0.12", "mypy>=1.16", "bandit>=1.8", "build>=1.2"]
+quality = ["ruff>=0.12", "mypy>=1.16", "bandit>=1.8", "build>=1.2", "types-jsonschema>=4.25", "setuptools>=80", "wheel>=0.45"]
 
 [project.scripts]
 tsao-computation = "tsao_computation.cli:main"
