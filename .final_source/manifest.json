@@ -1,0 +1,9 @@
+{
+  "archive": "tsao-source.tar.xz",
+  "archive_bytes": 83344,
+  "archive_sha256": "5a839691f876ceb43e387fca51c584a02852403c1a88c8b85f034487148738f6",
+  "finalizer": "finalizer.py",
+  "finalizer_bytes": 20990,
+  "finalizer_sha256": "40f709b166819f5a693c46b858664fa9507442a25ea67be4e8d9ea9a8f6bcdbb",
+  "schema_version": "1.0"
+}
