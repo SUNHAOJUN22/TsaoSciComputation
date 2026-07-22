@@ -65,6 +65,10 @@ jobs:
           exec > >(tee /tmp/finalization-artifacts/QUALITY_GATE.log) 2>&1
           set -x
           SRC=/tmp/tsao-extracted/TsaoSciComputation-3.0.0
+          mkdir -p /tmp/finalization-artifacts/source-diagnostics/tsao_computation/registries /tmp/finalization-artifacts/source-diagnostics/tsao_computation /tmp/finalization-artifacts/source-diagnostics/scripts
+          cp "$SRC/tsao_computation/registries/loader.py" /tmp/finalization-artifacts/source-diagnostics/tsao_computation/registries/
+          cp "$SRC/tsao_computation/repository_audit.py" /tmp/finalization-artifacts/source-diagnostics/tsao_computation/
+          cp "$SRC/scripts/run_mutation_gate.py" "$SRC/scripts/validate_schemas.py" /tmp/finalization-artifacts/source-diagnostics/scripts/
           cd "$SRC"
           python - <<'PY'
           from pathlib import Path
