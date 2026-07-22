@@ -1,0 +1,52 @@
+name: Materialize final manifest object
+
+on:
+  push:
+    branches: [main]
+    paths: [.manifest-materialize-trigger]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: materialize-final-manifest
+  cancel-in-progress: true
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      CLEAN_BASE: ca268c8e52c1fbe446721dfaa47bc7684bf91ae1
+      OUTPUT_BRANCH: agent/manifest-blob
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+      - name: Generate exact manifest on clean final tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/tsao-manifest-base
+          git worktree add --detach /tmp/tsao-manifest-base "$CLEAN_BASE"
+          cd /tmp/tsao-manifest-base
+          python scripts/build_manifest.py
+          python scripts/build_manifest.py --check
+          BASE_TREE=$(git rev-parse "$CLEAN_BASE^{tree}")
+          MANIFEST_SHA256=$(sha256sum manifest.json | awk '{print $1}')
+          MANIFEST_BLOB=$(git hash-object manifest.json)
+          cat > .manifest-tree-info.json <<EOF
+          {
+            "base_commit": "$CLEAN_BASE",
+            "base_tree": "$BASE_TREE",
+            "manifest_blob": "$MANIFEST_BLOB",
+            "manifest_sha256": "$MANIFEST_SHA256"
+          }
+          EOF
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git checkout -B "$OUTPUT_BRANCH"
+          git add manifest.json .manifest-tree-info.json
+          git commit -m 'Materialize exact final manifest object'
+          git push --force origin "HEAD:refs/heads/$OUTPUT_BRANCH"
