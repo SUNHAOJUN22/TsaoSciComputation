@@ -1,0 +1,1 @@
+This file verifies GitHub contents write access for the single-main consolidation. It is temporary and will not remain in final main.
