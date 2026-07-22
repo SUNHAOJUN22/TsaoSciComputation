@@ -1,0 +1,79 @@
+name: Diagnose branch audit manifest
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'agent/final-main-v3'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          fetch-tags: true
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+      - name: Restore source and validate audit manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          exec > >(tee /tmp/BRANCH_MANIFEST.log) 2>&1
+          rm -rf /tmp/tsao-payload /tmp/tsao-extracted
+          mkdir -p /tmp/tsao-payload /tmp/tsao-extracted
+          cp .final_source/* /tmp/tsao-payload/
+          cd /tmp/tsao-payload
+          printf '%s  %s\n' \
+            4012741a7892548de9f844597025c98b035bf60f57c4ff07f0023b190d57bfe5 loader-000 \
+            7cca82c3e6c480ce874f86a8f9a73aca3806e63f19e16b2162a7836c91ae2771 loader-001 \
+            3f5792a493cd5a9513cbe2bc5a95e91392dddc2b4395eaa3d653fe821404cf1e loader-002 | sha256sum -c --strict
+          cat loader-* > loader.py
+          echo 'e3ce2c938cf43743554fb1762accab7e83cd825061047042d8b15a2c69570fe6  loader.py' | sha256sum -c --strict
+          python loader.py
+          SRC=/tmp/tsao-extracted/TsaoSciComputation-3.0.0
+          cd "$GITHUB_WORKSPACE"
+          git fetch --prune origin '+refs/heads/*:refs/remotes/origin/*' '+refs/tags/*:refs/tags/*'
+          git for-each-ref --format='%(refname:short)%09%(objectname)' refs/remotes/origin | sort > /tmp/branches.tsv
+          {
+            echo '# Branch consolidation audit'
+            echo
+            echo "- Trusted base main: \`${{ github.event.pull_request.base.sha }}\`"
+            echo "- Transport head: \`${{ github.event.pull_request.head.sha }}\`"
+            echo '- Every non-main branch head is preserved by an immutable annotated tag before deletion.'
+            echo
+            echo '| Branch | Pre-consolidation SHA | Recovery tag |'
+            echo '|---|---|---|'
+          } > "$SRC/docs/branch-consolidation-audit.md"
+          while IFS=$'\t' read -r ref sha; do
+            [ "$ref" = origin/HEAD ] && continue
+            branch=${ref#origin/}
+            if [ "$branch" = main ]; then
+              echo "| \`main\` | \`$sha\` | \`main-history\` |" >> "$SRC/docs/branch-consolidation-audit.md"
+              continue
+            fi
+            safe=$(printf '%s' "$branch" | sed 's/[^A-Za-z0-9._-]/-/g')
+            tag="archive/pre-single-main-20260722/${safe}-${sha:0:8}"
+            actual=$(git ls-remote --tags origin "refs/tags/$tag^{}" | awk '{print $1}')
+            printf 'verify %s expected=%s actual=%s\n' "$tag" "$sha" "$actual"
+            test "$actual" = "$sha"
+            echo "| \`$branch\` | \`$sha\` | \`$tag\` |" >> "$SRC/docs/branch-consolidation-audit.md"
+          done < /tmp/branches.tsv
+          cd "$SRC"
+          python scripts/build_manifest.py
+          python scripts/build_manifest.py --check
+          echo MANIFEST_OK
+      - if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: TsaoSciComputation-branch-manifest-diagnostic
+          path: /tmp/BRANCH_MANIFEST.log
+          if-no-files-found: error
+          retention-days: 7
