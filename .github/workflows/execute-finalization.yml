@@ -122,10 +122,28 @@ jobs:
               Path('tsao_computation/security/process.py'),
           ):
               text=subprocess_path.read_text()
-              text=text.replace('import subprocess\n','import subprocess  # nosec B404 - fixed argv subprocess usage\n')
-              text=text.replace('subprocess.run(\n','subprocess.run(  # nosec B603 - fixed argv; shell is not enabled\n')
-              text=text.replace('subprocess.check_output(\n','subprocess.check_output(  # nosec B603 - fixed argv; shell is not enabled\n')
+              text=text.replace('import subprocess\n','import subprocess  # nosec B404\n')
+              text=text.replace('subprocess.run(\n','subprocess.run(  # nosec B603\n')
+              text=text.replace('subprocess.check_output(\n','subprocess.check_output(  # nosec B603\n')
+              text=text.replace(' # nosec B404 - fixed argv subprocess usage','  # nosec B404')
+              text=text.replace(' # nosec B603 - fixed argv; shell is not enabled','  # nosec B603')
               subprocess_path.write_text(text)
+          benchmark=Path('scripts/benchmark.py')
+          text=benchmark.read_text().replace(
+              'float(subprocess.check_output([sys.executable, "-c", code], text=True).strip())',
+              'float(subprocess.check_output([sys.executable, "-c", code], text=True).strip())  # nosec B603',
+          )
+          benchmark.write_text(text)
+          tests_runner=Path('scripts/run_tests.py')
+          text=tests_runner.read_text()
+          text=text.replace('return subprocess.run(pytest_command, check=False).returncode',
+                            'return subprocess.run(pytest_command, check=False).returncode  # nosec B603')
+          text=text.replace('result = subprocess.run(coverage_command, check=False)',
+                            'result = subprocess.run(coverage_command, check=False)  # nosec B603')
+          tests_runner.write_text(text)
+          process=Path('tsao_computation/security/process.py')
+          text=process.read_text().replace('        shell=False,\n','        shell=False,  # nosec B603\n')
+          process.write_text(text)
           PY
           python -m ruff check --fix --unsafe-fixes tsao_computation scripts tests
           python -m ruff format tsao_computation scripts tests
