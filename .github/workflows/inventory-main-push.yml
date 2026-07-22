@@ -6,7 +6,7 @@ on:
     paths: [.inventory-trigger]
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   inventory:
@@ -17,16 +17,12 @@ jobs:
         with:
           ref: main
           fetch-depth: 1
-          persist-credentials: false
-      - name: Record exact workflow inventory
+      - name: Commit exact workflow inventory
         run: |
           set -euo pipefail
-          mkdir -p /tmp/main-workflows
-          find .github/workflows -maxdepth 1 -type f -printf '%f\t%s bytes\n' | sort | tee /tmp/main-workflows/inventory.tsv
-          sha256sum .github/workflows/* | sort > /tmp/main-workflows/SHA256SUMS
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
-        with:
-          name: TsaoSciComputation-current-main-workflows
-          path: /tmp/main-workflows
-          if-no-files-found: error
-          retention-days: 7
+          find .github/workflows -maxdepth 1 -type f -printf '%f\t%s bytes\n' | sort > .main-workflows-inventory.tsv
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .main-workflows-inventory.tsv
+          git commit -m 'Record current main workflow inventory'
+          git push origin HEAD:main
