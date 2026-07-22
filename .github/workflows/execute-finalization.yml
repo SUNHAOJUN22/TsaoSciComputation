@@ -62,6 +62,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          exec > >(tee /tmp/finalization-artifacts/QUALITY_GATE.log) 2>&1
+          set -x
           SRC=/tmp/tsao-extracted/TsaoSciComputation-3.0.0
           cd "$SRC"
           export PYTEST_DISABLE_PLUGIN_AUTOLOAD=1
