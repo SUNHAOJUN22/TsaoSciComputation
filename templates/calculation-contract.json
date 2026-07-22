@@ -1,0 +1,14 @@
+{
+  "acceptance_criteria": {},
+  "assumptions": [],
+  "conditions": {},
+  "question": "Replace with a falsifiable scientific question",
+  "schema_version": "1.0",
+  "system": {
+    "description": "system definition"
+  },
+  "target_observables": [
+    "observable"
+  ],
+  "workflow": null
+}

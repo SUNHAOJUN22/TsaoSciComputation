@@ -1,0 +1,14 @@
+{
+  "acceptance_criteria": {},
+  "assumptions": [],
+  "conditions": {},
+  "question": "Polymerization population balance",
+  "schema_version": "1.0",
+  "system": {
+    "example": "polymerization-pbe"
+  },
+  "target_observables": [
+    "example_observable"
+  ],
+  "workflow": "polymerization"
+}

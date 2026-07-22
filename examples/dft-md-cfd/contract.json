@@ -1,0 +1,14 @@
+{
+  "acceptance_criteria": {},
+  "assumptions": [],
+  "conditions": {},
+  "question": "DFT to MD to CFD handoff",
+  "schema_version": "1.0",
+  "system": {
+    "example": "dft-md-cfd"
+  },
+  "target_observables": [
+    "example_observable"
+  ],
+  "workflow": "multiscale-coupling"
+}

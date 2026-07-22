@@ -1,0 +1,8 @@
+cff-version: 1.2.0
+title: TsaoSciComputation
+message: Please cite the repository version and the scientific methods/software actually used.
+type: software
+version: 3.0.0
+date-released: 2026-07-22
+license: MIT
+repository-code: https://github.com/SUNHAOJUN22/TsaoSciComputation

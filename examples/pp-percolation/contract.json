@@ -1,0 +1,14 @@
+{
+  "acceptance_criteria": {},
+  "assumptions": [],
+  "conditions": {},
+  "question": "PP shielding percolation",
+  "schema_version": "1.0",
+  "system": {
+    "example": "pp-percolation"
+  },
+  "target_observables": [
+    "example_observable"
+  ],
+  "workflow": "polymer-composite"
+}

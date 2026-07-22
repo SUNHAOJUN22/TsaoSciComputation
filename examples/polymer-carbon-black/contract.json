@@ -1,0 +1,14 @@
+{
+  "acceptance_criteria": {},
+  "assumptions": [],
+  "conditions": {},
+  "question": "LAMMPS polymer/carbon-black morphology",
+  "schema_version": "1.0",
+  "system": {
+    "example": "polymer-carbon-black"
+  },
+  "target_observables": [
+    "example_observable"
+  ],
+  "workflow": "polymer-composite"
+}

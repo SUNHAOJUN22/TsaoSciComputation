@@ -1,0 +1,14 @@
+{
+  "acceptance_criteria": {},
+  "assumptions": [],
+  "conditions": {},
+  "question": "Surface adsorption and NEB",
+  "schema_version": "1.0",
+  "system": {
+    "example": "surface-neb"
+  },
+  "target_observables": [
+    "example_observable"
+  ],
+  "workflow": "reaction-path"
+}

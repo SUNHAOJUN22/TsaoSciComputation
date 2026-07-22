@@ -1,0 +1,14 @@
+{
+  "acceptance_criteria": {},
+  "assumptions": [],
+  "conditions": {},
+  "question": "DWSIM/IDAES polymer process",
+  "schema_version": "1.0",
+  "system": {
+    "example": "polymer-process"
+  },
+  "target_observables": [
+    "example_observable"
+  ],
+  "workflow": "process-simulation"
+}

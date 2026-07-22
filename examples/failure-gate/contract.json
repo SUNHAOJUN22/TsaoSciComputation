@@ -1,0 +1,14 @@
+{
+  "acceptance_criteria": {},
+  "assumptions": [],
+  "conditions": {},
+  "question": "Failure classification and approval",
+  "schema_version": "1.0",
+  "system": {
+    "example": "failure-gate"
+  },
+  "target_observables": [
+    "example_observable"
+  ],
+  "workflow": "hpc-execution"
+}

@@ -1,0 +1,14 @@
+{
+  "acceptance_criteria": {},
+  "assumptions": [],
+  "conditions": {},
+  "question": "OpenFOAM extrusion eccentricity",
+  "schema_version": "1.0",
+  "system": {
+    "example": "extrusion-cfd"
+  },
+  "target_observables": [
+    "example_observable"
+  ],
+  "workflow": "extrusion"
+}

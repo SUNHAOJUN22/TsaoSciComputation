@@ -1,0 +1,1900 @@
+{
+  "files": [
+    {
+      "bytes": 4882,
+      "path": ".github/workflows/expand-source.yml",
+      "sha256": "6c29cde48a2faf98ea775cdbe9e56403d57b2fdeec8dc7dd93019e40758e286f"
+    },
+    {
+      "bytes": 2031,
+      "path": ".github/workflows/export-all-branches-main.yml",
+      "sha256": "45a71fc6c8129a9ca12abb61d9949e27bf617a078f1f88207cbbf3a88e19d8f7"
+    },
+    {
+      "bytes": 6847,
+      "path": ".github/workflows/final-main-consolidation-controller.yml",
+      "sha256": "08fb433f9728841f5faec802870f5979ba9c3b7a819c937ac1e0c430ddee6b3b"
+    },
+    {
+      "bytes": 2002,
+      "path": ".github/workflows/recover-source-artifact-base.yml",
+      "sha256": "166be7190cb67b430b137626c43df0c01a0927cfb323eb5cc333d6c345f1e107"
+    },
+    {
+      "bytes": 108,
+      "path": ".gitignore",
+      "sha256": "b07adb4a8924fafd58862ff9fcfadd08b63f51d025d9bc702d37742fd9c08d5e"
+    },
+    {
+      "bytes": 295,
+      "path": "AGENTS.md",
+      "sha256": "f417b371a3e3868b0449e82ca36d4b25c7926eda0bbeea829170ea0d5295138d"
+    },
+    {
+      "bytes": 1095,
+      "path": "CHANGELOG.md",
+      "sha256": "853c097b1dae2877d6b3ed0c972ac7aba5c37ed9d3b679f5cef46edcfda91591"
+    },
+    {
+      "bytes": 276,
+      "path": "CITATION.cff",
+      "sha256": "13e223d378dfd61cefad5feabd291bb85ed7825b83ab780b146b718e4aa8cd84"
+    },
+    {
+      "bytes": 358,
+      "path": "CONTRIBUTING.md",
+      "sha256": "966aeadd6ee60aaa11cb7d66bd1cca3fd5a36a2a0701d2e76f8ec69b9614b9d6"
+    },
+    {
+      "bytes": 1068,
+      "path": "LICENSE",
+      "sha256": "9acba57d409668de2d706b513c755a6f8d90e277efcae4f91e8be1531f0ee606"
+    },
+    {
+      "bytes": 454,
+      "path": "MANIFEST.in",
+      "sha256": "7bc58f7c95c8af67138d30379c290b1f58f5dfaafd54823b5ff82348b072e442"
+    },
+    {
+      "bytes": 6053,
+      "path": "README.md",
+      "sha256": "0468e3f8830d7fc3068aa414f7879789e2b9e9de62e539d50f388c648ee1f867"
+    },
+    {
+      "bytes": 2491,
+      "path": "README.zh-CN.md",
+      "sha256": "fee6a0e18febd8a7d8b27692a6810a1dc50f1d4d976ca44d442f0f1f47c0cf26"
+    },
+    {
+      "bytes": 537,
+      "path": "SECURITY.md",
+      "sha256": "6542da66028ff1d9935f33323b63785479a49abe3eab4f98294848e0f524194b"
+    },
+    {
+      "bytes": 1029,
+      "path": "SKILL.md",
+      "sha256": "19538e1d583d05429d021ade9f006fa18f25df475b0fc05252a7fc729fd12321"
+    },
+    {
+      "bytes": 599,
+      "path": "THIRD_PARTY.md",
+      "sha256": "d36350a91ca45f1c85dbbab3293e87ab439900cba6714854842d8b16493ce8bf"
+    },
+    {
+      "bytes": 6,
+      "path": "VERSION",
+      "sha256": "2985be8b28d3ade858e8d8fb4bc22f565b1bf6020dff982dce141f7721b9999c"
+    },
+    {
+      "bytes": 364,
+      "path": "adapters/abacus/ADAPTER.md",
+      "sha256": "2a532a8cc8fe9f9bff0d172f3773ba4395dc358282645b6dbf5dd5ae33cf07ff"
+    },
+    {
+      "bytes": 438,
+      "path": "adapters/abacus/adapter.yaml",
+      "sha256": "655343d0280b80743334491c42df2be2fc5f887efa5f933ab2297f508d53cd6f"
+    },
+    {
+      "bytes": 372,
+      "path": "adapters/ase-pymatgen/ADAPTER.md",
+      "sha256": "99dfb8717fc304fa42506edff7a32a21f019277b0c6bcd0426d512235bad9bff"
+    },
+    {
+      "bytes": 452,
+      "path": "adapters/ase-pymatgen/adapter.yaml",
+      "sha256": "f5de02dbb2aac49d25f3186ba07f54797563011ac0977a167ca7ed575012b451"
+    },
+    {
+      "bytes": 386,
+      "path": "adapters/aspen/ADAPTER.md",
+      "sha256": "4fe3be29c1fbb41deb3c07333ebcfe6c2dd6cf9701222bee1e1a9e9ff66bc93d"
+    },
+    {
+      "bytes": 443,
+      "path": "adapters/aspen/adapter.yaml",
+      "sha256": "2d9f1078c69bd4b89a9b0ad3098d84739eb818ed4ae02debca6b6081b897ada5"
+    },
+    {
+      "bytes": 378,
+      "path": "adapters/cantera-rmg/ADAPTER.md",
+      "sha256": "3ae0aa24fcb0d73222b55edf6e73c7b2d00bcd5758113655300cbfc673b3711d"
+    },
+    {
+      "bytes": 457,
+      "path": "adapters/cantera-rmg/adapter.yaml",
+      "sha256": "2f8d77a01991dcc089458fbf952e652ff0dcaf00015ee279c0a75e0e4dfd696f"
+    },
+    {
+      "bytes": 362,
+      "path": "adapters/cp2k/ADAPTER.md",
+      "sha256": "cb05e2a598b7f33b9ed39b45e742384ae5ea4715394660928212f1ebc6cae7a1"
+    },
+    {
+      "bytes": 432,
+      "path": "adapters/cp2k/adapter.yaml",
+      "sha256": "e6822e6e611f4bc99ccd451b8f64a7774921bd7e640718cff037c364162ce70d"
+    },
+    {
+      "bytes": 382,
+      "path": "adapters/deepmd/ADAPTER.md",
+      "sha256": "60bfd855e262999b1c3508891236dc458c169c0299765063de626415a8e50293"
+    },
+    {
+      "bytes": 452,
+      "path": "adapters/deepmd/adapter.yaml",
+      "sha256": "deecd04e8f3ea4af9dd0a0fcb1125b63d93f5b146b7fe8cfe0b5dcf2724092c7"
+    },
+    {
+      "bytes": 367,
+      "path": "adapters/dolfinx/ADAPTER.md",
+      "sha256": "dda23a7b23e33e0c0557dfad595be23708f37b815131fa4593a520f0c5bec59f"
+    },
+    {
+      "bytes": 442,
+      "path": "adapters/dolfinx/adapter.yaml",
+      "sha256": "2befa26656c19607d6990ed659736b1f1c5491f73b46de990316c796a4e4d7f4"
+    },
+    {
+      "bytes": 369,
+      "path": "adapters/dwsim/ADAPTER.md",
+      "sha256": "0596c62d9972f317cab79d3699705d97f73738a161f5ff250bc01ced8927d627"
+    },
+    {
+      "bytes": 445,
+      "path": "adapters/dwsim/adapter.yaml",
+      "sha256": "9c0d61ab7380527a07aa43a27041441a26f3a46c4315952508d8b1f96d89a3e2"
+    },
+    {
+      "bytes": 365,
+      "path": "adapters/elmer/ADAPTER.md",
+      "sha256": "bc365c9b25127d1fe08295d4c54328c14ff0dc1275b03e7a293b3d2f0746e451"
+    },
+    {
+      "bytes": 443,
+      "path": "adapters/elmer/adapter.yaml",
+      "sha256": "4d874d0c3e9f61f32cf0babf84e137fd54cbcf44d3c17b28271c0442a33435cc"
+    },
+    {
+      "bytes": 370,
+      "path": "adapters/gaussian/ADAPTER.md",
+      "sha256": "02cad4d597a73271fc559e09c4a1783436c1271ab27760071756f0fb65d6fcab"
+    },
+    {
+      "bytes": 454,
+      "path": "adapters/gaussian/adapter.yaml",
+      "sha256": "6a9b06f365455d3a495bd8848f8cebdbc895a19a7b258116dafd47b8d2a10c2e"
+    },
+    {
+      "bytes": 362,
+      "path": "adapters/gpaw/ADAPTER.md",
+      "sha256": "42c69050dacf86a7d8f7f6cc9fe73d908f1f68c01a6f6abff35f7fd7111a8514"
+    },
+    {
+      "bytes": 432,
+      "path": "adapters/gpaw/adapter.yaml",
+      "sha256": "f90909c3a5b75abb99acd65c9303da933cfa58a4642435557037bb492d945093"
+    },
+    {
+      "bytes": 371,
+      "path": "adapters/gromacs/ADAPTER.md",
+      "sha256": "7c06f210f875a27cb5a2ce65fa5da459ae109e80215a691b737de3d257d548c5"
+    },
+    {
+      "bytes": 443,
+      "path": "adapters/gromacs/adapter.yaml",
+      "sha256": "96685e10ba63bce2cafdce60f11f2252254746023a47d4400113a5f6e51820c6"
+    },
+    {
+      "bytes": 377,
+      "path": "adapters/idaes-pyomo/ADAPTER.md",
+      "sha256": "1820dffad9e020a1cdc32c3bf1d56aa9c37ed08fafcab259f99a1bac6d03aec3"
+    },
+    {
+      "bytes": 455,
+      "path": "adapters/idaes-pyomo/adapter.yaml",
+      "sha256": "9eec45d9002e092cd280f6b333bb3162b983878b9fbdedce7b3eb02744186e1c"
+    },
+    {
+      "bytes": 377,
+      "path": "adapters/kratos/ADAPTER.md",
+      "sha256": "9f5b8735cdb57092fe1e3add6daac0c65bee072d76c7f5bcb4d6df9edb1119fc"
+    },
+    {
+      "bytes": 451,
+      "path": "adapters/kratos/adapter.yaml",
+      "sha256": "ef17acf17c7d8ac2e15a4992edddab1f005fb73a426a76704a3a91fb045f0051"
+    },
+    {
+      "bytes": 370,
+      "path": "adapters/lammps/ADAPTER.md",
+      "sha256": "9387aa8b1e8a964a0180c6d9501d7261f8fc9939f3fec148dba3cbaea11e5f8c"
+    },
+    {
+      "bytes": 456,
+      "path": "adapters/lammps/adapter.yaml",
+      "sha256": "2c08a3cf1d02bc1aff646094ede08d5d1ed16f5ad299b65432469b8640fa93da"
+    },
+    {
+      "bytes": 376,
+      "path": "adapters/mace/ADAPTER.md",
+      "sha256": "12634af8d3b16fe607126648debaf35cfcef52cf8f39ce02fca9143c950a2a38"
+    },
+    {
+      "bytes": 448,
+      "path": "adapters/mace/adapter.yaml",
+      "sha256": "50d2f4d428054fd32680c0ed563fcce0119b40596327bb5e07f3da649bfcebdc"
+    },
+    {
+      "bytes": 363,
+      "path": "adapters/moose/ADAPTER.md",
+      "sha256": "d6d58b0931d889d131a0abebbc5e677ffcb2ba6613223786340762361e4aba43"
+    },
+    {
+      "bytes": 439,
+      "path": "adapters/moose/adapter.yaml",
+      "sha256": "1d84e1719c2680970b2302345016e4d8b157dff54fe985f35f600e648b7d735d"
+    },
+    {
+      "bytes": 357,
+      "path": "adapters/openfoam/ADAPTER.md",
+      "sha256": "e2556b34dedb2a5aa047b7450f6ada7d92c2c1ddda719045bbe17225ce04e243"
+    },
+    {
+      "bytes": 455,
+      "path": "adapters/openfoam/adapter.yaml",
+      "sha256": "b8befe367ea2654d22fd3b130f2ae92d94d98b67b994a65b0bca4bb862aba2a7"
+    },
+    {
+      "bytes": 370,
+      "path": "adapters/openmm/ADAPTER.md",
+      "sha256": "d37d67e81dcf26b4225abfc05ba85a4a0843f003e231320f8cda972dd65c86eb"
+    },
+    {
+      "bytes": 444,
+      "path": "adapters/openmm/adapter.yaml",
+      "sha256": "8ab2dc8755a0d2e06930cf0cb484ec139e79fde4d94eeb812a87dd2cf972a36c"
+    },
+    {
+      "bytes": 373,
+      "path": "adapters/openmodelica/ADAPTER.md",
+      "sha256": "a2e930ea61060aae1b1055b1a087515e7a2b31996893b002c8cce9331ab6e1dc"
+    },
+    {
+      "bytes": 450,
+      "path": "adapters/openmodelica/adapter.yaml",
+      "sha256": "6b359d9abf9a1580a8ce71eb0be5365288c62094893f551ed998886a2ec23a95"
+    },
+    {
+      "bytes": 364,
+      "path": "adapters/orca/ADAPTER.md",
+      "sha256": "d172f95b7464989cfa258221093643e2ece3bf2db1fbe60300c0258f2e71122e"
+    },
+    {
+      "bytes": 434,
+      "path": "adapters/orca/adapter.yaml",
+      "sha256": "e1823dead34900ea2904bcd1f82fc9ff600290dae99ea0154675edb0e3fdc930"
+    },
+    {
+      "bytes": 369,
+      "path": "adapters/plumed/ADAPTER.md",
+      "sha256": "4c861920903ad0fcc103c444d94dded01c1a33e7fdd6460e57a7054006dcb1cf"
+    },
+    {
+      "bytes": 443,
+      "path": "adapters/plumed/adapter.yaml",
+      "sha256": "333656bfc5b98a26e4694635df0bef4e661b8916987f6773a426d7288f7c85c7"
+    },
+    {
+      "bytes": 367,
+      "path": "adapters/psi4/ADAPTER.md",
+      "sha256": "d10468ea1cdfb0601bdcc23f47d5fe773975817b404ce4627f09398779d01dd0"
+    },
+    {
+      "bytes": 437,
+      "path": "adapters/psi4/adapter.yaml",
+      "sha256": "7ab94f7168a6ba48547cea0f3375300600c8191412ed5db9cb05d38a27046238"
+    },
+    {
+      "bytes": 368,
+      "path": "adapters/pyscf/ADAPTER.md",
+      "sha256": "f56786ae52025b480627e6b63713cea21a80b36cd40a9cb8f2249dcdc13d698b"
+    },
+    {
+      "bytes": 441,
+      "path": "adapters/pyscf/adapter.yaml",
+      "sha256": "7cefc2ba184e5ab5e165115cf2a22ce97e83d96d6f68ed78780798044123964e"
+    },
+    {
+      "bytes": 374,
+      "path": "adapters/quantum-espresso/ADAPTER.md",
+      "sha256": "36b5834b5639b688a6918c9a8558219a2756b3639d9aa0c3e4081d217fb29e3e"
+    },
+    {
+      "bytes": 456,
+      "path": "adapters/quantum-espresso/adapter.yaml",
+      "sha256": "aba8efa1c31b2392aac7260d64dd26d2f3afd2f0440f8dad85ab4552f6c691c4"
+    },
+    {
+      "bytes": 352,
+      "path": "adapters/su2/ADAPTER.md",
+      "sha256": "c3647b9ac97a77e3a812fdda5635489662a1e99c3a1ccf98044ef4d3b8ef70e5"
+    },
+    {
+      "bytes": 424,
+      "path": "adapters/su2/adapter.yaml",
+      "sha256": "1694f601bb4109bb6584a602c4a14da7ebf5a1c755b1e9ce3158173ebe7aabfe"
+    },
+    {
+      "bytes": 361,
+      "path": "adapters/vasp/ADAPTER.md",
+      "sha256": "c95f9ef37a893fbd1fca6e9d012116c11acc4af8e5a9ae31aee4933f2202303f"
+    },
+    {
+      "bytes": 435,
+      "path": "adapters/vasp/adapter.yaml",
+      "sha256": "8283e818921cb37cf2c8284bafba2e6835a35f6d8134eccc1872024fa177178b"
+    },
+    {
+      "bytes": 486,
+      "path": "benchmarks/latest.json",
+      "sha256": "6005b9035798e017f245a03e1b9c76e34ab221f0a4d36cc27b1f28635863a45c"
+    },
+    {
+      "bytes": 14680,
+      "path": "capability-index/README.md",
+      "sha256": "83b0aca8b27264651555b6d9b3e3c11ebe88d49ce07d304c196bdd33a355e7ee"
+    },
+    {
+      "bytes": 1514,
+      "path": "capability-index/capabilities/TSC-001_problem-decomposition.yaml",
+      "sha256": "f4de70773ded244ee6d8029b6fba57ce800b330c5e127668e7bc78915ef0c12b"
+    },
+    {
+      "bytes": 1502,
+      "path": "capability-index/capabilities/TSC-002_scale-boundary-identification.yaml",
+      "sha256": "cbb325cbe6bf995ce91cb5e64b4d6e8a3b6d591c520a8f363b0a0c89058c11cc"
+    },
+    {
+      "bytes": 1492,
+      "path": "capability-index/capabilities/TSC-003_method-fitness-assessment.yaml",
+      "sha256": "931e0155938706d7bb552b41550afccf8a4f0baa1408e557e6359e4b34a31d68"
+    },
+    {
+      "bytes": 1501,
+      "path": "capability-index/capabilities/TSC-004_multi-fidelity-plan.yaml",
+      "sha256": "216678090651744af68a2d44b77e64b6948ceaf5c26db9d66d4cf664463c0427"
+    },
+    {
+      "bytes": 1676,
+      "path": "capability-index/capabilities/TSC-005_molecular-geometry-optimization.yaml",
+      "sha256": "6689484f7d22ae2ed4bce5a392f0ad27b76f4460f871b42fa872261abf4005f7"
+    },
+    {
+      "bytes": 1647,
+      "path": "capability-index/capabilities/TSC-006_harmonic-frequency-analysis.yaml",
+      "sha256": "54a18f6cb9cbccf6cb4560040d9cb17b4672d0c5cac0b618298080c3debb5cc1"
+    },
+    {
+      "bytes": 1653,
+      "path": "capability-index/capabilities/TSC-007_single-point-energy.yaml",
+      "sha256": "ba79ad9eb27f91809286fac9987cff3ff131d85af1c7b39bc6e282c49ff81c83"
+    },
+    {
+      "bytes": 1652,
+      "path": "capability-index/capabilities/TSC-008_conformer-search-plan.yaml",
+      "sha256": "62ff940769c3e805c055dbe16eb7c92d64f280c33df09c2ac4d018232328ce88"
+    },
+    {
+      "bytes": 1647,
+      "path": "capability-index/capabilities/TSC-009_transition-state-search.yaml",
+      "sha256": "13a35090106f45c255f091c9d23cf98517b422b46009916fcf1f2ddcc944c5f5"
+    },
+    {
+      "bytes": 1688,
+      "path": "capability-index/capabilities/TSC-010_intrinsic-reaction-coordinate.yaml",
+      "sha256": "989c781ee3709ad335f7757a9438dde18e63e7c535a5e99b4ea4438ebc1d8896"
+    },
+    {
+      "bytes": 1676,
+      "path": "capability-index/capabilities/TSC-011_solvation-model-selection.yaml",
+      "sha256": "1827a55a7d3f4a967df9570af642925267dde7f861d934d218fe27ced7fdcd73"
+    },
+    {
+      "bytes": 1682,
+      "path": "capability-index/capabilities/TSC-012_charge-population-analysis.yaml",
+      "sha256": "020036e916a35d2b8de0db1a3c5311c4115ba22a4f9e28ab87df47bb5992a1b3"
+    },
+    {
+      "bytes": 1641,
+      "path": "capability-index/capabilities/TSC-013_frontier-orbital-analysis.yaml",
+      "sha256": "08d34a22c32ac15c1d2af26432a52d4f99c22949fa8f84ce244bc77b77ed74bb"
+    },
+    {
+      "bytes": 1658,
+      "path": "capability-index/capabilities/TSC-014_excited-state-screening.yaml",
+      "sha256": "425bdf9a0d2aca8d7205987970f1f7dde848c9c38df7aaefec84d72586d7b341"
+    },
+    {
+      "bytes": 1666,
+      "path": "capability-index/capabilities/TSC-015_thermochemistry-correction.yaml",
+      "sha256": "175008e1656dfc056c52cb54d220214b1cc11c0d514b262c439032ae04268e3a"
+    },
+    {
+      "bytes": 1669,
+      "path": "capability-index/capabilities/TSC-016_basis-method-convergence.yaml",
+      "sha256": "afc59cfa8ded6a27d0e61771b71fa3a6549aab9ad9fff9a8c3d58a0c7072fb83"
+    },
+    {
+      "bytes": 1694,
+      "path": "capability-index/capabilities/TSC-017_crystal-structure-relaxation.yaml",
+      "sha256": "e30ec4adb6dbfbd5bbdb66ae65f5f314d717dd65ba0fee8357cfca29ea88bd3e"
+    },
+    {
+      "bytes": 1685,
+      "path": "capability-index/capabilities/TSC-018_equation-of-state.yaml",
+      "sha256": "b7fbe1566b2590e641f876eed1c4809e7591e314f453727a69c5f8ee246ff3b4"
+    },
+    {
+      "bytes": 1686,
+      "path": "capability-index/capabilities/TSC-019_kpoint-convergence.yaml",
+      "sha256": "031a495f455de3bcab212db92826209d7797a7dd15be166ca913a93c565531ae"
+    },
+    {
+      "bytes": 1699,
+      "path": "capability-index/capabilities/TSC-020_cutoff-convergence.yaml",
+      "sha256": "3b71797c7f69a4a012d930301c6686df325d3635f41a8962a080d97254281bae"
+    },
+    {
+      "bytes": 1698,
+      "path": "capability-index/capabilities/TSC-021_band-structure.yaml",
+      "sha256": "4ace134a13159c4f5a90646aa2c2c7b0a1b8dd8dbeb88144002b3a237174ad17"
+    },
+    {
+      "bytes": 1684,
+      "path": "capability-index/capabilities/TSC-022_density-of-states.yaml",
+      "sha256": "20ddc72969b499aa29fb3b54b6d71edb42e1e02f43d68e61a3f1f3c2a3f38c71"
+    },
+    {
+      "bytes": 1667,
+      "path": "capability-index/capabilities/TSC-023_surface-energy.yaml",
+      "sha256": "ad17da0f0be0e6b1fcadc5d68e946085473a90539f6f0228da6c5120e28d3d9c"
+    },
+    {
+      "bytes": 1694,
+      "path": "capability-index/capabilities/TSC-024_adsorption-energy.yaml",
+      "sha256": "c65beeda1d10794649008db55f626e3031a91c23e4f9fab0c97024684f316a17"
+    },
+    {
+      "bytes": 1683,
+      "path": "capability-index/capabilities/TSC-025_point-defect-formation.yaml",
+      "sha256": "10e81af0889f6c9a51cbb38b36cea5631de54800ec0d7541706ce5fab2687de9"
+    },
+    {
+      "bytes": 1715,
+      "path": "capability-index/capabilities/TSC-026_phonon-stability.yaml",
+      "sha256": "e51f59fe1041dbc79cd4f033e29cdbb3bc63f8a8d820d0cee3c6448e848bc7fd"
+    },
+    {
+      "bytes": 1725,
+      "path": "capability-index/capabilities/TSC-027_ab-initio-molecular-dynamics.yaml",
+      "sha256": "7355a4bbc616a2d67afc39dc95aa0880c1e9914b7bcf3241905a836831c0b18e"
+    },
+    {
+      "bytes": 1704,
+      "path": "capability-index/capabilities/TSC-028_periodic-charge-correction.yaml",
+      "sha256": "db383adcd4f6018e33628b33b6a1cc80ccc55526a1ab6f4c01a4c295732c11e2"
+    },
+    {
+      "bytes": 1498,
+      "path": "capability-index/capabilities/TSC-029_neb-pathway.yaml",
+      "sha256": "e175427b04b58652f85d25cef3992a83354a524b1be89d22db34052fd41b313c"
+    },
+    {
+      "bytes": 1529,
+      "path": "capability-index/capabilities/TSC-030_climbing-image-neb.yaml",
+      "sha256": "cefd48317848d17a9fb984d665f44f531e1bbeaab7acf75b8e06ed5586916894"
+    },
+    {
+      "bytes": 1530,
+      "path": "capability-index/capabilities/TSC-031_string-method-plan.yaml",
+      "sha256": "e289d20239b1b948a3c520857138bdcf4418fa63c3c9d3a6507ce2124c578e17"
+    },
+    {
+      "bytes": 1511,
+      "path": "capability-index/capabilities/TSC-032_barrier-validation.yaml",
+      "sha256": "4554d9023ddd8851dc04fc0dbaa471af827b2cdb2a09f0cf3faf7fc4ac7eac48"
+    },
+    {
+      "bytes": 1533,
+      "path": "capability-index/capabilities/TSC-033_minimum-energy-path.yaml",
+      "sha256": "23386dd67090ca7e09f3476b5c81e07f1f10e9f5adfcb78b7b4767e85607901c"
+    },
+    {
+      "bytes": 1552,
+      "path": "capability-index/capabilities/TSC-034_kinetic-rate-estimate.yaml",
+      "sha256": "fc8137a921b7ccd6be7c2fda0410313d7f689f54f0f6a872e32fa7708dc0c443"
+    },
+    {
+      "bytes": 1638,
+      "path": "capability-index/capabilities/TSC-035_system-building.yaml",
+      "sha256": "aa78e18fe94e70cdc316ed172b732603b4aec625363620e2b2a7145ccb1e582c"
+    },
+    {
+      "bytes": 1660,
+      "path": "capability-index/capabilities/TSC-036_force-field-selection.yaml",
+      "sha256": "346311e0fe615afe715ee6e266f7e3054a61c831f8cf2235a4abd30c9c3b0f4e"
+    },
+    {
+      "bytes": 1647,
+      "path": "capability-index/capabilities/TSC-037_energy-minimization.yaml",
+      "sha256": "88beb0c7d2fe8b4e2fe7eb120e58f1a42285b3ba736cc130517275e9253d6478"
+    },
+    {
+      "bytes": 1633,
+      "path": "capability-index/capabilities/TSC-038_nvt-equilibration.yaml",
+      "sha256": "6e72b2eadc586e294ac61cd78587a2fb0e4bb7e72efe5c334b8d36c383651e97"
+    },
+    {
+      "bytes": 1633,
+      "path": "capability-index/capabilities/TSC-039_npt-equilibration.yaml",
+      "sha256": "1e266f1d9db54c1f926524a4bb47d4245ba5af7d212a9ad32dffa89bb149ab1d"
+    },
+    {
+      "bytes": 1633,
+      "path": "capability-index/capabilities/TSC-040_production-md.yaml",
+      "sha256": "95abc2c8c00137e61cb12bcf8e248ace78b6e450dfa1654bfa5944817c2cecfc"
+    },
+    {
+      "bytes": 1638,
+      "path": "capability-index/capabilities/TSC-041_trajectory-convergence.yaml",
+      "sha256": "d77f04159cd4b4a9b37e8cd56414827194bdc63c358c0efe6f5bada5cbfa383b"
+    },
+    {
+      "bytes": 1656,
+      "path": "capability-index/capabilities/TSC-042_diffusion-coefficient.yaml",
+      "sha256": "4721ba752fcd3ce0e9e88aa4964a25f6e04557871f7379e8f155835a7b4d6b3c"
+    },
+    {
+      "bytes": 1644,
+      "path": "capability-index/capabilities/TSC-043_radial-distribution.yaml",
+      "sha256": "df47165ad663b633689efb71ced1b7cf8e5b127796f2e88b994899fbefce947e"
+    },
+    {
+      "bytes": 1641,
+      "path": "capability-index/capabilities/TSC-044_polymer-chain-statistics.yaml",
+      "sha256": "a404604b832924744f4b46aa6d93983a86759a64d414918d8d8a31271c8906e2"
+    },
+    {
+      "bytes": 1571,
+      "path": "capability-index/capabilities/TSC-045_collective-variable-design.yaml",
+      "sha256": "08c491821398ed8695d583e5b6e8c872e530e50090d321626d4ab7dccccd8e80"
+    },
+    {
+      "bytes": 1538,
+      "path": "capability-index/capabilities/TSC-046_umbrella-sampling.yaml",
+      "sha256": "8c274a565623060aeba4e9dd9bad3ee1c028c99696778f36a4142f79c6921dc4"
+    },
+    {
+      "bytes": 1507,
+      "path": "capability-index/capabilities/TSC-047_metadynamics.yaml",
+      "sha256": "9d8eeebc585b07d64a6f53274df8a7f4923cd34940861ff91c276b2aa4407a16"
+    },
+    {
+      "bytes": 1566,
+      "path": "capability-index/capabilities/TSC-048_wham-reconstruction.yaml",
+      "sha256": "df0964a385aa5b1fc82f1ffaf72779cf01d912eba3506d1a4e06aaa6a34cd43e"
+    },
+    {
+      "bytes": 1564,
+      "path": "capability-index/capabilities/TSC-049_bias-convergence.yaml",
+      "sha256": "f3fa81f0f615eaeb63fc936e8559457a18a6ac9fac4245ca2a4cf97323fb6030"
+    },
+    {
+      "bytes": 1550,
+      "path": "capability-index/capabilities/TSC-050_replica-exchange.yaml",
+      "sha256": "cd7a8c0ad01d5f5aa6a2b8722d0814f78a86a940b0f908a0de01069f5d095446"
+    },
+    {
+      "bytes": 1627,
+      "path": "capability-index/capabilities/TSC-051_training-set-design.yaml",
+      "sha256": "45490de5bb99048ecca8107eb5bc53c98e29be65578930001d0e38b2784c3dc1"
+    },
+    {
+      "bytes": 1626,
+      "path": "capability-index/capabilities/TSC-052_active-learning-loop.yaml",
+      "sha256": "c1bdaaa4e94b9b6e665dbdfe547710d57e0d86341d0b81eaee71357931bfce73"
+    },
+    {
+      "bytes": 1624,
+      "path": "capability-index/capabilities/TSC-053_descriptor-selection.yaml",
+      "sha256": "f9733d5e2b69cf0afd8dbb61d0ac1bb96d0ef474be9f2f42968c0f0e65ae05fd"
+    },
+    {
+      "bytes": 1619,
+      "path": "capability-index/capabilities/TSC-054_force-energy-validation.yaml",
+      "sha256": "098c079dd6f3a46da974adaad91ccbf6a28ca04ba016bfaab021f98de41b648a"
+    },
+    {
+      "bytes": 1639,
+      "path": "capability-index/capabilities/TSC-055_extrapolation-detection.yaml",
+      "sha256": "5fb5aea1d34bf6ac1170d1894ca0c853a981a8252f1948cc1a2601dbbff01849"
+    },
+    {
+      "bytes": 1633,
+      "path": "capability-index/capabilities/TSC-056_deployment-benchmark.yaml",
+      "sha256": "f2a5444606127e496e57f4d77ea7851f7c13a6fd28afb72b67fcf020ef76e781"
+    },
+    {
+      "bytes": 1556,
+      "path": "capability-index/capabilities/TSC-057_active-site-model.yaml",
+      "sha256": "9b3bb20edfdee79c65ee7ee8286495238a2aedf9682924cfa043ad6d423b81bb"
+    },
+    {
+      "bytes": 1560,
+      "path": "capability-index/capabilities/TSC-058_adsorbate-coverage.yaml",
+      "sha256": "8329e004eb184767594842d989cc0f12ddb1547c9db9f23e90ffe3ca746cd372"
+    },
+    {
+      "bytes": 1578,
+      "path": "capability-index/capabilities/TSC-059_elementary-step-network.yaml",
+      "sha256": "cff9ad5a6379e67ba4fc1158a7d52d7fc523be8e1c40ac1349fd33dd861d49ab"
+    },
+    {
+      "bytes": 1549,
+      "path": "capability-index/capabilities/TSC-060_microkinetic-model.yaml",
+      "sha256": "563af794cdeaa612ccab15d82f00ab3b2b8ffdeb9886bfc4afe681723e944ce2"
+    },
+    {
+      "bytes": 1561,
+      "path": "capability-index/capabilities/TSC-061_degree-of-rate-control.yaml",
+      "sha256": "2752a62be3768d4dd584e42f13688d3f76b0d6b85b308f239f0ab4d229ed9dba"
+    },
+    {
+      "bytes": 1540,
+      "path": "capability-index/capabilities/TSC-062_turnover-frequency.yaml",
+      "sha256": "590a4af3ce3e4f06d6834c19485d7ed8d9b0c8f16fb759833b73dc359d8a3b68"
+    },
+    {
+      "bytes": 1576,
+      "path": "capability-index/capabilities/TSC-063_coverage-sensitivity.yaml",
+      "sha256": "d20d851d876fb34718422d052d8055ff30a2ab5d75d863a2ed70eb5cca3d3419"
+    },
+    {
+      "bytes": 1555,
+      "path": "capability-index/capabilities/TSC-064_catalyst-screening.yaml",
+      "sha256": "0096cb7f5647e5aed92244cbf2cfd78d9148547ac9ca73f136909989c0a06f7a"
+    },
+    {
+      "bytes": 1630,
+      "path": "capability-index/capabilities/TSC-065_elementary-polymerization-network.yaml",
+      "sha256": "60826459f4999b2aa8e4b8dcec02ce8a32f6a077b08fecb6430a744741445f6c"
+    },
+    {
+      "bytes": 1573,
+      "path": "capability-index/capabilities/TSC-066_moment-model.yaml",
+      "sha256": "4f879dad6f758f2a4ff23cc81c402035b8cc3720f9b670f242e94987bc20fa34"
+    },
+    {
+      "bytes": 1609,
+      "path": "capability-index/capabilities/TSC-067_population-balance.yaml",
+      "sha256": "55ce2b659045a5d5dae12ec9229366812e61e4a5fb6f015ceb1c1e9f7616ab8c"
+    },
+    {
+      "bytes": 1634,
+      "path": "capability-index/capabilities/TSC-068_molecular-weight-distribution.yaml",
+      "sha256": "1d08a1a2846f6d2d8cd4be06d655849e57f9ef261b1d628851e7b83abf993642"
+    },
+    {
+      "bytes": 1615,
+      "path": "capability-index/capabilities/TSC-069_copolymer-composition.yaml",
+      "sha256": "ecb441b2d408789d42c45b6f5736298efbf88e803acb9ff4554c0578339f73b0"
+    },
+    {
+      "bytes": 1608,
+      "path": "capability-index/capabilities/TSC-070_chain-transfer-analysis.yaml",
+      "sha256": "4d01dad181ebf2e942904046b74034c23e0aefe516b56ad387431509e17f6a57"
+    },
+    {
+      "bytes": 1616,
+      "path": "capability-index/capabilities/TSC-071_parameter-estimation.yaml",
+      "sha256": "9d2f14aa3052d0c46db25fce87213d0b5802ed6bca0b4ac3c989c5f7800e8c6d"
+    },
+    {
+      "bytes": 1630,
+      "path": "capability-index/capabilities/TSC-072_identifiability-assessment.yaml",
+      "sha256": "4ec50a7a4bcfdbb16df71e0e15b3f7bd8307ae738f881bbe82ed420a56609fa1"
+    },
+    {
+      "bytes": 1635,
+      "path": "capability-index/capabilities/TSC-073_polymer-amorphous-cell.yaml",
+      "sha256": "4eab17402654ac48513e0f69637784e311b21fb1703c68b659e9b93ad6f73d21"
+    },
+    {
+      "bytes": 1631,
+      "path": "capability-index/capabilities/TSC-074_polymer-crystal-interface.yaml",
+      "sha256": "8be44e0a7d8014918af91cded2767bfe9a822cc9da97d5b3ddabbdd235bfed19"
+    },
+    {
+      "bytes": 1621,
+      "path": "capability-index/capabilities/TSC-075_filler-dispersion.yaml",
+      "sha256": "f3c886cb2f684f851a7a41b9d9050732d7121eb208bae67fda88d43cd425c874"
+    },
+    {
+      "bytes": 1658,
+      "path": "capability-index/capabilities/TSC-076_selective-localization.yaml",
+      "sha256": "99de4685a3711b3dfef372298365cba1905f2bfa00c89943af9e9021578b2aab"
+    },
+    {
+      "bytes": 1637,
+      "path": "capability-index/capabilities/TSC-077_interfacial-adhesion.yaml",
+      "sha256": "486ecc8d457d1b3506297fd5f4b9c41a20f72a3a9161605beeb9a8392b8cfb86"
+    },
+    {
+      "bytes": 1626,
+      "path": "capability-index/capabilities/TSC-078_percolation-network.yaml",
+      "sha256": "e6fdc93e4cf9d6251432b5999677f637c3ddcb8452dbd4ad470bd0f50efb3453"
+    },
+    {
+      "bytes": 1644,
+      "path": "capability-index/capabilities/TSC-079_rheology-structure-link.yaml",
+      "sha256": "9ddd6b71edd2a63f844e56986b0e0b91caec5b14240576ea30fb7382b76b91f7"
+    },
+    {
+      "bytes": 1626,
+      "path": "capability-index/capabilities/TSC-080_thermal-aging-model.yaml",
+      "sha256": "d8462d60fc8b15c64c32175a8bae07fbd1ed985e068dfb3a009aef4e13a693fe"
+    },
+    {
+      "bytes": 1635,
+      "path": "capability-index/capabilities/TSC-081_dielectric-property-model.yaml",
+      "sha256": "960c2256d38c2425e1b821ccad42efff85b0806b52729d4a8820fb06cf375e63"
+    },
+    {
+      "bytes": 1641,
+      "path": "capability-index/capabilities/TSC-082_structure-property-map.yaml",
+      "sha256": "e661b3c10667bbdc955d82c406f6182cbd3e877b9faa50e689e03f44d08b49f8"
+    },
+    {
+      "bytes": 1560,
+      "path": "capability-index/capabilities/TSC-083_governing-equation-contract.yaml",
+      "sha256": "36be5f78e1b7e0ac8691b1efad897612f82562001d67af92845b8ab20622b946"
+    },
+    {
+      "bytes": 1533,
+      "path": "capability-index/capabilities/TSC-084_weak-form-verification.yaml",
+      "sha256": "f7a2a0ab5fc6bdb592d81e1713fecdfc6851388f1a66dcf83a551eb4590a153f"
+    },
+    {
+      "bytes": 1531,
+      "path": "capability-index/capabilities/TSC-085_mesh-convergence.yaml",
+      "sha256": "3ed7eda582feccc376392719ee5dc3116f53346297fd85c64ea7c4de906b9d03"
+    },
+    {
+      "bytes": 1545,
+      "path": "capability-index/capabilities/TSC-086_time-step-convergence.yaml",
+      "sha256": "5e5d301f57af0cbe030b6d8daac305c598c5a03f6d8d38b1c3f780ded1e26a57"
+    },
+    {
+      "bytes": 1555,
+      "path": "capability-index/capabilities/TSC-087_constitutive-model.yaml",
+      "sha256": "55808c60f158aed13d184d115b1ac1da72ab480eeaf34c8838a29c0f340061d1"
+    },
+    {
+      "bytes": 1554,
+      "path": "capability-index/capabilities/TSC-088_boundary-condition-audit.yaml",
+      "sha256": "269f9588e533edb458895f6e58023886298988e3fd95c1f59818b5e8edf1a499"
+    },
+    {
+      "bytes": 1545,
+      "path": "capability-index/capabilities/TSC-089_solver-tolerance-study.yaml",
+      "sha256": "a361b58b523228e8d8db27cf8035f65fcb2a82d0b3d8f974fb06fffcddaeb7f6"
+    },
+    {
+      "bytes": 1551,
+      "path": "capability-index/capabilities/TSC-090_verification-benchmark.yaml",
+      "sha256": "c973358584f5b0c55df57f2c392b7e8c20446af5fb62f9a89c4a7470057728ae"
+    },
+    {
+      "bytes": 1556,
+      "path": "capability-index/capabilities/TSC-091_thermo-mechanical-coupling.yaml",
+      "sha256": "4e3ba57d1350f1cd53fb1b2ab7b98505cecaec32c33ac3833ca994710dfda9ee"
+    },
+    {
+      "bytes": 1562,
+      "path": "capability-index/capabilities/TSC-092_electro-thermal-coupling.yaml",
+      "sha256": "abe296b4add752413886a6d5f71a089465e8452b9e837ff5a386c750679fb06b"
+    },
+    {
+      "bytes": 1559,
+      "path": "capability-index/capabilities/TSC-093_electro-mechanical-coupling.yaml",
+      "sha256": "514e1355644a573a8b0b8d68e1167b285581407566d68f6c7450633a43f25347"
+    },
+    {
+      "bytes": 1595,
+      "path": "capability-index/capabilities/TSC-094_transport-reaction-coupling.yaml",
+      "sha256": "eb5c0c501ed792708ec7ff163f5d9246648541399c624daf625b91ad974dcc97"
+    },
+    {
+      "bytes": 1588,
+      "path": "capability-index/capabilities/TSC-095_partitioned-coupling.yaml",
+      "sha256": "d5df8abcb8b8d24932c914e035cfa75b56aeb879e709ed39125e369482133d6e"
+    },
+    {
+      "bytes": 1584,
+      "path": "capability-index/capabilities/TSC-096_monolithic-coupling.yaml",
+      "sha256": "e4ebc5d02cb12aa7f030e82a73feb14353df62f064f460e418c729a4f59e5fa8"
+    },
+    {
+      "bytes": 1588,
+      "path": "capability-index/capabilities/TSC-097_coupling-convergence.yaml",
+      "sha256": "88a01f507f9d9c8255a77602d10c1cbbc4d9818774544b865b216dbe34c18fde"
+    },
+    {
+      "bytes": 1602,
+      "path": "capability-index/capabilities/TSC-098_energy-balance-validation.yaml",
+      "sha256": "edfa8e8d4a48e4113ea69c13cab0373280b89fff53364d15398b857a109b63ab"
+    },
+    {
+      "bytes": 1596,
+      "path": "capability-index/capabilities/TSC-099_flow-domain-definition.yaml",
+      "sha256": "a07c7f4250ace7a89e0dc48ed78e216ac1ef24ae731914152916b85f80bcffb1"
+    },
+    {
+      "bytes": 1604,
+      "path": "capability-index/capabilities/TSC-100_mesh-quality-audit.yaml",
+      "sha256": "fe3ddb97cfa477a1e92e752e74b26d3991707c64f46df134a5e0ab28c6136d50"
+    },
+    {
+      "bytes": 1584,
+      "path": "capability-index/capabilities/TSC-101_laminar-flow-model.yaml",
+      "sha256": "4c8491310b1dbd6ef80a5dc388bd960c59b41073632a0c447b71bd32e87e9875"
+    },
+    {
+      "bytes": 1606,
+      "path": "capability-index/capabilities/TSC-102_turbulence-model-selection.yaml",
+      "sha256": "c195d8c6aca6d7ad49187fdeeb40bec7856aeef3e1253a7d41e10d6f42aa677b"
+    },
+    {
+      "bytes": 1606,
+      "path": "capability-index/capabilities/TSC-103_multiphase-model-selection.yaml",
+      "sha256": "e0d7f4834cfa237696653b0524755211737e374248f55fba385ff9bc3e47b38e"
+    },
+    {
+      "bytes": 1620,
+      "path": "capability-index/capabilities/TSC-104_heat-transfer-model.yaml",
+      "sha256": "f201c18c970d5bfc8443c23f70ee9512c506b303f608c25208a7ff437a089b01"
+    },
+    {
+      "bytes": 1604,
+      "path": "capability-index/capabilities/TSC-105_species-transport.yaml",
+      "sha256": "dc1032b85dc2fa17ff96e55370164db0365b5b1ce50b8afbd9d14960cdf6f46c"
+    },
+    {
+      "bytes": 1625,
+      "path": "capability-index/capabilities/TSC-106_pressure-velocity-coupling.yaml",
+      "sha256": "6d1dce6fb95b3b435dbde111ce18e18ec7dfcc9fdc58afd0f04683aa9ab33029"
+    },
+    {
+      "bytes": 1592,
+      "path": "capability-index/capabilities/TSC-107_cfd-convergence.yaml",
+      "sha256": "fc3d99dc3ec53428d2d233714e98506847dc1ebe9c93a8b34c13d4ebe87d9a56"
+    },
+    {
+      "bytes": 1620,
+      "path": "capability-index/capabilities/TSC-108_mass-balance-validation.yaml",
+      "sha256": "0853486db427bd4eaed9174a1d5997878bc871940c2dbfeba58450d0c749b3e0"
+    },
+    {
+      "bytes": 1557,
+      "path": "capability-index/capabilities/TSC-109_nonnewtonian-rheology.yaml",
+      "sha256": "d9d73c83111c2e96cb7bdbc6874d78e73189626c1663376fb08a9511e62e2cd8"
+    },
+    {
+      "bytes": 1558,
+      "path": "capability-index/capabilities/TSC-110_viscosity-parameter-fit.yaml",
+      "sha256": "c3835b3abf7d35ff15136273896cdccef3e5a3c0eb7f5c09a51562ed3476b8ac"
+    },
+    {
+      "bytes": 1521,
+      "path": "capability-index/capabilities/TSC-111_die-flow-model.yaml",
+      "sha256": "56b6af0bda2444f1d8e06cf7167153fca7cb58cc8dc9024bcabf5256a14128fc"
+    },
+    {
+      "bytes": 1529,
+      "path": "capability-index/capabilities/TSC-112_screw-channel-model.yaml",
+      "sha256": "3012d2195a7a40be46c2753e06f275bef017f38d903b8d0b53a0a38fc9bec9f6"
+    },
+    {
+      "bytes": 1579,
+      "path": "capability-index/capabilities/TSC-113_residence-time-distribution.yaml",
+      "sha256": "f87ac54ec3704ee1e420581d425d6a7c6d5a716dbe0f4b3a06fbe8e1705d5518"
+    },
+    {
+      "bytes": 1579,
+      "path": "capability-index/capabilities/TSC-114_extrudate-quality-map.yaml",
+      "sha256": "7015a9685eb3ffe98030851ba6dfecf77fea4381c5bd5a818aabf0b0ead1f21d"
+    },
+    {
+      "bytes": 1684,
+      "path": "capability-index/capabilities/TSC-115_component-property-package.yaml",
+      "sha256": "73bb479fc39252543e139274e9d7fcc95a9ddf14d15b789a2ccfda0649c549f7"
+    },
+    {
+      "bytes": 1641,
+      "path": "capability-index/capabilities/TSC-116_flowsheet-topology.yaml",
+      "sha256": "941195bef488e794363c5c0ef7cf457c6bc950c6e68ce02c28d424e89da52b10"
+    },
+    {
+      "bytes": 1665,
+      "path": "capability-index/capabilities/TSC-117_unit-operation-model.yaml",
+      "sha256": "c7c5ca11f408a2b5c07fbf00785bc37a06ed3ddae0e665c882d12fb4154081bc"
+    },
+    {
+      "bytes": 1651,
+      "path": "capability-index/capabilities/TSC-118_recycle-convergence.yaml",
+      "sha256": "89227a380f0412fcf11d56120f2bfff77f8402751efa6228389b3f8d1466d36f"
+    },
+    {
+      "bytes": 1651,
+      "path": "capability-index/capabilities/TSC-119_process-energy-balance.yaml",
+      "sha256": "bcb8295b5b74f622df832cf4b4f0c189fbbada27c61691e9290225c5297ad2f4"
+    },
+    {
+      "bytes": 1643,
+      "path": "capability-index/capabilities/TSC-120_process-mass-balance.yaml",
+      "sha256": "4d3607ae1fad1eab05dd101f521a0a7207a81e7e39f0901f72bc6b5ceff0d439"
+    },
+    {
+      "bytes": 1646,
+      "path": "capability-index/capabilities/TSC-121_process-optimization.yaml",
+      "sha256": "1118b569461f997880fa834a2c94515d4357dd50035471d0890a792509dd601b"
+    },
+    {
+      "bytes": 1639,
+      "path": "capability-index/capabilities/TSC-122_process-sensitivity.yaml",
+      "sha256": "83d572809e5b45b77b054cb4036155cb808745a0f3db9f2bb3c3a80d7dbc0fbd"
+    },
+    {
+      "bytes": 1681,
+      "path": "capability-index/capabilities/TSC-123_commercial-simulator-handoff.yaml",
+      "sha256": "3dbe25363342498c66f30a9697125401277383837c9e941475dba6a1911a74e4"
+    },
+    {
+      "bytes": 1651,
+      "path": "capability-index/capabilities/TSC-124_flowsheet-uncertainty.yaml",
+      "sha256": "255e3c1a8cbe5ff4c1fba729755148d00d01f3d802fb1df689807caffcfcf677"
+    },
+    {
+      "bytes": 1495,
+      "path": "capability-index/capabilities/TSC-125_cstr-model.yaml",
+      "sha256": "9336030f32e9ad963dd4560923a849efeb23bc2da0b38ff5f826243c7d87e333"
+    },
+    {
+      "bytes": 1491,
+      "path": "capability-index/capabilities/TSC-126_pfr-model.yaml",
+      "sha256": "e6fb71b299c97b6c8bb267b5119d3ecae091145d26f9b8a05cd572de8a918bde"
+    },
+    {
+      "bytes": 1520,
+      "path": "capability-index/capabilities/TSC-127_batch-reactor-model.yaml",
+      "sha256": "62defa482495367410bef97af6a2c403b516ea610c9e40b95188ee19305fad7d"
+    },
+    {
+      "bytes": 1539,
+      "path": "capability-index/capabilities/TSC-128_residence-time-model.yaml",
+      "sha256": "64c52b32f843ee3d23cc585167ba9d7b93c51e123e57d6c6d5ae9f6cff4795cf"
+    },
+    {
+      "bytes": 1540,
+      "path": "capability-index/capabilities/TSC-129_heat-removal-analysis.yaml",
+      "sha256": "c5097be01543cad41a86c8ca93f29d0df390803ad245bbffc80260f0fd33cab8"
+    },
+    {
+      "bytes": 1527,
+      "path": "capability-index/capabilities/TSC-130_runaway-screening.yaml",
+      "sha256": "260545ce84dec097a4a0b22db559ca58c4f318bb80f85c733f30a5883dc4fd7f"
+    },
+    {
+      "bytes": 1516,
+      "path": "capability-index/capabilities/TSC-131_reactor-scale-up.yaml",
+      "sha256": "dcaaa28186fb703c8b34d373e4131a79988e00140cfe81e35d57f363ea46a50b"
+    },
+    {
+      "bytes": 1531,
+      "path": "capability-index/capabilities/TSC-132_reactor-parameter-fit.yaml",
+      "sha256": "910be4c31a6c87ed5d8e98e517a31270541e38b506e3a265b0670713f467a539"
+    },
+    {
+      "bytes": 1578,
+      "path": "capability-index/capabilities/TSC-133_dynamic-inventory-model.yaml",
+      "sha256": "a72e129be521d4f8e37184dbf0bcd01b7c5373589fe3bf36f8a660ecbaa8cf9c"
+    },
+    {
+      "bytes": 1617,
+      "path": "capability-index/capabilities/TSC-134_startup-shutdown-sequence.yaml",
+      "sha256": "3268233046d563378a750842aaae22991f9a97e1d7803c104cf3d6bd0cb3bae8"
+    },
+    {
+      "bytes": 1542,
+      "path": "capability-index/capabilities/TSC-135_pid-loop-model.yaml",
+      "sha256": "2f914364b822c98ae55209cb1e2351fc8ee74647a49cd4e1f8b5112d776786a3"
+    },
+    {
+      "bytes": 1589,
+      "path": "capability-index/capabilities/TSC-136_control-structure-selection.yaml",
+      "sha256": "7da6f0e5991c92a02eedb42f7ea33512a729a149f268634934f35d864ffc548a"
+    },
+    {
+      "bytes": 1594,
+      "path": "capability-index/capabilities/TSC-137_disturbance-scenario.yaml",
+      "sha256": "f9487a0f3ce8ec0f717fca766faa54f7d8b9b5f95b66935b4646714f3ffe7400"
+    },
+    {
+      "bytes": 1577,
+      "path": "capability-index/capabilities/TSC-138_dynamic-model-validation.yaml",
+      "sha256": "4fb79045b0e71faed818476ac293a4b9e467e4b0f210e2efceb5cae85d0a2171"
+    },
+    {
+      "bytes": 1575,
+      "path": "capability-index/capabilities/TSC-139_state-estimation.yaml",
+      "sha256": "8b7354f3b46699d6d6810553d3452213031f4f37b5ce6ff42f15dcc8f70769ae"
+    },
+    {
+      "bytes": 1594,
+      "path": "capability-index/capabilities/TSC-140_control-safety-boundary.yaml",
+      "sha256": "80ca3c8986029f0d98f32b870823bbf6c8ce6a65bce659420b61e2bed1d4bf45"
+    },
+    {
+      "bytes": 1510,
+      "path": "capability-index/capabilities/TSC-141_twin-scope-contract.yaml",
+      "sha256": "8f4b59b22592396968cea08b94b9d26e643b47adeb83eb11b3215f685cfe7793"
+    },
+    {
+      "bytes": 1489,
+      "path": "capability-index/capabilities/TSC-142_soft-sensor-model.yaml",
+      "sha256": "c8f677a8c935ff8c7e64a66ad4bde250f3748a788f5f342836e4259bda89f803"
+    },
+    {
+      "bytes": 1508,
+      "path": "capability-index/capabilities/TSC-143_online-parameter-update.yaml",
+      "sha256": "e9066c00e8e7c25849861e75bb8dad0645c8c22b6b177b9e0f2c81d4238e95ca"
+    },
+    {
+      "bytes": 1493,
+      "path": "capability-index/capabilities/TSC-144_drift-detection.yaml",
+      "sha256": "1ca28d0ce1430a037c6aaee2c362346e67240cac057bfb089ab3d16637ba2f4d"
+    },
+    {
+      "bytes": 1527,
+      "path": "capability-index/capabilities/TSC-145_applicability-domain.yaml",
+      "sha256": "bf38a9296b41288e4c33aeb140cf78bb0c2f62db287a85c5be9f694166f2daaf"
+    },
+    {
+      "bytes": 1532,
+      "path": "capability-index/capabilities/TSC-146_decision-support-boundary.yaml",
+      "sha256": "230005f84c33dd2c24362104b2b36d775a2d62fede078714aeef159effcfec84"
+    },
+    {
+      "bytes": 1559,
+      "path": "capability-index/capabilities/TSC-147_dft-to-kinetics.yaml",
+      "sha256": "90f32ea5a672334c5271f323336e4ce7894b617017548f2e172f8575306ce7ff"
+    },
+    {
+      "bytes": 1564,
+      "path": "capability-index/capabilities/TSC-148_dft-to-forcefield.yaml",
+      "sha256": "c359894c58ce6a06a37d377e4d2d81bb914657efc2f774f310d5a72c986fcf5d"
+    },
+    {
+      "bytes": 1568,
+      "path": "capability-index/capabilities/TSC-149_dft-to-mlp.yaml",
+      "sha256": "06b19d8999cd474a583f58f1c6cdcd54f9bb34c8193aebc21cc27f9a0df52539"
+    },
+    {
+      "bytes": 1573,
+      "path": "capability-index/capabilities/TSC-150_md-to-continuum.yaml",
+      "sha256": "86ca2d6e4ccd6ff6d0c4ba179d65f537a368cddb751832c34c479ced2083e868"
+    },
+    {
+      "bytes": 1564,
+      "path": "capability-index/capabilities/TSC-151_md-to-rheology.yaml",
+      "sha256": "fd4ed66daf16b65a3b6cfacddf86327b38a9378ba25ea93b2bbca1be1f9966a1"
+    },
+    {
+      "bytes": 1587,
+      "path": "capability-index/capabilities/TSC-152_morphology-to-property.yaml",
+      "sha256": "4cade457b55214ce2e50d8a28a41a707b57d214f8d963aed23f32fff63d0ded7"
+    },
+    {
+      "bytes": 1601,
+      "path": "capability-index/capabilities/TSC-153_pbe-to-flowsheet.yaml",
+      "sha256": "fb8b508d106fd3d5539262cb5e2367607ac3f0b036bebfae639c07032ac196d8"
+    },
+    {
+      "bytes": 1571,
+      "path": "capability-index/capabilities/TSC-154_cfd-to-equipment.yaml",
+      "sha256": "6ccf23e334cd4a41f6e15b93253488bc0d5c8ecf59f16e01243a205641585e4d"
+    },
+    {
+      "bytes": 1596,
+      "path": "capability-index/capabilities/TSC-155_experiment-to-calibration.yaml",
+      "sha256": "9a0e1fb6dd64e183e62e8b7446bdd3eeba321d9cdb33e0d152be61cd12a24832"
+    },
+    {
+      "bytes": 1579,
+      "path": "capability-index/capabilities/TSC-156_handoff-uncertainty.yaml",
+      "sha256": "72a069513dbb3797faf173998fedc1b2eaa1d8afeead9a9cf12e220a436946ce"
+    },
+    {
+      "bytes": 1588,
+      "path": "capability-index/capabilities/TSC-157_environment-probe.yaml",
+      "sha256": "dbea509ca1c4d4f8fec5e54a0e231af8cef55de335d4218eeb7ff0881a33f949"
+    },
+    {
+      "bytes": 1590,
+      "path": "capability-index/capabilities/TSC-158_resource-estimation.yaml",
+      "sha256": "9ea27405af16ffa9155dcad516136373df40685241ebeae533cbe3767c62ab73"
+    },
+    {
+      "bytes": 1566,
+      "path": "capability-index/capabilities/TSC-159_slurm-submission.yaml",
+      "sha256": "ab33d5e8f63bee280131e15c6d0873b11de64f339f94b39d9d987477adfc715d"
+    },
+    {
+      "bytes": 1558,
+      "path": "capability-index/capabilities/TSC-160_pbs-submission.yaml",
+      "sha256": "6b9b361a6d2e0d733d74d567b30697d0d5a6b34942776336e5dedc5f92d8427a"
+    },
+    {
+      "bytes": 1581,
+      "path": "capability-index/capabilities/TSC-161_checkpoint-restart.yaml",
+      "sha256": "dc3de61414bf5bdc0da82b31ba47ac52c5117fe621e62a6cc0fa0335c3b7efcb"
+    },
+    {
+      "bytes": 1606,
+      "path": "capability-index/capabilities/TSC-162_failure-classification.yaml",
+      "sha256": "8d276636a9d833df3e03426280f2e7c4c20a56548e3a8274e432ec4e70bc2cc5"
+    },
+    {
+      "bytes": 1582,
+      "path": "capability-index/capabilities/TSC-163_bounded-recovery.yaml",
+      "sha256": "4db49528fb94e40c8abd763d19d1cf2aa4e5cbc7da6ae937143ed694269edf11"
+    },
+    {
+      "bytes": 1596,
+      "path": "capability-index/capabilities/TSC-164_artifact-packaging.yaml",
+      "sha256": "138a48f3f7613795d7ec81af4851a3b128cbe7938cd22cc2a4e66016c8cb9466"
+    },
+    {
+      "bytes": 11798,
+      "path": "capability-index/graph.json",
+      "sha256": "3838c23e97cf92019b8a7f49df1122d19b41b0e7e2957de24e7cd1cc9e88ecd0"
+    },
+    {
+      "bytes": 1167,
+      "path": "docs/architecture.md",
+      "sha256": "dca5e643047d30a6a281da8977967ced8c25690d36b6a0d94495bd5f441621ff"
+    },
+    {
+      "bytes": 2444,
+      "path": "docs/branch-consolidation-audit.md",
+      "sha256": "0f51f2350c4d151670181aa65156fe9ef5ca727a1952ed4208e779d16b6da9fe"
+    },
+    {
+      "bytes": 438,
+      "path": "docs/branch-policy.md",
+      "sha256": "8ac936871c1def8fcc62deab6bb6dd3e702ade12512464e025d859a551f0795c"
+    },
+    {
+      "bytes": 1063,
+      "path": "docs/performance.md",
+      "sha256": "40d449f223608557c923b5573be44373e77162c34d1778d4872f84f3d9c7256a"
+    },
+    {
+      "bytes": 695,
+      "path": "docs/scientific-trust.md",
+      "sha256": "46041f09eb47f6f79754fdfe03999486ccbf2a3869c7bcc46c876a388b6655ec"
+    },
+    {
+      "bytes": 45752,
+      "path": "evidence/JUNIT_FINAL.xml",
+      "sha256": "1916f070fcfa6b9e705985ff5c0499a54a4f8cb75a8adfaefa241e7f16e7333f"
+    },
+    {
+      "bytes": 45753,
+      "path": "evidence/JUNIT_REMOTE_FINAL.xml",
+      "sha256": "b2a47614726a524ae5b401c4901335e911eb3fa74d80e36bf3dcc3b9a79607fd"
+    },
+    {
+      "bytes": 115082,
+      "path": "evidence/coverage.json",
+      "sha256": "2dc737fa0d043eabfc0f110c62bb7375cb1e0d2516b01815509323eac700233d"
+    },
+    {
+      "bytes": 4414,
+      "path": "evidence/mutation-report.json",
+      "sha256": "52f7f5c3360f7b6b49bc754f55be0581dabbf1b0d05851b87ba01e6cad9c9461"
+    },
+    {
+      "bytes": 983,
+      "path": "evidence/quality-baseline.json",
+      "sha256": "ac880b6d83942a974e72f5cc0a902bfcc25683e3d544d5cbe9626533ef6e8428"
+    },
+    {
+      "bytes": 88,
+      "path": "evidence/quality-check.json",
+      "sha256": "7befd36c716977546ed58ef64a71b159505bc978b383b82cac66ca2b711d6f31"
+    },
+    {
+      "bytes": 72,
+      "path": "evidence/security-scan.json",
+      "sha256": "00e7899dcf83385808b0e41d62011b7fd1bc2939aaf8e92f957911af721bd5a4"
+    },
+    {
+      "bytes": 109,
+      "path": "examples/aspen-dynamic/README.md",
+      "sha256": "904fd565aa81fccff43c6e4bdad392f5dc7b5af22f81bc3ea09601bd3ebb5a25"
+    },
+    {
+      "bytes": 280,
+      "path": "examples/aspen-dynamic/contract.json",
+      "sha256": "4f4885d4f0e8086e153a484ab1e3126f23bf162e866844822581f22ec7ae68ec"
+    },
+    {
+      "bytes": 118,
+      "path": "examples/cable-fem/README.md",
+      "sha256": "41d9ac0be4488d84c4a534f0465708edde079ccb5244c52ae551f776fabedbd9"
+    },
+    {
+      "bytes": 285,
+      "path": "examples/cable-fem/contract.json",
+      "sha256": "f8b4294065b6cc0018670821ac76097dc76665f546cce3a987c874da4d11d3c1"
+    },
+    {
+      "bytes": 107,
+      "path": "examples/dft-md-cfd/README.md",
+      "sha256": "8176dd17747bb2d5ca9df56868db576479cf8b5ba6dbb1a7937885f7d4e08362"
+    },
+    {
+      "bytes": 282,
+      "path": "examples/dft-md-cfd/contract.json",
+      "sha256": "23abcf372daf9a75a5b5e60f403f3c8f5ab4b4ac9dfc61a825df7f08c02bc33d"
+    },
+    {
+      "bytes": 114,
+      "path": "examples/extrusion-cfd/README.md",
+      "sha256": "f601db38092f8f551230961dff7179cc31a8f9efeae197cc18fc3bad2e99fda5"
+    },
+    {
+      "bytes": 282,
+      "path": "examples/extrusion-cfd/contract.json",
+      "sha256": "a76192c16c1cd8b5af9885c2b6aab5ac61a9a503a84688874748eabad9fed63a"
+    },
+    {
+      "bytes": 118,
+      "path": "examples/failure-gate/README.md",
+      "sha256": "8c6cd671ed9c3b18aa46954d514585883e67ac666307af71357b6b31b7542385"
+    },
+    {
+      "bytes": 289,
+      "path": "examples/failure-gate/contract.json",
+      "sha256": "5a9dbf095150b873dcce54677f6f8e7fad197302e1506d0c29b938749c1f2e1b"
+    },
+    {
+      "bytes": 124,
+      "path": "examples/organic-dft/README.md",
+      "sha256": "68b3e90f72d89c40fbdab5b114f7d3649b6d9297f84fe923bd2995cf0206129b"
+    },
+    {
+      "bytes": 298,
+      "path": "examples/organic-dft/contract.json",
+      "sha256": "9a94c2a6465ed56ce0e8e6631ee1f21d12379f3c751335fa4c64570daf4fef92"
+    },
+    {
+      "bytes": 121,
+      "path": "examples/polymer-carbon-black/README.md",
+      "sha256": "ab03c84fe5683d48cd5fb5b6e72748e28b1309601ccf19008464a8ac4113fa3d"
+    },
+    {
+      "bytes": 304,
+      "path": "examples/polymer-carbon-black/contract.json",
+      "sha256": "ba5a584737374dc7a29c15abb77a824ec997fb643fe20c572730f25dda7143d1"
+    },
+    {
+      "bytes": 110,
+      "path": "examples/polymer-process/README.md",
+      "sha256": "442322fc5650d6ff7a24b055091da5c5d423cb9957b0b48e096a9cb20049cf95"
+    },
+    {
+      "bytes": 289,
+      "path": "examples/polymer-process/contract.json",
+      "sha256": "5a49982a377183bfbf71b224b9c7ad5f077c54636b2fa4a3843fc27457be1452"
+    },
+    {
+      "bytes": 116,
+      "path": "examples/polymerization-pbe/README.md",
+      "sha256": "977e068efa16bf342640ee91d4c795c1442b1c6ac830976eba6368f35f02188c"
+    },
+    {
+      "bytes": 294,
+      "path": "examples/polymerization-pbe/contract.json",
+      "sha256": "299e732e3060f1a0f86ba19534ba8dfd125094937655d55e83e38e98f0072b25"
+    },
+    {
+      "bytes": 107,
+      "path": "examples/pp-percolation/README.md",
+      "sha256": "9b659c647008d612ff9b4e48eaeafa49995de32d9b72ca586cc229cdc6eaa96d"
+    },
+    {
+      "bytes": 284,
+      "path": "examples/pp-percolation/contract.json",
+      "sha256": "6bb451c6a1e424eaef66b89df00787ad5cf25e15167895cf106ecfde0f1775e3"
+    },
+    {
+      "bytes": 109,
+      "path": "examples/protein-md/README.md",
+      "sha256": "9a33021f5fd55abe6bd5981f5adc960266a6f64fe30595412bdaf50f356d1689"
+    },
+    {
+      "bytes": 283,
+      "path": "examples/protein-md/contract.json",
+      "sha256": "f021e8fb30da8b4f5613644b78fa3c13fbfafb08f8e1d7b242e6223dde993f0f"
+    },
+    {
+      "bytes": 109,
+      "path": "examples/surface-neb/README.md",
+      "sha256": "27aa7f291d32f22a3b62397387cc8a69d0593af4b21dd45ddfc0e38b178bef72"
+    },
+    {
+      "bytes": 279,
+      "path": "examples/surface-neb/contract.json",
+      "sha256": "78c42e7550e6b4abf75b8f83ec8b0fb0884f537b6a1910188c840fbce61115b2"
+    },
+    {
+      "bytes": 1371,
+      "path": "pyproject.toml",
+      "sha256": "8d54908fb700595f96adaa733dd5b950e7c5b17fb31698302a07f003842388fb"
+    },
+    {
+      "bytes": 195,
+      "path": "pytest.ini",
+      "sha256": "6cba91532911b93f1e29db7b76d6e188c3d8817da9571a89cbb60523d67b3f6d"
+    },
+    {
+      "bytes": 12735,
+      "path": "registry/adapters.json",
+      "sha256": "700746f4748808516b439b41de38ca00c4dcb0cd3269596cd2a4122a4ec3862d"
+    },
+    {
+      "bytes": 281100,
+      "path": "registry/capabilities.json",
+      "sha256": "1575982abf2d683dfd8d0e3806ec0c094169793a2750bbad1210ed79092e8fc0"
+    },
+    {
+      "bytes": 976,
+      "path": "registry/units.json",
+      "sha256": "6c5a039e37371f66226a4e0840a0ce1edacfd1c49ce5ce8abe061afba0058c14"
+    },
+    {
+      "bytes": 12846,
+      "path": "registry/workflows.json",
+      "sha256": "4b1ea5595c760a27cc64a959eee5de1ae0574967d01a86e740ab0d56cf2412b3"
+    },
+    {
+      "bytes": 4414,
+      "path": "reports/MUTATION_REPORT.json",
+      "sha256": "52f7f5c3360f7b6b49bc754f55be0581dabbf1b0d05851b87ba01e6cad9c9461"
+    },
+    {
+      "bytes": 5865,
+      "path": "reports/REMOTE_FINALIZATION.json",
+      "sha256": "2f207d12616037f0028a330368430f8bde44cb692a51e9e00017b292272cb3eb"
+    },
+    {
+      "bytes": 225,
+      "path": "reports/REPOSITORY_AUDIT.json",
+      "sha256": "ee88b0db7b8b292599fa8f9c6d5655138ad23ab832ea8900a44c5623097ab57e"
+    },
+    {
+      "bytes": 72,
+      "path": "reports/SECURITY_SCAN.json",
+      "sha256": "00e7899dcf83385808b0e41d62011b7fd1bc2939aaf8e92f957911af721bd5a4"
+    },
+    {
+      "bytes": 210,
+      "path": "schemas/adapter.schema.json",
+      "sha256": "9f5b4946709a76217f44c01a5cc13ed06ede62486fb2efdee8a390afdcee5f12"
+    },
+    {
+      "bytes": 944,
+      "path": "schemas/calculation-contract.schema.json",
+      "sha256": "56d429364369190e7102d11212b70c0a36f87a5285e7d4e59af9d285fa234bda"
+    },
+    {
+      "bytes": 1679,
+      "path": "schemas/capability.schema.json",
+      "sha256": "fe3b84c4635e97a3e290bc470a0481acb33198e561e83f8002b99aa8a6263a84"
+    },
+    {
+      "bytes": 370,
+      "path": "schemas/handoff.schema.json",
+      "sha256": "a95b211dc0284fdabc6a6def4225a1e4099de611a93499fa692a1051c7a9944e"
+    },
+    {
+      "bytes": 167,
+      "path": "schemas/project.schema.json",
+      "sha256": "0bccf6b741ae3792b5ca8eb3bee9281d6f8837989301d196f38635caa8ecb6a3"
+    },
+    {
+      "bytes": 573,
+      "path": "schemas/result.schema.json",
+      "sha256": "3deb30603c38f48c75650a25e0d1851da761941e1862c933cceb427d329e30a2"
+    },
+    {
+      "bytes": 191,
+      "path": "schemas/workflow.schema.json",
+      "sha256": "55a508abe3fe8a790b8463611b1909508af5ecdd47adf303c64bdefdc07b2c5f"
+    },
+    {
+      "bytes": 180,
+      "path": "scripts/_bootstrap.py",
+      "sha256": "d0a5179e44e0206108b1fd09e2ecc8c792aae09903c85a3cd4cbf4aaf2335bd9"
+    },
+    {
+      "bytes": 2900,
+      "path": "scripts/benchmark.py",
+      "sha256": "dac6687b6208d086de279e2cfe46fc14d191f0e0e2a99d4b3fc77cec025f2d48"
+    },
+    {
+      "bytes": 1028,
+      "path": "scripts/build_capability_index.py",
+      "sha256": "476ccf90100a676a948a15c241f954998c6f04b93f573a0c28290cca6fe29492"
+    },
+    {
+      "bytes": 841,
+      "path": "scripts/build_manifest.py",
+      "sha256": "8809db67fc61d90ce43036af0b87f1c538a11ea037521aac34c120dba1a56384"
+    },
+    {
+      "bytes": 388,
+      "path": "scripts/init_project.py",
+      "sha256": "d6533be89cf18adbe00e36b75f3eded0ab086c7945092bc33bfd083696e20bc7"
+    },
+    {
+      "bytes": 4244,
+      "path": "scripts/package_release.py",
+      "sha256": "1496d869ea4b0031eea79304c0125d36f4a67e99f751467245ce6f4de56dde4a"
+    },
+    {
+      "bytes": 850,
+      "path": "scripts/probe_environment.py",
+      "sha256": "23b7dd9f0604a825c86ab5482657cbecf0ff4bfe8806c81d617751cfe5b53048"
+    },
+    {
+      "bytes": 2782,
+      "path": "scripts/quality_check.py",
+      "sha256": "81faf8c8872e1544ad2bfd256441bc268556122df5b098e73b2b4bd4d502e5ec"
+    },
+    {
+      "bytes": 8386,
+      "path": "scripts/run_mutation_gate.py",
+      "sha256": "cc671d2e394707f4594c8b1de08555773f6b17d818b57a0c17bc0529c039db60"
+    },
+    {
+      "bytes": 1119,
+      "path": "scripts/run_tests.py",
+      "sha256": "e254e8294ac8bd704b4bb4cc89f143ea29ae48b3e8bf90f5f061d14b072f74ed"
+    },
+    {
+      "bytes": 1797,
+      "path": "scripts/security_scan.py",
+      "sha256": "f5dd8d54a107d7d26c06337e02fa291e9d3e20f2e2d812c71489b733505ef2d0"
+    },
+    {
+      "bytes": 490,
+      "path": "scripts/select_scale.py",
+      "sha256": "f98a709817c3addc8ed61962644501ff209a4772a4fc9a6a4cbaa2699ab9c0c6"
+    },
+    {
+      "bytes": 976,
+      "path": "scripts/select_solver.py",
+      "sha256": "5207251d56b3cd502bf5dd8472ef58bccbacced9241558382020a9810b37ef01"
+    },
+    {
+      "bytes": 1182,
+      "path": "scripts/sync_package_assets.py",
+      "sha256": "4d5750ed973436350642c7c95ef10f9574cc39f7d8e94d30b0cd1f1e6c37bd2b"
+    },
+    {
+      "bytes": 256,
+      "path": "scripts/validate_repository.py",
+      "sha256": "f942a2d8218611b8060a08b627885d64e8ed5c5128cecca8625de9d499151ba0"
+    },
+    {
+      "bytes": 2088,
+      "path": "scripts/validate_schemas.py",
+      "sha256": "fa0616139c1859cdea40c7546ed624cf94dc72c6e7235d6ec6fcea415414bf19"
+    },
+    {
+      "bytes": 3251,
+      "path": "scripts/verify_wheel.py",
+      "sha256": "98a951ce76dab0924146dab62dfc63a26c3c03bbc2530f3b1f943a67a131ce4c"
+    },
+    {
+      "bytes": 522,
+      "path": "skills/workflows/catalysis/SKILL.md",
+      "sha256": "1fa7c1833578b87b4019441fb188f66b6f96fe8d6b7501ef59bf99e05c7db492"
+    },
+    {
+      "bytes": 512,
+      "path": "skills/workflows/cfd/SKILL.md",
+      "sha256": "9e83db78c620be127b63a106ad67fd7f45325f0b857f437b0f9c265123d0119c"
+    },
+    {
+      "bytes": 530,
+      "path": "skills/workflows/digital-twin/SKILL.md",
+      "sha256": "f969cfd06d173d46146f13e512e70e2529b0a05ee2fdd753424c1ffff73f0c83"
+    },
+    {
+      "bytes": 540,
+      "path": "skills/workflows/dynamic-control/SKILL.md",
+      "sha256": "625f344cddc296e142b45cd80feb809dd84fd80847784793ca6102b7f931d4ce"
+    },
+    {
+      "bytes": 550,
+      "path": "skills/workflows/enhanced-sampling/SKILL.md",
+      "sha256": "212b0e7ed979f434f873f1208daea876220bc6601530781a43283d4611ea7380"
+    },
+    {
+      "bytes": 532,
+      "path": "skills/workflows/extrusion/SKILL.md",
+      "sha256": "de4a5a3c1d88bed584150fd3cf01977954aebfc50ed7c293e7753a986ef2c63f"
+    },
+    {
+      "bytes": 524,
+      "path": "skills/workflows/finite-element/SKILL.md",
+      "sha256": "b4de66445fa19089d938721cc74596e64fa1831a74f210a79bc9c88baa5e3018"
+    },
+    {
+      "bytes": 536,
+      "path": "skills/workflows/hpc-execution/SKILL.md",
+      "sha256": "7f7e896b272adc21a17efae8bb13ce64f0b70c4f60192617ba8c209d5ecf9a25"
+    },
+    {
+      "bytes": 580,
+      "path": "skills/workflows/machine-learning-potential/SKILL.md",
+      "sha256": "13fbad81eb1d7684bbbb6f9c4a8046f0d99d6cb77d6f3ab411c64c20c71f3182"
+    },
+    {
+      "bytes": 522,
+      "path": "skills/workflows/molecular-dynamics/SKILL.md",
+      "sha256": "51d0f30e4b1f78f805005766324c90a3beeb1c901a0cd9bf4ea348e364981d4d"
+    },
+    {
+      "bytes": 514,
+      "path": "skills/workflows/multiphysics/SKILL.md",
+      "sha256": "476419b180c05d5c372fc9e4caa53e5813693edd73b30781336e71d8d83fd227"
+    },
+    {
+      "bytes": 552,
+      "path": "skills/workflows/multiscale-coupling/SKILL.md",
+      "sha256": "89d59acae67c74d95ee5219e7eaab001b41473bfc2e6aac9d19baa8838163872"
+    },
+    {
+      "bytes": 526,
+      "path": "skills/workflows/periodic-dft/SKILL.md",
+      "sha256": "bb845664956768407f5db348897d93c401da49269e6ea6ec6a3fbb29376bb7d3"
+    },
+    {
+      "bytes": 550,
+      "path": "skills/workflows/polymer-composite/SKILL.md",
+      "sha256": "fb176da1aeb3592a1b32599ddc4d718c6d626f54e8964701add1613f9d7c2b4d"
+    },
+    {
+      "bytes": 556,
+      "path": "skills/workflows/polymerization/SKILL.md",
+      "sha256": "8db243d56147076c8939ea1d4dd2f30966ccdf341718ddd60fb49c82a4a971cd"
+    },
+    {
+      "bytes": 552,
+      "path": "skills/workflows/process-simulation/SKILL.md",
+      "sha256": "07dcf097c6d63412146b763451d8ac95fed3b5f5518f7c4c411e19b22629b4b2"
+    },
+    {
+      "bytes": 538,
+      "path": "skills/workflows/quantum-chemistry/SKILL.md",
+      "sha256": "b7b72b57cc4809ca85004c5e4d3cb7c75286f18db5a08cbef5f140f722d439df"
+    },
+    {
+      "bytes": 536,
+      "path": "skills/workflows/reaction-path/SKILL.md",
+      "sha256": "19301c7e5032f07919c95512f61f9cda408d51485a7cebb96538587e5d167c6d"
+    },
+    {
+      "bytes": 526,
+      "path": "skills/workflows/reactor-engineering/SKILL.md",
+      "sha256": "e32274fb74132756b13fec88e71e8b05a608d0a159f6ac45fb8cdaeaed2b9938"
+    },
+    {
+      "bytes": 532,
+      "path": "skills/workflows/scale-selection/SKILL.md",
+      "sha256": "8ed03a74474b236b6893cb912668f42a3418234934e734a7400dfea6cd0fddd4"
+    },
+    {
+      "bytes": 290,
+      "path": "templates/calculation-contract.json",
+      "sha256": "e378949c57f1b4ab0c3255565be54b265dd0de8174be3100d96d7b4fbd267316"
+    },
+    {
+      "bytes": 351,
+      "path": "templates/handoff.json",
+      "sha256": "9ae5372397849d4d74d2f9bd269a04406865d456950999edb88b8e1d8af92788"
+    },
+    {
+      "bytes": 180,
+      "path": "tests/conftest.py",
+      "sha256": "d0a5179e44e0206108b1fd09e2ecc8c792aae09903c85a3cd4cbf4aaf2335bd9"
+    },
+    {
+      "bytes": 440,
+      "path": "tests/test_adapters.py",
+      "sha256": "ce72f0911aef8eb2ccfb6b7fbb5103dbba461cbcf9d2085654106817831f4816"
+    },
+    {
+      "bytes": 837,
+      "path": "tests/test_capabilities.py",
+      "sha256": "9d19a7bec5f3ce82b407aac065e02e4bb1d9cb20b7bf8be3a0bb0c60d760ca40"
+    },
+    {
+      "bytes": 5693,
+      "path": "tests/test_core.py",
+      "sha256": "347a3f828c4cf3943d876d1d29e71b0459a50d1ffb320ff3b338ac7ab9ea47be"
+    },
+    {
+      "bytes": 12857,
+      "path": "tests/test_extended.py",
+      "sha256": "23970d460a9ffc4e1d7b015a48169e8e9b825dc8a7557b783a9e831002d3bd48"
+    },
+    {
+      "bytes": 380,
+      "path": "tests/test_workflows.py",
+      "sha256": "8d1b60d04f7ccfbbed4f685beefee1c5f5beecc0e08ec55079b5e9f6af037a6d"
+    },
+    {
+      "bytes": 84,
+      "path": "tsao_computation/__init__.py",
+      "sha256": "85fe4246a2165f6dd092e6dfdbc322e1e52dd9e67e2b5796c8470d4a47628056"
+    },
+    {
+      "bytes": 48,
+      "path": "tsao_computation/__main__.py",
+      "sha256": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d"
+    },
+    {
+      "bytes": 212,
+      "path": "tsao_computation/adapters/__init__.py",
+      "sha256": "6542cd8dc08a11c66071363040eb2ec8b663f068c32ed767aaf8959226328fd1"
+    },
+    {
+      "bytes": 2110,
+      "path": "tsao_computation/adapters/base.py",
+      "sha256": "82ec2400ea25d7a2be900451a1fe670d48b63d6f9daa74861108cea27264dfb1"
+    },
+    {
+      "bytes": 788,
+      "path": "tsao_computation/adapters/registry.py",
+      "sha256": "a8f4346aa92790f512c001f5a7365b9ca69d8905a723b7611dee73cdb3489102"
+    },
+    {
+      "bytes": 2951,
+      "path": "tsao_computation/cli.py",
+      "sha256": "fc7ab160383daf32f454ed92aa9fa87591298bc77e319277fac193ae9acb1917"
+    },
+    {
+      "bytes": 181,
+      "path": "tsao_computation/contracts/__init__.py",
+      "sha256": "79f24109e2800a6479d76dab0eb80ae19d8fe988f2d710a9e3ca5ca985299c74"
+    },
+    {
+      "bytes": 2019,
+      "path": "tsao_computation/contracts/calculation.py",
+      "sha256": "009b82ef2f1eebcc36305087c59c6c0f137129fed24a5b0f5d9c8f2ae11addb3"
+    },
+    {
+      "bytes": 1035,
+      "path": "tsao_computation/contracts/handoff.py",
+      "sha256": "c1713b55300890252782dbfecf9e58cca95ce0b21cc2384d0d146da836bb9acd"
+    },
+    {
+      "bytes": 502,
+      "path": "tsao_computation/contracts/result.py",
+      "sha256": "be6176a4f880be02aa62d9f70e38656cb4abc85362806205c267eeb330c4e6df"
+    },
+    {
+      "bytes": 1,
+      "path": "tsao_computation/data/__init__.py",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "bytes": 12735,
+      "path": "tsao_computation/data/registry/adapters.json",
+      "sha256": "700746f4748808516b439b41de38ca00c4dcb0cd3269596cd2a4122a4ec3862d"
+    },
+    {
+      "bytes": 281100,
+      "path": "tsao_computation/data/registry/capabilities.json",
+      "sha256": "1575982abf2d683dfd8d0e3806ec0c094169793a2750bbad1210ed79092e8fc0"
+    },
+    {
+      "bytes": 976,
+      "path": "tsao_computation/data/registry/units.json",
+      "sha256": "6c5a039e37371f66226a4e0840a0ce1edacfd1c49ce5ce8abe061afba0058c14"
+    },
+    {
+      "bytes": 12846,
+      "path": "tsao_computation/data/registry/workflows.json",
+      "sha256": "4b1ea5595c760a27cc64a959eee5de1ae0574967d01a86e740ab0d56cf2412b3"
+    },
+    {
+      "bytes": 264,
+      "path": "tsao_computation/errors.py",
+      "sha256": "7d0f048a6384edf5e84049306c9355beb74cc4349f57e5fb86b0f9cf158afed1"
+    },
+    {
+      "bytes": 89,
+      "path": "tsao_computation/execution/__init__.py",
+      "sha256": "9c5a09dbbe6b6747299746a19f35276ad7922089dec8707f0b99e696ef66c6b3"
+    },
+    {
+      "bytes": 978,
+      "path": "tsao_computation/execution/runner.py",
+      "sha256": "e2afe6126468156c0aabefce4f8000e35dab8e18c1ab2863b7e07ec423ec74a8"
+    },
+    {
+      "bytes": 196,
+      "path": "tsao_computation/execution/typing_compat.py",
+      "sha256": "1537697da71581bf47fe275c762f850b4cfa2b8dd10c103bcb1c8d6c2513a10b"
+    },
+    {
+      "bytes": 250,
+      "path": "tsao_computation/paths.py",
+      "sha256": "abf4e92af19344a2e95897d95890eee1364cd764846d4a88f58f162db3f9589a"
+    },
+    {
+      "bytes": 115,
+      "path": "tsao_computation/project/__init__.py",
+      "sha256": "1629c2d7793270ef30d2ddc5cf81efd370bf1485be3c8e52b9f681ee82f4e6b3"
+    },
+    {
+      "bytes": 1466,
+      "path": "tsao_computation/project/initialize.py",
+      "sha256": "bca0697ec19514eeb89cf8aadfb37d96b50977342e649d24c13a80ecde9639c1"
+    },
+    {
+      "bytes": 142,
+      "path": "tsao_computation/provenance/__init__.py",
+      "sha256": "7ee3ec1cb071be84ee716bedfc023975282f9b716c6ff026b7e5b3e96d6bf3aa"
+    },
+    {
+      "bytes": 792,
+      "path": "tsao_computation/provenance/ledger.py",
+      "sha256": "8288cce44fb955900645cf2844067f0fdc0eebe86919bff93b8ba16c137ab60e"
+    },
+    {
+      "bytes": 947,
+      "path": "tsao_computation/provenance/manifest.py",
+      "sha256": "3d8510060f919455cb59c7973ffa47aa1463a3d4a8c5d4f28757260707cd71cb"
+    },
+    {
+      "bytes": 171,
+      "path": "tsao_computation/registries/__init__.py",
+      "sha256": "177e4e1082c274818e7d330cc0e29e3e29e2cf30b81e60fdac909374f8adb9b6"
+    },
+    {
+      "bytes": 994,
+      "path": "tsao_computation/registries/loader.py",
+      "sha256": "697db3764b801e34f244e59165fb0ea3bd30dd5e685d1133b36fb7aa107939dd"
+    },
+    {
+      "bytes": 9335,
+      "path": "tsao_computation/repository_audit.py",
+      "sha256": "e5e651d49a7b19d1ec1cf08f54cf35676318af99a83fc82f9848c3fcec604371"
+    },
+    {
+      "bytes": 97,
+      "path": "tsao_computation/routing/__init__.py",
+      "sha256": "63e46860bd8b60c6f4130659943add005a1a05686ce5d6db617fb9cf1387504f"
+    },
+    {
+      "bytes": 1843,
+      "path": "tsao_computation/routing/router.py",
+      "sha256": "54bdbd4b54c8fda4b5b6b141b4719016d52efdd84ff2f677213b9a7ae7360771"
+    },
+    {
+      "bytes": 144,
+      "path": "tsao_computation/security/__init__.py",
+      "sha256": "42fc321a6cf0197ee7b9beba05d29789e98d7a445f52faa79b8cce8fa446ebfe"
+    },
+    {
+      "bytes": 885,
+      "path": "tsao_computation/security/paths.py",
+      "sha256": "5fe8e750bbea996ad9afe6b148acb2696c2ca12acf236058cffb72b8fb60c71e"
+    },
+    {
+      "bytes": 1072,
+      "path": "tsao_computation/security/process.py",
+      "sha256": "03ec4bf186aed5d374aeb15ff89ea7ac6ccd198db0a0cf9925cbbb45dbbcf4f6"
+    },
+    {
+      "bytes": 100,
+      "path": "tsao_computation/state/__init__.py",
+      "sha256": "00b0a4c61d27d43a2d53dc4d84afe9c637d631026201a32df1f5bae2642602ab"
+    },
+    {
+      "bytes": 2123,
+      "path": "tsao_computation/state/machine.py",
+      "sha256": "debc007e06cc90c6ed9f313402041986a77b8bd4075af239e76e76ff948a2a37"
+    },
+    {
+      "bytes": 114,
+      "path": "tsao_computation/uncertainty/__init__.py",
+      "sha256": "028a7fa3a5a20cb059f5b0e2ee41264c18e061a945240b964f9ae3f3d0a3b4c1"
+    },
+    {
+      "bytes": 604,
+      "path": "tsao_computation/uncertainty/model.py",
+      "sha256": "20748ab24f9aa99099188f9ad6be46d33bd88713d7304eae387798c361cb0723"
+    },
+    {
+      "bytes": 244,
+      "path": "tsao_computation/validation/__init__.py",
+      "sha256": "31f54c591894d54a465d083a94fab2e61cdb73d2e0570cd61c298b7b14b3c19a"
+    },
+    {
+      "bytes": 618,
+      "path": "tsao_computation/validation/acceptance.py",
+      "sha256": "b0796731d46a1e717c11fab8bd33230814c3a86ea90f735124259b2a5d68cb31"
+    },
+    {
+      "bytes": 767,
+      "path": "tsao_computation/validation/numerical.py",
+      "sha256": "cf5d078eb8a5817666445294ddd88862469145dc9c9ea0a0b190a01753289726"
+    },
+    {
+      "bytes": 681,
+      "path": "tsao_computation/validation/physical.py",
+      "sha256": "d8bc98c3013e67902214a3e41f2c23b5d1c8b898ac759036eec8b8d384e1c7c5"
+    },
+    {
+      "bytes": 91,
+      "path": "tsao_computation/workflows/__init__.py",
+      "sha256": "96f9f80c8846b65cf8b79a96126bbe90d458aba7b93f8427ca1e164a356361b1"
+    },
+    {
+      "bytes": 1329,
+      "path": "tsao_computation/workflows/engine.py",
+      "sha256": "dc5373d077be696c0e1dab01a039ea05adebb6dd9c66aab1acce7654fe47593a"
+    }
+  ],
+  "schema_version": "1.0"
+}

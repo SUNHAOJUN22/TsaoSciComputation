@@ -1,0 +1,14 @@
+{
+  "acceptance_criteria": {},
+  "assumptions": [],
+  "conditions": {},
+  "question": "Aspen dynamic-twin handoff",
+  "schema_version": "1.0",
+  "system": {
+    "example": "aspen-dynamic"
+  },
+  "target_observables": [
+    "example_observable"
+  ],
+  "workflow": "digital-twin"
+}

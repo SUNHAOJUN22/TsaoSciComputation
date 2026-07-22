@@ -1,0 +1,13 @@
+{
+  "executables": [
+    "moose-opt"
+  ],
+  "license_kind": "open-source",
+  "live_execution_verified": false,
+  "maturity": "A3",
+  "name": "MOOSE",
+  "parser_policy": "Conservative: unknown or incomplete output is not promoted to converged or validated.",
+  "runnable_when": "At least one declared executable is detected and all required inputs, licenses, and environment checks pass.",
+  "slug": "moose",
+  "workflow": "multiphysics"
+}

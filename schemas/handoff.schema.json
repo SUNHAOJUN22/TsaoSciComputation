@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {},
+  "required": [
+    "source_model",
+    "target_model",
+    "quantity",
+    "value",
+    "unit",
+    "conditions",
+    "reference_state",
+    "statistical_uncertainty",
+    "model_uncertainty",
+    "applicability",
+    "transformation",
+    "validation_status"
+  ],
+  "type": "object"
+}

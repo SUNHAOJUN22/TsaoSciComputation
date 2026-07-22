@@ -1,0 +1,14 @@
+{
+  "acceptance_criteria": {},
+  "assumptions": [],
+  "conditions": {},
+  "question": "ORCA molecular optimization and frequency",
+  "schema_version": "1.0",
+  "system": {
+    "example": "organic-dft"
+  },
+  "target_observables": [
+    "example_observable"
+  ],
+  "workflow": "quantum-chemistry"
+}

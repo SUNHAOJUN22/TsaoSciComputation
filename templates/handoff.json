@@ -1,0 +1,14 @@
+{
+  "applicability": "declared domain",
+  "conditions": {},
+  "model_uncertainty": null,
+  "quantity": "quantity",
+  "reference_state": "declared reference",
+  "source_model": "source",
+  "statistical_uncertainty": null,
+  "target_model": "target",
+  "transformation": "identity",
+  "unit": "1",
+  "validation_status": "unvalidated",
+  "value": 0.0
+}

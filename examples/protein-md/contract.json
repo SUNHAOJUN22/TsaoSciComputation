@@ -1,0 +1,14 @@
+{
+  "acceptance_criteria": {},
+  "assumptions": [],
+  "conditions": {},
+  "question": "GROMACS protein trajectory",
+  "schema_version": "1.0",
+  "system": {
+    "example": "protein-md"
+  },
+  "target_observables": [
+    "example_observable"
+  ],
+  "workflow": "molecular-dynamics"
+}

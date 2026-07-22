@@ -1,0 +1,354 @@
+[
+  {
+    "executables": [
+      "g16",
+      "g09"
+    ],
+    "license_kind": "commercial",
+    "live_execution_verified": false,
+    "maturity": "A3",
+    "name": "Gaussian",
+    "parser_policy": "Conservative: unknown or incomplete output is not promoted to converged or validated.",
+    "runnable_when": "At least one declared executable is detected and all required inputs, licenses, and environment checks pass.",
+    "slug": "gaussian",
+    "workflow": "quantum-chemistry"
+  },
+  {
+    "executables": [
+      "orca"
+    ],
+    "license_kind": "external",
+    "live_execution_verified": false,
+    "maturity": "A4",
+    "name": "ORCA",
+    "parser_policy": "Conservative: unknown or incomplete output is not promoted to converged or validated.",
+    "runnable_when": "At least one declared executable is detected and all required inputs, licenses, and environment checks pass.",
+    "slug": "orca",
+    "workflow": "quantum-chemistry"
+  },
+  {
+    "executables": [
+      "psi4"
+    ],
+    "license_kind": "open-source",
+    "live_execution_verified": false,
+    "maturity": "A4",
+    "name": "Psi4",
+    "parser_policy": "Conservative: unknown or incomplete output is not promoted to converged or validated.",
+    "runnable_when": "At least one declared executable is detected and all required inputs, licenses, and environment checks pass.",
+    "slug": "psi4",
+    "workflow": "quantum-chemistry"
+  },
+  {
+    "executables": [
+      "python"
+    ],
+    "license_kind": "open-source",
+    "live_execution_verified": false,
+    "maturity": "A4",
+    "name": "PySCF",
+    "parser_policy": "Conservative: unknown or incomplete output is not promoted to converged or validated.",
+    "runnable_when": "At least one declared executable is detected and all required inputs, licenses, and environment checks pass.",
+    "slug": "pyscf",
+    "workflow": "quantum-chemistry"
+  },
+  {
+    "executables": [
+      "pw.x"
+    ],
+    "license_kind": "open-source",
+    "live_execution_verified": false,
+    "maturity": "A4",
+    "name": "Quantum ESPRESSO",
+    "parser_policy": "Conservative: unknown or incomplete output is not promoted to converged or validated.",
+    "runnable_when": "At least one declared executable is detected and all required inputs, licenses, and environment checks pass.",
+    "slug": "quantum-espresso",
+    "workflow": "periodic-dft"
+  },
+  {
+    "executables": [
+      "cp2k"
+    ],
+    "license_kind": "open-source",
+    "live_execution_verified": false,
+    "maturity": "A4",
+    "name": "CP2K",
+    "parser_policy": "Conservative: unknown or incomplete output is not promoted to converged or validated.",
+    "runnable_when": "At least one declared executable is detected and all required inputs, licenses, and environment checks pass.",
+    "slug": "cp2k",
+    "workflow": "periodic-dft"
+  },
+  {
+    "executables": [
+      "vasp_std"
+    ],
+    "license_kind": "commercial",
+    "live_execution_verified": false,
+    "maturity": "A3",
+    "name": "VASP",
+    "parser_policy": "Conservative: unknown or incomplete output is not promoted to converged or validated.",
+    "runnable_when": "At least one declared executable is detected and all required inputs, licenses, and environment checks pass.",
+    "slug": "vasp",
+    "workflow": "periodic-dft"
+  },
+  {
+    "executables": [
+      "ABACUS"
+    ],
+    "license_kind": "open-source",
+    "live_execution_verified": false,
+    "maturity": "A3",
+    "name": "ABACUS",
+    "parser_policy": "Conservative: unknown or incomplete output is not promoted to converged or validated.",
+    "runnable_when": "At least one declared executable is detected and all required inputs, licenses, and environment checks pass.",
+    "slug": "abacus",
+    "workflow": "periodic-dft"
+  },
+  {
+    "executables": [
+      "gpaw"
+    ],
+    "license_kind": "open-source",
+    "live_execution_verified": false,
+    "maturity": "A3",
+    "name": "GPAW",
+    "parser_policy": "Conservative: unknown or incomplete output is not promoted to converged or validated.",
+    "runnable_when": "At least one declared executable is detected and all required inputs, licenses, and environment checks pass.",
+    "slug": "gpaw",
+    "workflow": "periodic-dft"
+  },
+  {
+    "executables": [
+      "python"
+    ],
+    "license_kind": "open-source",
+    "live_execution_verified": false,
+    "maturity": "A4",
+    "name": "ASE + pymatgen",
+    "parser_policy": "Conservative: unknown or incomplete output is not promoted to converged or validated.",
+    "runnable_when": "At least one declared executable is detected and all required inputs, licenses, and environment checks pass.",
+    "slug": "ase-pymatgen",
+    "workflow": "periodic-dft"
+  },
+  {
+    "executables": [
+      "gmx"
+    ],
+    "license_kind": "open-source",
+    "live_execution_verified": false,
+    "maturity": "A4",
+    "name": "GROMACS",
+    "parser_policy": "Conservative: unknown or incomplete output is not promoted to converged or validated.",
+    "runnable_when": "At least one declared executable is detected and all required inputs, licenses, and environment checks pass.",
+    "slug": "gromacs",
+    "workflow": "molecular-dynamics"
+  },
+  {
+    "executables": [
+      "python"
+    ],
+    "license_kind": "open-source",
+    "live_execution_verified": false,
+    "maturity": "A4",
+    "name": "OpenMM",
+    "parser_policy": "Conservative: unknown or incomplete output is not promoted to converged or validated.",
+    "runnable_when": "At least one declared executable is detected and all required inputs, licenses, and environment checks pass.",
+    "slug": "openmm",
+    "workflow": "molecular-dynamics"
+  },
+  {
+    "executables": [
+      "lmp",
+      "lmp_mpi"
+    ],
+    "license_kind": "open-source",
+    "live_execution_verified": false,
+    "maturity": "A4",
+    "name": "LAMMPS",
+    "parser_policy": "Conservative: unknown or incomplete output is not promoted to converged or validated.",
+    "runnable_when": "At least one declared executable is detected and all required inputs, licenses, and environment checks pass.",
+    "slug": "lammps",
+    "workflow": "molecular-dynamics"
+  },
+  {
+    "executables": [
+      "plumed"
+    ],
+    "license_kind": "open-source",
+    "live_execution_verified": false,
+    "maturity": "A4",
+    "name": "PLUMED",
+    "parser_policy": "Conservative: unknown or incomplete output is not promoted to converged or validated.",
+    "runnable_when": "At least one declared executable is detected and all required inputs, licenses, and environment checks pass.",
+    "slug": "plumed",
+    "workflow": "enhanced-sampling"
+  },
+  {
+    "executables": [
+      "dp"
+    ],
+    "license_kind": "open-source",
+    "live_execution_verified": false,
+    "maturity": "A3",
+    "name": "DeePMD-kit",
+    "parser_policy": "Conservative: unknown or incomplete output is not promoted to converged or validated.",
+    "runnable_when": "At least one declared executable is detected and all required inputs, licenses, and environment checks pass.",
+    "slug": "deepmd",
+    "workflow": "machine-learning-potential"
+  },
+  {
+    "executables": [
+      "python"
+    ],
+    "license_kind": "open-source",
+    "live_execution_verified": false,
+    "maturity": "A3",
+    "name": "MACE",
+    "parser_policy": "Conservative: unknown or incomplete output is not promoted to converged or validated.",
+    "runnable_when": "At least one declared executable is detected and all required inputs, licenses, and environment checks pass.",
+    "slug": "mace",
+    "workflow": "machine-learning-potential"
+  },
+  {
+    "executables": [
+      "python"
+    ],
+    "license_kind": "open-source",
+    "live_execution_verified": false,
+    "maturity": "A4",
+    "name": "DOLFINx",
+    "parser_policy": "Conservative: unknown or incomplete output is not promoted to converged or validated.",
+    "runnable_when": "At least one declared executable is detected and all required inputs, licenses, and environment checks pass.",
+    "slug": "dolfinx",
+    "workflow": "finite-element"
+  },
+  {
+    "executables": [
+      "moose-opt"
+    ],
+    "license_kind": "open-source",
+    "live_execution_verified": false,
+    "maturity": "A3",
+    "name": "MOOSE",
+    "parser_policy": "Conservative: unknown or incomplete output is not promoted to converged or validated.",
+    "runnable_when": "At least one declared executable is detected and all required inputs, licenses, and environment checks pass.",
+    "slug": "moose",
+    "workflow": "multiphysics"
+  },
+  {
+    "executables": [
+      "ElmerSolver"
+    ],
+    "license_kind": "open-source",
+    "live_execution_verified": false,
+    "maturity": "A3",
+    "name": "Elmer",
+    "parser_policy": "Conservative: unknown or incomplete output is not promoted to converged or validated.",
+    "runnable_when": "At least one declared executable is detected and all required inputs, licenses, and environment checks pass.",
+    "slug": "elmer",
+    "workflow": "finite-element"
+  },
+  {
+    "executables": [
+      "python"
+    ],
+    "license_kind": "open-source",
+    "live_execution_verified": false,
+    "maturity": "A3",
+    "name": "Kratos Multiphysics",
+    "parser_policy": "Conservative: unknown or incomplete output is not promoted to converged or validated.",
+    "runnable_when": "At least one declared executable is detected and all required inputs, licenses, and environment checks pass.",
+    "slug": "kratos",
+    "workflow": "multiphysics"
+  },
+  {
+    "executables": [
+      "simpleFoam",
+      "pimpleFoam"
+    ],
+    "license_kind": "open-source",
+    "live_execution_verified": false,
+    "maturity": "A4",
+    "name": "OpenFOAM",
+    "parser_policy": "Conservative: unknown or incomplete output is not promoted to converged or validated.",
+    "runnable_when": "At least one declared executable is detected and all required inputs, licenses, and environment checks pass.",
+    "slug": "openfoam",
+    "workflow": "cfd"
+  },
+  {
+    "executables": [
+      "SU2_CFD"
+    ],
+    "license_kind": "open-source",
+    "live_execution_verified": false,
+    "maturity": "A3",
+    "name": "SU2",
+    "parser_policy": "Conservative: unknown or incomplete output is not promoted to converged or validated.",
+    "runnable_when": "At least one declared executable is detected and all required inputs, licenses, and environment checks pass.",
+    "slug": "su2",
+    "workflow": "cfd"
+  },
+  {
+    "executables": [
+      "DWSIM.CLI"
+    ],
+    "license_kind": "open-source",
+    "live_execution_verified": false,
+    "maturity": "A3",
+    "name": "DWSIM",
+    "parser_policy": "Conservative: unknown or incomplete output is not promoted to converged or validated.",
+    "runnable_when": "At least one declared executable is detected and all required inputs, licenses, and environment checks pass.",
+    "slug": "dwsim",
+    "workflow": "process-simulation"
+  },
+  {
+    "executables": [
+      "idaes"
+    ],
+    "license_kind": "open-source",
+    "live_execution_verified": false,
+    "maturity": "A4",
+    "name": "IDAES + Pyomo",
+    "parser_policy": "Conservative: unknown or incomplete output is not promoted to converged or validated.",
+    "runnable_when": "At least one declared executable is detected and all required inputs, licenses, and environment checks pass.",
+    "slug": "idaes-pyomo",
+    "workflow": "process-simulation"
+  },
+  {
+    "executables": [
+      "omc"
+    ],
+    "license_kind": "open-source",
+    "live_execution_verified": false,
+    "maturity": "A3",
+    "name": "OpenModelica",
+    "parser_policy": "Conservative: unknown or incomplete output is not promoted to converged or validated.",
+    "runnable_when": "At least one declared executable is detected and all required inputs, licenses, and environment checks pass.",
+    "slug": "openmodelica",
+    "workflow": "dynamic-control"
+  },
+  {
+    "executables": [
+      "python"
+    ],
+    "license_kind": "open-source",
+    "live_execution_verified": false,
+    "maturity": "A4",
+    "name": "Cantera + RMG",
+    "parser_policy": "Conservative: unknown or incomplete output is not promoted to converged or validated.",
+    "runnable_when": "At least one declared executable is detected and all required inputs, licenses, and environment checks pass.",
+    "slug": "cantera-rmg",
+    "workflow": "reactor-engineering"
+  },
+  {
+    "executables": [],
+    "license_kind": "commercial",
+    "live_execution_verified": false,
+    "maturity": "A2",
+    "name": "Aspen Plus/Dynamics/ACM",
+    "parser_policy": "Conservative: unknown or incomplete output is not promoted to converged or validated.",
+    "runnable_when": "At least one declared executable is detected and all required inputs, licenses, and environment checks pass.",
+    "slug": "aspen",
+    "workflow": "process-simulation"
+  }
+]

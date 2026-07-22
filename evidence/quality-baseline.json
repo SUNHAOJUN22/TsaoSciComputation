@@ -1,0 +1,30 @@
+{
+  "claim_boundary": "Validated locally for orchestration, contracts, routing, registries, security controls, deterministic fixtures, packaging, and isolated installation. No live third-party scientific solver, commercial-license environment, or production HPC execution is claimed.",
+  "counts": {
+    "adapters": 27,
+    "capabilities": 164,
+    "controlled_mutants_killed": 64,
+    "controlled_mutants_survived": 0,
+    "tests_failed": 0,
+    "tests_passed": 431,
+    "workflows": 20
+  },
+  "coverage": {
+    "branches_percent": 96.80851063829788,
+    "missing_branches": 6,
+    "missing_statements": 8,
+    "statements_percent": 98.7987987987988
+  },
+  "packaging": {
+    "source_tar_gz_byte_identical_rebuild": true,
+    "source_zip_byte_identical_rebuild": true,
+    "wheel_byte_identical_rebuild": true,
+    "wheel_isolated_install": true
+  },
+  "schema_version": "1.0",
+  "security": {
+    "repository_findings": 0,
+    "runtime_dependencies": 0
+  },
+  "version": "3.0.0"
+}

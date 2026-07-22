@@ -1,0 +1,14 @@
+{
+  "acceptance_criteria": {},
+  "assumptions": [],
+  "conditions": {},
+  "question": "Cable thermo-electro-mechanical FEM",
+  "schema_version": "1.0",
+  "system": {
+    "example": "cable-fem"
+  },
+  "target_observables": [
+    "example_observable"
+  ],
+  "workflow": "multiphysics"
+}
