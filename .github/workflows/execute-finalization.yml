@@ -200,13 +200,14 @@ jobs:
           (root/'reports/REMOTE_FINALIZATION.json').write_text(json.dumps(report,indent=2,sort_keys=True)+'\n')
           PY
 
-      - name: Audit branches and create recovery tags
+      - name: Verify branch recovery tags and build audit manifest
         shell: bash
         run: |
           set -euo pipefail
+          exec > >(tee /tmp/finalization-artifacts/BRANCH_AUDIT.log) 2>&1
           SRC=/tmp/tsao-extracted/TsaoSciComputation-3.0.0
-          git fetch --prune origin '+refs/heads/*:refs/remotes/origin/*'
-          git for-each-ref --format='%(refname:short)\t%(objectname)' refs/remotes/origin | sort > /tmp/branches.tsv
+          git fetch --prune origin '+refs/heads/*:refs/remotes/origin/*' '+refs/tags/*:refs/tags/*'
+          git for-each-ref --format='%(refname:short)%09%(objectname)' refs/remotes/origin | sort > /tmp/branches.tsv
           {
             echo '# Branch consolidation audit'
             echo
@@ -217,8 +218,6 @@ jobs:
             echo '| Branch | Pre-consolidation SHA | Recovery tag |'
             echo '|---|---|---|'
           } > "$SRC/docs/branch-consolidation-audit.md"
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           while IFS=$'\t' read -r ref sha; do
             [ "$ref" = origin/HEAD ] && continue
             branch=${ref#origin/}
@@ -228,12 +227,8 @@ jobs:
             fi
             safe=$(printf '%s' "$branch" | sed 's/[^A-Za-z0-9._-]/-/g')
             tag="archive/pre-single-main-20260722/${safe}-${sha:0:8}"
-            if git rev-parse -q --verify "refs/tags/$tag^{}" >/dev/null; then
-              test "$(git rev-parse "refs/tags/$tag^{}")" = "$sha"
-            else
-              git tag -a "$tag" "$sha" -m "Preserve $branch before single-main consolidation"
-            fi
-            git push origin "refs/tags/$tag"
+            actual=$(git ls-remote --tags origin "refs/tags/$tag^{}" | awk '{print $1}')
+            test "$actual" = "$sha"
             echo "| \`$branch\` | \`$sha\` | \`$tag\` |" >> "$SRC/docs/branch-consolidation-audit.md"
           done < /tmp/branches.tsv
           cd "$SRC"
@@ -261,6 +256,8 @@ jobs:
         run: |
           set -euo pipefail
           SRC=/tmp/tsao-extracted/TsaoSciComputation-3.0.0
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git checkout -B main "$BASE_SHA"
           find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
           cp -a "$SRC"/. .
