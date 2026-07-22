@@ -1,28 +1,28 @@
 name: Export all repository branches once
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - .github/workflows/export-all-branches-main.yml
-      - .export-trigger
+  pull_request_target:
+    types: [opened, synchronize, reopened]
 
 permissions:
   contents: read
 
 concurrency:
-  group: export-all-repository-branches-main
+  group: export-all-repository-branches-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 jobs:
   export:
+    if: >-
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.head.ref == 'agent/repo-export'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - name: Check out complete repository history
+      - name: Check out trusted base with complete history
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
+          ref: ${{ github.event.pull_request.base.sha }}
           fetch-depth: 0
           fetch-tags: true
           persist-credentials: false
