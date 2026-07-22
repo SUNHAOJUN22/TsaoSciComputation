@@ -66,6 +66,22 @@ jobs:
           set -x
           SRC=/tmp/tsao-extracted/TsaoSciComputation-3.0.0
           cd "$SRC"
+          python - <<'PY'
+          from pathlib import Path
+          for path in Path('scripts').glob('*.py'):
+              text=path.read_text()
+              text=text.replace('import _bootstrap\n','import _bootstrap  # noqa: F401\n')
+              path.write_text(text)
+          path=Path('scripts/package_release.py')
+          text=path.read_text()
+          old = '    with output.open("wb") as raw:\n        with gzip.GzipFile(filename="", mode="wb", fileobj=raw, compresslevel=9, mtime=epoch) as compressed:\n            with tarfile.open(fileobj=compressed, mode="w", format=tarfile.PAX_FORMAT) as archive:\n'
+          new = '    with (\n        output.open("wb") as raw,\n        gzip.GzipFile(filename="", mode="wb", fileobj=raw, compresslevel=9, mtime=epoch) as compressed,\n        tarfile.open(fileobj=compressed, mode="w", format=tarfile.PAX_FORMAT) as archive,\n    ):\n'
+          if old not in text:
+              raise SystemExit('package_release nested context pattern not found')
+          path.write_text(text.replace(old,new))
+          PY
+          python -m ruff check --fix --unsafe-fixes tsao_computation scripts tests
+          python -m ruff format tsao_computation scripts tests
           export PYTEST_DISABLE_PLUGIN_AUTOLOAD=1
           python -m coverage erase
           python -m coverage run --branch -m pytest -q --junitxml=evidence/JUNIT_REMOTE_FINAL.xml
