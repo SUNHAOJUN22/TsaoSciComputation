@@ -167,6 +167,8 @@ jobs:
           python -m bandit -q -r tsao_computation scripts
           python scripts/benchmark.py
           mkdir -p reports
+          cp evidence/mutation-report.json reports/MUTATION_REPORT.json
+          cp evidence/security-scan.json reports/SECURITY_SCAN.json
           python scripts/validate_repository.py > reports/REPOSITORY_AUDIT.json
           python - <<'PY'
           import json, xml.etree.ElementTree as ET
