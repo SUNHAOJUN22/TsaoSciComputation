@@ -56,7 +56,7 @@ jobs:
       - name: Install validation toolchain
         run: |
           python -m pip install -e '/tmp/tsao-extracted/TsaoSciComputation-3.0.0[validation,quality]'
-          python -m pip install types-jsonschema
+          python -m pip install types-jsonschema setuptools wheel
           python -m pip check
 
       - name: Run complete quality and scientific gates
