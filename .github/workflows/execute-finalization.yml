@@ -103,6 +103,14 @@ jobs:
           text=mutation.read_text()
           if not text.startswith('# mypy: disable-error-code=misc\n'):
               mutation.write_text('# mypy: disable-error-code=misc\n'+text)
+          schemas=Path('scripts/validate_schemas.py')
+          text=schemas.read_text()
+          old = '    try:\n        import jsonschema\n    except ImportError:\n        jsonschema = None\n    if jsonschema is not None:\n'
+          new = '    jsonschema_module: Any\n    try:\n        import jsonschema as jsonschema_module\n    except ImportError:\n        jsonschema_module = None\n    if jsonschema_module is not None:\n'
+          if old not in text:
+              raise SystemExit('validate_schemas optional import pattern not found')
+          text=text.replace(old,new).replace('jsonschema.Draft202012Validator','jsonschema_module.Draft202012Validator')
+          schemas.write_text(text)
           PY
           python -m ruff check --fix --unsafe-fixes tsao_computation scripts tests
           python -m ruff format tsao_computation scripts tests
