@@ -1,0 +1,189 @@
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import re
+import shutil
+import subprocess
+import time
+import urllib.error
+import urllib.parse
+import urllib.request
+import xml.etree.ElementTree as ET
+from pathlib import Path
+from typing import Any
+
+ARCHIVE_TAG_PREFIX = "archive/pre-single-main-20260722"
+FINALIZATION_ROOT = Path("/tmp/finalization-artifacts")
+
+
+def run(*args: str, cwd: Path | None = None, capture: bool = False) -> str:
+    result = subprocess.run(
+        list(args),
+        cwd=cwd,
+        check=True,
+        text=True,
+        capture_output=capture,
+    )
+    return result.stdout.strip() if capture else ""
+
+
+def git(*args: str, cwd: Path, capture: bool = False) -> str:
+    return run("git", *args, cwd=cwd, capture=capture)
+
+
+class GitHubAPI:
+    def __init__(self, base_url: str, repository: str, token: str) -> None:
+        self.base = f"{base_url}/repos/{repository}"
+        self.headers = {
+            "Authorization": f"Bearer {token}",
+            "Accept": "application/vnd.github+json",
+            "X-GitHub-Api-Version": "2022-11-28",
+            "Content-Type": "application/json",
+            "User-Agent": "TsaoSciComputation-finalizer",
+        }
+
+    def request(self, method: str, path: str, data: dict[str, Any] | None = None) -> Any:
+        payload = None if data is None else json.dumps(data).encode()
+        request = urllib.request.Request(
+            f"{self.base}/{path}", data=payload, method=method, headers=self.headers
+        )
+        with urllib.request.urlopen(request, timeout=60) as response:
+            if response.status == 204:
+                return None
+            return json.load(response)
+
+    def dispatch(self, workflow: str) -> None:
+        for attempt in range(12):
+            try:
+                self.request("POST", f"actions/workflows/{workflow}/dispatches", {"ref": "main"})
+                return
+            except urllib.error.HTTPError:
+                if attempt == 11:
+                    raise
+                time.sleep(5)
+        raise RuntimeError(f"unable to dispatch {workflow}")
+
+
+def branch_inventory(workspace: Path, base_sha: str, head_sha: str, run_id: str) -> list[dict[str, str | None]]:
+    git("fetch", "--prune", "origin", "+refs/heads/*:refs/remotes/origin/*", cwd=workspace)
+    output = git(
+        "for-each-ref",
+        "--format=%(refname:short)\t%(objectname)",
+        "refs/remotes/origin",
+        cwd=workspace,
+        capture=True,
+    )
+    rows: list[dict[str, str | None]] = []
+    used: set[str] = set()
+    for line in output.splitlines():
+        ref, sha = line.split("\t", 1)
+        if ref == "origin/HEAD":
+            continue
+        branch = ref.removeprefix("origin/")
+        if branch == "main":
+            tag = None
+            disposition = "authoritative base; replaced by a verified descendant ordinary-source commit"
+        else:
+            safe = re.sub(r"[^A-Za-z0-9._-]+", "-", branch).strip(".-") or "branch"
+            candidate = f"{ARCHIVE_TAG_PREFIX}/{safe}-{sha[:8]}"
+            suffix = 1
+            while candidate in used:
+                suffix += 1
+                candidate = f"{ARCHIVE_TAG_PREFIX}/{safe}-{sha[:8]}-{suffix}"
+            used.add(candidate)
+            tag = candidate
+            disposition = "preserved by immutable archive tag, then deleted after validation"
+        rows.append(
+            {
+                "branch": branch,
+                "sha": sha,
+                "archive_tag": tag,
+                "disposition": disposition,
+            }
+        )
+    if not any(row["branch"] == "main" for row in rows):
+        raise RuntimeError(main was not present in branch inventory)
+    FINALIZATION_ROOT.mkdir(parents=True, exist_ok=True)
+    (FINALIZATION_ROOT / "branches-before.json").write_text(
+        json.dumps(rows, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+    return rows
+
+
+def write_audit_document(
+    source_root: Path,
+    rows: list[dict[str, str | None]],
+    base_sha: str,
+    head_sha: str,
+    run_id: str,
+) -> None:
+    lines = [
+        "# Branch consolidation audit",
+        "",
+        f"- GitHub Actions run: `{run_id}`",
+        f"- Trusted base main: `{base_sha}`",
+        f"- Transport head: `{head_sha}`",
+        "- Source policy: ordinary, directly browsable source; no historical transfer directories remain.",
+        "- Scientific claim boundary: orchestration, contracts, fixtures, validators, packaging, and evidence are verified; no live third-party solver, commercial-license environment, or production HPC execution is claimed.",
+        "",
+        "| Branch | Pre-consolidation SHA | Recovery tag | Disposition |",
+        "|---|---|---|---|",
+    ]
+    for row in rows:
+        lines.append(
+            f"| `{row['branch']}` | `{row['sha']}` | `{row['archive_tag'] or 'main-history'}` | {row['disposition']} |"
+        )
+    lines += [
+        "",
+        "## Validation result",
+        "",
+        "The controlled workflow replaces this paragraph after all controller gates pass.",
+    ]
+    (source_root / "docs/branch-consolidation-audit.md").write_text(
+        "\n".join(lines) + "\n", encoding="utf-8"
+    )
+
+
+def validate_source(source_root: Path, base_sha: str, head_sha: str, run_id: str) -> dict[str, Any]:
+    env = dict(os.environ)
+    env["PYTEST_DISABLE_PLUGIN_AUTOLOAD"] = "1"
+    run("python", "-m", "coverage", "erase", cwd=source_root)
+    subprocess.run(
+        [
+            "python",
+            "-m",
+            "coverage",
+            "run",
+            "--branch",
+            "-m",
+            "pytest",
+            "-q",
+            "--junitxml=evidence/JUNIT_REMOTE_FINAL.xml",
+        ],
+        cwd=source_root,
+        env=env,
+        check=True,
+    )
+    run("python", "-m", "coverage", "report", "--fail-under=95", cwd=source_root)
+    run("python", "-m", "coverage", "json", "-o", "evidence/coverage.json", cwd=source_root)
+    commands = [
+        ("python", "scripts/quality_check.py"),
+        ("python", "scripts/validate_schemas.py"),
+        ("python", "scripts/security_scan.py"),
+        ("python", "scripts/run_mutation_gate.py"),
+        ("python", "scripts/sync_package_assets.py", "--check"),
+        ("python", "scripts/build_capability_index.py", "--check"),
+        ("python", "-m", "ruff", "check", "tsao_computation", "scripts", "tests"),
+        ("python", "-m", "ruff", "format", "--check", "tsao_computation", "scripts", "tests"),
+        ("python", "-m", "mypy", "tsao_computation", "scripts"),
+        ("python", "-m", "bandit", "-q", "-r", "tsao_computation", "scripts"),
+        ("python", "scripts/benchmark.py"),
+    ]
+    for command in commands:
+        run(*command, cwd=source_root)
+    audit = run("python", "scripts/validate_repository.py", cwd=source_root, capture=True)
+    (source_root / "reports/REPOSITORY_AUDIT.json").write_text(audit + "\n", encoding="utf-8")
+
+    junit = ET.parse(source_root / "evidence/JUNIT_REMOTE_FINAL.xml").getroot()

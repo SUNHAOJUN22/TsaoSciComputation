@@ -1,0 +1,165 @@
+
+    tests = int(junit.attrib.get("tests", 0))
+    failures = int(junit.attrib.get("failures", 0))
+    errors = int(junit.attrib.get("errors", 0))
+    coverage = json.loads((source_root / "evidence/coverage.json").read_text(encoding="utf-8"))
+    mutation = json.loads(
+        (source_root / "evidence/mutation-report.json").read_text(encoding="utf-8")
+    )
+    security = json.loads(
+        (source_root / "evidence/security-scan.json").read_text(encoding="utf-8")
+    )
+    benchmark = json.loads(
+        (source_root / "benchmarks/latest.json").read_text(encoding="utf-8")
+    )
+    if (tests, failures, errors) != (431, 0, 0):
+        raise RuntimeError(f"unexpected test result: {(tests, failures, errors)}")
+    if mutation.get("killed") != 64 or mutation.get("survived") != 0:
+        raise RuntimeError(f"mutation gate mismatch: {mutation}")
+    if security.get("findings"):
+        raise RuntimeError(f"security findings remain: {security}")
+    summary: dict[str, Any] = {
+        "schema_version": "1.0",
+        "github_run_id": run_id,
+        "trusted_base_sha": base_sha,
+        "transport_head_sha": head_sha,
+        "version": "3.0.0",
+        "tests": {"passed": tests, "failures": failures, "errors": errors},
+        "coverage": coverage["totals"],
+        "mutation": mutation,
+        "security": {
+            "files_scanned": security["files_scanned"],
+            "findings": len(security["findings"]),
+        },
+        "capabilities": 164,
+        "adapters": 27,
+        "workflows": 20,
+        "runtime_dependencies": 0,
+        "benchmark": benchmark,
+        "claim_boundary": "No live third-party solver, commercial-license environment, or production HPC execution is claimed.",
+        "status": "CONTROLLER_GATES_PASSED",
+    }
+    (source_root / "reports/REMOTE_FINALIZATION.json").write_text(
+        json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+    audit_path = source_root / "docs/branch-consolidation-audit.md"
+    text = audit_path.read_text(encoding="utf-8")
+    branch_total = coverage["totals"].get("num_branches", 0)
+    branch_covered = coverage["totals"].get("covered_branches", 0)
+    branch_percent = 100.0 if not branch_total else 100.0 * branch_covered / branch_total
+    replacement = "\n".join(
+        [
+            "## Validation result",
+            "",
+            "- 431 tests passed; 0 failures; 0 errors.",
+            f"- Statement coverage: {coverage['totals']['percent_covered_display']}%.",
+            f"- Branch coverage: {branch_percent:.2f}% ({branch_covered}/{branch_total}).",
+            "- Controlled mutation gate: 64/64 killed; 0 survived.",
+            f"- Security scan: {security['files_scanned']} text files; 0 findings.",
+            "- Ruff, format, mypy, Bandit, schema, capability, package-asset, and repository gates passed.",
+            "- Reproducible source archives and isolated deterministic wheel validation passed.",
+            "- Cross-platform CI and CodeQL are dispatched against final main before branch deletion.",
+        ]
+    )
+    text = text.replace(
+        "## Validation result\n\nThe controlled workflow replaces this paragraph after all controller gates pass.",
+        replacement,
+    )
+    audit_path.write_text(text, encoding="utf-8")
+    run("python", "scripts/build_manifest.py", cwd=source_root)
+    run("python", "scripts/build_manifest.py", "--check", cwd=source_root)
+    return summary
+
+
+def verify_reproducible_builds(source_root: Path) -> None:
+    for path in (Path("/tmp/tsao-build-a"), Path("/tmp/tsao-build-b"), source_root / "dist"):
+        shutil.rmtree(path, ignore_errors=True)
+    env = dict(os.environ)
+    env["SOURCE_DATE_EPOCH"] = "1700000000"
+    for output in (Path("/tmp/tsao-build-a"), Path("/tmp/tsao-build-b")):
+        subprocess.run(
+            ["python", "scripts/package_release.py", "--output-dir", str(output)],
+            cwd=source_root,
+            env=env,
+            check=True,
+        )
+    for name in ("TsaoSciComputation-3.0.0.zip", "TsaoSciComputation-3.0.0.tar.gz"):
+        if (Path("/tmp/tsao-build-a") / name).read_bytes() != (
+            Path("/tmp/tsao-build-b") / name
+        ).read_bytes():
+            raise RuntimeError(f"non-reproducible source artifact: {name}")
+    run("python", "scripts/verify_wheel.py", cwd=source_root)
+    FINALIZATION_ROOT.mkdir(parents=True, exist_ok=True)
+    for path in [
+        Path("/tmp/tsao-build-a/TsaoSciComputation-3.0.0.zip"),
+        Path("/tmp/tsao-build-a/TsaoSciComputation-3.0.0.tar.gz"),
+        source_root / "dist/tsao_scicomputation-3.0.0-py3-none-any.whl",
+        source_root / "dist/WHEEL_VERIFICATION.json",
+        source_root / "reports/REMOTE_FINALIZATION.json",
+        source_root / "evidence/coverage.json",
+        source_root / "evidence/mutation-report.json",
+        source_root / "evidence/security-scan.json",
+    ]:
+        shutil.copy2(path, FINALIZATION_ROOT / path.name)
+
+
+def create_recovery_tags(workspace: Path, rows: list[dict[str, str | None]]) -> None:
+    git("config", "user.name", "github-actions[bot]", cwd=workspace)
+    git(
+        "config",
+        "user.email",
+        "41898282+github-actions[bot]@users.noreply.github.com",
+        cwd=workspace,
+    )
+    for row in rows:
+        tag = row["archive_tag"]
+        if not tag:
+            continue
+        existing = subprocess.run(
+            ["git", "rev-parse", "-q", "--verify", f"refs/tags/{tag}^{{}}"],
+            cwd=workspace,
+            text=True,
+            capture_output=True,
+        )
+        if existing.returncode == 0:
+            if existing.stdout.strip() != row["sha"]:
+                raise RuntimeError(f"archive tag collision: {tag}")
+        else:
+            git(
+                "tag",
+                "-a",
+                tag,
+                str(row["sha"]),
+                "-m",
+                f"Preserve {row['branch']} before single-main consolidation",
+                cwd=workspace,
+            )
+        git("push", "origin", f"refs/tags/{tag}", cwd=workspace)
+
+
+def promote_main(workspace: Path, source_root: Path, base_sha: str) -> tuple[str, str]:
+    git("checkout", "-B", "main", base_sha, cwd=workspace)
+    for item in workspace.iterdir():
+        if item.name == ".git":
+            continue
+        if item.is_dir():
+            shutil.rmtree(item)
+        else:
+            item.unlink()
+    for item in source_root.iterdir():
+        target = workspace / item.name
+        if item.is_dir():
+            shutil.copytree(item, target)
+        else:
+            shutil.copy2(item, target)
+    git("add", "-A", cwd=workspace)
+    git("commit", "-m", "Consolidate verified ordinary source into single main", cwd=workspace)
+    final_sha = git("rev-parse", "HEAD", cwd=workspace, capture=True)
+    git(
+        "push",
+        f"--force-with-lease=refs/heads/main:{base_sha}",
+        "origin",
+        "HEAD:refs/heads/main",
+        cwd=workspace,
+    )
+    remote_sha = git("ls-remote", "origin", "refs/h

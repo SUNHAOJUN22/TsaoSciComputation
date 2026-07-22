@@ -11,7 +11,7 @@ permissions:
   pull-requests: write
 
 concurrency:
-  group: execute-verified-single-main-finalization
+  group: execute-final-single-main-${{ github.event.pull_request.number }}
   cancel-in-progress: false
 
 jobs:
@@ -33,70 +33,70 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python - <<'PY'
+          rm -rf /tmp/tsao-payload /tmp/tsao-extracted
+          mkdir -p /tmp/tsao-payload /tmp/tsao-extracted
+          cp .final_source/* /tmp/tsao-payload/
+          python - <<'PYVERIFY'
           from __future__ import annotations
-          import hashlib, json, tarfile
+          import base64, hashlib, json, tarfile
           from pathlib import Path, PurePosixPath
 
-          payload = Path('.final_source')
-          expected = {
-              'archive': 'tsao-source.tar.xz',
-              'archive_bytes': 83344,
-              'archive_sha256': '5a839691f876ceb43e387fca51c584a02852403c1a88c8b85f034487148738f6',
-              'finalizer': 'finalizer.py',
-              'finalizer_bytes': 20990,
-              'finalizer_sha256': '40f709b166819f5a693c46b858664fa9507442a25ea67be4e8d9ea9a8f6bcdbb',
-              'schema_version': '1.0',
-          }
+          payload = Path('/tmp/tsao-payload')
           manifest_path = payload / 'manifest.json'
-          if hashlib.sha256(manifest_path.read_bytes()).hexdigest() != '286e7945e87081b2e51a3a233552e09d6eacc18e2bb45f491a1800e84665e911':
-              raise SystemExit('manifest SHA-256 mismatch')
-          if json.loads(manifest_path.read_text(encoding='utf-8')) != expected:
-              raise SystemExit('manifest content mismatch')
-          for name, size_key, sha_key in (
-              ('finalizer.py', 'finalizer_bytes', 'finalizer_sha256'),
-              ('tsao-source.tar.xz', 'archive_bytes', 'archive_sha256'),
-          ):
-              path = payload / name
-              data = path.read_bytes()
-              if path.is_symlink() or len(data) != expected[size_key]:
-                  raise SystemExit(f'payload size mismatch: {name}')
-              if hashlib.sha256(data).hexdigest() != expected[sha_key]:
-                  raise SystemExit(f'payload SHA-256 mismatch: {name}')
-
+          if hashlib.sha256(manifest_path.read_bytes()).hexdigest() != '48c52e5cb6a3be849501234f037ef41b9a19425c7e87d906f4476f836e3aa6d1':
+              raise SystemExit('transfer manifest SHA-256 mismatch')
+          manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
+          expected = {"archive": "tsao-source.tar.xz", "archive_bytes": 83344, "archive_sha256": "5a839691f876ceb43e387fca51c584a02852403c1a88c8b85f034487148738f6", "encoding": "base85", "finalizer_bytes": 20991, "finalizer_part_sha256": ["387d208cf4552f222ce90cacc14097d90c7b9b3c42d49ae99d2e6f6261d24c9f", "04055854b66754b7ffdb1e396701ea2cd8ce58a22ccc22b3a6ccc2b41bf591f1", "661b351378769e35d50271c56910ebe043c19ca5c65c2bc488ca23f9f70c59e1"], "finalizer_parts": ["finalizer-000", "finalizer-001", "finalizer-002"], "finalizer_sha256": "6ba7f7361d9c89cae145cea9701994e16d953a789b1c9d4f094f91acf4085d53", "part_count": 7, "part_sha256": ["792c44229dac365c0bc491aa80af0dde170345f97f49158a2c884dbbc54ce121", "95872a715978353d25d242144930af9abe6b58b24872f89dfeb06850c4f62572", "94bd56801e7ab0905fced3d0b2844977e6870019fc65522d0c888d44bd0edc2b", "4ec15af0d5e5405d00c61a255f40fa168088aeefaafbf90c029d4aa7a40e51b4", "a9ac58ce852ba676896601e1bca419d12e9efd65ee39f42feb0cc2d15b38d8e7", "3affcc269c757c48f9716ce9413361cea9354249e74aa761cad386a8d5d28e6f", "af82f156581bb7915720f926eda9391a16d1e12a2751769399bf6ad278de316c"], "part_size_chars": 15000, "parts": ["part-000", "part-001", "part-002", "part-003", "part-004", "part-005", "part-006"], "schema_version": "1.1"}
+          if manifest != expected:
+              raise SystemExit('transfer manifest content mismatch')
+          finalizer_data = b''.join((payload / name).read_bytes() for name in expected['finalizer_parts'])
+          for name, digest in zip(expected['finalizer_parts'], expected['finalizer_part_sha256'], strict=True):
+              data = (payload / name).read_bytes()
+              if hashlib.sha256(data).hexdigest() != digest:
+                  raise SystemExit(f'finalizer part mismatch: {name}')
+          if len(finalizer_data) != expected['finalizer_bytes'] or hashlib.sha256(finalizer_data).hexdigest() != expected['finalizer_sha256']:
+              raise SystemExit('trusted finalizer mismatch')
+          (payload / 'finalizer.py').write_bytes(finalizer_data)
+          encoded = []
+          for name, digest in zip(expected['parts'], expected['part_sha256'], strict=True):
+              data = (payload / name).read_bytes()
+              if hashlib.sha256(data).hexdigest() != digest:
+                  raise SystemExit(f'source part mismatch: {name}')
+              encoded.append(data)
+          archive_bytes = base64.b85decode(b''.join(encoded))
+          if len(archive_bytes) != expected['archive_bytes'] or hashlib.sha256(archive_bytes).hexdigest() != expected['archive_sha256']:
+              raise SystemExit('ordinary-source archive mismatch')
+          archive_path = Path('/tmp/tsao-source.tar.xz')
+          archive_path.write_bytes(archive_bytes)
           root = Path('/tmp/tsao-extracted')
-          root.mkdir(parents=True, exist_ok=True)
           total = 0
-          with tarfile.open(payload / expected['archive'], 'r:xz') as archive:
+          with tarfile.open(archive_path, 'r:xz') as archive:
               members = archive.getmembers()
               if not members or len(members) > 2000:
-                  raise SystemExit('unsafe member count')
+                  raise SystemExit('unsafe archive member count')
               for member in members:
                   name = PurePosixPath(member.name)
                   if name.is_absolute() or '..' in name.parts or not name.parts:
-                      raise SystemExit(f'unsafe path: {member.name!r}')
+                      raise SystemExit(f'unsafe archive path: {member.name!r}')
                   if name.parts[0] != 'TsaoSciComputation-3.0.0':
-                      raise SystemExit(f'unexpected root: {member.name!r}')
+                      raise SystemExit(f'unexpected archive root: {member.name!r}')
                   if member.issym() or member.islnk() or member.isdev() or member.isfifo():
-                      raise SystemExit(f'unsafe member: {member.name!r}')
+                      raise SystemExit(f'unsafe archive member: {member.name!r}')
                   if member.size < 0 or member.size > 20 * 1024 * 1024:
-                      raise SystemExit(f'unsafe size: {member.name!r}')
+                      raise SystemExit(f'unsafe archive member size: {member.name!r}')
                   total += member.size
                   if total > 100 * 1024 * 1024:
-                      raise SystemExit('expansion limit exceeded')
+                      raise SystemExit('archive expansion limit exceeded')
               archive.extractall(root, members=members, filter='data')
           source = root / 'TsaoSciComputation-3.0.0'
-          required = ['SKILL.md', 'VERSION', 'README.md', 'pyproject.toml', 'manifest.json',
-                      'tsao_computation', 'tests', 'scripts', 'schemas', 'registry',
-                      'capability-index', 'adapters', 'skills/workflows', '.github/workflows']
+          required = ['SKILL.md', 'VERSION', 'README.md', 'pyproject.toml', 'manifest.json', 'tsao_computation', 'tests', 'scripts', 'schemas', 'registry', 'capability-index', 'adapters', 'skills/workflows', '.github/workflows']
           missing = [item for item in required if not (source / item).exists()]
           if missing or (source / 'VERSION').read_text().strip() != '3.0.0':
-              raise SystemExit(f'invalid source: {missing}')
+              raise SystemExit(f'invalid ordinary source: {missing}')
           for forbidden in ('.release_source', '.audit_source_v101', '.audit_patch_v102', '.bootstrap', '.final_source'):
               if (source / forbidden).exists():
-                  raise SystemExit(f'forbidden path: {forbidden}')
-          print(json.dumps({'members': len(members), 'expanded_bytes': total}, sort_keys=True))
-          PY
+                  raise SystemExit(f'forbidden transfer path: {forbidden}')
+          PYVERIFY
 
       - name: Set up Python
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
@@ -117,7 +117,7 @@ jobs:
           API_URL: ${{ github.api_url }}
           RUN_ID: ${{ github.run_id }}
         run: |
-          python .final_source/finalizer.py \
+          python /tmp/tsao-payload/finalizer.py \
             --workspace "$GITHUB_WORKSPACE" \
             --source-root /tmp/tsao-extracted/TsaoSciComputation-3.0.0 \
             --repository "$REPOSITORY" \
