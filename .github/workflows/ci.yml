@@ -1,0 +1,86 @@
+name: CI
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  core:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python: ['3.10', '3.13']
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+      - run: python -m pip install -e '.[validation,quality]'
+      - run: python scripts/run_tests.py --coverage
+      - run: python scripts/validate_repository.py
+      - run: python scripts/validate_schemas.py
+      - run: python scripts/sync_package_assets.py --check
+      - run: python scripts/build_capability_index.py --check
+      - run: python scripts/build_manifest.py --check
+
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+          cache: pip
+      - run: python -m pip install -e '.[validation,quality]'
+      - run: python scripts/quality_check.py
+      - run: python -m ruff check tsao_computation scripts tests
+      - run: python -m ruff format --check tsao_computation scripts tests
+      - run: python -m mypy --python-version 3.13 tsao_computation scripts
+      - run: python -m bandit -q -r tsao_computation scripts
+      - run: python scripts/security_scan.py
+      - run: python scripts/run_mutation_gate.py
+      - run: python scripts/benchmark.py
+
+  package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+      - run: python -m pip install -e '.[validation,quality]'
+      - run: SOURCE_DATE_EPOCH=1700000000 python scripts/package_release.py --output-dir dist-a
+      - run: SOURCE_DATE_EPOCH=1700000000 python scripts/package_release.py --output-dir dist-b
+      - run: cmp dist-a/TsaoSciComputation-3.0.0.zip dist-b/TsaoSciComputation-3.0.0.zip
+      - run: cmp dist-a/TsaoSciComputation-3.0.0.tar.gz dist-b/TsaoSciComputation-3.0.0.tar.gz
+      - run: rm -rf dist && python scripts/verify_wheel.py
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: TsaoSciComputation-release-candidate
+          path: |
+            dist-a/*
+            dist/*
+          if-no-files-found: error
+          retention-days: 14
