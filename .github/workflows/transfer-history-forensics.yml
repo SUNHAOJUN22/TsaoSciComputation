@@ -12,7 +12,7 @@ jobs:
   history:
     if: github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'agent/tsao-source-forensics'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     outputs:
       workflow_artifact_id: ${{ steps.locate.outputs.workflow_artifact_id }}
     steps:
@@ -21,42 +21,34 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.base.sha }}
           fetch-depth: 0
+          fetch-tags: true
           persist-credentials: false
           show-progress: false
-      - name: Fetch all branch refs read-only
-        shell: bash
-        run: git fetch --no-tags origin '+refs/heads/*:refs/remotes/origin/*'
-      - name: Build transfer history evidence
+      - name: Fetch all repository refs read-only
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p history-evidence
-          git log --all --reverse --date=iso-strict --format='COMMIT %H%nPARENTS %P%nAUTHOR %an <%ae>%nDATE %ad%nSUBJECT %s' --name-status -- .release_source > history-evidence/release-source-history.txt
-          git log --all --reverse --date=iso-strict --format='COMMIT %H%nPARENTS %P%nAUTHOR %an <%ae>%nDATE %ad%nSUBJECT %s' --name-status -- .audit_source_v101 > history-evidence/audit-source-v101-history.txt
-          git log --all --reverse --date=iso-strict --format='COMMIT %H%nPARENTS %P%nAUTHOR %an <%ae>%nDATE %ad%nSUBJECT %s' --name-status -- .audit_patch_v102 > history-evidence/audit-patch-v102-history.txt
-          python - <<'PY'
-          import json, subprocess
-          from pathlib import Path
-          dirs=['.release_source','.audit_source_v101','.audit_patch_v102']
-          out={}
-          for directory in dirs:
-              revs=subprocess.run(['git','rev-list','--all','--',directory],check=True,text=True,capture_output=True).stdout.split()
-              entries=[]
-              for rev in reversed(revs):
-                  subject=subprocess.run(['git','show','-s','--format=%s',rev],check=True,text=True,capture_output=True).stdout.strip()
-                  tree=subprocess.run(['git','ls-tree','-r','-l',rev,'--',directory],check=True,text=True,capture_output=True).stdout.splitlines()
-                  entries.append({'commit':rev,'subject':subject,'tree':tree})
-              out[directory]=entries
-          Path('history-evidence/history.json').write_text(json.dumps(out,indent=2,sort_keys=True)+'\n')
-          PY
-      - name: Upload transfer history
+          git fetch --prune origin '+refs/heads/*:refs/remotes/origin/*'
+          git fetch --tags origin '+refs/tags/*:refs/tags/*'
+      - name: Build complete Git evidence bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p git-evidence
+          git for-each-ref --format='%(refname)\t%(objectname)\t%(committerdate:iso8601)' | LC_ALL=C sort > git-evidence/refs.tsv
+          git log --all --graph --decorate --oneline --date-order > git-evidence/history.txt
+          git bundle create git-evidence/TsaoSciComputation-all-refs.bundle --all
+          git bundle verify git-evidence/TsaoSciComputation-all-refs.bundle > git-evidence/bundle-verify.txt 2>&1
+          git fsck --full --strict > git-evidence/fsck.txt 2>&1
+          sha256sum git-evidence/TsaoSciComputation-all-refs.bundle > git-evidence/SHA256SUMS
+      - name: Upload complete Git evidence
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08
         with:
-          name: TsaoSciComputation-transfer-history
-          path: history-evidence
+          name: TsaoSciComputation-complete-git-evidence
+          path: git-evidence
           if-no-files-found: error
           retention-days: 7
-      - name: Locate history artifact ID
+      - name: Locate Git evidence artifact ID
         id: locate
         shell: bash
         env:
@@ -68,7 +60,7 @@ jobs:
             artifact_id=$(python - <<'PY'
           import json
           d=json.load(open('/tmp/artifacts.json'))
-          m=[x for x in d.get('artifacts',[]) if x.get('name')=='TsaoSciComputation-transfer-history']
+          m=[x for x in d.get('artifacts',[]) if x.get('name')=='TsaoSciComputation-complete-git-evidence']
           print(m[0]['id'] if m else '')
           PY
             )
@@ -79,7 +71,7 @@ jobs:
   report:
     needs: history
     if: always()
-    name: transfer-history-artifact-${{ needs.history.outputs.workflow_artifact_id }}
+    name: complete-git-evidence-artifact-${{ needs.history.outputs.workflow_artifact_id }}
     runs-on: ubuntu-latest
     steps:
-      - run: echo 'History artifact ID encoded in job name.'
+      - run: echo 'Complete Git evidence artifact ID encoded in job name.'
