@@ -1,0 +1,57 @@
+name: Prepare immutable branch archive tags
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: prepare-branch-archive-tags
+  cancel-in-progress: true
+
+jobs:
+  archive:
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'agent/final-main-v3'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          fetch-tags: true
+      - name: Create and verify recovery tags
+        shell: bash
+        run: |
+          set -euo pipefail
+          exec > >(tee /tmp/BRANCH_ARCHIVE.log) 2>&1
+          git fetch --prune origin '+refs/heads/*:refs/remotes/origin/*'
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git for-each-ref --format='%(refname:short)%09%(objectname)' refs/remotes/origin | sort > /tmp/branches.tsv
+          while IFS=$'\t' read -r ref sha; do
+            [ "$ref" = origin/HEAD ] && continue
+            branch=${ref#origin/}
+            [ "$branch" = main ] && continue
+            safe=$(printf '%s' "$branch" | sed 's/[^A-Za-z0-9._-]/-/g')
+            tag="archive/pre-single-main-20260722/${safe}-${sha:0:8}"
+            git check-ref-format "refs/tags/$tag"
+            if git rev-parse -q --verify "refs/tags/$tag^{}" >/dev/null; then
+              test "$(git rev-parse "refs/tags/$tag^{}")" = "$sha"
+            else
+              git tag -a "$tag" "$sha" -m "Preserve $branch before single-main consolidation"
+              git push origin "refs/tags/$tag"
+            fi
+            test "$(git ls-remote --tags origin "refs/tags/$tag^{}" | awk '{print $1}')" = "$sha"
+            printf '%s\t%s\t%s\n' "$branch" "$sha" "$tag"
+          done < /tmp/branches.tsv
+      - if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: TsaoSciComputation-branch-archive-tags
+          path: /tmp/BRANCH_ARCHIVE.log
+          if-no-files-found: error
+          retention-days: 30
