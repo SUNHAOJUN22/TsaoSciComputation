@@ -1,148 +1,36 @@
-name: Final verified single-main consolidation
+name: Inventory current main workflows
 
 on:
   pull_request_target:
     types: [opened, synchronize, reopened]
 
 permissions:
-  actions: write
-  contents: write
-  pull-requests: write
+  contents: read
 
 concurrency:
-  group: final-verified-single-main-consolidation
-  cancel-in-progress: false
+  group: inventory-current-main-workflows
+  cancel-in-progress: true
 
 jobs:
-  validate-promote-govern:
-    if: >-
-      github.event.pull_request.head.repo.full_name == github.repository &&
-      github.event.pull_request.head.ref == 'agent/final-main-v3'
+  inventory:
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'agent/final-main-v3'
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 10
     steps:
-      - name: Check out trusted main base only
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
         with:
-          ref: ${{ github.event.pull_request.base.sha }}
-          fetch-depth: 0
-          fetch-tags: true
-
-      - name: Recover and verify hash-bound ordinary source
-        shell: bash
-        env:
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          ref: main
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Record exact workflow inventory
         run: |
           set -euo pipefail
-          rm -rf /tmp/tsao-payload /tmp/tsao-extracted
-          mkdir -p /tmp/tsao-payload /tmp/tsao-extracted
-          git fetch --no-tags origin "$HEAD_SHA"
-          git show "$HEAD_SHA:.final_source/manifest.json" > /tmp/tsao-payload/manifest.json
-          git show "$HEAD_SHA:.final_source/finalizer.py" > /tmp/tsao-payload/finalizer.py
-          git show "$HEAD_SHA:.final_source/tsao-source.tar.xz" > /tmp/tsao-payload/tsao-source.tar.xz
-          python - <<'PY'
-          from __future__ import annotations
-          import hashlib, json, tarfile
-          from pathlib import Path, PurePosixPath
-
-          payload = Path('/tmp/tsao-payload')
-          manifest_path = payload / 'manifest.json'
-          if hashlib.sha256(manifest_path.read_bytes()).hexdigest() != '286e7945e87081b2e51a3a233552e09d6eacc18e2bb45f491a1800e84665e911':
-              raise SystemExit('transfer manifest SHA-256 mismatch')
-          expected = {
-              'archive': 'tsao-source.tar.xz',
-              'archive_bytes': 83344,
-              'archive_sha256': '5a839691f876ceb43e387fca51c584a02852403c1a88c8b85f034487148738f6',
-              'finalizer': 'finalizer.py',
-              'finalizer_bytes': 20990,
-              'finalizer_sha256': '40f709b166819f5a693c46b858664fa9507442a25ea67be4e8d9ea9a8f6bcdbb',
-              'schema_version': '1.0',
-          }
-          manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
-          if manifest != expected:
-              raise SystemExit('transfer manifest content mismatch')
-          for name, size_key, sha_key in (
-              ('finalizer.py', 'finalizer_bytes', 'finalizer_sha256'),
-              ('tsao-source.tar.xz', 'archive_bytes', 'archive_sha256'),
-          ):
-              path = payload / name
-              data = path.read_bytes()
-              if path.is_symlink() or len(data) != expected[size_key]:
-                  raise SystemExit(f'payload size mismatch: {name}')
-              if hashlib.sha256(data).hexdigest() != expected[sha_key]:
-                  raise SystemExit(f'payload SHA-256 mismatch: {name}')
-
-          archive_path = payload / 'tsao-source.tar.xz'
-          root = Path('/tmp/tsao-extracted')
-          total = 0
-          with tarfile.open(archive_path, 'r:xz') as archive:
-              members = archive.getmembers()
-              if not members or len(members) > 2000:
-                  raise SystemExit('unsafe archive member count')
-              for member in members:
-                  name = PurePosixPath(member.name)
-                  if name.is_absolute() or '..' in name.parts or not name.parts:
-                      raise SystemExit(f'unsafe archive path: {member.name!r}')
-                  if name.parts[0] != 'TsaoSciComputation-3.0.0':
-                      raise SystemExit(f'unexpected archive root: {member.name!r}')
-                  if member.issym() or member.islnk() or member.isdev() or member.isfifo():
-                      raise SystemExit(f'unsafe archive member: {member.name!r}')
-                  if member.size < 0 or member.size > 20 * 1024 * 1024:
-                      raise SystemExit(f'unsafe archive member size: {member.name!r}')
-                  total += member.size
-                  if total > 100 * 1024 * 1024:
-                      raise SystemExit('archive expansion limit exceeded')
-              archive.extractall(root, members=members, filter='data')
-          source = root / 'TsaoSciComputation-3.0.0'
-          required = ['SKILL.md', 'VERSION', 'README.md', 'pyproject.toml', 'manifest.json',
-                      'tsao_computation', 'tests', 'scripts', 'schemas', 'registry',
-                      'capability-index', 'adapters', 'skills/workflows', '.github/workflows']
-          missing = [item for item in required if not (source / item).exists()]
-          if missing or (source / 'VERSION').read_text().strip() != '3.0.0':
-              raise SystemExit(f'invalid ordinary source: {missing}')
-          for forbidden in ('.release_source', '.audit_source_v101', '.audit_patch_v102', '.bootstrap', '.final_source'):
-              if (source / forbidden).exists():
-                  raise SystemExit(f'forbidden transfer path: {forbidden}')
-          print(json.dumps({'members': len(members), 'expanded_bytes': total}, sort_keys=True))
-          PY
-
-      - name: Set up verification Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+          mkdir -p /tmp/main-workflows
+          find .github/workflows -maxdepth 1 -type f -printf '%f\t%s bytes\n' | sort | tee /tmp/main-workflows/inventory.tsv
+          sha256sum .github/workflows/* | sort > /tmp/main-workflows/SHA256SUMS
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
-          python-version: '3.13'
-
-      - name: Install validation toolchain
-        shell: bash
-        run: |
-          set -euo pipefail
-          cd /tmp/tsao-extracted/TsaoSciComputation-3.0.0
-          python -m pip install -e '.[validation,quality]'
-
-      - name: Validate, promote, verify remote CI, and enforce single-main governance
-        shell: bash
-        env:
-          GH_TOKEN: ${{ github.token }}
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-          REPOSITORY: ${{ github.repository }}
-          API_URL: ${{ github.api_url }}
-          RUN_ID: ${{ github.run_id }}
-        run: |
-          set -euo pipefail
-          python /tmp/tsao-payload/finalizer.py \
-            --workspace "$GITHUB_WORKSPACE" \
-            --source-root /tmp/tsao-extracted/TsaoSciComputation-3.0.0 \
-            --repository "$REPOSITORY" \
-            --api-url "$API_URL" \
-            --token "$GH_TOKEN" \
-            --base-sha "$BASE_SHA" \
-            --head-sha "$HEAD_SHA" \
-            --run-id "$RUN_ID"
-
-      - name: Upload final validation and governance evidence
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
-        with:
-          name: TsaoSciComputation-v3.0.0-single-main-evidence
-          path: /tmp/finalization-artifacts
+          name: TsaoSciComputation-current-main-workflows
+          path: /tmp/main-workflows
           if-no-files-found: error
-          retention-days: 30
+          retention-days: 7
