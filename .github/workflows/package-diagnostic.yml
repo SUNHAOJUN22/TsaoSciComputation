@@ -1,0 +1,62 @@
+name: Diagnose reproducible packaging
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'agent/final-main-v3'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 1
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+      - name: Restore source and diagnose packaging
+        shell: bash
+        run: |
+          set -euo pipefail
+          exec > >(tee /tmp/PACKAGING.log) 2>&1
+          set -x
+          rm -rf /tmp/tsao-payload /tmp/tsao-extracted /tmp/tsao-build-a /tmp/tsao-build-b
+          mkdir -p /tmp/tsao-payload /tmp/tsao-extracted
+          cp .final_source/* /tmp/tsao-payload/
+          cd /tmp/tsao-payload
+          cat loader-* > loader.py
+          python loader.py
+          SRC=/tmp/tsao-extracted/TsaoSciComputation-3.0.0
+          python - <<'PY'
+          from pathlib import Path
+          path=Path('/tmp/tsao-extracted/TsaoSciComputation-3.0.0/scripts/package_release.py')
+          text=path.read_text()
+          old = '    with output.open("wb") as raw:\n        with gzip.GzipFile(filename="", mode="wb", fileobj=raw, compresslevel=9, mtime=epoch) as compressed:\n            with tarfile.open(fileobj=compressed, mode="w", format=tarfile.PAX_FORMAT) as archive:\n'
+          new = '    with (\n        output.open("wb") as raw,\n        gzip.GzipFile(filename="", mode="wb", fileobj=raw, compresslevel=9, mtime=epoch) as compressed,\n        tarfile.open(fileobj=compressed, mode="w", format=tarfile.PAX_FORMAT) as archive,\n    ):\n'
+          if old in text:
+              path.write_text(text.replace(old,new))
+          PY
+          cd "$SRC"
+          python scripts/package_release.py --help
+          SOURCE_DATE_EPOCH=1700000000 python scripts/package_release.py --output-dir /tmp/tsao-build-a
+          SOURCE_DATE_EPOCH=1700000000 python scripts/package_release.py --output-dir /tmp/tsao-build-b
+          find /tmp/tsao-build-a /tmp/tsao-build-b -maxdepth 2 -type f -printf '%p %s bytes\n' | sort
+          cmp /tmp/tsao-build-a/TsaoSciComputation-3.0.0.zip /tmp/tsao-build-b/TsaoSciComputation-3.0.0.zip
+          cmp /tmp/tsao-build-a/TsaoSciComputation-3.0.0.tar.gz /tmp/tsao-build-b/TsaoSciComputation-3.0.0.tar.gz
+          python -m pip install -e '.[validation,quality]'
+          python scripts/verify_wheel.py
+          find dist -maxdepth 2 -type f -printf '%p %s bytes\n' | sort
+      - if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: TsaoSciComputation-package-diagnostic
+          path: /tmp/PACKAGING.log
+          if-no-files-found: error
+          retention-days: 7
