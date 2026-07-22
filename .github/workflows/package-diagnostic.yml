@@ -51,6 +51,7 @@ jobs:
           cmp /tmp/tsao-build-a/TsaoSciComputation-3.0.0.zip /tmp/tsao-build-b/TsaoSciComputation-3.0.0.zip
           cmp /tmp/tsao-build-a/TsaoSciComputation-3.0.0.tar.gz /tmp/tsao-build-b/TsaoSciComputation-3.0.0.tar.gz
           python -m pip install -e '.[validation,quality]'
+          python -m pip install setuptools wheel
           python scripts/verify_wheel.py
           find dist -maxdepth 2 -type f -printf '%p %s bytes\n' | sort
       - if: always()
