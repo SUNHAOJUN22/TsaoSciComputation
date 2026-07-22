@@ -28,7 +28,7 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
-      - name: Reconstruct and safely extract the hash-bound ordinary source
+      - name: Recover and verify hash-bound ordinary source
         shell: bash
         env:
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
@@ -37,75 +37,42 @@ jobs:
           rm -rf /tmp/tsao-payload /tmp/tsao-extracted
           mkdir -p /tmp/tsao-payload /tmp/tsao-extracted
           git fetch --no-tags origin "$HEAD_SHA"
-          for name in manifest.json finalizer-000 finalizer-001 finalizer-002 part-000 part-001 part-002 part-003 part-004 part-005 part-006; do
-            git show "$HEAD_SHA:.final_source/$name" > "/tmp/tsao-payload/$name"
-          done
+          git show "$HEAD_SHA:.final_source/manifest.json" > /tmp/tsao-payload/manifest.json
+          git show "$HEAD_SHA:.final_source/finalizer.py" > /tmp/tsao-payload/finalizer.py
+          git show "$HEAD_SHA:.final_source/tsao-source.tar.xz" > /tmp/tsao-payload/tsao-source.tar.xz
           python - <<'PY'
           from __future__ import annotations
-          import base64, hashlib, json, tarfile
+          import hashlib, json, tarfile
           from pathlib import Path, PurePosixPath
 
           payload = Path('/tmp/tsao-payload')
           manifest_path = payload / 'manifest.json'
-          if hashlib.sha256(manifest_path.read_bytes()).hexdigest() != 'df9450a8a99218168172f91b2d497ffdb173de4f5aba9c66ee52bfb20f3ae57b':
+          if hashlib.sha256(manifest_path.read_bytes()).hexdigest() != '286e7945e87081b2e51a3a233552e09d6eacc18e2bb45f491a1800e84665e911':
               raise SystemExit('transfer manifest SHA-256 mismatch')
-          manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
           expected = {
-              'schema_version': '1.0',
-              'encoding': 'base85',
               'archive': 'tsao-source.tar.xz',
               'archive_bytes': 83344,
               'archive_sha256': '5a839691f876ceb43e387fca51c584a02852403c1a88c8b85f034487148738f6',
-              'part_count': 7,
-              'part_size_chars': 15000,
-              'parts': [f'part-{index:03d}' for index in range(7)],
-              'part_sha256': [
-                  '792c44229dac365c0bc491aa80af0dde170345f97f49158a2c884dbbc54ce121',
-                  '95872a715978353d25d242144930af9abe6b58b24872f89dfeb06850c4f62572',
-                  '94bd56801e7ab0905fced3d0b2844977e6870019fc65522d0c888d44bd0edc2b',
-                  '4ec15af0d5e5405d00c61a255f40fa168088aeefaafbf90c029d4aa7a40e51b4',
-                  'a9ac58ce852ba676896601e1bca419d12e9efd65ee39f42feb0cc2d15b38d8e7',
-                  '3affcc269c757c48f9716ce9413361cea9354249e74aa761cad386a8d5d28e6f',
-                  'af82f156581bb7915720f926eda9391a16d1e12a2751769399bf6ad278de316c',
-              ],
+              'finalizer': 'finalizer.py',
               'finalizer_bytes': 20990,
-              'finalizer_parts': ['finalizer-000', 'finalizer-001', 'finalizer-002'],
-              'finalizer_part_sha256': [
-                  '387d208cf4552f222ce90cacc14097d90c7b9b3c42d49ae99d2e6f6261d24c9f',
-                  '04055854b66754b7ffdb1e396701ea2cd8ce58a22ccc22b3a6ccc2b41bf591f1',
-                  '14eeb192753150d410df7b36cc156c788b849df14db7c6fefd1df8aee052f1fe',
-              ],
               'finalizer_sha256': '40f709b166819f5a693c46b858664fa9507442a25ea67be4e8d9ea9a8f6bcdbb',
+              'schema_version': '1.0',
           }
+          manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
           if manifest != expected:
               raise SystemExit('transfer manifest content mismatch')
-          finalizer_bytes = []
-          for name, digest in zip(expected['finalizer_parts'], expected['finalizer_part_sha256'], strict=True):
-              part = payload / name
-              data = part.read_bytes()
-              if part.is_symlink() or hashlib.sha256(data).hexdigest() != digest:
-                  raise SystemExit(f'finalizer part mismatch: {name}')
-              finalizer_bytes.append(data)
-          finalizer_data = b''.join(finalizer_bytes)
-          if len(finalizer_data) != expected['finalizer_bytes'] or hashlib.sha256(finalizer_data).hexdigest() != expected['finalizer_sha256']:
-              raise SystemExit('trusted finalizer SHA-256 mismatch')
-          finalizer = payload / 'finalizer.py'
-          finalizer.write_bytes(finalizer_data)
-          encoded = []
-          for name, digest in zip(expected['parts'], expected['part_sha256'], strict=True):
-              part = payload / name
-              data = part.read_bytes()
-              if part.is_symlink() or hashlib.sha256(data).hexdigest() != digest:
-                  raise SystemExit(f'transfer part mismatch: {name}')
-              encoded.append(data)
-          archive_bytes = base64.b85decode(b''.join(encoded))
-          if len(archive_bytes) != expected['archive_bytes']:
-              raise SystemExit('archive byte length mismatch')
-          if hashlib.sha256(archive_bytes).hexdigest() != expected['archive_sha256']:
-              raise SystemExit('archive SHA-256 mismatch')
-          archive_path = Path('/tmp/tsao-source.tar.xz')
-          archive_path.write_bytes(archive_bytes)
+          for name, size_key, sha_key in (
+              ('finalizer.py', 'finalizer_bytes', 'finalizer_sha256'),
+              ('tsao-source.tar.xz', 'archive_bytes', 'archive_sha256'),
+          ):
+              path = payload / name
+              data = path.read_bytes()
+              if path.is_symlink() or len(data) != expected[size_key]:
+                  raise SystemExit(f'payload size mismatch: {name}')
+              if hashlib.sha256(data).hexdigest() != expected[sha_key]:
+                  raise SystemExit(f'payload SHA-256 mismatch: {name}')
 
+          archive_path = payload / 'tsao-source.tar.xz'
           root = Path('/tmp/tsao-extracted')
           total = 0
           with tarfile.open(archive_path, 'r:xz') as archive:
@@ -136,8 +103,7 @@ jobs:
           for forbidden in ('.release_source', '.audit_source_v101', '.audit_patch_v102', '.bootstrap', '.final_source'):
               if (source / forbidden).exists():
                   raise SystemExit(f'forbidden transfer path: {forbidden}')
-          print(json.dumps({'members': len(members), 'expanded_bytes': total,
-                            'archive_sha256': expected['archive_sha256']}, sort_keys=True))
+          print(json.dumps({'members': len(members), 'expanded_bytes': total}, sort_keys=True))
           PY
 
       - name: Set up verification Python
