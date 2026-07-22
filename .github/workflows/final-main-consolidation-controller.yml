@@ -37,7 +37,7 @@ jobs:
           rm -rf /tmp/tsao-payload /tmp/tsao-extracted
           mkdir -p /tmp/tsao-payload /tmp/tsao-extracted
           git fetch --no-tags origin "$HEAD_SHA"
-          for name in manifest.json finalizer.py part-000 part-001 part-002 part-003 part-004 part-005 part-006 part-007 part-008 part-009 part-010 part-011; do
+          for name in manifest.json finalizer-000 finalizer-001 finalizer-002 part-000 part-001 part-002 part-003 part-004 part-005 part-006 part-007 part-008 part-009 part-010 part-011; do
             git show "$HEAD_SHA:.final_source/$name" > "/tmp/tsao-payload/$name"
           done
           python - <<'PY'
@@ -47,7 +47,7 @@ jobs:
 
           payload = Path('/tmp/tsao-payload')
           manifest_path = payload / 'manifest.json'
-          if hashlib.sha256(manifest_path.read_bytes()).hexdigest() != 'b9d664f5b5cb81fb0a6465e4df785bed837f0a1eb398ca8eac94a5d25e688a3b':
+          if hashlib.sha256(manifest_path.read_bytes()).hexdigest() != '24ca19f0f2b3c780140039ba16195f86bbd684cad39200f61cf20f514ba7ef89':
               raise SystemExit('transfer manifest SHA-256 mismatch')
           manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
           expected = {
@@ -73,13 +73,29 @@ jobs:
                   'ffb1b2b64c52966a8470aaf2252f09eb4b9f45be38fed90d16db9a6b0cc9ce55',
                   'c9afc181efcb8080111ad99a7d60450a98ddab016157376f8d8bacb36eccfa2a',
               ],
+              'finalizer_bytes': 20990,
+              'finalizer_parts': ['finalizer-000', 'finalizer-001', 'finalizer-002'],
+              'finalizer_part_sha256': [
+                  '387d208cf4552f222ce90cacc14097d90c7b9b3c42d49ae99d2e6f6261d24c9f',
+                  '04055854b66754b7ffdb1e396701ea2cd8ce58a22ccc22b3a6ccc2b41bf591f1',
+                  '14eeb192753150d410df7b36cc156c788b849df14db7c6fefd1df8aee052f1fe',
+              ],
               'finalizer_sha256': '40f709b166819f5a693c46b858664fa9507442a25ea67be4e8d9ea9a8f6bcdbb',
           }
           if manifest != expected:
               raise SystemExit('transfer manifest content mismatch')
-          finalizer = payload / 'finalizer.py'
-          if hashlib.sha256(finalizer.read_bytes()).hexdigest() != expected['finalizer_sha256']:
+          finalizer_bytes = []
+          for name, digest in zip(expected['finalizer_parts'], expected['finalizer_part_sha256'], strict=True):
+              part = payload / name
+              data = part.read_bytes()
+              if part.is_symlink() or hashlib.sha256(data).hexdigest() != digest:
+                  raise SystemExit(f'finalizer part mismatch: {name}')
+              finalizer_bytes.append(data)
+          finalizer_data = b''.join(finalizer_bytes)
+          if len(finalizer_data) != expected['finalizer_bytes'] or hashlib.sha256(finalizer_data).hexdigest() != expected['finalizer_sha256']:
               raise SystemExit('trusted finalizer SHA-256 mismatch')
+          finalizer = payload / 'finalizer.py'
+          finalizer.write_bytes(finalizer_data)
           encoded = []
           for name, digest in zip(expected['parts'], expected['part_sha256'], strict=True):
               part = payload / name
