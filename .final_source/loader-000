@@ -1,0 +1,31 @@
+from __future__ import annotations
+import base64, hashlib, json, tarfile
+from pathlib import Path, PurePosixPath
+
+PAYLOAD=Path('/tmp/tsao-payload')
+ROOT=Path('/tmp/tsao-extracted')
+MANIFEST_SHA='6e2be0f7c17f12e1b40ed4da37119d42240f380f838899ace51fe84e4ed6c85a'
+
+def join(parts:list[str], digests:list[str], label:str)->bytes:
+    if len(parts)!=len(digests): raise SystemExit(f'{label} inventory mismatch')
+    chunks=[]
+    for name,digest in zip(parts,digests,strict=True):
+        path=PAYLOAD/name
+        data=path.read_bytes()
+        if path.is_symlink() or hashlib.sha256(data).hexdigest()!=digest:
+            raise SystemExit(f'{label} part mismatch: {name}')
+        chunks.append(data)
+    return b''.join(chunks)
+
+def main()->None:
+    manifest_path=PAYLOAD/'manifest.json'
+    if hashlib.sha256(manifest_path.read_bytes()).hexdigest()!=MANIFEST_SHA:
+        raise SystemExit('manifest digest mismatch')
+    manifest=json.loads(manifest_path.read_text())
+    finalizer=join(manifest['finalizer_parts'],manifest['finalizer_part_sha256'],'finalizer')
+    if len(finalizer)!=manifest['finalizer_bytes'] or hashlib.sha256(finalizer).hexdigest()!=manifest['finalizer_sha256']:
+        raise SystemExit('finalizer mismatch')
+    (PAYLOAD/'finalizer.py').write_bytes(finalizer)
+    encoded=join(manifest['parts'],manifest['part_sha256'],'source')
+    archive=base64.b85decode(encoded)
+    if le

@@ -1,0 +1,92 @@
+es pass.",
+        replacement,
+    )
+    audit_path.write_text(text, encoding="utf-8")
+    run("python", "scripts/build_manifest.py", cwd=source_root)
+    run("python", "scripts/build_manifest.py", "--check", cwd=source_root)
+    return summary
+
+
+def verify_reproducible_builds(source_root: Path) -> None:
+    for path in (Path("/tmp/tsao-build-a"), Path("/tmp/tsao-build-b"), source_root / "dist"):
+        shutil.rmtree(path, ignore_errors=True)
+    env = dict(os.environ)
+    env["SOURCE_DATE_EPOCH"] = "1700000000"
+    for output in (Path("/tmp/tsao-build-a"), Path("/tmp/tsao-build-b")):
+        subprocess.run(
+            ["python", "scripts/package_release.py", "--output-dir", str(output)],
+            cwd=source_root,
+            env=env,
+            check=True,
+        )
+    for name in ("TsaoSciComputation-3.0.0.zip", "TsaoSciComputation-3.0.0.tar.gz"):
+        if (Path("/tmp/tsao-build-a") / name).read_bytes() != (
+            Path("/tmp/tsao-build-b") / name
+        ).read_bytes():
+            raise RuntimeError(f"non-reproducible source artifact: {name}")
+    run("python", "scripts/verify_wheel.py", cwd=source_root)
+    FINALIZATION_ROOT.mkdir(parents=True, exist_ok=True)
+    for path in [
+        Path("/tmp/tsao-build-a/TsaoSciComputation-3.0.0.zip"),
+        Path("/tmp/tsao-build-a/TsaoSciComputation-3.0.0.tar.gz"),
+        source_root / "dist/tsao_scicomputation-3.0.0-py3-none-any.whl",
+        source_root / "dist/WHEEL_VERIFICATION.json",
+        source_root / "reports/REMOTE_FINALIZATION.json",
+        source_root / "evidence/coverage.json",
+        source_root / "evidence/mutation-report.json",
+        source_root / "evidence/security-scan.json",
+    ]:
+        shutil.copy2(path, FINALIZATION_ROOT / path.name)
+
+
+def create_recovery_tags(workspace: Path, rows: list[dict[str, str | None]]) -> None:
+    git("config", "user.name", "github-actions[bot]", cwd=workspace)
+    git(
+        "config",
+        "user.email",
+        "41898282+github-actions[bot]@users.noreply.github.com",
+        cwd=workspace,
+    )
+    for row in rows:
+        tag = row["archive_tag"]
+        if not tag:
+            continue
+        existing = subprocess.run(
+            ["git", "rev-parse", "-q", "--verify", f"refs/tags/{tag}^{{}}"],
+            cwd=workspace,
+            text=True,
+            capture_output=True,
+        )
+        if existing.returncode == 0:
+            if existing.stdout.strip() != row["sha"]:
+                raise RuntimeError(f"archive tag collision: {tag}")
+        else:
+            git(
+                "tag",
+                "-a",
+                tag,
+                str(row["sha"]),
+                "-m",
+                f"Preserve {row['branch']} before single-main consolidation",
+                cwd=workspace,
+            )
+        git("push", "origin", f"refs/tags/{tag}", cwd=workspace)
+
+
+def promote_main(workspace: Path, source_root: Path, base_sha: str) -> tuple[str, str]:
+    git("checkout", "-B", "main", base_sha, cwd=workspace)
+    for item in workspace.iterdir():
+        if item.name == ".git":
+            continue
+        if item.is_dir():
+            shutil.rmtree(item)
+        else:
+            item.unlink()
+    for item in source_root.iterdir():
+        target = workspace / item.name
+        if item.is_dir():
+            shutil.copytree(item, target)
+        else:
+            shutil.copy2(item, target)
+    git("add", "-A", cwd=workspace)
+    git("commit", "-m", "Consolidate verified ordinary source into single ma

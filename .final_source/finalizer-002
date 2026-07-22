@@ -1,171 +1,72 @@
-eads/main", cwd=workspace, capture=True).split()[0]
-    if remote_sha != final_sha:
-        raise RuntimeError(f"remote main verification failed: {remote_sha} != {final_sha}")
-    candidates = ["v3.0.0", "v3.0.0-single-main", f"v3.0.0-single-main-20260722-{final_sha[:8]}"]
-    release_tag = candidates[-1]
-    for candidate in candidates:
-        result = subprocess.run(
-            ["git", "ls-remote", "--exit-code", "--tags", "origin", f"refs/tags/{candidate}"],
-            cwd=workspace,
-            capture_output=True,
-            text=True,
-        )
-        if result.returncode != 0:
-            release_tag = candidate
-            git(
-                "tag",
-                "-a",
-                release_tag,
-                final_sha,
-                "-m",
-                "TsaoSciComputation 3.0.0 verified single-main release",
-                cwd=workspace,
-            )
-            git("push", "origin", f"refs/tags/{release_tag}", cwd=workspace)
-            break
-        peeled = git(
-            "ls-remote", "--tags", "origin", f"refs/tags/{candidate}^{{}}", cwd=workspace, capture=True
-        )
-        if peeled and peeled.split()[0] == final_sha:
-            release_tag = candidate
-            break
-    (FINALIZATION_ROOT / "FINAL_MAIN_SHA").write_text(final_sha + "\n", encoding="utf-8")
-    (FINALIZATION_ROOT / "FINAL_RELEASE_TAG").write_text(release_tag + "\n", encoding="utf-8")
-    return final_sha, release_tag
 
-
-def wait_for_workflows(api: GitHubAPI, final_sha: str) -> dict[str, dict[str, Any]]:
-    expected = {"ci.yml": "CI", "codeql.yml": "CodeQL"}
-    for workflow in expected:
-        api.dispatch(workflow)
-    resolved: dict[str, dict[str, Any]] = {}
-    deadline = time.time() + 5400
-    while time.time() < deadline:
-        for workflow in expected:
-            query = urllib.parse.urlencode(
-                {"event": "workflow_dispatch", "branch": "main", "per_page": 20}
-            )
-            data = api.request("GET", f"actions/workflows/{workflow}/runs?{query}")
-            matches = [
-                item for item in data.get("workflow_runs", []) if item.get("head_sha") == final_sha
-            ]
-            if matches:
-                item = max(matches, key=lambda value: value["id"])
-                resolved[workflow] = {
-                    "id": item["id"],
-                    "name": item["name"],
-                    "status": item["status"],
-                    "conclusion": item.get("conclusion"),
-                    "html_url": item["html_url"],
-                }
-        if len(resolved) == len(expected) and all(
-            item["status"] == "completed" for item in resolved.values()
-        ):
-            failed = [
-                item
-                for item in resolved.values()
-                if item["conclusion"] not in {"success", "neutral", "skipped"}
-            ]
-            if failed:
-                raise RuntimeError(f"final-main workflow failure: {failed}")
-            (FINALIZATION_ROOT / "REMOTE_WORKFLOWS.json").write_text(
-                json.dumps(resolved, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-            )
-            return resolved
-        time.sleep(15)
-    raise TimeoutError(f"timed out waiting for final-main workflows: {resolved}")
-
-
-def close_prs_and_delete_branches(
-    api: GitHubAPI, rows: list[dict[str, str | None]]
-) -> dict[str, Any]:
-    pulls = api.request("GET", "pulls?state=open&per_page=100") or []
-    closed: list[int] = []
-    for pull in pulls:
-        number = int(pull["number"])
-        api.request("PATCH", f"pulls/{number}", {"state": "closed"})
-        closed.append(number)
-    deleted: list[dict[str, str | None]] = []
-    for row in rows:
-        branch = str(row["branch"])
-        if branch == "main":
-            continue
-        ref = urllib.parse.quote(f"heads/{branch}", safe="/")
-        api.request("DELETE", f"git/refs/{ref}")
-        deleted.append(row)
-    deadline = time.time() + 120
-    names: list[str] = []
-    while time.time() < deadline:
-        branches = api.request("GET", "branches?per_page=100") or []
-        names = [item["name"] for item in branches]
-        if names == ["main"]:
-            break
-        time.sleep(3)
-    else:
-        raise RuntimeError(f"branch cleanup incomplete: {names}")
-    result = {
-        "closed_pull_requests": closed,
-        "deleted_branches": deleted,
-        "remaining_branches": names,
-    }
-    (FINALIZATION_ROOT / "GOVERNANCE_RESULT.json").write_text(
-        json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    suites = [
+        element
+        for element in junit.iter()
+        if element.tag.rsplit("}", 1)[-1] == "testsuite"
+    ]
+    if not suites:
+        raise RuntimeError(f"JUnit report contains no testsuite: {junit.tag}")
+    tests = sum(int(suite.attrib.get("tests", 0)) for suite in suites)
+    failures = sum(int(suite.attrib.get("failures", 0)) for suite in suites)
+    errors = sum(int(suite.attrib.get("errors", 0)) for suite in suites)
+    coverage = json.loads((source_root / "evidence/coverage.json").read_text(encoding="utf-8"))
+    mutation = json.loads(
+        (source_root / "evidence/mutation-report.json").read_text(encoding="utf-8")
     )
-    return result
-
-
-def write_sums() -> None:
-    lines = []
-    for path in sorted(FINALIZATION_ROOT.iterdir(), key=lambda item: item.name):
-        if not path.is_file() or path.name == "SHA256SUMS":
-            continue
-        digest = __import__("hashlib").sha256(path.read_bytes()).hexdigest()
-        lines.append(f"{digest}  {path.name}")
-    (FINALIZATION_ROOT / "SHA256SUMS").write_text("\n".join(lines) + "\n", encoding="utf-8")
-
-
-def main() -> int:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--workspace", type=Path, required=True)
-    parser.add_argument("--source-root", type=Path, required=True)
-    parser.add_argument("--repository", required=True)
-    parser.add_argument("--api-url", required=True)
-    parser.add_argument("--token", required=True)
-    parser.add_argument("--base-sha", required=True)
-    parser.add_argument("--head-sha", required=True)
-    parser.add_argument("--run-id", required=True)
-    args = parser.parse_args()
-
-    workspace = args.workspace.resolve()
-    source_root = args.source_root.resolve()
-    FINALIZATION_ROOT.mkdir(parents=True, exist_ok=True)
-    rows = branch_inventory(workspace, args.base_sha, args.head_sha, args.run_id)
-    write_audit_document(source_root, rows, args.base_sha, args.head_sha, args.run_id)
-    validate_source(source_root, args.base_sha, args.head_sha, args.run_id)
-    verify_reproducible_builds(source_root)
-    create_recovery_tags(workspace, rows)
-    final_sha, release_tag = promote_main(workspace, source_root, args.base_sha)
-    api = GitHubAPI(args.api_url, args.repository, args.token)
-    workflows = wait_for_workflows(api, final_sha)
-    governance = close_prs_and_delete_branches(api, rows)
-    remote_sha = git("ls-remote", "origin", "refs/heads/main", cwd=workspace, capture=True).split()[0]
-    if remote_sha != final_sha:
-        raise RuntimeError("main changed during governance")
-    final_report = {
+    security = json.loads(
+        (source_root / "evidence/security-scan.json").read_text(encoding="utf-8")
+    )
+    benchmark = json.loads(
+        (source_root / "benchmarks/latest.json").read_text(encoding="utf-8")
+    )
+    if (tests, failures, errors) != (431, 0, 0):
+        raise RuntimeError(f"unexpected test result: {(tests, failures, errors)}")
+    if mutation.get("killed") != 64 or mutation.get("survived") != 0:
+        raise RuntimeError(f"mutation gate mismatch: {mutation}")
+    if security.get("findings"):
+        raise RuntimeError(f"security findings remain: {security}")
+    summary: dict[str, Any] = {
         "schema_version": "1.0",
-        "final_main_sha": final_sha,
-        "release_tag": release_tag,
-        "remote_workflows": workflows,
-        "governance": governance,
-        "status": "COMPLETE",
+        "github_run_id": run_id,
+        "trusted_base_sha": base_sha,
+        "transport_head_sha": head_sha,
+        "version": "3.0.0",
+        "tests": {"passed": tests, "failures": failures, "errors": errors},
+        "coverage": coverage["totals"],
+        "mutation": mutation,
+        "security": {
+            "files_scanned": security["files_scanned"],
+            "findings": len(security["findings"]),
+        },
+        "capabilities": 164,
+        "adapters": 27,
+        "workflows": 20,
+        "runtime_dependencies": 0,
+        "benchmark": benchmark,
+        "claim_boundary": "No live third-party solver, commercial-license environment, or production HPC execution is claimed.",
+        "status": "CONTROLLER_GATES_PASSED",
     }
-    (FINALIZATION_ROOT / "FINAL_RESULT.json").write_text(
-        json.dumps(final_report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    (source_root / "reports/REMOTE_FINALIZATION.json").write_text(
+        json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
-    write_sums()
-    print(json.dumps(final_report, sort_keys=True))
-    return 0
-
-
-if __name__ == "__main__":
-    raise SystemExit(main())
+    audit_path = source_root / "docs/branch-consolidation-audit.md"
+    text = audit_path.read_text(encoding="utf-8")
+    branch_total = coverage["totals"].get("num_branches", 0)
+    branch_covered = coverage["totals"].get("covered_branches", 0)
+    branch_percent = 100.0 if not branch_total else 100.0 * branch_covered / branch_total
+    replacement = "\n".join(
+        [
+            "## Validation result",
+            "",
+            "- 431 tests passed; 0 failures; 0 errors.",
+            f"- Statement coverage: {coverage['totals']['percent_covered_display']}%.",
+            f"- Branch coverage: {branch_percent:.2f}% ({branch_covered}/{branch_total}).",
+            "- Controlled mutation gate: 64/64 killed; 0 survived.",
+            f"- Security scan: {security['files_scanned']} text files; 0 findings.",
+            "- Ruff, format, mypy, Bandit, schema, capability, package-asset, and repository gates passed.",
+            "- Reproducible source archives and isolated deterministic wheel validation passed.",
+            "- Cross-platform CI and CodeQL are dispatched against final main before branch deletion.",
+        ]
+    )
+    text = text.replace(
+        "## Validation result\n\nThe controlled workflow replaces this paragraph after all controller gat

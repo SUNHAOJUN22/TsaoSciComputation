@@ -1,0 +1,5 @@
+r (source/'VERSION').read_text().strip()!='3.0.0': raise SystemExit(f'invalid source: {missing}')
+    for forbidden in ('.release_source','.audit_source_v101','.audit_patch_v102','.bootstrap','.final_source'):
+        if (source/forbidden).exists(): raise SystemExit(f'forbidden path: {forbidden}')
+
+if __name__=='__main__': main()

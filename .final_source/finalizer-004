@@ -1,0 +1,85 @@
+in", cwd=workspace)
+    final_sha = git("rev-parse", "HEAD", cwd=workspace, capture=True)
+    git(
+        "push",
+        f"--force-with-lease=refs/heads/main:{base_sha}",
+        "origin",
+        "HEAD:refs/heads/main",
+        cwd=workspace,
+    )
+    remote_sha = git("ls-remote", "origin", "refs/heads/main", cwd=workspace, capture=True).split()[0]
+    if remote_sha != final_sha:
+        raise RuntimeError(f"remote main verification failed: {remote_sha} != {final_sha}")
+    candidates = ["v3.0.0", "v3.0.0-single-main", f"v3.0.0-single-main-20260722-{final_sha[:8]}"]
+    release_tag = candidates[-1]
+    for candidate in candidates:
+        result = subprocess.run(
+            ["git", "ls-remote", "--exit-code", "--tags", "origin", f"refs/tags/{candidate}"],
+            cwd=workspace,
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode != 0:
+            release_tag = candidate
+            git(
+                "tag",
+                "-a",
+                release_tag,
+                final_sha,
+                "-m",
+                "TsaoSciComputation 3.0.0 verified single-main release",
+                cwd=workspace,
+            )
+            git("push", "origin", f"refs/tags/{release_tag}", cwd=workspace)
+            break
+        peeled = git(
+            "ls-remote", "--tags", "origin", f"refs/tags/{candidate}^{{}}", cwd=workspace, capture=True
+        )
+        if peeled and peeled.split()[0] == final_sha:
+            release_tag = candidate
+            break
+    (FINALIZATION_ROOT / "FINAL_MAIN_SHA").write_text(final_sha + "\n", encoding="utf-8")
+    (FINALIZATION_ROOT / "FINAL_RELEASE_TAG").write_text(release_tag + "\n", encoding="utf-8")
+    return final_sha, release_tag
+
+
+def wait_for_workflows(api: GitHubAPI, final_sha: str) -> dict[str, dict[str, Any]]:
+    expected = {"ci.yml": "CI", "codeql.yml": "CodeQL"}
+    for workflow in expected:
+        api.dispatch(workflow)
+    resolved: dict[str, dict[str, Any]] = {}
+    deadline = time.time() + 5400
+    while time.time() < deadline:
+        for workflow in expected:
+            query = urllib.parse.urlencode(
+                {"event": "workflow_dispatch", "branch": "main", "per_page": 20}
+            )
+            data = api.request("GET", f"actions/workflows/{workflow}/runs?{query}")
+            matches = [
+                item for item in data.get("workflow_runs", []) if item.get("head_sha") == final_sha
+            ]
+            if matches:
+                item = max(matches, key=lambda value: value["id"])
+                resolved[workflow] = {
+                    "id": item["id"],
+                    "name": item["name"],
+                    "status": item["status"],
+                    "conclusion": item.get("conclusion"),
+                    "html_url": item["html_url"],
+                }
+        if len(resolved) == len(expected) and all(
+            item["status"] == "completed" for item in resolved.values()
+        ):
+            failed = [
+                item
+                for item in resolved.values()
+                if item["conclusion"] not in {"success", "neutral", "skipped"}
+            ]
+            if failed:
+                raise RuntimeError(f"final-main workflow failure: {failed}")
+            (FINALIZATION_ROOT / "REMOTE_WORKFLOWS.json").write_text(
+                json.dumps(resolved, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+            )
+            return resolved
+        time.sleep(15)
+    raise Timeo

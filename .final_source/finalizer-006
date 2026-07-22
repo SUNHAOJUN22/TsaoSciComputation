@@ -1,0 +1,11 @@
+    }
+    (FINALIZATION_ROOT / "FINAL_RESULT.json").write_text(
+        json.dumps(final_report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+    write_sums()
+    print(json.dumps(final_report, sort_keys=True))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

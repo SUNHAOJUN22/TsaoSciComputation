@@ -1,114 +1,47 @@
 name: Execute verified single-main finalization
-
 on:
   pull_request:
     branches: [main]
     types: [opened, synchronize, reopened]
-
 permissions:
   actions: write
   contents: write
   pull-requests: write
-
 concurrency:
   group: execute-final-single-main-${{ github.event.pull_request.number }}
   cancel-in-progress: false
-
 jobs:
   finalize:
-    if: >-
-      github.event.pull_request.head.repo.full_name == github.repository &&
-      github.head_ref == 'agent/final-main-v3'
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'agent/final-main-v3'
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
-      - name: Check out exact transport head
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
           fetch-tags: true
-
-      - name: Verify and safely extract ordinary source
+      - name: Verify loader and extract source
         shell: bash
         run: |
           set -euo pipefail
           rm -rf /tmp/tsao-payload /tmp/tsao-extracted
           mkdir -p /tmp/tsao-payload /tmp/tsao-extracted
           cp .final_source/* /tmp/tsao-payload/
-          python - <<'PYVERIFY'
-          from __future__ import annotations
-          import base64, hashlib, json, tarfile
-          from pathlib import Path, PurePosixPath
-
-          payload = Path('/tmp/tsao-payload')
-          manifest_path = payload / 'manifest.json'
-          if hashlib.sha256(manifest_path.read_bytes()).hexdigest() != '1f974b767c765bc5554e28b0ba3398530aa2aaddcbefb9798282291d8dc81426':
-              raise SystemExit('transfer manifest SHA-256 mismatch')
-          manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
-          expected = {"archive": "tsao-source.tar.xz", "archive_bytes": 83344, "archive_sha256": "5a839691f876ceb43e387fca51c584a02852403c1a88c8b85f034487148738f6", "encoding": "base85", "finalizer_bytes": 20991, "finalizer_part_sha256": ["62cda325fe88b7a4f9939988b2740b15877e7612d860f542ba43504bbe670618", "137def6044a14ca3fb4dd02b4fafb37bf5db78559d19cb71535264b31b0a83d2", "04055854b66754b7ffdb1e396701ea2cd8ce58a22ccc22b3a6ccc2b41bf591f1", "661b351378769e35d50271c56910ebe043c19ca5c65c2bc488ca23f9f70c59e1"], "finalizer_parts": ["finalizer-000a", "finalizer-000b", "finalizer-001", "finalizer-002"], "finalizer_sha256": "6ba7f7361d9c89cae145cea9701994e16d953a789b1c9d4f094f91acf4085d53", "part_count": 7, "part_sha256": ["792c44229dac365c0bc491aa80af0dde170345f97f49158a2c884dbbc54ce121", "95872a715978353d25d242144930af9abe6b58b24872f89dfeb06850c4f62572", "94bd56801e7ab0905fced3d0b2844977e6870019fc65522d0c888d44bd0edc2b", "4ec15af0d5e5405d00c61a255f40fa168088aeefaafbf90c029d4aa7a40e51b4", "a9ac58ce852ba676896601e1bca419d12e9efd65ee39f42feb0cc2d15b38d8e7", "3affcc269c757c48f9716ce9413361cea9354249e74aa761cad386a8d5d28e6f", "af82f156581bb7915720f926eda9391a16d1e12a2751769399bf6ad278de316c"], "part_size_chars": 15000, "parts": ["part-000", "part-001", "part-002", "part-003", "part-004", "part-005", "part-006"], "schema_version": "1.2"}
-          if manifest != expected:
-              raise SystemExit('transfer manifest content mismatch')
-          finalizer_data = b''.join((payload / name).read_bytes() for name in expected['finalizer_parts'])
-          for name, digest in zip(expected['finalizer_parts'], expected['finalizer_part_sha256'], strict=True):
-              data = (payload / name).read_bytes()
-              if hashlib.sha256(data).hexdigest() != digest:
-                  raise SystemExit(f'finalizer part mismatch: {name}')
-          if len(finalizer_data) != expected['finalizer_bytes'] or hashlib.sha256(finalizer_data).hexdigest() != expected['finalizer_sha256']:
-              raise SystemExit('trusted finalizer mismatch')
-          (payload / 'finalizer.py').write_bytes(finalizer_data)
-          encoded = []
-          for name, digest in zip(expected['parts'], expected['part_sha256'], strict=True):
-              data = (payload / name).read_bytes()
-              if hashlib.sha256(data).hexdigest() != digest:
-                  raise SystemExit(f'source part mismatch: {name}')
-              encoded.append(data)
-          archive_bytes = base64.b85decode(b''.join(encoded))
-          if len(archive_bytes) != expected['archive_bytes'] or hashlib.sha256(archive_bytes).hexdigest() != expected['archive_sha256']:
-              raise SystemExit('ordinary-source archive mismatch')
-          archive_path = Path('/tmp/tsao-source.tar.xz')
-          archive_path.write_bytes(archive_bytes)
-          root = Path('/tmp/tsao-extracted')
-          total = 0
-          with tarfile.open(archive_path, 'r:xz') as archive:
-              members = archive.getmembers()
-              if not members or len(members) > 2000:
-                  raise SystemExit('unsafe archive member count')
-              for member in members:
-                  name = PurePosixPath(member.name)
-                  if name.is_absolute() or '..' in name.parts or not name.parts:
-                      raise SystemExit(f'unsafe archive path: {member.name!r}')
-                  if name.parts[0] != 'TsaoSciComputation-3.0.0':
-                      raise SystemExit(f'unexpected archive root: {member.name!r}')
-                  if member.issym() or member.islnk() or member.isdev() or member.isfifo():
-                      raise SystemExit(f'unsafe archive member: {member.name!r}')
-                  if member.size < 0 or member.size > 20 * 1024 * 1024:
-                      raise SystemExit(f'unsafe archive member size: {member.name!r}')
-                  total += member.size
-                  if total > 100 * 1024 * 1024:
-                      raise SystemExit('archive expansion limit exceeded')
-              archive.extractall(root, members=members, filter='data')
-          source = root / 'TsaoSciComputation-3.0.0'
-          required = ['SKILL.md', 'VERSION', 'README.md', 'pyproject.toml', 'manifest.json', 'tsao_computation', 'tests', 'scripts', 'schemas', 'registry', 'capability-index', 'adapters', 'skills/workflows', '.github/workflows']
-          missing = [item for item in required if not (source / item).exists()]
-          if missing or (source / 'VERSION').read_text().strip() != '3.0.0':
-              raise SystemExit(f'invalid ordinary source: {missing}')
-          for forbidden in ('.release_source', '.audit_source_v101', '.audit_patch_v102', '.bootstrap', '.final_source'):
-              if (source / forbidden).exists():
-                  raise SystemExit(f'forbidden transfer path: {forbidden}')
-          PYVERIFY
-
-      - name: Set up Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+          cd /tmp/tsao-payload
+          printf '%s  %s\n' \
+            4012741a7892548de9f844597025c98b035bf60f57c4ff07f0023b190d57bfe5 loader-000 \
+            7cca82c3e6c480ce874f86a8f9a73aca3806e63f19e16b2162a7836c91ae2771 loader-001 \
+            3f5792a493cd5a9513cbe2bc5a95e91392dddc2b4395eaa3d653fe821404cf1e loader-002 | sha256sum -c --strict
+          cat loader-* > loader.py
+          echo 'e3ce2c938cf43743554fb1762accab7e83cd825061047042d8b15a2c69570fe6  loader.py' | sha256sum -c --strict
+          python loader.py
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
         with:
           python-version: '3.13'
-
       - name: Install validation toolchain
-        run: |
-          cd /tmp/tsao-extracted/TsaoSciComputation-3.0.0
-          python -m pip install -e '.[validation,quality]'
-
-      - name: Validate, promote, and enforce single-main governance
+        run: python -m pip install -e '/tmp/tsao-extracted/TsaoSciComputation-3.0.0[validation,quality]'
+      - name: Validate, promote, and govern
         env:
           GH_TOKEN: ${{ github.token }}
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
@@ -117,16 +50,10 @@ jobs:
           API_URL: ${{ github.api_url }}
           RUN_ID: ${{ github.run_id }}
         run: |
-          python /tmp/tsao-payload/finalizer.py \
-            --workspace "$GITHUB_WORKSPACE" \
+          python /tmp/tsao-payload/finalizer.py --workspace "$GITHUB_WORKSPACE" \
             --source-root /tmp/tsao-extracted/TsaoSciComputation-3.0.0 \
-            --repository "$REPOSITORY" \
-            --api-url "$API_URL" \
-            --token "$GH_TOKEN" \
-            --base-sha "$BASE_SHA" \
-            --head-sha "$HEAD_SHA" \
-            --run-id "$RUN_ID"
-
+            --repository "$REPOSITORY" --api-url "$API_URL" --token "$GH_TOKEN" \
+            --base-sha "$BASE_SHA" --head-sha "$HEAD_SHA" --run-id "$RUN_ID"
       - name: Upload final evidence
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a

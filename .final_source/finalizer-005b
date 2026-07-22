@@ -1,0 +1,37 @@
+MS").write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--workspace", type=Path, required=True)
+    parser.add_argument("--source-root", type=Path, required=True)
+    parser.add_argument("--repository", required=True)
+    parser.add_argument("--api-url", required=True)
+    parser.add_argument("--token", required=True)
+    parser.add_argument("--base-sha", required=True)
+    parser.add_argument("--head-sha", required=True)
+    parser.add_argument("--run-id", required=True)
+    args = parser.parse_args()
+
+    workspace = args.workspace.resolve()
+    source_root = args.source_root.resolve()
+    FINALIZATION_ROOT.mkdir(parents=True, exist_ok=True)
+    rows = branch_inventory(workspace, args.base_sha, args.head_sha, args.run_id)
+    write_audit_document(source_root, rows, args.base_sha, args.head_sha, args.run_id)
+    validate_source(source_root, args.base_sha, args.head_sha, args.run_id)
+    verify_reproducible_builds(source_root)
+    create_recovery_tags(workspace, rows)
+    final_sha, release_tag = promote_main(workspace, source_root, args.base_sha)
+    api = GitHubAPI(args.api_url, args.repository, args.token)
+    workflows = wait_for_workflows(api, final_sha)
+    governance = close_prs_and_delete_branches(api, rows)
+    remote_sha = git("ls-remote", "origin", "refs/heads/main", cwd=workspace, capture=True).split()[0]
+    if remote_sha != final_sha:
+        raise RuntimeError("main changed during governance")
+    final_report = {
+        "schema_version": "1.0",
+        "final_main_sha": final_sha,
+        "release_tag": release_tag,
+        "remote_workflows": workflows,
+        "governance": governance,
+        "status": "COMPLETE",

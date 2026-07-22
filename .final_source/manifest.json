@@ -3,20 +3,28 @@
   "archive_bytes": 83344,
   "archive_sha256": "5a839691f876ceb43e387fca51c584a02852403c1a88c8b85f034487148738f6",
   "encoding": "base85",
-  "finalizer_bytes": 20991,
+  "finalizer_bytes": 21294,
   "finalizer_part_sha256": [
     "62cda325fe88b7a4f9939988b2740b15877e7612d860f542ba43504bbe670618",
     "137def6044a14ca3fb4dd02b4fafb37bf5db78559d19cb71535264b31b0a83d2",
-    "04055854b66754b7ffdb1e396701ea2cd8ce58a22ccc22b3a6ccc2b41bf591f1",
-    "661b351378769e35d50271c56910ebe043c19ca5c65c2bc488ca23f9f70c59e1"
+    "0dddacc519f649f41dcd5b5e94ab230cd030e4aa9b6ca4f4e52582088bd831ef",
+    "78fb80bd9497c06611272ff9b97031f94a45f09ffcdcad8ad8cfe46c979a5f26",
+    "b2d903ceaa5143c1f049a1473aae77e1b97c8b5c71ad8ddc16f4a68ff6cf3bc0",
+    "a56672c487cacfa89ca1d96cb77328f5a05cde17f04a46f20bcf9bcf8618b51c",
+    "188ca89dcfcc2a381885a683e01ada0ee2a241689f82dfdf1c9dc5a35b9b89a3",
+    "8b6362e7b44f48af73479ec6b51099d3355710534a1e647f3f72e9da8269a582"
   ],
   "finalizer_parts": [
-    "finalizer-000a",
-    "finalizer-000b",
+    "finalizer-000",
     "finalizer-001",
-    "finalizer-002"
+    "finalizer-002",
+    "finalizer-003",
+    "finalizer-004",
+    "finalizer-005a",
+    "finalizer-005b",
+    "finalizer-006"
   ],
-  "finalizer_sha256": "6ba7f7361d9c89cae145cea9701994e16d953a789b1c9d4f094f91acf4085d53",
+  "finalizer_sha256": "a18f9d97afc7c1563fc548b4e99c79295efbdfd3816d594d3bc0b681862c7e15",
   "part_count": 7,
   "part_sha256": [
     "792c44229dac365c0bc491aa80af0dde170345f97f49158a2c884dbbc54ce121",
@@ -37,5 +45,5 @@
     "part-005",
     "part-006"
   ],
-  "schema_version": "1.2"
+  "schema_version": "1.4"
 }

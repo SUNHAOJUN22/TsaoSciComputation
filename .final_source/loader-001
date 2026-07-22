@@ -1,0 +1,20 @@
+n(archive)!=manifest['archive_bytes'] or hashlib.sha256(archive).hexdigest()!=manifest['archive_sha256']:
+        raise SystemExit('source archive mismatch')
+    archive_path=Path('/tmp/tsao-source.tar.xz'); archive_path.write_bytes(archive)
+    total=0
+    with tarfile.open(archive_path,'r:xz') as stream:
+        members=stream.getmembers()
+        if not members or len(members)>2000: raise SystemExit('unsafe member count')
+        for member in members:
+            name=PurePosixPath(member.name)
+            if not name.parts or name.is_absolute() or '..' in name.parts or name.parts[0]!='TsaoSciComputation-3.0.0':
+                raise SystemExit(f'unsafe path: {member.name!r}')
+            if member.issym() or member.islnk() or member.isdev() or member.isfifo() or member.size<0 or member.size>20*1024*1024:
+                raise SystemExit(f'unsafe member: {member.name!r}')
+            total+=member.size
+            if total>100*1024*1024: raise SystemExit('expansion limit exceeded')
+        stream.extractall(ROOT,members=members,filter='data')
+    source=ROOT/'TsaoSciComputation-3.0.0'
+    required=['SKILL.md','VERSION','README.md','pyproject.toml','manifest.json','tsao_computation','tests','scripts','schemas','registry','capability-index','adapters','skills/workflows','.github/workflows']
+    missing=[item for item in required if not (source/item).exists()]
+    if missing o
