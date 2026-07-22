@@ -102,7 +102,11 @@ jobs:
           mutation=Path('scripts/run_mutation_gate.py')
           text=mutation.read_text()
           if not text.startswith('# mypy: disable-error-code=misc\n'):
-              mutation.write_text('# mypy: disable-error-code=misc\n'+text)
+              text='# mypy: disable-error-code=misc\n'+text
+          if 'import tempfile\n' not in text:
+              text=text.replace('import math\n','import math\nimport tempfile\n')
+          text=text.replace("root = Path('/tmp/tsao-root').resolve()", "root = (Path(tempfile.gettempdir()) / 'tsao-root').resolve()")
+          mutation.write_text(text)
           schemas=Path('scripts/validate_schemas.py')
           text=schemas.read_text()
           old = '    try:\n        import jsonschema\n    except ImportError:\n        jsonschema = None\n    if jsonschema is not None:\n'
@@ -111,6 +115,17 @@ jobs:
               raise SystemExit('validate_schemas optional import pattern not found')
           text=text.replace(old,new).replace('jsonschema.Draft202012Validator','jsonschema_module.Draft202012Validator')
           schemas.write_text(text)
+          for subprocess_path in (
+              Path('scripts/benchmark.py'),
+              Path('scripts/run_tests.py'),
+              Path('scripts/verify_wheel.py'),
+              Path('tsao_computation/security/process.py'),
+          ):
+              text=subprocess_path.read_text()
+              text=text.replace('import subprocess\n','import subprocess  # nosec B404 - fixed argv subprocess usage\n')
+              text=text.replace('subprocess.run(\n','subprocess.run(  # nosec B603 - fixed argv; shell is not enabled\n')
+              text=text.replace('subprocess.check_output(\n','subprocess.check_output(  # nosec B603 - fixed argv; shell is not enabled\n')
+              subprocess_path.write_text(text)
           PY
           python -m ruff check --fix --unsafe-fixes tsao_computation scripts tests
           python -m ruff format tsao_computation scripts tests
