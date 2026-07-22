@@ -1,0 +1,102 @@
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import re
+import shutil
+import subprocess
+import time
+import urllib.error
+import urllib.parse
+import urllib.request
+import xml.etree.ElementTree as ET
+from pathlib import Path
+from typing import Any
+
+ARCHIVE_TAG_PREFIX = "archive/pre-single-main-20260722"
+FINALIZATION_ROOT = Path("/tmp/finalization-artifacts")
+
+
+def run(*args: str, cwd: Path | None = None, capture: bool = False) -> str:
+    result = subprocess.run(
+        list(args),
+        cwd=cwd,
+        check=True,
+        text=True,
+        capture_output=capture,
+    )
+    return result.stdout.strip() if capture else ""
+
+
+def git(*args: str, cwd: Path, capture: bool = False) -> str:
+    return run("git", *args, cwd=cwd, capture=capture)
+
+
+class GitHubAPI:
+    def __init__(self, base_url: str, repository: str, token: str) -> None:
+        self.base = f"{base_url}/repos/{repository}"
+        self.headers = {
+            "Authorization": f"Bearer {token}",
+            "Accept": "application/vnd.github+json",
+            "X-GitHub-Api-Version": "2022-11-28",
+            "Content-Type": "application/json",
+            "User-Agent": "TsaoSciComputation-finalizer",
+        }
+
+    def request(self, method: str, path: str, data: dict[str, Any] | None = None) -> Any:
+        payload = None if data is None else json.dumps(data).encode()
+        request = urllib.request.Request(
+            f"{self.base}/{path}", data=payload, method=method, headers=self.headers
+        )
+        with urllib.request.urlopen(request, timeout=60) as response:
+            if response.status == 204:
+                return None
+            return json.load(response)
+
+    def dispatch(self, workflow: str) -> None:
+        for attempt in range(12):
+            try:
+                self.request("POST", f"actions/workflows/{workflow}/dispatches", {"ref": "main"})
+                return
+            except urllib.error.HTTPError:
+                if attempt == 11:
+                    raise
+                time.sleep(5)
+        raise RuntimeError(f"unable to dispatch {workflow}")
+
+
+def branch_inventory(workspace: Path, base_sha: str, head_sha: str, run_id: str) -> list[dict[str, str | None]]:
+    git("fetch", "--prune", "origin", "+refs/heads/*:refs/remotes/origin/*", cwd=workspace)
+    output = git(
+        "for-each-ref",
+        "--format=%(refname:short)\t%(objectname)",
+        "refs/remotes/origin",
+        cwd=workspace,
+        capture=True,
+    )
+    rows: list[dict[str, str | None]] = []
+    used: set[str] = set()
+    for line in output.splitlines():
+        ref, sha = line.split("\t", 1)
+        if ref == "origin/HEAD":
+            continue
+        branch = ref.removeprefix("origin/")
+        if branch == "main":
+            tag = None
+            disposition = "authoritative base; replaced by a verified descendant ordinary-source commit"
+        else:
+            safe = re.sub(r"[^A-Za-z0-9._-]+", "-", branch).strip(".-") or "branch"
+            candidate = f"{ARCHIVE_TAG_PREFIX}/{safe}-{sha[:8]}"
+            suffix = 1
+            while candidate in used:
+                suffix += 1
+                candidate = f"{ARCHIVE_TAG_PREFIX}/{safe}-{sha[:8]}-{suffix}"
+            used.add(candidate)
+            tag = candidate
+            disposition = "preserved by immutable archive tag, then deleted after validation"
+        rows.append(
+            {
+                "branch": branch,
+                "sha": sha,
+                "archive_tag"

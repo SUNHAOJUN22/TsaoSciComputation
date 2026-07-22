@@ -5,12 +5,14 @@
   "encoding": "base85",
   "finalizer_bytes": 20991,
   "finalizer_part_sha256": [
-    "387d208cf4552f222ce90cacc14097d90c7b9b3c42d49ae99d2e6f6261d24c9f",
+    "62cda325fe88b7a4f9939988b2740b15877e7612d860f542ba43504bbe670618",
+    "137def6044a14ca3fb4dd02b4fafb37bf5db78559d19cb71535264b31b0a83d2",
     "04055854b66754b7ffdb1e396701ea2cd8ce58a22ccc22b3a6ccc2b41bf591f1",
     "661b351378769e35d50271c56910ebe043c19ca5c65c2bc488ca23f9f70c59e1"
   ],
   "finalizer_parts": [
-    "finalizer-000",
+    "finalizer-000a",
+    "finalizer-000b",
     "finalizer-001",
     "finalizer-002"
   ],
@@ -35,5 +37,5 @@
     "part-005",
     "part-006"
   ],
-  "schema_version": "1.1"
+  "schema_version": "1.2"
 }
