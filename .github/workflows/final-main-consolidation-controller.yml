@@ -1,4 +1,4 @@
-name: Final ordinary-source main consolidation
+name: Final verified single-main consolidation
 
 on:
   pull_request_target:
@@ -10,180 +10,155 @@ permissions:
   pull-requests: write
 
 concurrency:
-  group: final-main-consolidation
+  group: final-verified-single-main-consolidation
   cancel-in-progress: false
 
 jobs:
-  validate-and-promote:
+  validate-promote-govern:
     if: >-
       github.event.pull_request.head.repo.full_name == github.repository &&
-      github.event.pull_request.head.ref == 'agent/final-main-bootstrap'
+      github.event.pull_request.head.ref == 'agent/final-main-v3'
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
-      - name: Check out exact bootstrap payload
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Check out trusted main base only
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          fetch-depth: 1
-          persist-credentials: false
+          ref: ${{ github.event.pull_request.base.sha }}
+          fetch-depth: 0
+          fetch-tags: true
 
-      - name: Reconstruct and verify the single Git bundle
+      - name: Reconstruct and safely extract the hash-bound ordinary source
         shell: bash
+        env:
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
           set -euo pipefail
+          rm -rf /tmp/tsao-payload /tmp/tsao-extracted
+          mkdir -p /tmp/tsao-payload /tmp/tsao-extracted
+          git fetch --no-tags origin "$HEAD_SHA"
+          for name in manifest.json finalizer.py part-000 part-001 part-002 part-003 part-004; do
+            git show "$HEAD_SHA:.final_source/$name" > "/tmp/tsao-payload/$name"
+          done
           python - <<'PY'
           from __future__ import annotations
-          import base64
-          import hashlib
-          import json
-          from pathlib import Path
+          import base64, hashlib, json, tarfile
+          from pathlib import Path, PurePosixPath
 
-          root = Path('.bootstrap')
-          manifest = json.loads((root / 'manifest.json').read_text(encoding='utf-8'))
+          payload = Path('/tmp/tsao-payload')
+          manifest_path = payload / 'manifest.json'
+          if hashlib.sha256(manifest_path.read_bytes()).hexdigest() != '9eb46cb6c8af4b025eef71f9c8d4da7df1e3770441350583eb9e4bffe0a8453a':
+              raise SystemExit('transfer manifest SHA-256 mismatch')
+          manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
           expected = {
-              'encoding': 'python-base85',
-              'parts': 24,
-              'bundle_bytes': 332335,
-              'encoded_chars': 415419,
-              'bundle_sha256': 'f01ddbd1db634574e4e577c2cf4b568ae064b6c2e1be092776fa2e2d32280ffc',
-              'expected_commit': 'f4d5bf02952670263387796899c2551113dffe8f',
+              'schema_version': '1.0',
+              'encoding': 'base64',
+              'archive': 'TsaoSciComputation-3.0.0.tar.gz',
+              'archive_bytes': 134637,
+              'archive_sha256': 'dd1c663595004db5d680eaccd85623fe22022290258e3107398f946297e9cdd2',
+              'part_count': 5,
+              'part_size_chars': 40000,
+              'parts': ['part-000', 'part-001', 'part-002', 'part-003', 'part-004'],
+              'part_sha256': [
+                  '3490da71d94078344dd920ac4d1cda73724d913fdfc911629ab74b2a8b0377a7',
+                  'e8b293bf6bdffe191de047c4949a88c5b33d5c2717f5eb8cd2ec9f09c12d1c07',
+                  '7eb75885d2a8dada4ec86dfc23d0429cf22b6c1b3813a64b637eeff92b807664',
+                  '61b03eae0f5324694ea1fb8b68a4296c887a7bbf5ac764fef78b977324fa8fd5',
+                  '41d559a53af9fb1c92a0bb80d256c31197134c70f5dc029ae7acf03ad02df31f',
+              ],
+              'finalizer_sha256': '40f709b166819f5a693c46b858664fa9507442a25ea67be4e8d9ea9a8f6bcdbb',
           }
-          for key, value in expected.items():
-              if manifest.get(key) != value:
-                  raise SystemExit(f'manifest mismatch for {key}: {manifest.get(key)!r}')
-          part_hashes = manifest.get('part_sha256')
-          if not isinstance(part_hashes, list) or len(part_hashes) != expected['parts']:
-              raise SystemExit('invalid part hash inventory')
-          encoded_parts: list[str] = []
-          for index, expected_hash in enumerate(part_hashes):
-              path = root / f'part-{index:03d}'
-              if path.is_symlink() or not path.is_file():
-                  raise SystemExit(f'missing or unsafe part: {path}')
-              payload = path.read_bytes()
-              actual = hashlib.sha256(payload).hexdigest()
-              if actual != expected_hash:
-                  raise SystemExit(f'part hash mismatch: {path} {actual}')
-              encoded_parts.append(payload.decode('ascii'))
-          encoded = ''.join(encoded_parts)
-          if len(encoded) != expected['encoded_chars']:
-              raise SystemExit('encoded bundle length mismatch')
-          bundle = base64.b85decode(encoded.encode('ascii'))
-          if len(bundle) != expected['bundle_bytes']:
-              raise SystemExit('bundle byte length mismatch')
-          actual_bundle = hashlib.sha256(bundle).hexdigest()
-          if actual_bundle != expected['bundle_sha256']:
-              raise SystemExit(f'bundle SHA-256 mismatch: {actual_bundle}')
-          Path('/tmp/final-main.bundle').write_bytes(bundle)
+          if manifest != expected:
+              raise SystemExit('transfer manifest content mismatch')
+          finalizer = payload / 'finalizer.py'
+          if hashlib.sha256(finalizer.read_bytes()).hexdigest() != expected['finalizer_sha256']:
+              raise SystemExit('trusted finalizer SHA-256 mismatch')
+          encoded = []
+          for name, digest in zip(expected['parts'], expected['part_sha256'], strict=True):
+              part = payload / name
+              data = part.read_bytes()
+              if part.is_symlink() or hashlib.sha256(data).hexdigest() != digest:
+                  raise SystemExit(f'transfer part mismatch: {name}')
+              encoded.append(data)
+          archive_bytes = base64.b64decode(b''.join(encoded), validate=True)
+          if len(archive_bytes) != expected['archive_bytes']:
+              raise SystemExit('archive byte length mismatch')
+          if hashlib.sha256(archive_bytes).hexdigest() != expected['archive_sha256']:
+              raise SystemExit('archive SHA-256 mismatch')
+          archive_path = Path('/tmp/TsaoSciComputation-3.0.0.tar.gz')
+          archive_path.write_bytes(archive_bytes)
+
+          root = Path('/tmp/tsao-extracted')
+          total = 0
+          with tarfile.open(archive_path, 'r:gz') as archive:
+              members = archive.getmembers()
+              if not members or len(members) > 2000:
+                  raise SystemExit('unsafe archive member count')
+              for member in members:
+                  name = PurePosixPath(member.name)
+                  if name.is_absolute() or '..' in name.parts or not name.parts:
+                      raise SystemExit(f'unsafe archive path: {member.name!r}')
+                  if name.parts[0] != 'TsaoSciComputation-3.0.0':
+                      raise SystemExit(f'unexpected archive root: {member.name!r}')
+                  if member.issym() or member.islnk() or member.isdev() or member.isfifo():
+                      raise SystemExit(f'unsafe archive member: {member.name!r}')
+                  if member.size < 0 or member.size > 20 * 1024 * 1024:
+                      raise SystemExit(f'unsafe archive member size: {member.name!r}')
+                  total += member.size
+                  if total > 100 * 1024 * 1024:
+                      raise SystemExit('archive expansion limit exceeded')
+              archive.extractall(root, members=members, filter='data')
+          source = root / 'TsaoSciComputation-3.0.0'
+          required = ['SKILL.md', 'VERSION', 'README.md', 'pyproject.toml', 'manifest.json',
+                      'tsao_computation', 'tests', 'scripts', 'schemas', 'registry',
+                      'capability-index', 'adapters', 'skills/workflows', '.github/workflows']
+          missing = [item for item in required if not (source / item).exists()]
+          if missing or (source / 'VERSION').read_text().strip() != '3.0.0':
+              raise SystemExit(f'invalid ordinary source: {missing}')
+          for forbidden in ('.release_source', '.audit_source_v101', '.audit_patch_v102', '.bootstrap', '.final_source'):
+              if (source / forbidden).exists():
+                  raise SystemExit(f'forbidden transfer path: {forbidden}')
+          print(json.dumps({'members': len(members), 'expanded_bytes': total,
+                            'archive_sha256': expected['archive_sha256']}, sort_keys=True))
           PY
-          git bundle verify /tmp/final-main.bundle
-          rm -rf /tmp/final-main-source
-          git clone /tmp/final-main.bundle /tmp/final-main-source
-          git -C /tmp/final-main-source checkout --detach f4d5bf02952670263387796899c2551113dffe8f
-          test "$(git -C /tmp/final-main-source rev-parse HEAD)" = "f4d5bf02952670263387796899c2551113dffe8f"
-          test "$(git -C /tmp/final-main-source ls-files | wc -l)" -eq 782
-          test -f /tmp/final-main-source/SKILL.md
-          test "$(tr -d '[:space:]' < /tmp/final-main-source/VERSION)" = "3.0.0"
-          test ! -e /tmp/final-main-source/.release_source
-          test ! -e /tmp/final-main-source/.audit_source_v101
-          test ! -e /tmp/final-main-source/.audit_patch_v102
 
       - name: Set up verification Python
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
         with:
-          python-version: '3.12'
-          cache: pip
+          python-version: '3.13'
 
       - name: Install validation toolchain
-        working-directory: /tmp/final-main-source
-        run: python -m pip install -e '.[validation,test]'
-
-      - name: Run complete frozen quality gate
-        working-directory: /tmp/final-main-source
-        env:
-          PYTEST_DISABLE_PLUGIN_AUTOLOAD: '1'
+        shell: bash
         run: |
           set -euo pipefail
-          mkdir -p reports
-          python -m pytest -q -m 'not integration and not live' --junitxml=reports/JUNIT_CORE.xml
-          python -m pytest -q -m integration_layout tests/test_generated_layout_and_scripts.py --junitxml=reports/JUNIT_INTEGRATION_LAYOUT.xml
-          python -m pytest -q -m integration_release tests/test_release_engineering.py --junitxml=reports/JUNIT_INTEGRATION_RELEASE.xml
-          python -m pytest -q -m integration_cli tests/test_cli_integration.py --junitxml=reports/JUNIT_INTEGRATION_CLI.xml
-          python -m pytest -q -m 'durability and not integration and not live' --junitxml=reports/JUNIT_DURABILITY.xml
-          python -m coverage erase
-          python -m coverage run --branch -m pytest -q -m 'not integration and not live'
-          python -m coverage report --fail-under=85
-          python -m coverage json -o reports/COVERAGE.json
-          python -m ruff check tsao_computation scripts tests
-          python -m ruff format --check tsao_computation scripts tests
-          python -m mypy tsao_computation scripts
-          python scripts/security_scan.py --output reports/SECURITY_SCAN.json
-          python -m bandit -r tsao_computation scripts -f json -o reports/BANDIT.json
-          python scripts/dependency_audit.py --output reports/PIP_AUDIT.json
-          python scripts/sync_package_assets.py --check
-          python scripts/audit_repository.py --json > reports/REPOSITORY_AUDIT.json
-          python scripts/validate_capabilities.py > reports/CAPABILITY_VALIDATION.json
-          python scripts/deep_audit.py --output reports/DEEP_AUDIT.json
-          python scripts/mutation_gate.py --jobs 8 --output reports/MUTATION_REPORT.json
+          cd /tmp/tsao-extracted/TsaoSciComputation-3.0.0
+          python -m pip install -e '.[validation,quality]'
 
-      - name: Verify reproducible build and package isolation
-        working-directory: /tmp/final-main-source
-        env:
-          SOURCE_DATE_EPOCH: '1700000000'
-        run: |
-          set -euo pipefail
-          rm -rf /tmp/tsao-a /tmp/tsao-b /tmp/tsao-wheel-venv /tmp/tsao-sdist-venv
-          mkdir -p /tmp/tsao-a /tmp/tsao-b
-          python -m build --no-isolation --wheel --outdir /tmp/tsao-a
-          python -m build --no-isolation --wheel --outdir /tmp/tsao-b
-          python scripts/build_reproducible_sdist.py --output /tmp/tsao-a/TsaoSciComputation-3.0.0.tar.gz --epoch 1700000000
-          python scripts/build_reproducible_sdist.py --output /tmp/tsao-b/TsaoSciComputation-3.0.0.tar.gz --epoch 1700000000
-          python scripts/package_release.py --output /tmp/tsao-a/TsaoSciComputation-3.0.0.zip --epoch 1700000000
-          python scripts/package_release.py --output /tmp/tsao-b/TsaoSciComputation-3.0.0.zip --epoch 1700000000
-          cmp /tmp/tsao-a/*.whl /tmp/tsao-b/*.whl
-          cmp /tmp/tsao-a/*.tar.gz /tmp/tsao-b/*.tar.gz
-          cmp /tmp/tsao-a/*.zip /tmp/tsao-b/*.zip
-          python scripts/verify_package.py /tmp/tsao-a/*.whl
-          python -m venv --system-site-packages /tmp/tsao-wheel-venv
-          python -m venv --system-site-packages /tmp/tsao-sdist-venv
-          /tmp/tsao-wheel-venv/bin/python -m pip install --no-deps /tmp/tsao-a/*.whl
-          /tmp/tsao-sdist-venv/bin/python -m pip install --no-deps --no-build-isolation /tmp/tsao-a/*.tar.gz
-          cd /tmp
-          env -u PYTHONPATH /tmp/tsao-wheel-venv/bin/python /tmp/final-main-source/scripts/verify_installed_package.py --installation-source wheel --artifact /tmp/tsao-a/tsao_scicomputation-3.0.0-py3-none-any.whl
-          env -u PYTHONPATH /tmp/tsao-sdist-venv/bin/python /tmp/final-main-source/scripts/verify_installed_package.py --installation-source sdist --artifact /tmp/tsao-a/TsaoSciComputation-3.0.0.tar.gz
-
-      - name: Atomically promote verified ordinary source to main
+      - name: Validate, promote, verify remote CI, and enforce single-main governance
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           REPOSITORY: ${{ github.repository }}
-        run: |
-          set -euo pipefail
-          git -C /tmp/final-main-source config user.name 'github-actions[bot]'
-          git -C /tmp/final-main-source config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git -C /tmp/final-main-source remote add github "https://x-access-token:${GH_TOKEN}@github.com/${REPOSITORY}.git"
-          git -C /tmp/final-main-source push github HEAD:refs/heads/main --force
-          remote_sha=$(git ls-remote "https://x-access-token:${GH_TOKEN}@github.com/${REPOSITORY}.git" refs/heads/main | awk '{print $1}')
-          test "$remote_sha" = "f4d5bf02952670263387796899c2551113dffe8f"
-
-      - name: Dispatch final single-main governance
-        shell: bash
-        env:
-          GH_TOKEN: ${{ github.token }}
           API_URL: ${{ github.api_url }}
-          REPOSITORY: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
         run: |
           set -euo pipefail
-          python - <<'PY'
-          import json, os, urllib.request
-          url=f"{os.environ['API_URL']}/repos/{os.environ['REPOSITORY']}/actions/workflows/single-main-governance.yml/dispatches"
-          req=urllib.request.Request(url, data=json.dumps({'ref':'main'}).encode(), method='POST', headers={
-            'Authorization':f"Bearer {os.environ['GH_TOKEN']}",
-            'Accept':'application/vnd.github+json',
-            'X-GitHub-Api-Version':'2022-11-28',
-            'Content-Type':'application/json',
-          })
-          with urllib.request.urlopen(req, timeout=30) as response:
-              if response.status != 204:
-                  raise SystemExit(f'unexpected dispatch status: {response.status}')
-          PY
+          python /tmp/tsao-payload/finalizer.py \
+            --workspace "$GITHUB_WORKSPACE" \
+            --source-root /tmp/tsao-extracted/TsaoSciComputation-3.0.0 \
+            --repository "$REPOSITORY" \
+            --api-url "$API_URL" \
+            --token "$GH_TOKEN" \
+            --base-sha "$BASE_SHA" \
+            --head-sha "$HEAD_SHA" \
+            --run-id "$RUN_ID"
+
+      - name: Upload final validation and governance evidence
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: TsaoSciComputation-v3.0.0-single-main-evidence
+          path: /tmp/finalization-artifacts
+          if-no-files-found: error
+          retention-days: 30
