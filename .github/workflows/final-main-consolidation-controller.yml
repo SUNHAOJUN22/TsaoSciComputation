@@ -37,7 +37,7 @@ jobs:
           rm -rf /tmp/tsao-payload /tmp/tsao-extracted
           mkdir -p /tmp/tsao-payload /tmp/tsao-extracted
           git fetch --no-tags origin "$HEAD_SHA"
-          for name in manifest.json finalizer-000 finalizer-001 finalizer-002 part-000 part-001 part-002 part-003 part-004 part-005 part-006 part-007 part-008 part-009 part-010 part-011; do
+          for name in manifest.json finalizer-000 finalizer-001 finalizer-002 part-000 part-001 part-002 part-003 part-004 part-005 part-006; do
             git show "$HEAD_SHA:.final_source/$name" > "/tmp/tsao-payload/$name"
           done
           python - <<'PY'
@@ -47,31 +47,26 @@ jobs:
 
           payload = Path('/tmp/tsao-payload')
           manifest_path = payload / 'manifest.json'
-          if hashlib.sha256(manifest_path.read_bytes()).hexdigest() != '24ca19f0f2b3c780140039ba16195f86bbd684cad39200f61cf20f514ba7ef89':
+          if hashlib.sha256(manifest_path.read_bytes()).hexdigest() != 'df9450a8a99218168172f91b2d497ffdb173de4f5aba9c66ee52bfb20f3ae57b':
               raise SystemExit('transfer manifest SHA-256 mismatch')
           manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
           expected = {
               'schema_version': '1.0',
-              'encoding': 'base64',
-              'archive': 'TsaoSciComputation-3.0.0.tar.gz',
-              'archive_bytes': 134637,
-              'archive_sha256': 'dd1c663595004db5d680eaccd85623fe22022290258e3107398f946297e9cdd2',
-              'part_count': 12,
+              'encoding': 'base85',
+              'archive': 'tsao-source.tar.xz',
+              'archive_bytes': 83344,
+              'archive_sha256': '5a839691f876ceb43e387fca51c584a02852403c1a88c8b85f034487148738f6',
+              'part_count': 7,
               'part_size_chars': 15000,
-              'parts': [f'part-{index:03d}' for index in range(12)],
+              'parts': [f'part-{index:03d}' for index in range(7)],
               'part_sha256': [
-                  '21c39c14e970beb7d03331406dad997bdb58b71eee2b78d58f426df499f0b4a1',
-                  '05de891cc7a5107042043f6acc6004a1c12cd64164e309db393fa96e4f19073e',
-                  '183fc3a280eb7f0c2198abb93feb82a111ff27d5a21d21983a81098948c4852c',
-                  '3403940f5eb07b6430075a5505fe7e259ef3995210de054f1a4e78c3d5781012',
-                  '613799458c79dabc46762211cf4168d4fe0be6a8c334d209c59bafc512abb4e6',
-                  '5d9d9d2720cfa34e419aef2146c3a29f62f66b534417460a7c681daf0edca0c3',
-                  '2aa11da022f8c9eea0b597291f639ff2692eaf4d9312677623eefb77fbe4b844',
-                  '9feb32c9d1448acf12a3ae9b2e644ff765cd457344ced5be52b2ebe246219ae5',
-                  '1a6dcdd2e652429d96e9bcacaf3214d73ca6d4acdca898ac1cb046323696dfd9',
-                  '5585fd64a447df930b2762aff645e6183db40bd149cae212a452062c0cf13f80',
-                  'ffb1b2b64c52966a8470aaf2252f09eb4b9f45be38fed90d16db9a6b0cc9ce55',
-                  'c9afc181efcb8080111ad99a7d60450a98ddab016157376f8d8bacb36eccfa2a',
+                  '792c44229dac365c0bc491aa80af0dde170345f97f49158a2c884dbbc54ce121',
+                  '95872a715978353d25d242144930af9abe6b58b24872f89dfeb06850c4f62572',
+                  '94bd56801e7ab0905fced3d0b2844977e6870019fc65522d0c888d44bd0edc2b',
+                  '4ec15af0d5e5405d00c61a255f40fa168088aeefaafbf90c029d4aa7a40e51b4',
+                  'a9ac58ce852ba676896601e1bca419d12e9efd65ee39f42feb0cc2d15b38d8e7',
+                  '3affcc269c757c48f9716ce9413361cea9354249e74aa761cad386a8d5d28e6f',
+                  'af82f156581bb7915720f926eda9391a16d1e12a2751769399bf6ad278de316c',
               ],
               'finalizer_bytes': 20990,
               'finalizer_parts': ['finalizer-000', 'finalizer-001', 'finalizer-002'],
@@ -103,17 +98,17 @@ jobs:
               if part.is_symlink() or hashlib.sha256(data).hexdigest() != digest:
                   raise SystemExit(f'transfer part mismatch: {name}')
               encoded.append(data)
-          archive_bytes = base64.b64decode(b''.join(encoded), validate=True)
+          archive_bytes = base64.b85decode(b''.join(encoded))
           if len(archive_bytes) != expected['archive_bytes']:
               raise SystemExit('archive byte length mismatch')
           if hashlib.sha256(archive_bytes).hexdigest() != expected['archive_sha256']:
               raise SystemExit('archive SHA-256 mismatch')
-          archive_path = Path('/tmp/TsaoSciComputation-3.0.0.tar.gz')
+          archive_path = Path('/tmp/tsao-source.tar.xz')
           archive_path.write_bytes(archive_bytes)
 
           root = Path('/tmp/tsao-extracted')
           total = 0
-          with tarfile.open(archive_path, 'r:gz') as archive:
+          with tarfile.open(archive_path, 'r:xz') as archive:
               members = archive.getmembers()
               if not members or len(members) > 2000:
                   raise SystemExit('unsafe archive member count')
