@@ -240,12 +240,12 @@ jobs:
         run: |
           set -euo pipefail
           SRC=/tmp/tsao-extracted/TsaoSciComputation-3.0.0
+          cd "$SRC"
           rm -rf /tmp/tsao-build-a /tmp/tsao-build-b "$SRC/dist"
-          SOURCE_DATE_EPOCH=1700000000 python "$SRC/scripts/package_release.py" --output-dir /tmp/tsao-build-a
-          SOURCE_DATE_EPOCH=1700000000 python "$SRC/scripts/package_release.py" --output-dir /tmp/tsao-build-b
+          SOURCE_DATE_EPOCH=1700000000 python scripts/package_release.py --output-dir /tmp/tsao-build-a
+          SOURCE_DATE_EPOCH=1700000000 python scripts/package_release.py --output-dir /tmp/tsao-build-b
           cmp /tmp/tsao-build-a/TsaoSciComputation-3.0.0.zip /tmp/tsao-build-b/TsaoSciComputation-3.0.0.zip
           cmp /tmp/tsao-build-a/TsaoSciComputation-3.0.0.tar.gz /tmp/tsao-build-b/TsaoSciComputation-3.0.0.tar.gz
-          cd "$SRC"
           python scripts/verify_wheel.py
           cp /tmp/tsao-build-a/TsaoSciComputation-3.0.0.* /tmp/finalization-artifacts/
           cp dist/tsao_scicomputation-3.0.0-py3-none-any.whl dist/WHEEL_VERIFICATION.json /tmp/finalization-artifacts/
