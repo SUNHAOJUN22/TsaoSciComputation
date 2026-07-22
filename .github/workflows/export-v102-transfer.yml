@@ -17,10 +17,10 @@ jobs:
       workflow_artifact_id: ${{ steps.locate.outputs.workflow_artifact_id }}
       directories: ${{ steps.copy.outputs.directories }}
     steps:
-      - name: Check out fixed v1.0.2 audit transfer commit
+      - name: Check out current v1.0.2 audit transfer commit
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
-          ref: d0b761785305a68e8eb87f4c0853bb90265afdac
+          ref: 48962511b55f28475040bff81c08868b78fd5857
           fetch-depth: 1
           persist-credentials: false
           show-progress: false
