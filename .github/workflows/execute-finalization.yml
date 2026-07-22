@@ -166,6 +166,7 @@ jobs:
           python -m mypy --python-version 3.13 tsao_computation scripts
           python -m bandit -q -r tsao_computation scripts
           python scripts/benchmark.py
+          mkdir -p reports
           python scripts/validate_repository.py > reports/REPOSITORY_AUDIT.json
           python - <<'PY'
           import json, xml.etree.ElementTree as ET
