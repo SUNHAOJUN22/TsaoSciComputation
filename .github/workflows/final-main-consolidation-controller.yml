@@ -37,7 +37,7 @@ jobs:
           rm -rf /tmp/tsao-payload /tmp/tsao-extracted
           mkdir -p /tmp/tsao-payload /tmp/tsao-extracted
           git fetch --no-tags origin "$HEAD_SHA"
-          for name in manifest.json finalizer.py part-000 part-001 part-002 part-003 part-004; do
+          for name in manifest.json finalizer.py part-000 part-001 part-002 part-003 part-004 part-005 part-006 part-007 part-008 part-009 part-010 part-011; do
             git show "$HEAD_SHA:.final_source/$name" > "/tmp/tsao-payload/$name"
           done
           python - <<'PY'
@@ -47,7 +47,7 @@ jobs:
 
           payload = Path('/tmp/tsao-payload')
           manifest_path = payload / 'manifest.json'
-          if hashlib.sha256(manifest_path.read_bytes()).hexdigest() != '9eb46cb6c8af4b025eef71f9c8d4da7df1e3770441350583eb9e4bffe0a8453a':
+          if hashlib.sha256(manifest_path.read_bytes()).hexdigest() != 'b9d664f5b5cb81fb0a6465e4df785bed837f0a1eb398ca8eac94a5d25e688a3b':
               raise SystemExit('transfer manifest SHA-256 mismatch')
           manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
           expected = {
@@ -56,15 +56,22 @@ jobs:
               'archive': 'TsaoSciComputation-3.0.0.tar.gz',
               'archive_bytes': 134637,
               'archive_sha256': 'dd1c663595004db5d680eaccd85623fe22022290258e3107398f946297e9cdd2',
-              'part_count': 5,
-              'part_size_chars': 40000,
-              'parts': ['part-000', 'part-001', 'part-002', 'part-003', 'part-004'],
+              'part_count': 12,
+              'part_size_chars': 15000,
+              'parts': [f'part-{index:03d}' for index in range(12)],
               'part_sha256': [
-                  '3490da71d94078344dd920ac4d1cda73724d913fdfc911629ab74b2a8b0377a7',
-                  'e8b293bf6bdffe191de047c4949a88c5b33d5c2717f5eb8cd2ec9f09c12d1c07',
-                  '7eb75885d2a8dada4ec86dfc23d0429cf22b6c1b3813a64b637eeff92b807664',
-                  '61b03eae0f5324694ea1fb8b68a4296c887a7bbf5ac764fef78b977324fa8fd5',
-                  '41d559a53af9fb1c92a0bb80d256c31197134c70f5dc029ae7acf03ad02df31f',
+                  '21c39c14e970beb7d03331406dad997bdb58b71eee2b78d58f426df499f0b4a1',
+                  '05de891cc7a5107042043f6acc6004a1c12cd64164e309db393fa96e4f19073e',
+                  '183fc3a280eb7f0c2198abb93feb82a111ff27d5a21d21983a81098948c4852c',
+                  '3403940f5eb07b6430075a5505fe7e259ef3995210de054f1a4e78c3d5781012',
+                  '613799458c79dabc46762211cf4168d4fe0be6a8c334d209c59bafc512abb4e6',
+                  '5d9d9d2720cfa34e419aef2146c3a29f62f66b534417460a7c681daf0edca0c3',
+                  '2aa11da022f8c9eea0b597291f639ff2692eaf4d9312677623eefb77fbe4b844',
+                  '9feb32c9d1448acf12a3ae9b2e644ff765cd457344ced5be52b2ebe246219ae5',
+                  '1a6dcdd2e652429d96e9bcacaf3214d73ca6d4acdca898ac1cb046323696dfd9',
+                  '5585fd64a447df930b2762aff645e6183db40bd149cae212a452062c0cf13f80',
+                  'ffb1b2b64c52966a8470aaf2252f09eb4b9f45be38fed90d16db9a6b0cc9ce55',
+                  'c9afc181efcb8080111ad99a7d60450a98ddab016157376f8d8bacb36eccfa2a',
               ],
               'finalizer_sha256': '40f709b166819f5a693c46b858664fa9507442a25ea67be4e8d9ea9a8f6bcdbb',
           }
