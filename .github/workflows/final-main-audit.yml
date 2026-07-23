@@ -77,6 +77,12 @@ jobs:
               raise SystemExit(f'expected 435 tests, collected {tests}')
 
           coverage = json.loads(Path('/tmp/tsao-coverage.json').read_text(encoding='utf-8'))['totals']
+          statement = 100.0 * coverage['covered_lines'] / coverage['num_statements']
+          branch = (
+              100.0 * coverage['covered_branches'] / coverage['num_branches']
+              if coverage['num_branches']
+              else 100.0
+          )
           security = json.loads((root / 'evidence/security-scan.json').read_text(encoding='utf-8'))
 
           baseline_path = root / 'evidence/quality-baseline.json'
@@ -84,10 +90,10 @@ jobs:
           baseline['counts']['tests_passed'] = tests
           baseline['counts']['tests_failed'] = 0
           baseline['coverage'] = {
-              'branches_percent': coverage['percent_branches_covered'],
+              'branches_percent': branch,
               'missing_branches': coverage['missing_branches'],
               'missing_statements': coverage['missing_lines'],
-              'statements_percent': coverage['percent_statements_covered'],
+              'statements_percent': statement,
           }
           baseline['security']['repository_findings'] = len(security['findings'])
           baseline_path.write_text(json.dumps(baseline, indent=2, sort_keys=True) + '\n', encoding='utf-8')
@@ -104,12 +110,12 @@ jobs:
               'num_branches': coverage['num_branches'],
               'num_partial_branches': coverage['num_partial_branches'],
               'num_statements': coverage['num_statements'],
-              'percent_branches_covered': coverage['percent_branches_covered'],
-              'percent_branches_covered_display': coverage['percent_branches_covered_display'],
+              'percent_branches_covered': branch,
+              'percent_branches_covered_display': f'{branch:.0f}',
               'percent_covered': coverage['percent_covered'],
               'percent_covered_display': coverage['percent_covered_display'],
-              'percent_statements_covered': coverage['percent_statements_covered'],
-              'percent_statements_covered_display': coverage['percent_statements_covered_display'],
+              'percent_statements_covered': statement,
+              'percent_statements_covered_display': f'{statement:.0f}',
           }
           report['security'] = {
               'files_scanned': security['files_scanned'],
@@ -126,8 +132,6 @@ jobs:
           }
           report_path.write_text(json.dumps(report, indent=2, sort_keys=True) + '\n', encoding='utf-8')
 
-          statement = coverage['percent_statements_covered']
-          branch = coverage['percent_branches_covered']
           readme_path = root / 'README.md'
           readme = readme_path.read_text(encoding='utf-8')
           readme = re.sub(r'\| Tests \| \d+ passed, \d+ failed \|', f'| Tests | {tests} passed, 0 failed |', readme)
