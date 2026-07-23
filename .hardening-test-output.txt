@@ -1,0 +1,51 @@
+........................................................................ [ 14%]
+........................................................................ [ 29%]
+........................................................................ [ 44%]
+........................................................................ [ 59%]
+........................................................................ [ 74%]
+...................................................F.....F.............. [ 88%]
+............................F.........................                   [100%]
+=================================== FAILURES ===================================
+_____________________ test_adapter_build_command_and_parse _____________________
+tests/test_extended.py:34: in test_adapter_build_command_and_parse
+    assert plan.argv == (sys.executable, "input.inp")
+E   AssertionError: assert ('/opt/hosted..., 'input.inp') == ('/opt/hosted..., 'input.inp')
+E     
+E     At index 0 diff: '/opt/hostedtoolcache/Python/3.10.20/x64/bin/python3.10' != '/opt/hostedtoolcache/Python/3.10.20/x64/bin/python'
+E     
+E     Full diff:
+E       (
+E     -     '/opt/hostedtoolcache/Python/3.10.20/x64/bin/python',
+E     +     '/opt/hostedtoolcache/Python/3.10.20/x64/bin/python3.10',
+E     ?                                                        ++++
+E           'input.inp',
+E       )
+__________ test_contract_rejects_invalid_fields[kwargs2-observables] ___________
+tests/test_extended.py:72: in test_contract_rejects_invalid_fields
+    with pytest.raises(ContractError, match=message):
+E   Failed: DID NOT RAISE ContractError
+__________ test_legacy_state_names_normalize_without_bypassing_gates ___________
+tests/test_state_and_handoff.py:65: in test_legacy_state_names_normalize_without_bypassing_gates
+    with pytest.raises(StateTransitionError, match="preflight-passed"):
+E   AssertionError: Regex pattern did not match.
+E     Expected regex: 'preflight-passed'
+E     Actual message: 'illegal transition: prepared -> submitted'
+=========================== short test summary info ============================
+FAILED tests/test_extended.py::test_adapter_build_command_and_parse - AssertionError: assert ('/opt/hosted..., 'input.inp') == ('/opt/hosted..., 'input.inp')
+  
+  At index 0 diff: '/opt/hostedtoolcache/Python/3.10.20/x64/bin/python3.10' != '/opt/hostedtoolcache/Python/3.10.20/x64/bin/python'
+  
+  Full diff:
+    (
+  -     '/opt/hostedtoolcache/Python/3.10.20/x64/bin/python',
+  +     '/opt/hostedtoolcache/Python/3.10.20/x64/bin/python3.10',
+  ?                                                        ++++
+        'input.inp',
+    )
+FAILED tests/test_extended.py::test_contract_rejects_invalid_fields[kwargs2-observables] - Failed: DID NOT RAISE ContractError
+FAILED tests/test_state_and_handoff.py::test_legacy_state_names_normalize_without_bypassing_gates - AssertionError: Regex pattern did not match.
+  Expected regex: 'preflight-passed'
+  Actual message: 'illegal transition: prepared -> submitted'
+3 failed, 483 passed in 1.63s
+
+EXIT_CODE=1
