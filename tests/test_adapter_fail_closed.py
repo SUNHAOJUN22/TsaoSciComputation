@@ -84,6 +84,27 @@ def test_explicit_positive_convergence_is_recognized_but_not_validated() -> None
     }
 
 
+@pytest.mark.parametrize(
+    "output",
+    (
+        "Abnormal termination",
+        "Calculation completed with errors",
+        "Run failed; total wall time 10 s",
+        "Calculation not completed",
+    ),
+)
+def test_failure_markers_override_completion_substrings(output: str) -> None:
+    parsed = Adapter({"slug": "generic"}).parse(output)
+    assert parsed["completed"] is False
+    assert parsed["converged"] is False
+
+
+def test_convergence_without_a_completion_marker_is_not_promoted() -> None:
+    parsed = Adapter({"slug": "generic"}).parse("SCF converged after 12 cycles")
+    assert parsed["completed"] is False
+    assert parsed["converged"] is False
+
+
 def test_python_executable_adapters_declare_modules() -> None:
     for record in adapters():
         if "python" in record.get("executables", []):
