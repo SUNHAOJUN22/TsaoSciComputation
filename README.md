@@ -53,40 +53,18 @@ python scripts/init_project.py --root demo --name demo \
   --question "How does morphology affect conductivity?"
 ```
 
-Useful commands:
+## Verify everything
 
-```bash
-python -m tsao_computation list capabilities
-python -m tsao_computation list adapters
-python -m tsao_computation list workflows
-python -m tsao_computation validate-contract examples/organic-dft/contract.json
-python -m tsao_computation validate-repository --root .
-```
-
-## Full validation
-
-Install both validation and engineering-quality tools, then run the same gates used by CI:
+The README, CI, and release workflow use the same cross-platform verification entrypoint:
 
 ```bash
 python -m pip install -e '.[validation,quality]'
-python scripts/run_tests.py --coverage
-python scripts/quality_check.py
-python -m ruff check tsao_computation scripts tests
-python -m ruff format --check tsao_computation scripts tests
-python -m mypy --python-version 3.13 tsao_computation scripts
-python -m bandit -q -r tsao_computation scripts
-python scripts/validate_repository.py
-python scripts/validate_schemas.py
-python scripts/security_scan.py
-python scripts/run_mutation_gate.py
-python scripts/sync_package_assets.py --check
-python scripts/build_capability_index.py --check
-python scripts/build_manifest.py --check
-SOURCE_DATE_EPOCH=1700000000 python scripts/package_release.py
-python scripts/verify_wheel.py
+python scripts/verify_all.py --profile all
 ```
 
-CI covers Python 3.10 and 3.13 on Ubuntu, Windows, and macOS, plus quality, security, deterministic packaging, isolated wheel installation, and CodeQL. GitHub Actions are pinned to immutable commits.
+`all` runs quality, tests and coverage, repository/schema/asset/manifest validation, security and mutation gates, reproducible source packaging, reproducible wheel building, and isolated wheel installation. For focused diagnosis, use `core`, `quality`, `package`, or `benchmark` instead.
+
+CI runs `core` on Python 3.10 and 3.13 across Ubuntu, Windows, and macOS; it also runs the quality, benchmark, packaging, and CodeQL gates. Release candidates must pass `--profile all`. GitHub Actions are pinned to immutable commits.
 
 ## Scientific trust boundary
 
@@ -96,9 +74,7 @@ completed ≠ parsed ≠ converged ≠ validated ≠ accepted
 
 Acceptance is fail-closed. Missing convergence, physical checks, uncertainty, applicability limits, provenance, or required human approval prevents promotion to `accepted`. High-risk reactor, control, digital-twin, safety, runaway, and commercial handoff decisions always require expert review.
 
-## Performance
-
-Registries are loaded lazily through bounded caches, probing is concurrent and capped, shell command construction is avoided, and release artifacts are streamed file-by-file. Performance is environment-specific; [`benchmarks/latest.json`](benchmarks/latest.json) is the source of truth and [`docs/performance.md`](docs/performance.md) explains the measurement boundary.
+Performance is environment-specific. [`benchmarks/latest.json`](benchmarks/latest.json) is the source of truth, and [`docs/performance.md`](docs/performance.md) defines the measurement boundary.
 
 ## Repository policy
 
