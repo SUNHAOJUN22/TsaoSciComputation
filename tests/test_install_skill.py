@@ -4,6 +4,8 @@ import hashlib
 import json
 from pathlib import Path
 
+import pytest
+
 from scripts import install_skill
 
 
@@ -80,6 +82,19 @@ def test_validation_detects_tampering_and_unlisted_files(tmp_path: Path) -> None
     assert any("unlisted files" in problem and "unexpected.txt" in problem for problem in problems)
 
 
+def test_uninstall_requires_valid_manifest_without_force(tmp_path: Path) -> None:
+    source = make_source(tmp_path)
+    destination = tmp_path / "installed" / "TsaoSciComputation"
+    install_skill.install_skill(source, destination, agent="codex", scope="project")
+    (destination / "SKILL.md").write_text("tampered\n", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="invalid installation"):
+        install_skill.uninstall_skill(destination)
+    assert destination.exists()
+    install_skill.uninstall_skill(destination, force=True)
+    assert not destination.exists()
+
+
 def test_validation_rejects_manifest_path_escape(tmp_path: Path) -> None:
     destination = tmp_path / "TsaoSciComputation"
     destination.mkdir()
@@ -101,7 +116,10 @@ def test_validation_rejects_manifest_path_escape(tmp_path: Path) -> None:
         encoding="utf-8",
     )
 
-    assert any("escapes the installation root" in item for item in install_skill.validate_installation(destination))
+    assert any(
+        "escapes the installation root" in item
+        for item in install_skill.validate_installation(destination)
+    )
 
 
 def test_dry_run_does_not_modify_destination(tmp_path: Path) -> None:
