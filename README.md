@@ -6,21 +6,21 @@
 
 ![version](https://img.shields.io/badge/version-3.0.0-2563eb) ![capabilities](https://img.shields.io/badge/capabilities-164-7c3aed) ![adapters](https://img.shields.io/badge/adapters-27-ea580c) ![workflows](https://img.shields.io/badge/workflows-20-0891b2)
 
-[中文说明](README.zh-CN.md) · [Skill](SKILL.md) · [Capabilities](capability-index/README.md) · [Architecture](docs/architecture.md) · [Security](SECURITY.md)
+[中文说明](README.zh-CN.md) · [Root Skill](SKILL.md) · [Capabilities](capability-index/README.md) · [Coverage](docs/coverage-matrix.md) · [Architecture](docs/architecture.md) · [Security](SECURITY.md)
 
 </div>
 
 ## What it is
 
-TsaoSciComputation turns a research question into a reproducible computation plan:
+TsaoSciComputation turns a scientific question into a traceable program:
 
 ```text
-question → calculation contract → workflow routing → environment preflight
-         → bounded execution → conservative parsing → convergence/physics checks
-         → uncertainty/applicability → evidence-bound acceptance → report/handoff
+question → strict calculation contract → scale/method routing → environment preflight
+         → bounded execution → conservative parsing → numerical/physical validation
+         → uncertainty/applicability → evidence-bound acceptance → multiscale handoff
 ```
 
-It supplies contracts, registries, validators, secure execution primitives, conservative parsers, examples, tests, and deterministic packaging. It does **not** bundle or impersonate external scientific solvers, licenses, databases, or production HPC infrastructure.
+It does not bundle or impersonate external solvers, licenses, databases, pseudopotentials, basis sets, private data, or production HPC infrastructure.
 
 ## Verified baseline
 
@@ -37,7 +37,11 @@ It supplies contracts, registries, validators, secure execution primitives, cons
 | Wheel | byte-identical rebuild and isolated install |
 | Remote branches | `main` only |
 
-Machine-readable evidence is stored in [`evidence/quality-baseline.json`](evidence/quality-baseline.json), [`reports/REMOTE_FINALIZATION.json`](reports/REMOTE_FINALIZATION.json), and [`benchmarks/latest.json`](benchmarks/latest.json). These results validate the orchestration repository; they do not claim live third-party solver or production-cluster execution.
+Machine-readable evidence is stored in `evidence/quality-baseline.json`, `reports/REMOTE_FINALIZATION.json`, and `benchmarks/latest.json`.
+
+## Coverage boundary
+
+The uploaded catalog contains 322 skills, including a 164-item computational subset and a 32-engine shortlist. This repository also has 164 capabilities, but reorganizes them into 20 validation-aware workflows rather than copying catalog slugs one-for-one. It has 27 core adapters; 21 of the 32 engine rows are represented directly or through combined adapters, while 11 remain explicit non-standalone limits. See [`docs/coverage-matrix.md`](docs/coverage-matrix.md).
 
 ## Quick start
 
@@ -48,33 +52,41 @@ python -m pip install -e .
 
 python -m tsao_computation --version
 python -m tsao_computation route "Use DFT and MD to study a polymer interface"
-python -m tsao_computation probe
 python scripts/init_project.py --root demo --name demo \
   --question "How does morphology affect conductivity?"
 ```
+
+Start from [`templates/calculation-contract.json`](templates/calculation-contract.json), then require the complete preflight contract:
+
+```bash
+python -m tsao_computation validate-contract contract.json --strict
+python -m tsao_computation probe
+```
+
+## Install as an Agent Skill
+
+```bash
+python scripts/install_skill.py --agent codex --scope user --dry-run
+python scripts/install_skill.py --agent codex --scope user
+python scripts/install_skill.py --agent claude --scope project
+python scripts/install_skill.py --agent open-agent-skills --target /custom/skills
+python scripts/install_skill.py --agent codex --scope user --validate
+python scripts/install_skill.py --agent codex --scope user --uninstall
+```
+
+Use `--force` only for an intentional replacement or verified uninstall override. The installer supports Windows, Linux, macOS, offline copies, and explicit custom targets.
 
 ## Verification
 
 The minimum supported interpreter is Python 3.10; release gates are validated on Python 3.10 and 3.13.
 
-README, CI, and Release share one cross-platform entrypoint:
-
 ```bash
 python -m pip install -e '.[validation,quality]'
 python scripts/verify_all.py --profile all
+python scripts/verify_all.py --profile benchmark  # environment-specific; separate from release gates
 ```
 
-`all` runs the deterministic release gates: quality, tests and coverage, repository/schema/asset/manifest validation, security and mutation checks, reproducible source packaging, reproducible wheel building, and isolated wheel installation.
-
-Repository-local environments and generated caches—including `.venv`, `.tox`, coverage output, and build directories—are pruned consistently from audit, security scan, manifest, and source packaging. Repository source and configuration files remain in scope.
-
-Performance measurements are environment-specific and intentionally separate:
-
-```bash
-python scripts/verify_all.py --profile benchmark
-```
-
-For focused diagnosis, use `core`, `quality`, or `package`. CI runs `core` on Python 3.10 and 3.13 across Ubuntu, Windows, and macOS, plus quality, benchmark, packaging, and CodeQL jobs. Release candidates must pass `--profile all`. GitHub Actions are pinned to immutable commits.
+`all` runs quality, tests and coverage, repository/schema/asset/manifest validation, security and mutation checks, reproducible source packaging, reproducible wheel building, and isolated wheel installation. CI also covers Python 3.10/3.13 on Ubuntu, Windows, and macOS. GitHub Actions are pinned to immutable commits.
 
 ## Scientific trust boundary
 
@@ -82,10 +94,8 @@ For focused diagnosis, use `core`, `quality`, or `package`. CI runs `core` on Py
 completed ≠ parsed ≠ converged ≠ validated ≠ accepted
 ```
 
-Acceptance is fail-closed. Missing convergence, physical checks, uncertainty, applicability limits, provenance, or required human approval prevents promotion to `accepted`. High-risk reactor, control, digital-twin, safety, runaway, and commercial handoff decisions always require expert review.
-
-Performance results are recorded in [`benchmarks/latest.json`](benchmarks/latest.json); [`docs/performance.md`](docs/performance.md) defines their measurement boundary.
+Acceptance is fail-closed. Missing convergence, physical checks, uncertainty, applicability, provenance, or required human approval prevents promotion to `scientifically-accepted`. High-risk reactor, control, digital-twin, safety, runaway, and commercial handoff decisions require expert review.
 
 ## Repository policy
 
-`main` is the only remote branch and the only authoritative development line. Historical branch heads are preserved by immutable archive tags, not by additional branches. Encoded transfer fragments, recovery controllers, temporary trigger files, and generated build caches are forbidden in the ordinary source tree.
+`main` is the only remote branch and authoritative development line. Historical branch heads are preserved by immutable archive tags, not additional branches. Generated environments and caches are consistently pruned, while real source and configuration files remain in scope.
