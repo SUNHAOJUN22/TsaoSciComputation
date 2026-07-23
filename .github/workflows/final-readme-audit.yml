@@ -34,8 +34,7 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           python -m pip install -e '.[validation,quality]'
 
-          # All scans, packages and the manifest model the durable tree after this
-          # one-time controller and its trigger are removed.
+          # Model the durable tree after this one-time controller and trigger vanish.
           rm -f .github/workflows/final-readme-audit.yml .final-readme-audit-trigger
 
           python scripts/run_tests.py --coverage
@@ -76,8 +75,12 @@ jobs:
           baseline['counts']['tests_failed'] = 0
           baseline['counts']['controlled_mutants_killed'] = mutation['killed']
           baseline['counts']['controlled_mutants_survived'] = mutation['survived']
-          baseline['coverage']['statements_percent'] = totals['percent_covered_display'] if isinstance(totals['percent_covered_display'], (int, float)) else totals['percent_covered']
-          baseline['coverage']['branches_percent'] = totals['percent_covered']
+          baseline['coverage']['statements_percent'] = (
+              100.0 * totals['covered_lines'] / totals['num_statements']
+          )
+          baseline['coverage']['branches_percent'] = (
+              100.0 * totals['covered_branches'] / totals['num_branches']
+          )
           baseline['coverage']['missing_statements'] = totals['missing_lines']
           baseline['coverage']['missing_branches'] = totals['missing_branches']
           baseline['security']['repository_findings'] = len(security['findings'])
