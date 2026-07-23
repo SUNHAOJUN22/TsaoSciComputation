@@ -43,38 +43,18 @@ python scripts/init_project.py --root demo --name demo \
   --question "形貌如何影响导电性能？"
 ```
 
-常用命令：
+## 一条命令完成验证
 
-```bash
-python -m tsao_computation list capabilities
-python -m tsao_computation list adapters
-python -m tsao_computation list workflows
-python -m tsao_computation validate-contract examples/organic-dft/contract.json
-python -m tsao_computation validate-repository --root .
-```
-
-## 完整验证
+README、CI 和 Release 现在共用同一个跨平台验证入口：
 
 ```bash
 python -m pip install -e '.[validation,quality]'
-python scripts/run_tests.py --coverage
-python scripts/quality_check.py
-python -m ruff check tsao_computation scripts tests
-python -m ruff format --check tsao_computation scripts tests
-python -m mypy --python-version 3.13 tsao_computation scripts
-python -m bandit -q -r tsao_computation scripts
-python scripts/validate_repository.py
-python scripts/validate_schemas.py
-python scripts/security_scan.py
-python scripts/run_mutation_gate.py
-python scripts/sync_package_assets.py --check
-python scripts/build_capability_index.py --check
-python scripts/build_manifest.py --check
-SOURCE_DATE_EPOCH=1700000000 python scripts/package_release.py
-python scripts/verify_wheel.py
+python scripts/verify_all.py --profile all
 ```
 
-CI 在 Ubuntu、Windows、macOS 上覆盖 Python 3.10 与 3.13，并执行质量、安全、可重复打包、隔离 Wheel 安装和 CodeQL 检查。
+`all` 会依次完成代码质量、自动测试与覆盖率、仓库/Schema/资源/manifest 校验、安全扫描、变异门禁、源码包可重复构建、Wheel 可重复构建和隔离安装。定位单项问题时，可改用 `core`、`quality`、`package` 或 `benchmark`。
+
+CI 在 Ubuntu、Windows、macOS 上覆盖 Python 3.10 与 3.13，并单独执行质量、性能基准、打包和 CodeQL；Release 必须通过 `--profile all`。GitHub Actions 均固定到不可变提交。
 
 ## 科学可信边界
 
@@ -84,8 +64,8 @@ completed ≠ parsed ≠ converged ≠ validated ≠ accepted
 
 最终验收采用 fail-closed：缺少收敛、物理检查、不确定度、适用域、证据链或必要人工审批中的任一项，均不得标记为 `accepted`。反应器、控制、数字孪生、安全、失控反应和商业交接等高风险结论必须由领域专家审核。
 
-## 性能与分支策略
+性能随环境变化，以 `benchmarks/latest.json` 为唯一事实源，测量边界见 `docs/performance.md`。
 
-性能数据与测量边界以 `benchmarks/latest.json` 和 `docs/performance.md` 为准，避免在多处复制后产生过期数字。
+## 仓库策略
 
-远程仓库只保留 `main`。历史分支头通过不可变归档标签保存，不再保留额外 branch；普通源码树禁止出现编码传输分片、恢复控制器、临时触发文件和构建缓存。
+远程仓库只保留 `main`，它也是唯一权威开发线。历史分支头通过不可变归档标签保存，不再保留额外 branch；普通源码树禁止出现编码传输分片、恢复控制器、临时触发文件和构建缓存。
