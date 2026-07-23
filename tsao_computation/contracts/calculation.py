@@ -99,12 +99,30 @@ class CalculationContract:
     )
 
     def __post_init__(self) -> None:
-        if not self.question.strip():
-            raise ContractError("question must be non-empty")
-        if not self.system:
+        _required_string(self.question, field_name="question")
+        system = _mapping(self.system, field_name="system")
+        if not system:
             raise ContractError("system definition must be non-empty")
-        if not self.target_observables:
+        _mapping(self.conditions, field_name="conditions")
+        observables = _string_tuple(self.target_observables, field_name="target_observables")
+        if not observables:
             raise ContractError("at least one target observable is required")
+        _optional_string(self.workflow, field_name="workflow")
+        _string_tuple(self.assumptions, field_name="assumptions")
+        _mapping(self.acceptance_criteria, field_name="acceptance_criteria")
+        _mapping(self.model_object, field_name="model_object")
+        _string_tuple(self.scales, field_name="scales")
+        _string_tuple(self.methods, field_name="methods")
+        _mapping(self.boundary_conditions, field_name="boundary_conditions")
+        _mapping(self.initial_conditions, field_name="initial_conditions")
+        _mapping_tuple(self.parameter_sources, field_name="parameter_sources")
+        _mapping(self.convergence_plan, field_name="convergence_plan")
+        _mapping(self.validation_plan, field_name="validation_plan")
+        _string_tuple(self.uncertainty_sources, field_name="uncertainty_sources")
+        _mapping(self.compute_resources, field_name="compute_resources")
+        _string_tuple(self.expected_artifacts, field_name="expected_artifacts")
+        _string_tuple(self.human_approval_nodes, field_name="human_approval_nodes")
+        _required_string(self.schema_version, field_name="schema_version")
 
     @classmethod
     def from_dict(cls, data: Mapping[str, Any]) -> CalculationContract:
