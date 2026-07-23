@@ -1,5 +1,5 @@
 {
-  "outcome": "failure",
+  "outcome": "success",
   "schema_version": "1.0",
-  "stage": "canonical-all"
+  "stage": "success"
 }
