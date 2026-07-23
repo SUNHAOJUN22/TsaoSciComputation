@@ -1,0 +1,15 @@
+{
+  "branch": "main",
+  "python_310": {
+    "exit_code": 2,
+    "log_tail": "STAGE=core\nEXIT_CODE=2\n--- LOG TAIL ---\n\n==> tests and coverage\n    /opt/hostedtoolcache/Python/3.10.20/x64/bin/python scripts/run_tests.py --coverage\n\n==================================== ERRORS ====================================\n____________ ERROR collecting tests/test_validation_fail_closed.py _____________\nImportError while importing test module '/home/runner/work/TsaoSciComputation/TsaoSciComputation/tests/test_validation_fail_closed.py'.\nHint: make sure your test modules/packages have valid Python names.\nTraceback:\n/opt/hostedtoolcache/Python/3.10.20/x64/lib/python3.10/importlib/__init__.py:126: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\ntests/test_validation_fail_closed.py:7: in <module>\n    from scripts.run_mutation_gate import state_mutants\nscripts/run_mutation_gate.py:11: in <module>\n    import _bootstrap  # noqa: F401\nE   ModuleNotFoundError: No module named '_bootstrap'\n=========================== short test summary info ============================\nERROR tests/test_validation_fail_closed.py\n!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\n1 error in 0.64s\n\nFAILED: tests and coverage (exit 2)\n",
+    "stage": "core"
+  },
+  "python_313": {
+    "exit_code": 1,
+    "log_tail": "STAGE=quality\nEXIT_CODE=1\n--- LOG TAIL ---\n\n==> repository quality rules\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/quality_check.py\n{\"passed\": true, \"problems\": [], \"python_files\": 81, \"schema_version\": \"1.0\"}\n\n==> Ruff lint\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python -m ruff check tsao_computation scripts tests\nI001 [*] Import block is un-sorted or un-formatted\n  --> scripts/run_mutation_gate.py:2:1\n   |\n 1 |   # mypy: disable-error-code=misc\n 2 | / from __future__ import annotations\n 3 | |\n 4 | | import json\n 5 | | import math\n 6 | | import tempfile\n 7 | | from collections.abc import Callable\n 8 | | from pathlib import Path\n 9 | | from typing import Any\n10 | |\n11 | | import _bootstrap  # noqa: F401\n12 | |\n13 | | from tsao_computation.errors import StateTransitionError\n14 | | from tsao_computation.security.paths import confined_path\n15 | | from tsao_computation.state.machine import ScientificStateMachine, TRANSITIONS\n16 | | from tsao_computation.validation.acceptance import REQUIRED\n   | |___________________________________________________________^\n17 |\n18 |   Probe = tuple[str, Callable[[], bool]]\n   |\nhelp: Organize imports\n\nFound 1 error.\n[*] 1 fixable with the `--fix` option.\n\nFAILED: Ruff lint (exit 1)\n",
+    "stage": "quality"
+  },
+  "schema_version": "1.0",
+  "temporary_branch_created": false
+}
