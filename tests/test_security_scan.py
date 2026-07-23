@@ -1,13 +1,18 @@
 from __future__ import annotations
 
 import runpy
+import sys
 from collections.abc import Callable
 from pathlib import Path
 from typing import cast
 
 
 def load_scan() -> Callable[[Path], dict[str, object]]:
-    namespace = runpy.run_path("scripts/security_scan.py", run_name="security_scan_test")
+    sys.path.insert(0, str(Path("scripts").resolve()))
+    try:
+        namespace = runpy.run_path("scripts/security_scan.py", run_name="security_scan_test")
+    finally:
+        sys.path.pop(0)
     return cast(Callable[[Path], dict[str, object]], namespace["scan"])
 
 
