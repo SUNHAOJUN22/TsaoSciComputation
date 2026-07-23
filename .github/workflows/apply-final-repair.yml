@@ -26,7 +26,7 @@ jobs:
         with:
           python-version: '3.13'
           cache: pip
-      - name: Apply and verify bootstrap compatibility
+      - name: Repair benchmark-to-manifest ordering
         shell: bash
         run: |
           set -Eeuo pipefail
@@ -46,32 +46,26 @@ jobs:
           STAGE=dependencies
           python -m pip install -e '.[validation,quality]'
 
-          STAGE=bootstrap-migration
+          STAGE=workflow-migration
           python - <<'PY'
           from pathlib import Path
 
-          path = Path('scripts/run_mutation_gate.py')
+          path = Path('.github/workflows/final-parallel-verification.yml')
           text = path.read_text(encoding='utf-8')
-          old = '''try:
-              from . import _bootstrap  # noqa: F401
-          except ImportError:
-              import _bootstrap  # noqa: F401'''
+          old = '''          python scripts/verify_all.py --profile package
+                    python scripts/verify_all.py --profile benchmark
+                - name: Validate installation roundtrip and single-main policy'''
+          new = '''          python scripts/verify_all.py --profile package
+                    python scripts/verify_all.py --profile benchmark
+                    python scripts/build_manifest.py
+                - name: Validate installation roundtrip and single-main policy'''
           if old not in text:
-              raise SystemExit('mutation bootstrap anchor not found')
-          path.write_text(text.replace(old, 'import _bootstrap  # noqa: F401', 1), encoding='utf-8')
+              raise SystemExit('final workflow ordering anchor not found')
+          path.write_text(text.replace(old, new, 1), encoding='utf-8')
           PY
 
-          STAGE=ruff
-          python -m ruff check --fix tsao_computation scripts tests _bootstrap.py
-          python -m ruff format tsao_computation scripts tests _bootstrap.py
-
           STAGE=generated-assets
-          python scripts/sync_package_assets.py
-          python scripts/build_adapter_docs.py
-          python scripts/build_workflow_docs.py
-          python scripts/build_examples.py
           python scripts/build_manifest.py
-
           STAGE=quality
           python scripts/verify_all.py --profile quality
           STAGE=core
@@ -81,6 +75,6 @@ jobs:
           rm -f reports/FINAL_REPAIR_STATUS.json
           python scripts/build_manifest.py
           git add -A
-          git commit -m 'Fix bootstrap compatibility across script and module entry points'
+          git commit -m 'Refresh manifest after benchmark before installation roundtrip'
           git push origin HEAD:refs/heads/main
           trap - ERR
