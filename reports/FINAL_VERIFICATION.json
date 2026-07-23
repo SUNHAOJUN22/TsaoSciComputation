@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "status": "FAILED",
-  "python_310_core": "failure",
+  "python_310_core": "success",
   "python_313_release": "failure",
   "temporary_branch_created": false,
   "branch": "main"
