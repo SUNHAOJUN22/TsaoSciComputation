@@ -26,7 +26,7 @@ jobs:
         with:
           python-version: '3.13'
           cache: pip
-      - name: Apply, format, and validate durable repairs
+      - name: Apply and verify bootstrap compatibility
         shell: bash
         run: |
           set -Eeuo pipefail
@@ -46,67 +46,24 @@ jobs:
           STAGE=dependencies
           python -m pip install -e '.[validation,quality]'
 
-          STAGE=source-migration
+          STAGE=bootstrap-migration
           python - <<'PY'
           from pathlib import Path
 
-          path = Path('scripts/install_skill.py')
+          path = Path('scripts/run_mutation_gate.py')
           text = path.read_text(encoding='utf-8')
-          start = text.index('def uninstall_skill(')
-          end = text.index('\n\ndef build_parser()', start)
-          replacement = '''def uninstall_skill(
-              destination: Path, *, force: bool = False, dry_run: bool = False
-          ) -> None:
-              if not destination.exists():
-                  raise FileNotFoundError(f"installation not found: {destination}")
-              if not force:
-                  problems = validate_installation(destination)
-                  if problems:
-                      raise ValueError(
-                          "refusing to remove an invalid installation; "
-                          f"use --force: {problems}"
-                      )
-              if dry_run:
-                  print(f"DRY-RUN uninstall {destination}")
-                  return
-              shutil.rmtree(destination)
-          '''
-          path.write_text(text[:start] + replacement + text[end:], encoding='utf-8')
-
-          path = Path('tests/test_core.py')
-          text = path.read_text(encoding='utf-8')
-          valid_old = '"a", "b", "q", 1, "1", {}, "r", 0, 0, "d", "identity", "validated"'
-          valid_new = '"a", "b", "q", 1, "1", {"temperature_K": 298}, "r", 0, 0, "d", "identity", "validated"'
-          invalid_old = 'HandoffRecord("a", "b", "q", 1, "1", {}, "r", 0, 0, "d", "identity", "accepted")'
-          invalid_new = 'HandoffRecord("a", "b", "q", 1, "1", {"temperature_K": 298}, "r", 0, 0, "d", "identity", "accepted")'
-          if valid_old not in text or invalid_old not in text:
-              raise SystemExit('handoff test anchors not found')
-          text = text.replace(valid_old, valid_new, 1).replace(invalid_old, invalid_new, 1)
-
-          start = text.index('def test_006_state_happy_path():')
-          end = text.index('\n\n@pytest.mark.integration', start)
-          replacement = '''def test_006_state_happy_path():
-              m = ScientificStateMachine()
-              for state in (
-                  "specified",
-                  "prepared",
-                  "preflight-passed",
-                  "submitted",
-                  "running",
-                  "completed",
-                  "parsed",
-                  "numerically-converged",
-                  "physically-validated",
-                  "scientifically-accepted",
-              ):
-                  m.transition(state, evidence=state)
-              assert m.state == "scientifically-accepted" and len(m.events) == 10'''
-          path.write_text(text[:start] + replacement + text[end:], encoding='utf-8')
+          old = '''try:
+              from . import _bootstrap  # noqa: F401
+          except ImportError:
+              import _bootstrap  # noqa: F401'''
+          if old not in text:
+              raise SystemExit('mutation bootstrap anchor not found')
+          path.write_text(text.replace(old, 'import _bootstrap  # noqa: F401', 1), encoding='utf-8')
           PY
 
-          STAGE=ruff-fix
-          python -m ruff check --fix tsao_computation scripts tests
-          python -m ruff format tsao_computation scripts tests
+          STAGE=ruff
+          python -m ruff check --fix tsao_computation scripts tests _bootstrap.py
+          python -m ruff format tsao_computation scripts tests _bootstrap.py
 
           STAGE=generated-assets
           python scripts/sync_package_assets.py
@@ -124,6 +81,6 @@ jobs:
           rm -f reports/FINAL_REPAIR_STATUS.json
           python scripts/build_manifest.py
           git add -A
-          git commit -m 'Repair final gates and synchronize strict tests'
+          git commit -m 'Fix bootstrap compatibility across script and module entry points'
           git push origin HEAD:refs/heads/main
           trap - ERR
