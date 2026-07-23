@@ -4,8 +4,6 @@ import json
 from pathlib import Path
 from typing import Any
 
-import tomllib
-
 from . import __version__
 from .paths import SOURCE_REGISTRY_ROOT
 from .provenance.manifest import iter_repository_entries
@@ -65,6 +63,33 @@ CAPABILITY_REQUIRED = {
 }
 
 
+def _parse_project_version(text: str) -> str:
+    """Read the quoted ``[project].version`` value without a TOML dependency."""
+
+    in_project = False
+    for raw_line in text.splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#"):
+            continue
+
+        table_line = line.split("#", 1)[0].strip()
+        if table_line.startswith("[") and table_line.endswith("]"):
+            in_project = table_line == "[project]"
+            continue
+        if not in_project:
+            continue
+
+        key, separator, raw_value = line.partition("=")
+        if key.strip() != "version" or not separator:
+            continue
+        value = raw_value.split("#", 1)[0].strip()
+        if len(value) >= 2 and value[0] == value[-1] and value[0] in {"\"", "'"}:
+            return value[1:-1]
+        raise ValueError("[project].version must be a quoted string")
+
+    raise ValueError("missing [project].version")
+
+
 def _load_json(path: Path, problems: list[str]) -> Any:
     try:
         return json.loads(path.read_text(encoding="utf-8"))
@@ -93,12 +118,12 @@ def audit_repository(root: Path) -> dict[str, object]:
     pyproject_path = root / "pyproject.toml"
     if pyproject_path.is_file():
         try:
-            project_version = tomllib.loads(pyproject_path.read_text(encoding="utf-8"))["project"][
-                "version"
-            ]
+            project_version = _parse_project_version(
+                pyproject_path.read_text(encoding="utf-8")
+            )
             if project_version != __version__:
                 problems.append("pyproject version and package __version__ differ")
-        except (OSError, UnicodeDecodeError, tomllib.TOMLDecodeError, KeyError, TypeError) as exc:
+        except (OSError, UnicodeDecodeError, ValueError) as exc:
             problems.append(f"invalid pyproject.toml: {exc}")
 
     capability_records = capabilities()
