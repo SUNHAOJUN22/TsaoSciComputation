@@ -285,14 +285,14 @@
   },
   "runtime_dependencies": 0,
   "security": {
-    "files_scanned": 382,
+    "files_scanned": 380,
     "findings": 0
   },
   "status": "VALIDATED",
   "tests": {
     "errors": 0,
     "failures": 0,
-    "passed": 431
+    "passed": 432
   },
   "version": "3.0.0",
   "workflows": 20
