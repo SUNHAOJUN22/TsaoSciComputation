@@ -1,0 +1,152 @@
+name: Exact final gate diagnosis
+
+on:
+  push:
+    branches: [main]
+    paths: [.final-diagnosis-trigger]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: final-fail-closed-hardening
+  cancel-in-progress: true
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+      - name: Configure repository
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.10'
+          cache: pip
+      - name: Diagnose Python 3.10
+        shell: bash
+        run: |
+          set -uo pipefail
+          : > /tmp/diag310.txt
+          status=PASS
+          run_stage() {
+            label="$1"; shift
+            log="/tmp/310-${label}.log"
+            "$@" >"$log" 2>&1
+            rc=$?
+            if [ "$rc" -ne 0 ]; then
+              status="$label"
+              {
+                echo "STAGE=$label"
+                echo "EXIT_CODE=$rc"
+                echo "--- LOG TAIL ---"
+                tail -n 160 "$log"
+              } > /tmp/diag310.txt
+              return 1
+            fi
+            return 0
+          }
+          run_stage pip-install python -m pip install -e '.[validation,quality]' || true
+          if [ "$status" = PASS ]; then run_stage sync-assets python scripts/sync_package_assets.py || true; fi
+          if [ "$status" = PASS ]; then run_stage adapter-docs python scripts/build_adapter_docs.py || true; fi
+          if [ "$status" = PASS ]; then run_stage workflow-docs python scripts/build_workflow_docs.py || true; fi
+          if [ "$status" = PASS ]; then run_stage examples python scripts/build_examples.py || true; fi
+          if [ "$status" = PASS ]; then run_stage manifest python scripts/build_manifest.py || true; fi
+          if [ "$status" = PASS ]; then run_stage core python scripts/verify_all.py --profile core || true; fi
+          if [ "$status" = PASS ]; then echo 'STAGE=PASS' > /tmp/diag310.txt; fi
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+          cache: pip
+      - name: Diagnose Python 3.13
+        shell: bash
+        run: |
+          set -uo pipefail
+          : > /tmp/diag313.txt
+          status=PASS
+          run_stage() {
+            label="$1"; shift
+            log="/tmp/313-${label}.log"
+            "$@" >"$log" 2>&1
+            rc=$?
+            if [ "$rc" -ne 0 ]; then
+              status="$label"
+              {
+                echo "STAGE=$label"
+                echo "EXIT_CODE=$rc"
+                echo "--- LOG TAIL ---"
+                tail -n 160 "$log"
+              } > /tmp/diag313.txt
+              return 1
+            fi
+            return 0
+          }
+          run_stage pip-install python -m pip install -e '.[validation,quality]' || true
+          if [ "$status" = PASS ]; then run_stage sync-assets python scripts/sync_package_assets.py || true; fi
+          if [ "$status" = PASS ]; then run_stage adapter-docs python scripts/build_adapter_docs.py || true; fi
+          if [ "$status" = PASS ]; then run_stage workflow-docs python scripts/build_workflow_docs.py || true; fi
+          if [ "$status" = PASS ]; then run_stage examples python scripts/build_examples.py || true; fi
+          if [ "$status" = PASS ]; then run_stage manifest python scripts/build_manifest.py || true; fi
+          if [ "$status" = PASS ]; then run_stage quality python scripts/verify_all.py --profile quality || true; fi
+          if [ "$status" = PASS ]; then run_stage core python scripts/verify_all.py --profile core || true; fi
+          if [ "$status" = PASS ]; then run_stage package python scripts/verify_all.py --profile package || true; fi
+          if [ "$status" = PASS ]; then echo 'STAGE=PASS' > /tmp/diag313.txt; fi
+      - name: Publish exact diagnosis
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          def parse(path: str) -> dict[str, object]:
+              text = Path(path).read_text(encoding='utf-8')
+              lines = text.splitlines()
+              stage = next((line.split('=', 1)[1] for line in lines if line.startswith('STAGE=')), 'UNKNOWN')
+              exit_code = next((int(line.split('=', 1)[1]) for line in lines if line.startswith('EXIT_CODE=')), 0)
+              return {'stage': stage, 'exit_code': exit_code, 'log_tail': text}
+
+          result = {
+              'schema_version': '1.0',
+              'python_310': parse('/tmp/diag310.txt'),
+              'python_313': parse('/tmp/diag313.txt'),
+              'temporary_branch_created': False,
+              'branch': 'main',
+          }
+          Path('reports').mkdir(exist_ok=True)
+          Path('reports/FINAL_DIAGNOSIS.json').write_text(
+              json.dumps(result, indent=2, ensure_ascii=False, sort_keys=True) + '\n',
+              encoding='utf-8',
+          )
+          markdown = [
+              '# Final verification diagnosis',
+              '',
+              f"- Python 3.10: `{result['python_310']['stage']}`",
+              f"- Python 3.13: `{result['python_313']['stage']}`",
+              '',
+              '## Python 3.10 log',
+              '',
+              '```text',
+              str(result['python_310']['log_tail']),
+              '```',
+              '',
+              '## Python 3.13 log',
+              '',
+              '```text',
+              str(result['python_313']['log_tail']),
+              '```',
+              '',
+          ]
+          Path('reports/FINAL_DIAGNOSIS.md').write_text('\n'.join(markdown), encoding='utf-8')
+          PY
+          git add reports/FINAL_DIAGNOSIS.json reports/FINAL_DIAGNOSIS.md
+          git commit -m 'Record exact final verification diagnosis'
+          git push origin HEAD:refs/heads/main
