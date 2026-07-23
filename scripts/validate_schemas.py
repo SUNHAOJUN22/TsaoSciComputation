@@ -5,7 +5,6 @@ from pathlib import Path
 from typing import Any
 
 import _bootstrap  # noqa: F401
-
 from tsao_computation.registries import adapters, capabilities, workflows
 
 

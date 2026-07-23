@@ -10,7 +10,6 @@ from pathlib import Path
 from typing import TypeVar
 
 import _bootstrap  # noqa: F401
-
 from tsao_computation.adapters import get_adapter
 from tsao_computation.registries import adapters, capabilities, clear_registry_caches, workflows
 from tsao_computation.routing import route_question

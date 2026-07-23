@@ -5,7 +5,6 @@ import json
 from pathlib import Path
 
 import _bootstrap  # noqa: F401
-
 from tsao_computation.adapters import probe_all
 
 

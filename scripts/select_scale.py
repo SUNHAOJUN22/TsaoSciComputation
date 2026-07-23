@@ -2,7 +2,6 @@ import argparse
 import json
 
 import _bootstrap  # noqa: F401
-
 from tsao_computation.routing import route_question
 
 p = argparse.ArgumentParser()

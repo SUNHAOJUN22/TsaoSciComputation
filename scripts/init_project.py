@@ -2,7 +2,6 @@ import argparse
 from pathlib import Path
 
 import _bootstrap  # noqa: F401
-
 from tsao_computation.project import initialize_project
 
 p = argparse.ArgumentParser()

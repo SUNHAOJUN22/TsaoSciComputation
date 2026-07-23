@@ -6,7 +6,6 @@ import tempfile
 from pathlib import Path
 
 import _bootstrap  # noqa: F401
-
 from tsao_computation.provenance.manifest import iter_repository_entries
 from tsao_computation.repository_audit import audit_repository
 
