@@ -11,6 +11,35 @@ from typing import Any
 
 from ..errors import ContractError
 
+_COMPLETION_SUCCESS = re.compile(
+    r"\bnormal\s+termination\b|"
+    r"\b(?:run|job|calculation|simulation)\s+(?:finished|completed)(?:\s+successfully)?\b|"
+    r"\b(?:finished|completed)\s+successfully\b|"
+    r"\btotal\s+wall\s+time\b",
+    re.IGNORECASE,
+)
+_COMPLETION_FAILURE = re.compile(
+    r"\b(?:abnormal|error|fatal)\s+termination\b|"
+    r"\b(?:run|job|calculation|simulation)\s+(?:failed|aborted)\b|"
+    r"\b(?:not|never)\s+(?:finished|completed)\b|"
+    r"\bcompleted\s+with\s+(?:errors?|failures?)\b|"
+    r"\bfatal\s+error\b",
+    re.IGNORECASE,
+)
+_CONVERGENCE_SUCCESS = re.compile(
+    r"\bconverged\b|\bconvergence\s+(?:achieved|reached)\b",
+    re.IGNORECASE,
+)
+_CONVERGENCE_FAILURE = re.compile(
+    r"\bnot(?:\s+fully)?\s+converged\b|"
+    r"\bfailed\s+to\s+converge\b|"
+    r"\bdid\s+not\s+converge\b|"
+    r"\bconvergence\s+(?:not\s+achieved|failed|failure)\b|"
+    r"\bnon[-\s]?converged\b|"
+    r"\bunconverged\b",
+    re.IGNORECASE,
+)
+
 
 @dataclass(frozen=True, slots=True)
 class AdapterProbe:
@@ -106,9 +135,7 @@ class Adapter:
             )
         reason = f"detected {candidate}"
         if self.python_modules:
-            reason += (
-                f" with modules in {module_interpreter}: {', '.join(self.python_modules)}"
-            )
+            reason += f" with modules in {module_interpreter}: {', '.join(self.python_modules)}"
         return AdapterProbe(self.slug, True, found, reason)
 
     def probe(self) -> AdapterProbe:
@@ -138,29 +165,17 @@ class Adapter:
         )
 
     def parse(self, output: str) -> dict[str, Any]:
-        lowered = output.casefold()
-        completed = any(
-            marker in lowered
-            for marker in ("normal termination", "finished", "completed", "total wall time")
-        )
-        negative_convergence = any(
-            marker in lowered
-            for marker in (
-                "not converged",
-                "not fully converged",
-                "failed to converge",
-                "did not converge",
-                "convergence not achieved",
-                "non-converged",
-                "nonconverged",
-            )
-        )
-        positive_convergence = bool(
-            re.search(r"\bconverged\b|\bconvergence (?:achieved|reached)\b", lowered)
+        completion_failed = _COMPLETION_FAILURE.search(output) is not None
+        completed = _COMPLETION_SUCCESS.search(output) is not None and not completion_failed
+        convergence_failed = _CONVERGENCE_FAILURE.search(output) is not None
+        converged = (
+            completed
+            and _CONVERGENCE_SUCCESS.search(output) is not None
+            and not convergence_failed
         )
         return {
             "completed": completed,
-            "converged": positive_convergence and not negative_convergence,
+            "converged": converged,
             "raw_length": len(output),
             "validated": False,
         }
