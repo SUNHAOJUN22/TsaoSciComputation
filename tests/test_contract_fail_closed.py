@@ -78,3 +78,10 @@ def test_mapping_keys_are_not_silently_coerced() -> None:
     payload["system"] = {1: "invalid JSON-style key"}
     with pytest.raises(ContractError, match="system keys must be strings"):
         CalculationContract.from_dict(payload)
+
+
+def test_top_level_field_names_must_be_strings() -> None:
+    payload: dict[object, Any] = dict(base_contract())
+    payload[1] = "invalid field name"
+    with pytest.raises(ContractError, match="field names must be strings"):
+        CalculationContract.from_dict(payload)  # type: ignore[arg-type]
