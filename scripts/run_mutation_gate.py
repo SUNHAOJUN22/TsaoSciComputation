@@ -1,7 +1,6 @@
 # mypy: disable-error-code=misc
 from __future__ import annotations
 
-import importlib
 import json
 import math
 import tempfile
@@ -9,11 +8,14 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
-importlib.import_module("scripts._bootstrap" if __package__ else "_bootstrap")
+try:
+    from . import _bootstrap  # noqa: F401
+except ImportError:
+    import _bootstrap  # noqa: F401
 
 from tsao_computation.errors import StateTransitionError
 from tsao_computation.security.paths import confined_path
-from tsao_computation.state.machine import ScientificStateMachine, TRANSITIONS
+from tsao_computation.state.machine import TRANSITIONS, ScientificStateMachine
 from tsao_computation.validation.acceptance import REQUIRED
 
 Probe = tuple[str, Callable[[], bool]]
