@@ -55,6 +55,7 @@ def verify_core() -> int:
             ("capability index", (PYTHON, "scripts/build_capability_index.py", "--check")),
             ("adapter documentation", (PYTHON, "scripts/build_adapter_docs.py", "--check")),
             ("workflow documentation", (PYTHON, "scripts/build_workflow_docs.py", "--check")),
+            ("scenario examples", (PYTHON, "scripts/build_examples.py", "--check")),
             ("repository manifest", (PYTHON, "scripts/build_manifest.py", "--check")),
         )
     )
