@@ -56,14 +56,14 @@
       "sha256": "7bc58f7c95c8af67138d30379c290b1f58f5dfaafd54823b5ff82348b072e442"
     },
     {
-      "bytes": 4611,
+      "bytes": 4886,
       "path": "README.md",
-      "sha256": "5cdf8798af7dab0fad91c462ca99ae024cbc5732e513bc281618273b1f21ec1c"
+      "sha256": "07f9fb06d59dbfa1eeec6faa85ce2b82359a06b51c2cc6761e1bcbfd1a43f82d"
     },
     {
-      "bytes": 3698,
+      "bytes": 4182,
       "path": "README.zh-CN.md",
-      "sha256": "67538067a1f18d00b1b1e0a824009df6cd13be3f0be82c2f597a180279dc47b0"
+      "sha256": "e3eaeb6ef3cac558a6dc74da6d172577d7b757f8cf5d1a4975094a8583905b37"
     },
     {
       "bytes": 537,
@@ -71,9 +71,9 @@
       "sha256": "6542da66028ff1d9935f33323b63785479a49abe3eab4f98294848e0f524194b"
     },
     {
-      "bytes": 1029,
+      "bytes": 4176,
       "path": "SKILL.md",
-      "sha256": "19538e1d583d05429d021ade9f006fa18f25df475b0fc05252a7fc729fd12321"
+      "sha256": "cfbb8f5c412a3d4f491c57e30e87e0f28e8d3e3da8bd63188491a9ed3a53bca8"
     },
     {
       "bytes": 599,
@@ -86,9 +86,9 @@
       "sha256": "2985be8b28d3ade858e8d8fb4bc22f565b1bf6020dff982dce141f7721b9999c"
     },
     {
-      "bytes": 364,
+      "bytes": 4324,
       "path": "adapters/abacus/ADAPTER.md",
-      "sha256": "2a532a8cc8fe9f9bff0d172f3773ba4395dc358282645b6dbf5dd5ae33cf07ff"
+      "sha256": "7dc386aa2cc0fa46529a2f4ffe8dfa58fb8f63a0dc6aa90bbb2da890e2d41d00"
     },
     {
       "bytes": 438,
@@ -96,9 +96,9 @@
       "sha256": "655343d0280b80743334491c42df2be2fc5f887efa5f933ab2297f508d53cd6f"
     },
     {
-      "bytes": 372,
+      "bytes": 4346,
       "path": "adapters/ase-pymatgen/ADAPTER.md",
-      "sha256": "99dfb8717fc304fa42506edff7a32a21f019277b0c6bcd0426d512235bad9bff"
+      "sha256": "18a60b6ff4e6c21fe98f33da0df636d9153a167a7b60e71ce6b09c05a1d035aa"
     },
     {
       "bytes": 452,
@@ -106,9 +106,9 @@
       "sha256": "f5de02dbb2aac49d25f3186ba07f54797563011ac0977a167ca7ed575012b451"
     },
     {
-      "bytes": 386,
+      "bytes": 4347,
       "path": "adapters/aspen/ADAPTER.md",
-      "sha256": "4fe3be29c1fbb41deb3c07333ebcfe6c2dd6cf9701222bee1e1a9e9ff66bc93d"
+      "sha256": "a28461da1435fe157889bac14187e128e018b5dd6569091cb4f0d0f1d4fb546f"
     },
     {
       "bytes": 443,
@@ -116,9 +116,9 @@
       "sha256": "2d9f1078c69bd4b89a9b0ad3098d84739eb818ed4ae02debca6b6081b897ada5"
     },
     {
-      "bytes": 378,
+      "bytes": 4017,
       "path": "adapters/cantera-rmg/ADAPTER.md",
-      "sha256": "3ae0aa24fcb0d73222b55edf6e73c7b2d00bcd5758113655300cbfc673b3711d"
+      "sha256": "69e8fd66b4f75dfee5ec0bdf55fda29b6aa983dd770ff56f88d141df949aac1b"
     },
     {
       "bytes": 457,
@@ -126,9 +126,9 @@
       "sha256": "2f8d77a01991dcc089458fbf952e652ff0dcaf00015ee279c0a75e0e4dfd696f"
     },
     {
-      "bytes": 362,
+      "bytes": 4316,
       "path": "adapters/cp2k/ADAPTER.md",
-      "sha256": "cb05e2a598b7f33b9ed39b45e742384ae5ea4715394660928212f1ebc6cae7a1"
+      "sha256": "3f8b253e10bf3037f0f2a5deaadc3928c0d92bfd36db2b0c4eb371aeec67b81e"
     },
     {
       "bytes": 432,
@@ -136,9 +136,9 @@
       "sha256": "e6822e6e611f4bc99ccd451b8f64a7774921bd7e640718cff037c364162ce70d"
     },
     {
-      "bytes": 382,
+      "bytes": 3937,
       "path": "adapters/deepmd/ADAPTER.md",
-      "sha256": "60bfd855e262999b1c3508891236dc458c169c0299765063de626415a8e50293"
+      "sha256": "f8da4b6bc92d319cd9b2a69fa4fb115b7442da4ddce1344996692fc4f151569b"
     },
     {
       "bytes": 452,
@@ -146,9 +146,9 @@
       "sha256": "deecd04e8f3ea4af9dd0a0fcb1125b63d93f5b146b7fe8cfe0b5dcf2724092c7"
     },
     {
-      "bytes": 367,
+      "bytes": 4023,
       "path": "adapters/dolfinx/ADAPTER.md",
-      "sha256": "dda23a7b23e33e0c0557dfad595be23708f37b815131fa4593a520f0c5bec59f"
+      "sha256": "78c2e94f78d3ae27dd7d48f9866b8740d6ad724e6654c74ee2aeb272a39abc96"
     },
     {
       "bytes": 442,
@@ -156,9 +156,9 @@
       "sha256": "2befa26656c19607d6990ed659736b1f1c5491f73b46de990316c796a4e4d7f4"
     },
     {
-      "bytes": 369,
+      "bytes": 4225,
       "path": "adapters/dwsim/ADAPTER.md",
-      "sha256": "0596c62d9972f317cab79d3699705d97f73738a161f5ff250bc01ced8927d627"
+      "sha256": "47eb02be9222315fec1334fd6f677324ba24ffcd97952b6aa8fa6b6f28cde4fc"
     },
     {
       "bytes": 445,
@@ -166,9 +166,9 @@
       "sha256": "9c0d61ab7380527a07aa43a27041441a26f3a46c4315952508d8b1f96d89a3e2"
     },
     {
-      "bytes": 365,
+      "bytes": 4022,
       "path": "adapters/elmer/ADAPTER.md",
-      "sha256": "bc365c9b25127d1fe08295d4c54328c14ff0dc1275b03e7a293b3d2f0746e451"
+      "sha256": "81f2258738501d46e19c8c425420f128c0316344fbe8a48ddcef71b6bb097774"
     },
     {
       "bytes": 443,
@@ -176,9 +176,9 @@
       "sha256": "4d874d0c3e9f61f32cf0babf84e137fd54cbcf44d3c17b28271c0442a33435cc"
     },
     {
-      "bytes": 370,
+      "bytes": 4397,
       "path": "adapters/gaussian/ADAPTER.md",
-      "sha256": "02cad4d597a73271fc559e09c4a1783436c1271ab27760071756f0fb65d6fcab"
+      "sha256": "be6ecbbb41641a1b177e914c193fe5393e20245399665dce698080e600a7482f"
     },
     {
       "bytes": 454,
@@ -186,9 +186,9 @@
       "sha256": "6a9b06f365455d3a495bd8848f8cebdbc895a19a7b258116dafd47b8d2a10c2e"
     },
     {
-      "bytes": 362,
+      "bytes": 4316,
       "path": "adapters/gpaw/ADAPTER.md",
-      "sha256": "42c69050dacf86a7d8f7f6cc9fe73d908f1f68c01a6f6abff35f7fd7111a8514"
+      "sha256": "aebb7086f0644a8a0e856bc64a7f87562e497fd4d3666f8abe6f451fc5e17f83"
     },
     {
       "bytes": 432,
@@ -196,9 +196,9 @@
       "sha256": "f90909c3a5b75abb99acd65c9303da933cfa58a4642435557037bb492d945093"
     },
     {
-      "bytes": 371,
+      "bytes": 4170,
       "path": "adapters/gromacs/ADAPTER.md",
-      "sha256": "7c06f210f875a27cb5a2ce65fa5da459ae109e80215a691b737de3d257d548c5"
+      "sha256": "72f913a747a04de64744d9e3a015d6e11f62a5d94cd97409e04360a1d37604d2"
     },
     {
       "bytes": 443,
@@ -206,9 +206,9 @@
       "sha256": "96685e10ba63bce2cafdce60f11f2252254746023a47d4400113a5f6e51820c6"
     },
     {
-      "bytes": 377,
+      "bytes": 4243,
       "path": "adapters/idaes-pyomo/ADAPTER.md",
-      "sha256": "1820dffad9e020a1cdc32c3bf1d56aa9c37ed08fafcab259f99a1bac6d03aec3"
+      "sha256": "dd16af2521de63a32ac3945f5eed4214c6cba948de27ebacc432d3fe432bb719"
     },
     {
       "bytes": 455,
@@ -216,9 +216,9 @@
       "sha256": "9eec45d9002e092cd280f6b333bb3162b983878b9fbdedce7b3eb02744186e1c"
     },
     {
-      "bytes": 377,
+      "bytes": 4081,
       "path": "adapters/kratos/ADAPTER.md",
-      "sha256": "9f5b8735cdb57092fe1e3add6daac0c65bee072d76c7f5bcb4d6df9edb1119fc"
+      "sha256": "18810d413d4224b8f698741c4618dba242ef5cd611cb4b7a23f9027ef180d569"
     },
     {
       "bytes": 451,
@@ -226,9 +226,9 @@
       "sha256": "ef17acf17c7d8ac2e15a4992edddab1f005fb73a426a76704a3a91fb045f0051"
     },
     {
-      "bytes": 370,
+      "bytes": 4178,
       "path": "adapters/lammps/ADAPTER.md",
-      "sha256": "9387aa8b1e8a964a0180c6d9501d7261f8fc9939f3fec148dba3cbaea11e5f8c"
+      "sha256": "4e11892598acd33653be8ffab5ca6a02c701122c4a357b13f743b025f885873b"
     },
     {
       "bytes": 456,
@@ -236,9 +236,9 @@
       "sha256": "2c08a3cf1d02bc1aff646094ede08d5d1ed16f5ad299b65432469b8640fa93da"
     },
     {
-      "bytes": 376,
+      "bytes": 3927,
       "path": "adapters/mace/ADAPTER.md",
-      "sha256": "12634af8d3b16fe607126648debaf35cfcef52cf8f39ce02fca9143c950a2a38"
+      "sha256": "b005541e35e3cba52620f6cde5eed38af37d612e169231a2b24c3e7762752147"
     },
     {
       "bytes": 448,
@@ -246,9 +246,9 @@
       "sha256": "50d2f4d428054fd32680c0ed563fcce0119b40596327bb5e07f3da649bfcebdc"
     },
     {
-      "bytes": 363,
+      "bytes": 4055,
       "path": "adapters/moose/ADAPTER.md",
-      "sha256": "d6d58b0931d889d131a0abebbc5e677ffcb2ba6613223786340762361e4aba43"
+      "sha256": "f15f4f920870f5a11b53656c9eb0015beaa9a02e79da4c186da7809ae345e1f5"
     },
     {
       "bytes": 439,
@@ -256,9 +256,9 @@
       "sha256": "1d84e1719c2680970b2302345016e4d8b157dff54fe985f35f600e648b7d735d"
     },
     {
-      "bytes": 357,
+      "bytes": 4154,
       "path": "adapters/openfoam/ADAPTER.md",
-      "sha256": "e2556b34dedb2a5aa047b7450f6ada7d92c2c1ddda719045bbe17225ce04e243"
+      "sha256": "e475a157f9fb95626ce046e01344cb9f75d150c1556a2e0cad231c23e0ad0159"
     },
     {
       "bytes": 455,
@@ -266,9 +266,9 @@
       "sha256": "b8befe367ea2654d22fd3b130f2ae92d94d98b67b994a65b0bca4bb862aba2a7"
     },
     {
-      "bytes": 370,
+      "bytes": 4170,
       "path": "adapters/openmm/ADAPTER.md",
-      "sha256": "d37d67e81dcf26b4225abfc05ba85a4a0843f003e231320f8cda972dd65c86eb"
+      "sha256": "4bf96e97b6f602b79815d6829fd08f4938286d514820bcbc10863852e3372c14"
     },
     {
       "bytes": 444,
@@ -276,9 +276,9 @@
       "sha256": "8ab2dc8755a0d2e06930cf0cb484ec139e79fde4d94eeb812a87dd2cf972a36c"
     },
     {
-      "bytes": 373,
+      "bytes": 4040,
       "path": "adapters/openmodelica/ADAPTER.md",
-      "sha256": "a2e930ea61060aae1b1055b1a087515e7a2b31996893b002c8cce9331ab6e1dc"
+      "sha256": "c171afe7edf28192c9ac8f5afee890517faab0b2dec339ad01d3a539ba66ba36"
     },
     {
       "bytes": 450,
@@ -286,9 +286,9 @@
       "sha256": "6b359d9abf9a1580a8ce71eb0be5365288c62094893f551ed998886a2ec23a95"
     },
     {
-      "bytes": 364,
+      "bytes": 4377,
       "path": "adapters/orca/ADAPTER.md",
-      "sha256": "d172f95b7464989cfa258221093643e2ece3bf2db1fbe60300c0258f2e71122e"
+      "sha256": "e060cfe49406bedc7ec45b09491302d95a30516cc9150b9e4192ce0fb69aa33d"
     },
     {
       "bytes": 434,
@@ -296,9 +296,9 @@
       "sha256": "e1823dead34900ea2904bcd1f82fc9ff600290dae99ea0154675edb0e3fdc930"
     },
     {
-      "bytes": 369,
+      "bytes": 3876,
       "path": "adapters/plumed/ADAPTER.md",
-      "sha256": "4c861920903ad0fcc103c444d94dded01c1a33e7fdd6460e57a7054006dcb1cf"
+      "sha256": "fe378bc402946ebe0caa5e538e4f627ea76354b6c8bf31d850420878d53db3c1"
     },
     {
       "bytes": 443,
@@ -306,9 +306,9 @@
       "sha256": "333656bfc5b98a26e4694635df0bef4e661b8916987f6773a426d7288f7c85c7"
     },
     {
-      "bytes": 367,
+      "bytes": 4380,
       "path": "adapters/psi4/ADAPTER.md",
-      "sha256": "d10468ea1cdfb0601bdcc23f47d5fe773975817b404ce4627f09398779d01dd0"
+      "sha256": "ff4221d250846bfb632c18a4efc54bea364043f26b239e21fbc23472fcac575a"
     },
     {
       "bytes": 437,
@@ -316,9 +316,9 @@
       "sha256": "7ab94f7168a6ba48547cea0f3375300600c8191412ed5db9cb05d38a27046238"
     },
     {
-      "bytes": 368,
+      "bytes": 4385,
       "path": "adapters/pyscf/ADAPTER.md",
-      "sha256": "f56786ae52025b480627e6b63713cea21a80b36cd40a9cb8f2249dcdc13d698b"
+      "sha256": "b6feeed406b6e712858ed9e90083d4f046acb2fdfb02c7f658d4fb9aad295b13"
     },
     {
       "bytes": 441,
@@ -326,9 +326,9 @@
       "sha256": "7cefc2ba184e5ab5e165115cf2a22ce97e83d96d6f68ed78780798044123964e"
     },
     {
-      "bytes": 374,
+      "bytes": 4352,
       "path": "adapters/quantum-espresso/ADAPTER.md",
-      "sha256": "36b5834b5639b688a6918c9a8558219a2756b3639d9aa0c3e4081d217fb29e3e"
+      "sha256": "dfe84e290a87f85328d66d2d8153ec3d1df11b8de8aad9fa8af019915cd238b9"
     },
     {
       "bytes": 456,
@@ -336,9 +336,9 @@
       "sha256": "aba8efa1c31b2392aac7260d64dd26d2f3afd2f0440f8dad85ab4552f6c691c4"
     },
     {
-      "bytes": 352,
+      "bytes": 4122,
       "path": "adapters/su2/ADAPTER.md",
-      "sha256": "c3647b9ac97a77e3a812fdda5635489662a1e99c3a1ccf98044ef4d3b8ef70e5"
+      "sha256": "3dd1701e6fbd0fb3277d7823709ebc6b8d9bbc4b99018bc45fe87977c6d831e7"
     },
     {
       "bytes": 424,
@@ -346,9 +346,9 @@
       "sha256": "1694f601bb4109bb6584a602c4a14da7ebf5a1c755b1e9ce3158173ebe7aabfe"
     },
     {
-      "bytes": 361,
+      "bytes": 4319,
       "path": "adapters/vasp/ADAPTER.md",
-      "sha256": "c95f9ef37a893fbd1fca6e9d012116c11acc4af8e5a9ae31aee4933f2202303f"
+      "sha256": "fd1b71dbc350e723665b4599fed1fa96841128442defd9d84ffd8dd853aa5cdd"
     },
     {
       "bytes": 435,
@@ -356,9 +356,9 @@
       "sha256": "8283e818921cb37cf2c8284bafba2e6835a35f6d8134eccc1872024fa177178b"
     },
     {
-      "bytes": 486,
+      "bytes": 484,
       "path": "benchmarks/latest.json",
-      "sha256": "b580cc533a7a569bfb41d2f5dbda32bbc99367414d7120947e2db360cb59ed8f"
+      "sha256": "d577a12c5cbe3d75ce3a4a4077080b9396e03797fd3e7dbb1a6260cdb2ad70a9"
     },
     {
       "bytes": 14680,
@@ -1206,6 +1206,11 @@
       "sha256": "b1dd2cc5ef6945ffe4462e168f86a5ea01a0f94906599b17e08f03eeaf433a49"
     },
     {
+      "bytes": 3587,
+      "path": "docs/coverage-matrix.md",
+      "sha256": "a5f7725469e714b793a7278194c8a7b36e8abede94fe0aa32c90221ee61e06f9"
+    },
+    {
       "bytes": 1229,
       "path": "docs/performance.md",
       "sha256": "fdb763ceb5a15727b0c584b2eb982b48d55d298518fa37fe33b78ae193c7101f"
@@ -1236,19 +1241,19 @@
       "sha256": "52f7f5c3360f7b6b49bc754f55be0581dabbf1b0d05851b87ba01e6cad9c9461"
     },
     {
-      "bytes": 985,
+      "bytes": 986,
       "path": "evidence/quality-baseline.json",
-      "sha256": "aae9ee156a59a56ebbf207263df24e0b417f44cc7fae3006c391a16cb07c0e0e"
+      "sha256": "29acdfc2861ea47cf79fd3a7b450c71f323f4ee293bfb97aefae45171482560e"
     },
     {
       "bytes": 88,
       "path": "evidence/quality-check.json",
-      "sha256": "c32d4ffa577773b5d0cfb048ff7d2ecd4c4f71479784f8a1b4f64750df908c43"
+      "sha256": "fe0d6d091d61a95200c64522248869ec974b0358645d28776de2d9eaf8b088b7"
     },
     {
       "bytes": 72,
       "path": "evidence/security-scan.json",
-      "sha256": "6a70f52615a2a8d2eb164b704487e8b7d9fc9109a9861fd4c175b29bb0d1a265"
+      "sha256": "e4b3bdd17e6f74bd1bc2daf1ffa9a034511f17d547003e815df760dffa0d8702"
     },
     {
       "bytes": 109,
@@ -1406,9 +1411,9 @@
       "sha256": "52f7f5c3360f7b6b49bc754f55be0581dabbf1b0d05851b87ba01e6cad9c9461"
     },
     {
-      "bytes": 6788,
+      "bytes": 7430,
       "path": "reports/REMOTE_FINALIZATION.json",
-      "sha256": "82750f137d1d15f921668a37aeb2a4eb6d8d106eeb924f6caa14711f5937bfe6"
+      "sha256": "c9615ed9b0cbf11b59240951afdead091487fdcaba74f4cf5dfc0225c8179700"
     },
     {
       "bytes": 225,
@@ -1426,9 +1431,9 @@
       "sha256": "9f5b4946709a76217f44c01a5cc13ed06ede62486fb2efdee8a390afdcee5f12"
     },
     {
-      "bytes": 944,
+      "bytes": 2043,
       "path": "schemas/calculation-contract.schema.json",
-      "sha256": "56d429364369190e7102d11212b70c0a36f87a5285e7d4e59af9d285fa234bda"
+      "sha256": "bf101cc304c03204f0150688662b1ab2245d8366ff71a84e825c8f25312881c7"
     },
     {
       "bytes": 1679,
@@ -1466,6 +1471,11 @@
       "sha256": "dac6687b6208d086de279e2cfe46fc14d191f0e0e2a99d4b3fc77cec025f2d48"
     },
     {
+      "bytes": 5793,
+      "path": "scripts/build_adapter_docs.py",
+      "sha256": "681512ee88e0532a24907c08ea354a3a3a709542b0e20f98638f080c3e0bc975"
+    },
+    {
       "bytes": 1028,
       "path": "scripts/build_capability_index.py",
       "sha256": "476ccf90100a676a948a15c241f954998c6f04b93f573a0c28290cca6fe29492"
@@ -1476,9 +1486,19 @@
       "sha256": "8809db67fc61d90ce43036af0b87f1c538a11ea037521aac34c120dba1a56384"
     },
     {
+      "bytes": 4596,
+      "path": "scripts/build_workflow_docs.py",
+      "sha256": "0c277ee6c4d7329801caf34a4fddfe7b0399d0c28b09226abedada214fcdf795"
+    },
+    {
       "bytes": 388,
       "path": "scripts/init_project.py",
       "sha256": "d6533be89cf18adbe00e36b75f3eded0ab086c7945092bc33bfd083696e20bc7"
+    },
+    {
+      "bytes": 6245,
+      "path": "scripts/install_skill.py",
+      "sha256": "1202138bdb55680605d3c41bae1152ca19c52b3012653b8ffa0d72d24556c719"
     },
     {
       "bytes": 3943,
@@ -1536,9 +1556,9 @@
       "sha256": "fa0616139c1859cdea40c7546ed624cf94dc72c6e7235d6ec6fcea415414bf19"
     },
     {
-      "bytes": 5684,
+      "bytes": 5872,
       "path": "scripts/verify_all.py",
-      "sha256": "40f161e50338beb91c1d0684801190aca78d1db07b04717a01a824045b10176f"
+      "sha256": "b999a71eedb07142e1af68a17eec6afa8528909f852c312bf2d5dd5de368ddc0"
     },
     {
       "bytes": 3251,
@@ -1546,109 +1566,109 @@
       "sha256": "98a951ce76dab0924146dab62dfc63a26c3c03bbc2530f3b1f943a67a131ce4c"
     },
     {
-      "bytes": 522,
+      "bytes": 3163,
       "path": "skills/workflows/catalysis/SKILL.md",
-      "sha256": "1fa7c1833578b87b4019441fb188f66b6f96fe8d6b7501ef59bf99e05c7db492"
+      "sha256": "3465b939aa3e04cd0467bfb37c076145a705a5b1ac5715d155788ab6f0e1ac92"
     },
     {
-      "bytes": 512,
+      "bytes": 3204,
       "path": "skills/workflows/cfd/SKILL.md",
-      "sha256": "9e83db78c620be127b63a106ad67fd7f45325f0b857f437b0f9c265123d0119c"
+      "sha256": "e99a25caebe89362eba8964e64da2afac32b2bd91c046d3303b4efa067efffaa"
     },
     {
-      "bytes": 530,
+      "bytes": 3006,
       "path": "skills/workflows/digital-twin/SKILL.md",
-      "sha256": "f969cfd06d173d46146f13e512e70e2529b0a05ee2fdd753424c1ffff73f0c83"
+      "sha256": "b94027a031f79669e70c702a17b46c082e441f0a42cfa8b119bfa6e7c5e07386"
     },
     {
-      "bytes": 540,
+      "bytes": 3094,
       "path": "skills/workflows/dynamic-control/SKILL.md",
-      "sha256": "625f344cddc296e142b45cd80feb809dd84fd80847784793ca6102b7f931d4ce"
+      "sha256": "f60580cb46e1d55ac0844cd89c5e699b21f273666dfc8276ac84f456cbf3e14a"
     },
     {
-      "bytes": 550,
+      "bytes": 2947,
       "path": "skills/workflows/enhanced-sampling/SKILL.md",
-      "sha256": "212b0e7ed979f434f873f1208daea876220bc6601530781a43283d4611ea7380"
+      "sha256": "bdab4f5e9ea0840407111a91669220d5779ab5c33169e7e5826194a9073ffb48"
     },
     {
-      "bytes": 532,
+      "bytes": 3041,
       "path": "skills/workflows/extrusion/SKILL.md",
-      "sha256": "de4a5a3c1d88bed584150fd3cf01977954aebfc50ed7c293e7753a986ef2c63f"
+      "sha256": "5c4af3a62493aaafbf4f413a965791d28ca962e54391b8a28de58505023469bd"
     },
     {
-      "bytes": 524,
+      "bytes": 3076,
       "path": "skills/workflows/finite-element/SKILL.md",
-      "sha256": "b4de66445fa19089d938721cc74596e64fa1831a74f210a79bc9c88baa5e3018"
+      "sha256": "4db87fe0d63ee88a6887af2bba76eb8aef0d36aa29275cce01b055dbacbe3fb9"
     },
     {
-      "bytes": 536,
+      "bytes": 3134,
       "path": "skills/workflows/hpc-execution/SKILL.md",
-      "sha256": "7f7e896b272adc21a17efae8bb13ce64f0b70c4f60192617ba8c209d5ecf9a25"
+      "sha256": "545a6775263c108e5d4f9b87c22ef95ea68f1c6f358db0e149472c542426571a"
     },
     {
-      "bytes": 580,
+      "bytes": 3023,
       "path": "skills/workflows/machine-learning-potential/SKILL.md",
-      "sha256": "13fbad81eb1d7684bbbb6f9c4a8046f0d99d6cb77d6f3ab411c64c20c71f3182"
+      "sha256": "80373ddfa5619999a6c7b59b306febc6626cf814263740cee42a33993ad68452"
     },
     {
-      "bytes": 522,
+      "bytes": 3230,
       "path": "skills/workflows/molecular-dynamics/SKILL.md",
-      "sha256": "51d0f30e4b1f78f805005766324c90a3beeb1c901a0cd9bf4ea348e364981d4d"
+      "sha256": "3161dc61462e953ca10c37e9e0090e075e69bc9905942b3fbf6fea84db4027ef"
     },
     {
-      "bytes": 514,
+      "bytes": 3105,
       "path": "skills/workflows/multiphysics/SKILL.md",
-      "sha256": "476419b180c05d5c372fc9e4caa53e5813693edd73b30781336e71d8d83fd227"
+      "sha256": "36dae0c07e62f9e8af2e008179de13ef4e915634803a992059e508f50b420fa7"
     },
     {
-      "bytes": 552,
+      "bytes": 3288,
       "path": "skills/workflows/multiscale-coupling/SKILL.md",
-      "sha256": "89d59acae67c74d95ee5219e7eaab001b41473bfc2e6aac9d19baa8838163872"
+      "sha256": "0b84df1f3e264f3b12c0723662fec10984d0bc980c8ae8d92314ac92910f7c3d"
     },
     {
-      "bytes": 526,
+      "bytes": 3454,
       "path": "skills/workflows/periodic-dft/SKILL.md",
-      "sha256": "bb845664956768407f5db348897d93c401da49269e6ea6ec6a3fbb29376bb7d3"
+      "sha256": "f93a90075208244ccbf2979c06bf25e8025e2f3b277b9d8bafbd3d57bbb34631"
     },
     {
-      "bytes": 550,
+      "bytes": 3368,
       "path": "skills/workflows/polymer-composite/SKILL.md",
-      "sha256": "fb176da1aeb3592a1b32599ddc4d718c6d626f54e8964701add1613f9d7c2b4d"
+      "sha256": "806ed9090fe9450291d028261dce39b50d0ebb541ec80adba3a2210018fd1d38"
     },
     {
-      "bytes": 556,
+      "bytes": 3253,
       "path": "skills/workflows/polymerization/SKILL.md",
-      "sha256": "8db243d56147076c8939ea1d4dd2f30966ccdf341718ddd60fb49c82a4a971cd"
+      "sha256": "f1caef3754ca9c12ce0fd0dc72e68593615e50e56bdc1721d1bb3cf43db84310"
     },
     {
-      "bytes": 552,
+      "bytes": 3317,
       "path": "skills/workflows/process-simulation/SKILL.md",
-      "sha256": "07dcf097c6d63412146b763451d8ac95fed3b5f5518f7c4c411e19b22629b4b2"
+      "sha256": "8ccfb4e4a5d88f220a21a0ea10d944c829c1f3db25231c1e23e8d26a58914ba6"
     },
     {
-      "bytes": 538,
+      "bytes": 3488,
       "path": "skills/workflows/quantum-chemistry/SKILL.md",
-      "sha256": "b7b72b57cc4809ca85004c5e4d3cb7c75286f18db5a08cbef5f140f722d439df"
+      "sha256": "6a086f7364f8a5431d254a7200879eeadb282e5f7f8294ab5fc7b60a754decb1"
     },
     {
-      "bytes": 536,
+      "bytes": 3015,
       "path": "skills/workflows/reaction-path/SKILL.md",
-      "sha256": "19301c7e5032f07919c95512f61f9cda408d51485a7cebb96538587e5d167c6d"
+      "sha256": "a4986ff13a242b9cda481e79c27d0c30a82779e57d57512ef395656a13cf0de0"
     },
     {
-      "bytes": 526,
+      "bytes": 3021,
       "path": "skills/workflows/reactor-engineering/SKILL.md",
-      "sha256": "e32274fb74132756b13fec88e71e8b05a608d0a159f6ac45fb8cdaeaed2b9938"
+      "sha256": "150db8fc3071918390952c53a64286a587dd0a601a31908639439c2f5d5f4bca"
     },
     {
-      "bytes": 532,
+      "bytes": 2886,
       "path": "skills/workflows/scale-selection/SKILL.md",
-      "sha256": "8ed03a74474b236b6893cb912668f42a3418234934e734a7400dfea6cd0fddd4"
+      "sha256": "338c328f48903504fa7d67695c60f4628a1f2ea76e892d5dd59eb2cf83d6a0a8"
     },
     {
-      "bytes": 290,
+      "bytes": 1755,
       "path": "templates/calculation-contract.json",
-      "sha256": "e378949c57f1b4ab0c3255565be54b265dd0de8174be3100d96d7b4fbd267316"
+      "sha256": "e0b933165589b51ee9468d3d7eb0a470e2214e7f1ae54c1c34f44cf4f4da8b78"
     },
     {
       "bytes": 351,
@@ -1671,9 +1691,19 @@
       "sha256": "9d19a7bec5f3ce82b407aac065e02e4bb1d9cb20b7bf8be3a0bb0c60d760ca40"
     },
     {
+      "bytes": 2504,
+      "path": "tests/test_contract_completeness.py",
+      "sha256": "6708c06a076eede4ee348c6ddf1111a7bf67a056c5b426d7b45a46688cc4fc61"
+    },
+    {
       "bytes": 5693,
       "path": "tests/test_core.py",
       "sha256": "347a3f828c4cf3943d876d1d29e71b0459a50d1ffb320ff3b338ac7ab9ea47be"
+    },
+    {
+      "bytes": 1719,
+      "path": "tests/test_documentation_completeness.py",
+      "sha256": "cb1051095bdc63af397867d358deb55ade1d4ff3c0d4d61130ccea7028f9282e"
     },
     {
       "bytes": 12857,
@@ -1684,6 +1714,11 @@
       "bytes": 2126,
       "path": "tests/test_generated_path_policy.py",
       "sha256": "0d520e20029e18776bd99a119987ca05aeeeb18628456484bd8d4006c1319c1e"
+    },
+    {
+      "bytes": 2350,
+      "path": "tests/test_install_skill.py",
+      "sha256": "22e89f02815b46ecd4e70204e4e0041c4547847b38f8741035e6f1a7d7cdad27"
     },
     {
       "bytes": 1159,
@@ -1731,9 +1766,9 @@
       "sha256": "a8f4346aa92790f512c001f5a7365b9ca69d8905a723b7611dee73cdb3489102"
     },
     {
-      "bytes": 2951,
+      "bytes": 3208,
       "path": "tsao_computation/cli.py",
-      "sha256": "fc7ab160383daf32f454ed92aa9fa87591298bc77e319277fac193ae9acb1917"
+      "sha256": "cdcc8b32d185e54654560337317dd5698cb56be26563c0c823b7a4bac4a6bd7e"
     },
     {
       "bytes": 181,
@@ -1741,9 +1776,9 @@
       "sha256": "79f24109e2800a6479d76dab0eb80ae19d8fe988f2d710a9e3ca5ca985299c74"
     },
     {
-      "bytes": 2019,
+      "bytes": 6733,
       "path": "tsao_computation/contracts/calculation.py",
-      "sha256": "009b82ef2f1eebcc36305087c59c6c0f137129fed24a5b0f5d9c8f2ae11addb3"
+      "sha256": "64acd965218e3227fe1a3cbced5c98a46f29f11f913c5e15b91d12d1ce438209"
     },
     {
       "bytes": 1035,

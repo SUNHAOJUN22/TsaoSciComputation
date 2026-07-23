@@ -18,19 +18,19 @@
   "capabilities": 164,
   "claim_boundary": "No live third-party solver, commercial-license environment, or production HPC execution is claimed.",
   "coverage": {
-    "covered_branches": 202,
-    "covered_lines": 699,
+    "covered_branches": 224,
+    "covered_lines": 747,
     "excluded_lines": 0,
-    "missing_branches": 8,
-    "missing_lines": 11,
-    "num_branches": 210,
-    "num_partial_branches": 8,
-    "num_statements": 710,
-    "percent_branches_covered": 96.19047619047619,
-    "percent_branches_covered_display": "96",
-    "percent_covered": 97.93478260869566,
-    "percent_covered_display": "98",
-    "percent_statements_covered": 98.45070422535211,
+    "missing_branches": 16,
+    "missing_lines": 19,
+    "num_branches": 240,
+    "num_partial_branches": 16,
+    "num_statements": 766,
+    "percent_branches_covered": 93.33333333333333,
+    "percent_branches_covered_display": "93",
+    "percent_covered": 96.52087475149105,
+    "percent_covered_display": "97",
+    "percent_statements_covered": 97.51958224543081,
     "percent_statements_covered_display": "98"
   },
   "generated_path_policy": {
@@ -315,16 +315,34 @@
     "status": "VALIDATED",
     "temporary_branch_created": false
   },
+  "requirements_traceability": {
+    "adapter_docs": 27,
+    "core_adapters": 27,
+    "directly_or_combined_covered_engine_rows": 21,
+    "installer": "VALIDATED",
+    "non_standalone_engine_rows": 11,
+    "repository_capabilities": 164,
+    "root_skill": "VALIDATED",
+    "source_requirement_document": "TsaoSciComputation.docx",
+    "status": "VALIDATED",
+    "strict_contract": "VALIDATED",
+    "uploaded_catalog_entries": 322,
+    "uploaded_catalog_file": "AI_for_Science_\u6700\u5168Skill\u76ee\u5f55(2).xlsx",
+    "uploaded_computational_subset": 164,
+    "uploaded_engine_rows": 32,
+    "workflow_docs": 20,
+    "workflows": 20
+  },
   "runtime_dependencies": 0,
   "security": {
-    "files_scanned": 384,
+    "files_scanned": 391,
     "findings": 0
   },
   "status": "VALIDATED",
   "tests": {
     "errors": 0,
     "failures": 0,
-    "passed": 443
+    "passed": 455
   },
   "version": "3.0.0",
   "workflows": 20
