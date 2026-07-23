@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import shutil
 import sys
 import tempfile
-from pathlib import Path
+from pathlib import Path, PurePosixPath
+from typing import Any
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 if str(REPOSITORY_ROOT) not in sys.path:
@@ -37,17 +39,125 @@ def resolve_destination(
     return (base / AGENT_ROOTS[agent] / SKILL_NAME).resolve()
 
 
+def _sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _manifest_entries(destination: Path, problems: list[str]) -> dict[str, dict[str, Any]]:
+    manifest_path = destination / "manifest.json"
+    if not manifest_path.is_file():
+        return {}
+    try:
+        payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+        problems.append(f"invalid manifest.json: {exc}")
+        return {}
+    if not isinstance(payload, dict) or not isinstance(payload.get("files"), list):
+        problems.append("manifest.json must contain a files array")
+        return {}
+
+    entries: dict[str, dict[str, Any]] = {}
+    for index, item in enumerate(payload["files"]):
+        if not isinstance(item, dict):
+            problems.append(f"manifest entry {index} is not an object")
+            continue
+        raw_path = item.get("path")
+        byte_count = item.get("bytes")
+        digest = item.get("sha256")
+        if not isinstance(raw_path, str) or not raw_path or "\\" in raw_path:
+            problems.append(f"manifest entry {index} has an invalid path")
+            continue
+        relative = PurePosixPath(raw_path)
+        if relative.is_absolute() or ".." in relative.parts or relative.as_posix() != raw_path:
+            problems.append(f"manifest entry {index} escapes the installation root: {raw_path}")
+            continue
+        if raw_path in entries:
+            problems.append(f"duplicate manifest path: {raw_path}")
+            continue
+        if not isinstance(byte_count, int) or byte_count < 0:
+            problems.append(f"manifest entry has invalid byte count: {raw_path}")
+            continue
+        if (
+            not isinstance(digest, str)
+            or len(digest) != 64
+            or any(character not in "0123456789abcdef" for character in digest)
+        ):
+            problems.append(f"manifest entry has invalid SHA-256: {raw_path}")
+            continue
+        entries[raw_path] = item
+    return entries
+
+
 def validate_installation(destination: Path) -> list[str]:
+    destination = destination.resolve()
     problems: list[str] = []
-    required = ("SKILL.md", "VERSION", "manifest.json", "scripts/verify_all.py")
+    if not destination.is_dir():
+        return [f"installation directory does not exist: {destination}"]
+
+    required = (
+        "SKILL.md",
+        "VERSION",
+        "manifest.json",
+        "scripts/verify_all.py",
+        RECEIPT_NAME,
+    )
     for relative in required:
         if not (destination / relative).is_file():
             problems.append(f"missing required file: {relative}")
+
     skill_path = destination / "SKILL.md"
     if skill_path.is_file():
         text = skill_path.read_text(encoding="utf-8")
         if "name: TsaoSciComputation" not in text:
             problems.append("SKILL.md does not register TsaoSciComputation")
+
+    version = None
+    version_path = destination / "VERSION"
+    if version_path.is_file():
+        version = version_path.read_text(encoding="utf-8").strip()
+
+    receipt_path = destination / RECEIPT_NAME
+    if receipt_path.is_file():
+        try:
+            receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+            problems.append(f"invalid installation receipt: {exc}")
+        else:
+            if not isinstance(receipt, dict) or receipt.get("skill") != SKILL_NAME:
+                problems.append("installation receipt does not belong to TsaoSciComputation")
+            elif version is not None and receipt.get("version") != version:
+                problems.append("installation receipt version differs from VERSION")
+
+    entries = _manifest_entries(destination, problems)
+    for relative, item in entries.items():
+        target = destination.joinpath(*PurePosixPath(relative).parts)
+        if target.is_symlink():
+            problems.append(f"installed file is a symlink: {relative}")
+        elif not target.is_file():
+            problems.append(f"manifest file is missing: {relative}")
+        else:
+            expected_bytes = int(item["bytes"])
+            expected_hash = str(item["sha256"])
+            if target.stat().st_size != expected_bytes:
+                problems.append(f"installed file size differs from manifest: {relative}")
+            if _sha256(target) != expected_hash:
+                problems.append(f"installed file hash differs from manifest: {relative}")
+
+    actual_files: set[str] = set()
+    for path in iter_repository_entries(destination):
+        relative = path.relative_to(destination).as_posix()
+        if path.is_symlink():
+            problems.append(f"installation contains a symlink: {relative}")
+        elif path.is_file():
+            actual_files.add(relative)
+    allowed_unlisted = {"manifest.json", RECEIPT_NAME}
+    extras = sorted(actual_files - entries.keys() - allowed_unlisted)
+    if extras:
+        problems.append(f"unlisted files are present: {extras}")
     return problems
 
 
