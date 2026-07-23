@@ -32,6 +32,11 @@ def build_parser() -> argparse.ArgumentParser:
     initialize.add_argument("--question", required=True)
     contract = subparsers.add_parser("validate-contract")
     contract.add_argument("path", type=Path)
+    contract.add_argument(
+        "--strict",
+        action="store_true",
+        help="require every field needed before solver preflight",
+    )
     repository = subparsers.add_parser("validate-repository")
     repository.add_argument("--root", type=Path, default=Path("."))
     return parser
@@ -62,7 +67,10 @@ def main(argv: list[str] | None = None) -> int:
             from .contracts import CalculationContract
 
             payload = json.loads(args.path.read_text(encoding="utf-8"))
-            _json(CalculationContract.from_dict(payload).to_dict())
+            parsed = CalculationContract.from_dict(payload)
+            if args.strict:
+                parsed.assert_ready_for_preflight()
+            _json(parsed.to_dict())
         elif args.command == "validate-repository":
             from .repository_audit import audit_repository
 
