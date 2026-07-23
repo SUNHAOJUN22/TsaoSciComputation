@@ -6,14 +6,14 @@
     "controlled_mutants_killed": 64,
     "controlled_mutants_survived": 0,
     "tests_failed": 0,
-    "tests_passed": 455,
+    "tests_passed": 514,
     "workflows": 20
   },
   "coverage": {
-    "branches_percent": 93.33333333333333,
-    "missing_branches": 16,
-    "missing_statements": 19,
-    "statements_percent": 97.51958224543081
+    "branches_percent": 93.05555555555556,
+    "missing_branches": 20,
+    "missing_statements": 27,
+    "statements_percent": 97.02315325248071
   },
   "packaging": {
     "source_tar_gz_byte_identical_rebuild": true,

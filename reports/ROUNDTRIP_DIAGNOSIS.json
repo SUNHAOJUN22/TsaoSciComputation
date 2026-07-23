@@ -1,8 +1,0 @@
-{
-  "branch": "main",
-  "exit_code": 0,
-  "log_tail": "STAGE=PASS\n",
-  "schema_version": "1.0",
-  "stage": "PASS",
-  "temporary_branch_created": false
-}

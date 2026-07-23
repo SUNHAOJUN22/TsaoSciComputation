@@ -1,12 +1,12 @@
 {
-  "adapter_registry_cold_median_ms": 0.159,
-  "capability_registry_cached_median_ms": 0.0006,
-  "capability_registry_cold_median_ms": 3.199,
+  "adapter_registry_cold_median_ms": 0.181,
+  "capability_registry_cached_median_ms": 0.0005,
+  "capability_registry_cold_median_ms": 3.239,
   "claim_boundary": "Local orchestration microbenchmarks; no solver execution measured.",
-  "cli_import_median_ms": 16.0,
-  "parser_5mib_throughput_mib_s": 643.96,
+  "cli_import_median_ms": 15.607,
+  "parser_5mib_throughput_mib_s": 15.39,
   "python": "3.13.14 (main, Jun 11 2026, 03:02:07) [GCC 13.3.0]",
-  "route_decision_median_ms": 0.1288,
+  "route_decision_median_ms": 0.1232,
   "schema_version": "1.0",
-  "workflow_registry_cold_median_ms": 0.226
+  "workflow_registry_cold_median_ms": 0.245
 }

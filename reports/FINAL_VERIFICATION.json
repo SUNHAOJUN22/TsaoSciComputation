@@ -1,8 +1,21 @@
 {
+  "branch": "main",
+  "branch_coverage_percent": 93.05555555555556,
+  "controlled_mutants": "64/64",
+  "python_310_core": "PASS",
+  "python_313_quality_core_package_benchmark": "PASS",
+  "remote_branches": [
+    "main"
+  ],
   "schema_version": "1.0",
-  "status": "FAILED",
-  "python_310_core": "success",
-  "python_313_release": "failure",
+  "security_findings": 0,
+  "skill_install_validate_uninstall": true,
+  "source_archives_reproducible": true,
+  "statement_coverage_percent": 97.02315325248071,
+  "status": "VALIDATED",
   "temporary_branch_created": false,
-  "branch": "main"
+  "tests_failed": 0,
+  "tests_passed": 514,
+  "verified_at_utc": "2026-07-23T17:32:50.274251+00:00",
+  "wheel_reproducible_and_isolated_install": true
 }

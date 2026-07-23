@@ -1,51 +1,6 @@
 {
   "files": [
     {
-      "bytes": 34,
-      "path": ".adapter-probe-metadata-trigger",
-      "sha256": "ef0e6dfd2f131d631b9019904d08437bce9d525343b0a8a4fc516380ad14dc97"
-    },
-    {
-      "bytes": 36,
-      "path": ".final-diagnosis-trigger",
-      "sha256": "99a4d7346f308d5a3f09d74521aeecf8646c461d3daed6ad662c0cbd693bddd4"
-    },
-    {
-      "bytes": 41,
-      "path": ".final-fast-trigger",
-      "sha256": "31015e02b63cd6dae16da21e1d5afa93cd57b0daf47ee13b76b6a98999c0cf90"
-    },
-    {
-      "bytes": 92,
-      "path": ".final-hardening-status.json",
-      "sha256": "a198df69835141e56b6c32f88a2731541a040b6cf5ca23cfa5b1106d2d35bd61"
-    },
-    {
-      "bytes": 42,
-      "path": ".final-hardening-trigger",
-      "sha256": "508a59198e1238011a0e4b79e4c7132ae8ef75cfc8b55c96bac6056fc5af10af"
-    },
-    {
-      "bytes": 42,
-      "path": ".final-parallel-trigger",
-      "sha256": "9923bef7b42474a08950cd758bc93390e4b5e3a0a5ef1bedd13ecc5809cdaa34"
-    },
-    {
-      "bytes": 34,
-      "path": ".final-repair-trigger",
-      "sha256": "9009e348ded1364d7a278591071fd4b9bd7bc55b93dce68ede47afec7af61417"
-    },
-    {
-      "bytes": 2723,
-      "path": ".github/workflows/adapter-probe-metadata.yml",
-      "sha256": "65464288427b314528dab4ef2057b7d69b02fc3761a4103975086c6f25c6c176"
-    },
-    {
-      "bytes": 2970,
-      "path": ".github/workflows/apply-final-repair.yml",
-      "sha256": "ca68b5fa9c1718eb0199f6e604288cc879858baefb8ad47aba6df2ccfab09620"
-    },
-    {
       "bytes": 2528,
       "path": ".github/workflows/ci.yml",
       "sha256": "0ace1dacfe9e2058d47f3e7ca21b0a7edc8d5b853e1c9a93c65d7dda55ff4a79"
@@ -56,46 +11,6 @@
       "sha256": "af58a03ac70f1f182d779202b62d89bc3ebcb3496e98cdd0a8632a3ff2fb8678"
     },
     {
-      "bytes": 6145,
-      "path": ".github/workflows/final-diagnosis.yml",
-      "sha256": "c1c0275d8fabc4903324186aa345b58e8d3d23366dfbd3393fc7bbca1ca41430"
-    },
-    {
-      "bytes": 8621,
-      "path": ".github/workflows/final-fast-hardening.yml",
-      "sha256": "33d731a68cb1d5c2ef334ff456d98e024b5a24408b7fe35214eba267f812678d"
-    },
-    {
-      "bytes": 14689,
-      "path": ".github/workflows/final-hardening.yml",
-      "sha256": "e792504d5595fec27b88b56a570e8dcd72345fd8bca39ae9ea07a992315636f3"
-    },
-    {
-      "bytes": 13103,
-      "path": ".github/workflows/final-parallel-verification.yml",
-      "sha256": "ff827378386421781db4c3e120258fb9f92639d2127dcbb3dcdfec727b23c3fd"
-    },
-    {
-      "bytes": 5998,
-      "path": ".github/workflows/hardening-core-diagnose.yml",
-      "sha256": "7c6a704f0904396e181a3480ce88b66e78138378e7221d3791362cf0d3aa9069"
-    },
-    {
-      "bytes": 5463,
-      "path": ".github/workflows/hardening-diagnose.yml",
-      "sha256": "4bff96e71cb3134775507f14dc00598a0b5abb394db8a692407797f66b0da2c0"
-    },
-    {
-      "bytes": 5730,
-      "path": ".github/workflows/hardening-quality-diagnose.yml",
-      "sha256": "70c9da337df8745fd26811bcecf96e0f21e10ee0915016950d45e0b10239f9cc"
-    },
-    {
-      "bytes": 4924,
-      "path": ".github/workflows/hardening-test-diagnose.yml",
-      "sha256": "47be8b2c7579d90fa3dc036cad201d68cffe6494176a27122c1924016a7c2377"
-    },
-    {
       "bytes": 874,
       "path": ".github/workflows/release.yml",
       "sha256": "f097165eb296115a25f5ba383f9c52aa18992ab9571455e56ba0b48ee3923e63"
@@ -104,41 +19,6 @@
       "bytes": 193,
       "path": ".gitignore",
       "sha256": "41921195cf7559c3e08c29f18ce376c2b2a5cbbd7c69176e3f43f1db376d2e97"
-    },
-    {
-      "bytes": 83,
-      "path": ".hardening-core-status.json",
-      "sha256": "52f92d64a7f27e2dd1e3d537722550bdc3e56f0099439511c58c4efb92153311"
-    },
-    {
-      "bytes": 26,
-      "path": ".hardening-core-trigger",
-      "sha256": "c9272ce2f5496406ccee2b15b99b337dc5de540559602e1aa0299e75ecbfd269"
-    },
-    {
-      "bytes": 73,
-      "path": ".hardening-diagnose-status.json",
-      "sha256": "65aeeef651b3d0f690d002e3c422547c09f28e8313804703f78339d5f1f01c05"
-    },
-    {
-      "bytes": 33,
-      "path": ".hardening-diagnose-trigger",
-      "sha256": "7bc8a16c842c9b1e5ffca4d609a7be5305ee8faded8451f90a259610099f4e21"
-    },
-    {
-      "bytes": 76,
-      "path": ".hardening-quality-status.json",
-      "sha256": "6a664bab5893449f3c111447cfe398adb010984231b0b01606f7bdfd4badf313"
-    },
-    {
-      "bytes": 32,
-      "path": ".hardening-quality-trigger",
-      "sha256": "ddef43baef847a28bf4cc9535f81942f9b1cdc7437b4c96bde18a644bddb677d"
-    },
-    {
-      "bytes": 29,
-      "path": ".hardening-test-trigger",
-      "sha256": "0a0c715241a4a986fcc5d9b11a7dbaedede095943f709f930ec01cac96c490b3"
     },
     {
       "bytes": 184,
@@ -178,12 +58,12 @@
     {
       "bytes": 4689,
       "path": "README.md",
-      "sha256": "e4ee2badd76f863ecd5d6c1f20fd4f9ba4009f356804bda77f16c04ffeaaa76c"
+      "sha256": "93c3de490d422f070f32a27e2564fcc6335b73bca5b59e808746d3c08e365e4f"
     },
     {
       "bytes": 4191,
       "path": "README.zh-CN.md",
-      "sha256": "a339910640fb85dd99fae082b01b7767658ebde6ccd489a7855ab2bba14c2a59"
+      "sha256": "4cb381111043c449e34c9ae80c23092d9f77d27f888f6479d4b68a4d51e2358f"
     },
     {
       "bytes": 537,
@@ -481,9 +361,9 @@
       "sha256": "8283e818921cb37cf2c8284bafba2e6835a35f6d8134eccc1872024fa177178b"
     },
     {
-      "bytes": 484,
+      "bytes": 485,
       "path": "benchmarks/latest.json",
-      "sha256": "d577a12c5cbe3d75ce3a4a4077080b9396e03797fd3e7dbb1a6260cdb2ad70a9"
+      "sha256": "a157ac13530219646c4dd6e12eee1d831bb4e37c6d8679b26ec28a3c9e5c38af"
     },
     {
       "bytes": 14680,
@@ -1368,7 +1248,7 @@
     {
       "bytes": 986,
       "path": "evidence/quality-baseline.json",
-      "sha256": "29acdfc2861ea47cf79fd3a7b450c71f323f4ee293bfb97aefae45171482560e"
+      "sha256": "b7f36b25e738cfc00ea6b1321605dae3948f390c25a7a6557c0db852e82d866b"
     },
     {
       "bytes": 88,
@@ -1378,7 +1258,7 @@
     {
       "bytes": 72,
       "path": "evidence/security-scan.json",
-      "sha256": "1e7c44916a3545b05783b9e374e552bbbee27b31c268a63711d4c98d4afdbc2b"
+      "sha256": "7191a4e5044b36f5bfe797a27be607ba4ee163894374c8931a3b94fa6af2c117"
     },
     {
       "bytes": 573,
@@ -1531,19 +1411,9 @@
       "sha256": "4b1ea5595c760a27cc64a959eee5de1ae0574967d01a86e740ab0d56cf2412b3"
     },
     {
-      "bytes": 2959,
-      "path": "reports/FINAL_DIAGNOSIS.json",
-      "sha256": "e451b0112c2212228870dee68072de016aef8efe1f957708a722e6e57af66db8"
-    },
-    {
-      "bytes": 2775,
-      "path": "reports/FINAL_DIAGNOSIS.md",
-      "sha256": "3489835a3b7f13a79d8fb66ebe4eaba81edabbdb3af421c1706d9d851808a9b1"
-    },
-    {
-      "bytes": 176,
+      "bytes": 629,
       "path": "reports/FINAL_VERIFICATION.json",
-      "sha256": "86a0a50941db4dbc1776740416ddf32633d2ab0512c9deb08604f2ce3c3f1e16"
+      "sha256": "dc4aa3fe7521b474429f1cb713a4663e9d3d9862251c6e58ec4b5f4ff980c9f7"
     },
     {
       "bytes": 4414,
@@ -1551,9 +1421,9 @@
       "sha256": "52f7f5c3360f7b6b49bc754f55be0581dabbf1b0d05851b87ba01e6cad9c9461"
     },
     {
-      "bytes": 7430,
+      "bytes": 7742,
       "path": "reports/REMOTE_FINALIZATION.json",
-      "sha256": "c9615ed9b0cbf11b59240951afdead091487fdcaba74f4cf5dfc0225c8179700"
+      "sha256": "59b446cb155e742423bcb9661018fa5a4d4f3ad2d0e03200728eaba824d8fb6f"
     },
     {
       "bytes": 225,
