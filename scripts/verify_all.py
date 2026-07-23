@@ -74,6 +74,7 @@ def verify_quality() -> int:
             ("Bandit", (PYTHON, "-m", "bandit", "-q", "-r", "tsao_computation", "scripts")),
             ("repository security scan", (PYTHON, "scripts/security_scan.py")),
             ("controlled mutation gate", (PYTHON, "scripts/run_mutation_gate.py")),
+            ("refresh repository manifest", (PYTHON, "scripts/build_manifest.py")),
         )
     )
 
