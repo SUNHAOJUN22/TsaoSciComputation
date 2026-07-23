@@ -70,7 +70,10 @@ class ScientificStateMachine:
             raise StateTransitionError("state transitions require evidence")
         normalized = canonical_state(target)
         if normalized not in STATES or not self.can_transition(normalized):
-            raise StateTransitionError(f"illegal transition: {self.state} -> {normalized}")
+            allowed = sorted(TRANSITIONS[self.state])
+            raise StateTransitionError(
+                f"illegal transition: {self.state} -> {normalized}; allowed targets: {allowed}"
+            )
         event = {
             "from": self.state,
             "to": normalized,
