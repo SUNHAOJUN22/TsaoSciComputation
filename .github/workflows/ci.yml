@@ -12,6 +12,9 @@ concurrency:
   group: final-dual-version-repository-audit
   cancel-in-progress: true
 
+env:
+  FINAL_CI_BASE64: bmFtZTogQ0kKCm9uOgogIHdvcmtmbG93X2Rpc3BhdGNoOgogIHB1bGxfcmVxdWVzdDoKICAgIGJyYW5jaGVzOiBbbWFpbl0KICBwdXNoOgogICAgYnJhbmNoZXM6IFttYWluXQoKcGVybWlzc2lvbnM6CiAgY29udGVudHM6IHJlYWQKCmNvbmN1cnJlbmN5OgogIGdyb3VwOiBjaS0ke3sgZ2l0aHViLndvcmtmbG93IH19LSR7eyBnaXRodWIucmVmIH19CiAgY2FuY2VsLWluLXByb2dyZXNzOiB0cnVlCgpqb2JzOgogIGNvcmU6CiAgICBzdHJhdGVneToKICAgICAgZmFpbC1mYXN0OiBmYWxzZQogICAgICBtYXRyaXg6CiAgICAgICAgb3M6IFt1YnVudHUtbGF0ZXN0LCB3aW5kb3dzLWxhdGVzdCwgbWFjb3MtbGF0ZXN0XQogICAgICAgIHB5dGhvbjogWyczLjEwJywgJzMuMTMnXQogICAgcnVucy1vbjogJHt7IG1hdHJpeC5vcyB9fQogICAgdGltZW91dC1taW51dGVzOiAyMAogICAgc3RlcHM6CiAgICAgIC0gdXNlczogYWN0aW9ucy9jaGVja291dEAzNGUxMTQ4NzZiMGIxMWMzOTBhNTYzODFhZDE2ZWJkMTM5MTRmOGQ1CiAgICAgICAgd2l0aDoKICAgICAgICAgIHBlcnNpc3QtY3JlZGVudGlhbHM6IGZhbHNlCiAgICAgIC0gdXNlczogYWN0aW9ucy9zZXR1cC1weXRob25AYTMwOWZmOGI0MjZiNThlYzBlMmE0NWYwZjg2OWQ0Njg4OWQwMjQwNQogICAgICAgIHdpdGg6CiAgICAgICAgICBweXRob24tdmVyc2lvbjogJHt7IG1hdHJpeC5weXRob24gfX0KICAgICAgICAgIGNhY2hlOiBwaXAKICAgICAgLSBydW46IHB5dGhvbiAtbSBwaXAgaW5zdGFsbCAtZSAnLlt2YWxpZGF0aW9uLHF1YWxpdHldJwogICAgICAtIHJ1bjogcHl0aG9uIHNjcmlwdHMvdmVyaWZ5X2FsbC5weSAtLXByb2ZpbGUgY29yZQoKICBxdWFsaXR5OgogICAgcnVucy1vbjogdWJ1bnR1LWxhdGVzdAogICAgdGltZW91dC1taW51dGVzOiAyMAogICAgc3RlcHM6CiAgICAgIC0gdXNlczogYWN0aW9ucy9jaGVja291dEAzNGUxMTQ4NzZiMGIxMWMzOTBhNTYzODFhZDE2ZWJkMTM5MTRmOGQ1CiAgICAgICAgd2l0aDoKICAgICAgICAgIHBlcnNpc3QtY3JlZGVudGlhbHM6IGZhbHNlCiAgICAgIC0gdXNlczogYWN0aW9ucy9zZXR1cC1weXRob25AYTMwOWZmOGI0MjZiNThlYzBlMmE0NWYwZjg2OWQ0Njg4OWQwMjQwNQogICAgICAgIHdpdGg6CiAgICAgICAgICBweXRob24tdmVyc2lvbjogJzMuMTMnCiAgICAgICAgICBjYWNoZTogcGlwCiAgICAgIC0gcnVuOiBweXRob24gLW0gcGlwIGluc3RhbGwgLWUgJy5bdmFsaWRhdGlvbixxdWFsaXR5XScKICAgICAgLSBydW46IHB5dGhvbiBzY3JpcHRzL3ZlcmlmeV9hbGwucHkgLS1wcm9maWxlIHF1YWxpdHkKICAgICAgLSBydW46IHB5dGhvbiBzY3JpcHRzL3ZlcmlmeV9hbGwucHkgLS1wcm9maWxlIGJlbmNobWFyawoKICBwYWNrYWdlOgogICAgcnVucy1vbjogdWJ1bnR1LWxhdGVzdAogICAgdGltZW91dC1taW51dGVzOiAyNQogICAgc3RlcHM6CiAgICAgIC0gdXNlczogYWN0aW9ucy9jaGVja291dEAzNGUxMTQ4NzZiMGIxMWMzOTBhNTYzODFhZDE2ZWJkMTM5MTRmOGQ1CiAgICAgICAgd2l0aDoKICAgICAgICAgIHBlcnNpc3QtY3JlZGVudGlhbHM6IGZhbHNlCiAgICAgIC0gdXNlczogYWN0aW9ucy9zZXR1cC1weXRob25AYTMwOWZmOGI0MjZiNThlYzBlMmE0NWYwZjg2OWQ0Njg4OWQwMjQwNQogICAgICAgIHdpdGg6CiAgICAgICAgICBweXRob24tdmVyc2lvbjogJzMuMTMnCiAgICAgIC0gcnVuOiBweXRob24gLW0gcGlwIGluc3RhbGwgLWUgJy5bdmFsaWRhdGlvbixxdWFsaXR5XScKICAgICAgLSBydW46IHB5dGhvbiBzY3JpcHRzL3ZlcmlmeV9hbGwucHkgLS1wcm9maWxlIHBhY2thZ2UKICAgICAgLSB1c2VzOiBhY3Rpb25zL3VwbG9hZC1hcnRpZmFjdEAwNDNmYjQ2ZDFhOTNjNzdhYWU2NTZlN2MxYzY0YTg3NWQxZmM2YTBhCiAgICAgICAgd2l0aDoKICAgICAgICAgIG5hbWU6IFRzYW9TY2lDb21wdXRhdGlvbi1yZWxlYXNlLWNhbmRpZGF0ZQogICAgICAgICAgcGF0aDogZGlzdC8qCiAgICAgICAgICBpZi1uby1maWxlcy1mb3VuZDogZXJyb3IKICAgICAgICAgIHJldGVudGlvbi1kYXlzOiAxNAo=
+
 jobs:
   python310-release:
     runs-on: ubuntu-latest
@@ -40,78 +43,7 @@ jobs:
             .python310-compatibility-status.json \
             .final-python-compatibility-trigger \
             .final-ci-audit-trigger
-          cat > .github/workflows/ci.yml <<'FINAL_CI'
-          name: CI
-
-          on:
-            workflow_dispatch:
-            pull_request:
-              branches: [main]
-            push:
-              branches: [main]
-
-          permissions:
-            contents: read
-
-          concurrency:
-            group: ci-${{ github.workflow }}-${{ github.ref }}
-            cancel-in-progress: true
-
-          jobs:
-            core:
-              strategy:
-                fail-fast: false
-                matrix:
-                  os: [ubuntu-latest, windows-latest, macos-latest]
-                  python: ['3.10', '3.13']
-              runs-on: ${{ matrix.os }}
-              timeout-minutes: 20
-              steps:
-                - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
-                  with:
-                    persist-credentials: false
-                - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
-                  with:
-                    python-version: ${{ matrix.python }}
-                    cache: pip
-                - run: python -m pip install -e '.[validation,quality]'
-                - run: python scripts/verify_all.py --profile core
-
-            quality:
-              runs-on: ubuntu-latest
-              timeout-minutes: 20
-              steps:
-                - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
-                  with:
-                    persist-credentials: false
-                - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
-                  with:
-                    python-version: '3.13'
-                    cache: pip
-                - run: python -m pip install -e '.[validation,quality]'
-                - run: python scripts/verify_all.py --profile quality
-                - run: python scripts/verify_all.py --profile benchmark
-
-            package:
-              runs-on: ubuntu-latest
-              timeout-minutes: 25
-              steps:
-                - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
-                  with:
-                    persist-credentials: false
-                - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
-                  with:
-                    python-version: '3.13'
-                - run: python -m pip install -e '.[validation,quality]'
-                - run: python scripts/verify_all.py --profile package
-                - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
-                  with:
-                    name: TsaoSciComputation-release-candidate
-                    path: dist/*
-                    if-no-files-found: error
-                    retention-days: 14
-          FINAL_CI
-          sed -i 's/^          //' .github/workflows/ci.yml
+          printf '%s' "$FINAL_CI_BASE64" | base64 --decode > .github/workflows/ci.yml
           python -m pip install -e '.[validation,quality]'
           python scripts/verify_all.py --profile quality
           python scripts/build_manifest.py
@@ -148,78 +80,7 @@ jobs:
             .python310-compatibility-status.json \
             .final-python-compatibility-trigger \
             .final-ci-audit-trigger
-          cat > .github/workflows/ci.yml <<'FINAL_CI'
-          name: CI
-
-          on:
-            workflow_dispatch:
-            pull_request:
-              branches: [main]
-            push:
-              branches: [main]
-
-          permissions:
-            contents: read
-
-          concurrency:
-            group: ci-${{ github.workflow }}-${{ github.ref }}
-            cancel-in-progress: true
-
-          jobs:
-            core:
-              strategy:
-                fail-fast: false
-                matrix:
-                  os: [ubuntu-latest, windows-latest, macos-latest]
-                  python: ['3.10', '3.13']
-              runs-on: ${{ matrix.os }}
-              timeout-minutes: 20
-              steps:
-                - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
-                  with:
-                    persist-credentials: false
-                - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
-                  with:
-                    python-version: ${{ matrix.python }}
-                    cache: pip
-                - run: python -m pip install -e '.[validation,quality]'
-                - run: python scripts/verify_all.py --profile core
-
-            quality:
-              runs-on: ubuntu-latest
-              timeout-minutes: 20
-              steps:
-                - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
-                  with:
-                    persist-credentials: false
-                - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
-                  with:
-                    python-version: '3.13'
-                    cache: pip
-                - run: python -m pip install -e '.[validation,quality]'
-                - run: python scripts/verify_all.py --profile quality
-                - run: python scripts/verify_all.py --profile benchmark
-
-            package:
-              runs-on: ubuntu-latest
-              timeout-minutes: 25
-              steps:
-                - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
-                  with:
-                    persist-credentials: false
-                - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
-                  with:
-                    python-version: '3.13'
-                - run: python -m pip install -e '.[validation,quality]'
-                - run: python scripts/verify_all.py --profile package
-                - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
-                  with:
-                    name: TsaoSciComputation-release-candidate
-                    path: dist/*
-                    if-no-files-found: error
-                    retention-days: 14
-          FINAL_CI
-          sed -i 's/^          //' .github/workflows/ci.yml
+          printf '%s' "$FINAL_CI_BASE64" | base64 --decode > .github/workflows/ci.yml
           python -m pip install -e '.[validation,quality]'
           python -m ruff format tsao_computation/repository_audit.py tests/test_python_compatibility.py
           python scripts/verify_all.py --profile quality
@@ -235,7 +96,6 @@ jobs:
           import sys
           from pathlib import Path
 
-          root = Path('.')
           collected = subprocess.run(
               [sys.executable, '-m', 'pytest', '--collect-only', '-q'],
               check=True,
@@ -263,10 +123,8 @@ jobs:
           }
           baseline['security']['repository_findings'] = len(security['findings'])
           baseline_path.write_text(json.dumps(baseline, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+          Path('reports/SECURITY_SCAN.json').write_text(json.dumps(security, indent=2, sort_keys=True) + '\n', encoding='utf-8')
 
-          Path('reports/SECURITY_SCAN.json').write_text(
-              json.dumps(security, indent=2, sort_keys=True) + '\n', encoding='utf-8'
-          )
           report_path = Path('reports/REMOTE_FINALIZATION.json')
           report = json.loads(report_path.read_text(encoding='utf-8'))
           report['tests'] = {'errors': 0, 'failures': 0, 'passed': tests}
