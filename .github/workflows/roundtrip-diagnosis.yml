@@ -1,0 +1,106 @@
+name: Diagnose installation roundtrip and branch policy
+
+on:
+  push:
+    branches: [main]
+    paths: [.roundtrip-diagnosis-trigger]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: final-fail-closed-hardening
+  cancel-in-progress: true
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+          cache: pip
+      - name: Run exact roundtrip diagnosis
+        shell: bash
+        run: |
+          set -uo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          python -m pip install -e '.[validation,quality]'
+          find .github/workflows -maxdepth 1 -type f \
+            ! -name ci.yml ! -name codeql.yml ! -name release.yml -delete
+          find . -maxdepth 1 -type f \( -name '.*trigger*' -o -name '.*status.json' -o -name '.*output.txt' \) -delete
+          python scripts/sync_package_assets.py
+          python scripts/build_adapter_docs.py
+          python scripts/build_workflow_docs.py
+          python scripts/build_examples.py
+          python scripts/build_manifest.py
+
+          : > /tmp/roundtrip-diagnosis.txt
+          status=PASS
+          run_stage() {
+            label="$1"; shift
+            log="/tmp/${label}.log"
+            "$@" >"$log" 2>&1
+            rc=$?
+            if [ "$rc" -ne 0 ]; then
+              status="$label"
+              {
+                echo "STAGE=$label"
+                echo "EXIT_CODE=$rc"
+                echo "--- LOG TAIL ---"
+                tail -n 200 "$log"
+              } > /tmp/roundtrip-diagnosis.txt
+              return 1
+            fi
+            return 0
+          }
+
+          rm -rf /tmp/TsaoSciComputation
+          run_stage install python scripts/install_skill.py --agent codex --scope project \
+            --target /tmp/TsaoSciComputation --force || true
+          if [ "$status" = PASS ]; then
+            run_stage validate python scripts/install_skill.py --agent codex --scope project \
+              --target /tmp/TsaoSciComputation --validate || true
+          fi
+          if [ "$status" = PASS ]; then
+            run_stage uninstall python scripts/install_skill.py --agent codex --scope project \
+              --target /tmp/TsaoSciComputation --uninstall || true
+          fi
+          if [ "$status" = PASS ]; then
+            run_stage branches bash -lc 'mapfile -t branches < <(gh api --paginate "repos/$GITHUB_REPOSITORY/branches?per_page=100" --jq '\''.[].name'\'' | sort -u); printf "branches=%s\n" "${branches[*]}"; test "${#branches[@]}" -eq 1; test "${branches[0]}" = main' || true
+          fi
+          if [ "$status" = PASS ]; then echo 'STAGE=PASS' > /tmp/roundtrip-diagnosis.txt; fi
+
+          mkdir -p reports
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          text = Path('/tmp/roundtrip-diagnosis.txt').read_text(encoding='utf-8')
+          lines = text.splitlines()
+          stage = next((line.split('=', 1)[1] for line in lines if line.startswith('STAGE=')), 'UNKNOWN')
+          exit_code = next((int(line.split('=', 1)[1]) for line in lines if line.startswith('EXIT_CODE=')), 0)
+          payload = {
+              'schema_version': '1.0',
+              'stage': stage,
+              'exit_code': exit_code,
+              'log_tail': text,
+              'branch': 'main',
+              'temporary_branch_created': False,
+          }
+          Path('reports/ROUNDTRIP_DIAGNOSIS.json').write_text(
+              json.dumps(payload, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+          PY
+          git add reports/ROUNDTRIP_DIAGNOSIS.json
+          git commit -m 'Record installation roundtrip diagnosis'
+          git push origin HEAD:refs/heads/main
