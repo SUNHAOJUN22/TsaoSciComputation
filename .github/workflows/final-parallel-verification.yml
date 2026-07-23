@@ -60,6 +60,8 @@ jobs:
           find .github/workflows -maxdepth 1 -type f \
             ! -name ci.yml ! -name codeql.yml ! -name release.yml -delete
           find . -maxdepth 1 -type f \( -name '.*trigger*' -o -name '.*status.json' -o -name '.*output.txt' \) -delete
+          rm -f reports/FINAL_DIAGNOSIS.json reports/FINAL_DIAGNOSIS.md \
+            reports/ROUNDTRIP_DIAGNOSIS.json reports/FINAL_REPAIR_STATUS.json
       - name: Run Python 3.13 release gates
         shell: bash
         run: |
@@ -74,6 +76,7 @@ jobs:
           python scripts/verify_all.py --profile core
           python scripts/verify_all.py --profile package
           python scripts/verify_all.py --profile benchmark
+          python scripts/build_manifest.py
       - name: Validate installation roundtrip and single-main policy
         shell: bash
         run: |
@@ -116,6 +119,8 @@ jobs:
           find .github/workflows -maxdepth 1 -type f \
             ! -name ci.yml ! -name codeql.yml ! -name release.yml -delete
           find . -maxdepth 1 -type f \( -name '.*trigger*' -o -name '.*status.json' -o -name '.*output.txt' \) -delete
+          rm -f reports/FINAL_DIAGNOSIS.json reports/FINAL_DIAGNOSIS.md \
+            reports/ROUNDTRIP_DIAGNOSIS.json reports/FINAL_REPAIR_STATUS.json
           python -m pip install -e '.[validation,quality]'
           python scripts/sync_package_assets.py
           python scripts/build_adapter_docs.py
