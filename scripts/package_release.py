@@ -10,34 +10,21 @@ import time
 import zipfile
 from pathlib import Path
 
-EXCLUDED_PARTS = {
-    ".git",
-    ".pytest_cache",
-    ".mypy_cache",
-    ".ruff_cache",
-    "__pycache__",
-    "dist",
-    "dist-a",
-    "dist-b",
-    "build",
-}
-EXCLUDED_NAMES = {".coverage"}
+import _bootstrap  # noqa: F401
+
+from tsao_computation.provenance.manifest import iter_repository_entries
 
 
 def release_files(root: Path) -> list[Path]:
+    root = root.resolve()
     files: list[Path] = []
-    for path in root.rglob("*"):
+    for path in iter_repository_entries(root):
         relative = path.relative_to(root)
         if path.is_symlink():
             raise ValueError(f"release tree contains symlink: {relative.as_posix()}")
-        if not path.is_file():
-            continue
-        if path.name in EXCLUDED_NAMES or any(
-            part in EXCLUDED_PARTS or part.endswith(".egg-info") for part in relative.parts
-        ):
-            continue
-        files.append(path)
-    return sorted(files, key=lambda item: item.relative_to(root).as_posix())
+        if path.is_file():
+            files.append(path)
+    return files
 
 
 def sha256(path: Path) -> str:
