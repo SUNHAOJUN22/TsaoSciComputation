@@ -64,6 +64,8 @@ python scripts/verify_all.py --profile all
 
 `all` runs the deterministic release gates: quality, tests and coverage, repository/schema/asset/manifest validation, security and mutation checks, reproducible source packaging, reproducible wheel building, and isolated wheel installation.
 
+Repository-local environments and generated caches—including `.venv`, `.tox`, coverage output, and build directories—are pruned consistently from audit, security scan, manifest, and source packaging. Repository source and configuration files remain in scope.
+
 Performance measurements are environment-specific and intentionally separate:
 
 ```bash
