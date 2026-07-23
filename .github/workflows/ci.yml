@@ -47,7 +47,6 @@ jobs:
           cache: pip
       - run: python -m pip install -e '.[validation,quality]'
       - run: python scripts/verify_all.py --profile quality
-      - run: python scripts/verify_all.py --profile benchmark
 
   package:
     runs-on: ubuntu-latest
@@ -63,7 +62,22 @@ jobs:
       - run: python scripts/verify_all.py --profile package
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
-          name: TsaoSciComputation-release-candidate
+          name: TsaoSciComputation-release-candidate-${{ github.run_id }}-${{ github.run_attempt }}
           path: dist/*
           if-no-files-found: error
           retention-days: 14
+
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+          cache: pip
+      - run: python -m pip install -e '.[validation,quality]'
+      - run: python scripts/verify_all.py --profile benchmark
