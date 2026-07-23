@@ -18,20 +18,28 @@
   "capabilities": 164,
   "claim_boundary": "No live third-party solver, commercial-license environment, or production HPC execution is claimed.",
   "coverage": {
-    "covered_branches": 182,
-    "covered_lines": 657,
+    "covered_branches": 190,
+    "covered_lines": 680,
     "excluded_lines": 0,
-    "missing_branches": 6,
-    "missing_lines": 8,
-    "num_branches": 188,
-    "num_partial_branches": 6,
-    "num_statements": 665,
-    "percent_branches_covered": 96.80851063829788,
-    "percent_branches_covered_display": "97",
-    "percent_covered": 98.35873388042204,
+    "missing_branches": 8,
+    "missing_lines": 11,
+    "num_branches": 198,
+    "num_partial_branches": 8,
+    "num_statements": 691,
+    "percent_branches_covered": 95.95959595959596,
+    "percent_branches_covered_display": "96",
+    "percent_covered": 97.86276715410574,
     "percent_covered_display": "98",
-    "percent_statements_covered": 98.796992481203,
-    "percent_statements_covered_display": "99"
+    "percent_statements_covered": 98.40810419681621,
+    "percent_statements_covered_display": "98"
+  },
+  "generated_path_policy": {
+    "local_environment": ".venv",
+    "manifest": "VALIDATED",
+    "repository_audit": "VALIDATED",
+    "security_scan": "VALIDATED",
+    "source_packaging": "VALIDATED",
+    "status": "VALIDATED"
   },
   "mutation": {
     "killed": 64,
@@ -300,14 +308,14 @@
   },
   "runtime_dependencies": 0,
   "security": {
-    "files_scanned": 382,
+    "files_scanned": 383,
     "findings": 0
   },
   "status": "VALIDATED",
   "tests": {
     "errors": 0,
     "failures": 0,
-    "passed": 435
+    "passed": 437
   },
   "version": "3.0.0",
   "workflows": 20
