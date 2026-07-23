@@ -11,11 +11,6 @@
       "sha256": "af58a03ac70f1f182d779202b62d89bc3ebcb3496e98cdd0a8632a3ff2fb8678"
     },
     {
-      "bytes": 1748,
-      "path": ".github/workflows/materialize-final-manifest.yml",
-      "sha256": "b276488fd8ab48fcc60ada3f27dc480f45686411aeb69607c1a5f4fa94a976f5"
-    },
-    {
       "bytes": 1273,
       "path": ".github/workflows/release.yml",
       "sha256": "56957d0e79f908f4d7e6030807f381a8a9ff915dad10609cabe800cb92f3c2a7"
