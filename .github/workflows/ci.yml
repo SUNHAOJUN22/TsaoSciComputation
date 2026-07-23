@@ -1,4 +1,4 @@
-name: Format Python compatibility fix
+name: Python 3.10 quality diagnosis
 
 on:
   push:
@@ -13,9 +13,9 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  format:
+  quality:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
         with:
@@ -24,22 +24,39 @@ jobs:
           persist-credentials: true
       - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
         with:
-          python-version: '3.13'
+          python-version: '3.10'
           cache: pip
-      - name: Format and commit compatibility files
+      - name: Run diagnosable quality gates
         shell: bash
         run: |
-          set -euo pipefail
+          set -Eeuo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          python -m pip install -e '.[quality]'
-          python -m ruff format tsao_computation/repository_audit.py tests/test_python_compatibility.py
-          git add tsao_computation/repository_audit.py tests/test_python_compatibility.py
-          if ! git diff --cached --quiet; then
-            git commit -m 'Format Python 3.10 compatibility fix'
-            git push origin HEAD:refs/heads/main
-          fi
-          printf '{\n  "outcome": "formatted",\n  "schema_version": "1.0"\n}\n' > .final-ci-status.json
-          git add .final-ci-status.json
-          git commit -m 'Record compatibility formatting completion'
-          git push origin HEAD:refs/heads/main
+          STAGE=install
+          record_status() {
+            local outcome="$1"
+            local stage="$2"
+            git reset --hard HEAD
+            printf '{\n  "outcome": "%s",\n  "python": "3.10",\n  "schema_version": "1.0",\n  "stage": "%s"\n}\n' "$outcome" "$stage" > .final-ci-status.json
+            git add .final-ci-status.json
+            git commit -m "Record Python 3.10 quality: $outcome at $stage" || true
+            git push origin HEAD:refs/heads/main || true
+          }
+          trap 'record_status failure "$STAGE"' ERR
+          python -m pip install -e '.[validation,quality]'
+          STAGE=quality-rules
+          python scripts/quality_check.py
+          STAGE=ruff-lint
+          python -m ruff check tsao_computation scripts tests
+          STAGE=ruff-format
+          python -m ruff format --check tsao_computation scripts tests
+          STAGE=mypy
+          python -m mypy --python-version 3.13 tsao_computation scripts
+          STAGE=bandit
+          python -m bandit -q -r tsao_computation scripts
+          STAGE=security-scan
+          python scripts/security_scan.py
+          STAGE=mutation
+          python scripts/run_mutation_gate.py
+          trap - ERR
+          record_status success quality
