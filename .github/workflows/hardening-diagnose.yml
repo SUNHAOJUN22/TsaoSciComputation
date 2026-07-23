@@ -1,0 +1,142 @@
+name: Diagnose final hardening
+
+on:
+  push:
+    branches: [main]
+    paths: [.hardening-diagnose-trigger]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: diagnose-final-hardening
+  cancel-in-progress: true
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      FINAL_TREE: /tmp/tsao-hardening-diagnose
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.10'
+          cache: pip
+      - name: Run split gates
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          STAGE=initialization
+          record_status() {
+            local outcome="$1"
+            local stage="$STAGE"
+            cd "$GITHUB_WORKSPACE"
+            printf '{\n  "outcome": "%s",\n  "schema_version": "1.0",\n  "stage": "%s"\n}\n' "$outcome" "$stage" > .hardening-diagnose-status.json
+            git add .hardening-diagnose-status.json
+            git commit -m "Record hardening diagnosis: $outcome at $stage" || true
+            git push origin HEAD:refs/heads/main || true
+          }
+          trap 'record_status failure' ERR
+
+          rm -rf "$FINAL_TREE"
+          git worktree add --detach "$FINAL_TREE" HEAD
+          cd "$FINAL_TREE"
+          find .github/workflows -maxdepth 1 -type f \
+            ! -name ci.yml ! -name codeql.yml ! -name release.yml -delete
+          find . -maxdepth 1 -type f -name '.*trigger*' -delete
+          rm -f .final-hardening-status.json .hardening-diagnose-status.json
+
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('scripts/install_skill.py')
+          text = path.read_text(encoding='utf-8')
+          start = text.index('def uninstall_skill(')
+          end = text.index('\n\ndef build_parser()', start)
+          replacement = '''def uninstall_skill(
+              destination: Path, *, force: bool = False, dry_run: bool = False
+          ) -> None:
+              if not destination.exists():
+                  raise FileNotFoundError(f"installation not found: {destination}")
+              if not force:
+                  problems = validate_installation(destination)
+                  if problems:
+                      raise ValueError(
+                          "refusing to remove an invalid installation; "
+                          f"use --force: {problems}"
+                      )
+              if dry_run:
+                  print(f"DRY-RUN uninstall {destination}")
+                  return
+              shutil.rmtree(destination)
+          '''
+          path.write_text(text[:start] + replacement + text[end:], encoding='utf-8')
+
+          path = Path('tests/test_core.py')
+          text = path.read_text(encoding='utf-8')
+          text = text.replace(
+              '"a", "b", "q", 1, "1", {}, "r", 0, 0, "d", "identity", "validated"',
+              '"a", "b", "q", 1, "1", {"temperature_K": 298}, "r", 0, 0, "d", "identity", "validated"',
+          )
+          text = text.replace(
+              'HandoffRecord("a", "b", "q", 1, "1", {}, "r", 0, 0, "d", "identity", "accepted")',
+              'HandoffRecord("a", "b", "q", 1, "1", {"temperature_K": 298}, "r", 0, 0, "d", "identity", "accepted")',
+          )
+          old = '''    for s in (
+                  "planned",
+                  "prepared",
+                  "submitted",
+                  "running",
+                  "completed",
+                  "parsed",
+                  "converged",
+                  "validated",
+                  "accepted",
+              ):
+                  m.transition(s, evidence=s)
+              assert m.state == "accepted" and len(m.events) == 9'''
+          new = '''    for s in (
+                  "specified",
+                  "prepared",
+                  "preflight-passed",
+                  "submitted",
+                  "running",
+                  "completed",
+                  "parsed",
+                  "numerically-converged",
+                  "physically-validated",
+                  "scientifically-accepted",
+              ):
+                  m.transition(s, evidence=s)
+              assert m.state == "scientifically-accepted" and len(m.events) == 10'''
+          if old not in text:
+              raise SystemExit('state test anchor not found')
+          path.write_text(text.replace(old, new, 1), encoding='utf-8')
+          PY
+
+          STAGE=dependencies
+          python -m pip install -e '.[validation,quality]'
+          STAGE=generation
+          python scripts/sync_package_assets.py
+          python scripts/build_adapter_docs.py
+          python scripts/build_workflow_docs.py
+          python scripts/build_examples.py
+          python -m ruff check --fix tsao_computation scripts tests
+          python -m ruff format tsao_computation scripts tests
+          python scripts/build_manifest.py
+          STAGE=quality
+          python scripts/verify_all.py --profile quality
+          STAGE=core
+          python scripts/verify_all.py --profile core
+          STAGE=package
+          python scripts/verify_all.py --profile package
+          STAGE=success
+          trap - ERR
+          record_status success
