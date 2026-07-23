@@ -26,13 +26,27 @@ jobs:
         with:
           python-version: '3.13'
           cache: pip
-      - name: Apply durable source and test repairs
+      - name: Apply, format, and validate durable repairs
         shell: bash
         run: |
           set -Eeuo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          STAGE=initialization
+          record_failure() {
+            set +e
+            mkdir -p reports
+            printf '{\n  "schema_version": "1.0",\n  "status": "FAILED",\n  "stage": "%s",\n  "branch": "main",\n  "temporary_branch_created": false\n}\n' "$STAGE" > reports/FINAL_REPAIR_STATUS.json
+            git add reports/FINAL_REPAIR_STATUS.json
+            git commit -m "Record final repair failure at $STAGE" || true
+            git push origin HEAD:refs/heads/main || true
+          }
+          trap record_failure ERR
+
+          STAGE=dependencies
           python -m pip install -e '.[validation,quality]'
+
+          STAGE=source-migration
           python - <<'PY'
           from pathlib import Path
 
@@ -61,28 +75,19 @@ jobs:
 
           path = Path('tests/test_core.py')
           text = path.read_text(encoding='utf-8')
-          text = text.replace(
-              '"a", "b", "q", 1, "1", {}, "r", 0, 0, "d", "identity", "validated"',
-              '"a", "b", "q", 1, "1", {"temperature_K": 298}, "r", 0, 0, "d", "identity", "validated"',
-          )
-          text = text.replace(
-              'HandoffRecord("a", "b", "q", 1, "1", {}, "r", 0, 0, "d", "identity", "accepted")',
-              'HandoffRecord("a", "b", "q", 1, "1", {"temperature_K": 298}, "r", 0, 0, "d", "identity", "accepted")',
-          )
-          old = '''    for s in (
-                  "planned",
-                  "prepared",
-                  "submitted",
-                  "running",
-                  "completed",
-                  "parsed",
-                  "converged",
-                  "validated",
-                  "accepted",
-              ):
-                  m.transition(s, evidence=s)
-              assert m.state == "accepted" and len(m.events) == 9'''
-          new = '''    for s in (
+          valid_old = '"a", "b", "q", 1, "1", {}, "r", 0, 0, "d", "identity", "validated"'
+          valid_new = '"a", "b", "q", 1, "1", {"temperature_K": 298}, "r", 0, 0, "d", "identity", "validated"'
+          invalid_old = 'HandoffRecord("a", "b", "q", 1, "1", {}, "r", 0, 0, "d", "identity", "accepted")'
+          invalid_new = 'HandoffRecord("a", "b", "q", 1, "1", {"temperature_K": 298}, "r", 0, 0, "d", "identity", "accepted")'
+          if valid_old not in text or invalid_old not in text:
+              raise SystemExit('handoff test anchors not found')
+          text = text.replace(valid_old, valid_new, 1).replace(invalid_old, invalid_new, 1)
+
+          start = text.index('def test_006_state_happy_path():')
+          end = text.index('\n\n@pytest.mark.integration', start)
+          replacement = '''def test_006_state_happy_path():
+              m = ScientificStateMachine()
+              for state in (
                   "specified",
                   "prepared",
                   "preflight-passed",
@@ -94,25 +99,31 @@ jobs:
                   "physically-validated",
                   "scientifically-accepted",
               ):
-                  m.transition(s, evidence=s)
+                  m.transition(state, evidence=state)
               assert m.state == "scientifically-accepted" and len(m.events) == 10'''
-          if old not in text:
-              raise SystemExit('state happy-path test anchor not found')
-          path.write_text(text.replace(old, new, 1), encoding='utf-8')
+          path.write_text(text[:start] + replacement + text[end:], encoding='utf-8')
           PY
+
+          STAGE=ruff-fix
           python -m ruff check --fix tsao_computation scripts tests
           python -m ruff format tsao_computation scripts tests
+
+          STAGE=generated-assets
           python scripts/sync_package_assets.py
           python scripts/build_adapter_docs.py
           python scripts/build_workflow_docs.py
           python scripts/build_examples.py
           python scripts/build_manifest.py
+
+          STAGE=quality
           python scripts/verify_all.py --profile quality
+          STAGE=core
           python scripts/verify_all.py --profile core
-      - name: Publish tested repair
-        shell: bash
-        run: |
-          set -Eeuo pipefail
+
+          STAGE=publish
+          rm -f reports/FINAL_REPAIR_STATUS.json
+          python scripts/build_manifest.py
           git add -A
           git commit -m 'Repair final gates and synchronize strict tests'
           git push origin HEAD:refs/heads/main
+          trap - ERR
