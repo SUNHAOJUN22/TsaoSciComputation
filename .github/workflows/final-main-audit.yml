@@ -1,0 +1,175 @@
+name: Final main audit
+
+on:
+  push:
+    branches: [main]
+    paths: [.final-main-audit-trigger]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: final-main-audit
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      FINAL_TREE: /tmp/tsao-final-main-audit
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+          cache: pip
+      - name: Validate and refresh the durable main tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+
+          rm -rf "$FINAL_TREE"
+          git worktree add --detach "$FINAL_TREE" HEAD
+          cd "$FINAL_TREE"
+          rm -f .github/workflows/final-main-audit.yml .final-main-audit-trigger
+
+          mapfile -t branches < <(gh api --paginate "repos/$GITHUB_REPOSITORY/branches?per_page=100" --jq '.[].name' | sort -u)
+          test "${#branches[@]}" -eq 1
+          test "${branches[0]}" = main
+
+          python -m pip install -e '.[validation,quality]'
+          python -m ruff format scripts/verify_all.py tests/test_verify_all.py
+          python scripts/verify_all.py --profile quality
+          python scripts/build_manifest.py
+          python scripts/verify_all.py --profile all
+          python scripts/verify_all.py --profile benchmark
+          python -m coverage json -o /tmp/tsao-coverage.json
+
+          python - <<'PY'
+          import json
+          import os
+          import re
+          import subprocess
+          import sys
+          from pathlib import Path
+
+          root = Path(os.environ['FINAL_TREE'])
+          collection = subprocess.run(
+              [sys.executable, '-m', 'pytest', '--collect-only', '-q'],
+              cwd=root,
+              check=True,
+              capture_output=True,
+              text=True,
+          )
+          match = re.search(r'(\d+) tests? collected', collection.stdout + collection.stderr)
+          if match is None:
+              raise SystemExit('unable to determine collected test count')
+          tests = int(match.group(1))
+          if tests != 435:
+              raise SystemExit(f'expected 435 tests, collected {tests}')
+
+          coverage = json.loads(Path('/tmp/tsao-coverage.json').read_text(encoding='utf-8'))['totals']
+          security = json.loads((root / 'evidence/security-scan.json').read_text(encoding='utf-8'))
+
+          baseline_path = root / 'evidence/quality-baseline.json'
+          baseline = json.loads(baseline_path.read_text(encoding='utf-8'))
+          baseline['counts']['tests_passed'] = tests
+          baseline['counts']['tests_failed'] = 0
+          baseline['coverage'] = {
+              'branches_percent': coverage['percent_branches_covered'],
+              'missing_branches': coverage['missing_branches'],
+              'missing_statements': coverage['missing_lines'],
+              'statements_percent': coverage['percent_statements_covered'],
+          }
+          baseline['security']['repository_findings'] = len(security['findings'])
+          baseline_path.write_text(json.dumps(baseline, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+
+          report_path = root / 'reports/REMOTE_FINALIZATION.json'
+          report = json.loads(report_path.read_text(encoding='utf-8'))
+          report['tests'] = {'errors': 0, 'failures': 0, 'passed': tests}
+          report['coverage'] = {
+              'covered_branches': coverage['covered_branches'],
+              'covered_lines': coverage['covered_lines'],
+              'excluded_lines': coverage['excluded_lines'],
+              'missing_branches': coverage['missing_branches'],
+              'missing_lines': coverage['missing_lines'],
+              'num_branches': coverage['num_branches'],
+              'num_partial_branches': coverage['num_partial_branches'],
+              'num_statements': coverage['num_statements'],
+              'percent_branches_covered': coverage['percent_branches_covered'],
+              'percent_branches_covered_display': coverage['percent_branches_covered_display'],
+              'percent_covered': coverage['percent_covered'],
+              'percent_covered_display': coverage['percent_covered_display'],
+              'percent_statements_covered': coverage['percent_statements_covered'],
+              'percent_statements_covered_display': coverage['percent_statements_covered_display'],
+          }
+          report['security'] = {
+              'files_scanned': security['files_scanned'],
+              'findings': len(security['findings']),
+          }
+          report['canonical_verification'] = {
+              'all_profile': ['quality', 'core', 'package'],
+              'benchmark': 'VALIDATED_SEPARATELY',
+              'benchmark_profile': 'benchmark',
+              'entrypoint': 'python scripts/verify_all.py --profile all',
+              'remote_branches': ['main'],
+              'status': 'VALIDATED',
+              'temporary_branch_created': False,
+          }
+          report_path.write_text(json.dumps(report, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+
+          statement = coverage['percent_statements_covered']
+          branch = coverage['percent_branches_covered']
+          readme_path = root / 'README.md'
+          readme = readme_path.read_text(encoding='utf-8')
+          readme = re.sub(r'\| Tests \| \d+ passed, \d+ failed \|', f'| Tests | {tests} passed, 0 failed |', readme)
+          readme = re.sub(
+              r'\| Statement / branch coverage \| [^|]+ \|',
+              f'| Statement / branch coverage | {statement:.2f}% / {branch:.2f}% |',
+              readme,
+          )
+          readme_path.write_text(readme, encoding='utf-8')
+
+          zh_path = root / 'README.zh-CN.md'
+          zh = zh_path.read_text(encoding='utf-8')
+          zh = re.sub(r'\| 自动测试 \| \d+ 通过，\d+ 失败 \|', f'| 自动测试 | {tests} 通过，0 失败 |', zh)
+          zh = re.sub(
+              r'\| 语句 / 分支覆盖率 \| [^|]+ \|',
+              f'| 语句 / 分支覆盖率 | {statement:.2f}% / {branch:.2f}% |',
+              zh,
+          )
+          zh_path.write_text(zh, encoding='utf-8')
+          PY
+
+          python scripts/build_manifest.py
+          python scripts/build_manifest.py --check
+          python scripts/verify_all.py --profile core
+
+          cd "$GITHUB_WORKSPACE"
+          : > /tmp/durable-paths.txt
+          git -C "$FINAL_TREE" diff --name-only | while IFS= read -r path; do
+            case "$path" in
+              .github/workflows/final-main-audit.yml|.final-main-audit-trigger)
+                continue
+                ;;
+            esac
+            if [ -f "$FINAL_TREE/$path" ]; then
+              mkdir -p "$(dirname "$path")"
+              cp "$FINAL_TREE/$path" "$path"
+              printf '%s\n' "$path" >> /tmp/durable-paths.txt
+            fi
+          done
+
+          if [ -s /tmp/durable-paths.txt ]; then
+            while IFS= read -r path; do git add "$path"; done < /tmp/durable-paths.txt
+            git commit -m 'Complete final main audit and refresh evidence'
+            git push origin HEAD:refs/heads/main
+          fi
