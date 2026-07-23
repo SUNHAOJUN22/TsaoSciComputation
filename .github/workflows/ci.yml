@@ -62,7 +62,13 @@ jobs:
           python -m ruff check tsao_computation scripts tests
           STAGE=ruff-format
           python -m ruff format --check tsao_computation scripts tests
-          STAGE=mypy
+          STAGE=mypy-contract
+          python -m mypy --python-version 3.13 tsao_computation/contracts/calculation.py tsao_computation/cli.py
+          STAGE=mypy-installer
+          python -m mypy --python-version 3.13 scripts/install_skill.py
+          STAGE=mypy-doc-builders
+          python -m mypy --python-version 3.13 scripts/build_adapter_docs.py scripts/build_workflow_docs.py
+          STAGE=mypy-all
           python -m mypy --python-version 3.13 tsao_computation scripts
           STAGE=bandit
           python -m bandit -q -r tsao_computation scripts
