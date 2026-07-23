@@ -1,6 +1,16 @@
 {
   "files": [
     {
+      "bytes": 34,
+      "path": ".adapter-probe-metadata-trigger",
+      "sha256": "ef0e6dfd2f131d631b9019904d08437bce9d525343b0a8a4fc516380ad14dc97"
+    },
+    {
+      "bytes": 2723,
+      "path": ".github/workflows/adapter-probe-metadata.yml",
+      "sha256": "65464288427b314528dab4ef2057b7d69b02fc3761a4103975086c6f25c6c176"
+    },
+    {
       "bytes": 2048,
       "path": ".github/workflows/ci.yml",
       "sha256": "fd9cd9d29db55457829b06f669e505bd9e0f2eb3395af8203b95d5e197f280bc"
@@ -101,9 +111,9 @@
       "sha256": "18a60b6ff4e6c21fe98f33da0df636d9153a167a7b60e71ce6b09c05a1d035aa"
     },
     {
-      "bytes": 452,
+      "bytes": 545,
       "path": "adapters/ase-pymatgen/adapter.yaml",
-      "sha256": "f5de02dbb2aac49d25f3186ba07f54797563011ac0977a167ca7ed575012b451"
+      "sha256": "be8ba050ea9521e2df8599b60c241a7312d31699fd253527125e9fabbdb24996"
     },
     {
       "bytes": 4347,
@@ -121,9 +131,9 @@
       "sha256": "69e8fd66b4f75dfee5ec0bdf55fda29b6aa983dd770ff56f88d141df949aac1b"
     },
     {
-      "bytes": 457,
+      "bytes": 551,
       "path": "adapters/cantera-rmg/adapter.yaml",
-      "sha256": "2f8d77a01991dcc089458fbf952e652ff0dcaf00015ee279c0a75e0e4dfd696f"
+      "sha256": "7244cf605a2d91d4134837124753cd24daef864ea620177ce3f809b1348a319f"
     },
     {
       "bytes": 4316,
@@ -151,9 +161,9 @@
       "sha256": "78c2e94f78d3ae27dd7d48f9866b8740d6ad724e6654c74ee2aeb272a39abc96"
     },
     {
-      "bytes": 442,
+      "bytes": 523,
       "path": "adapters/dolfinx/adapter.yaml",
-      "sha256": "2befa26656c19607d6990ed659736b1f1c5491f73b46de990316c796a4e4d7f4"
+      "sha256": "0ea43a3cc13bfc85ac3f26865a2fbf2aea563019b831d150f177cd11dcc598bb"
     },
     {
       "bytes": 4225,
@@ -211,9 +221,9 @@
       "sha256": "dd16af2521de63a32ac3945f5eed4214c6cba948de27ebacc432d3fe432bb719"
     },
     {
-      "bytes": 455,
+      "bytes": 547,
       "path": "adapters/idaes-pyomo/adapter.yaml",
-      "sha256": "9eec45d9002e092cd280f6b333bb3162b983878b9fbdedce7b3eb02744186e1c"
+      "sha256": "8fc129062a61c5bcd13e93aacec7619ec52f224b1631b44af6539cac4ab12a52"
     },
     {
       "bytes": 4081,
@@ -221,9 +231,9 @@
       "sha256": "18810d413d4224b8f698741c4618dba242ef5cd611cb4b7a23f9027ef180d569"
     },
     {
-      "bytes": 451,
+      "bytes": 543,
       "path": "adapters/kratos/adapter.yaml",
-      "sha256": "ef17acf17c7d8ac2e15a4992edddab1f005fb73a426a76704a3a91fb045f0051"
+      "sha256": "6fb059cfb212c531085efd52eb3d3355bc9349ae98f5539043f2219f5b72c176"
     },
     {
       "bytes": 4178,
@@ -241,9 +251,9 @@
       "sha256": "b005541e35e3cba52620f6cde5eed38af37d612e169231a2b24c3e7762752147"
     },
     {
-      "bytes": 448,
+      "bytes": 526,
       "path": "adapters/mace/adapter.yaml",
-      "sha256": "50d2f4d428054fd32680c0ed563fcce0119b40596327bb5e07f3da649bfcebdc"
+      "sha256": "9729ba03ad3932c3eb9716a85a4544b7412079e29185a52e9ddff79a6d002c03"
     },
     {
       "bytes": 4055,
@@ -271,9 +281,9 @@
       "sha256": "4bf96e97b6f602b79815d6829fd08f4938286d514820bcbc10863852e3372c14"
     },
     {
-      "bytes": 444,
+      "bytes": 524,
       "path": "adapters/openmm/adapter.yaml",
-      "sha256": "8ab2dc8755a0d2e06930cf0cb484ec139e79fde4d94eeb812a87dd2cf972a36c"
+      "sha256": "cb96e887d0c0b8ba4c7d71eae1b4ff1ebcd1c7668b6dc0eb3542d664405ae8c4"
     },
     {
       "bytes": 4040,
@@ -321,9 +331,9 @@
       "sha256": "b6feeed406b6e712858ed9e90083d4f046acb2fdfb02c7f658d4fb9aad295b13"
     },
     {
-      "bytes": 441,
+      "bytes": 520,
       "path": "adapters/pyscf/adapter.yaml",
-      "sha256": "7cefc2ba184e5ab5e165115cf2a22ce97e83d96d6f68ed78780798044123964e"
+      "sha256": "5eafdec3f41a8494ad6bf8d9486e5ac517a6508f5044ff30f2128911f58d275e"
     },
     {
       "bytes": 4352,
@@ -1386,9 +1396,9 @@
       "sha256": "6cba91532911b93f1e29db7b76d6e188c3d8817da9571a89cbb60523d67b3f6d"
     },
     {
-      "bytes": 12735,
+      "bytes": 13478,
       "path": "registry/adapters.json",
-      "sha256": "700746f4748808516b439b41de38ca00c4dcb0cd3269596cd2a4122a4ec3862d"
+      "sha256": "d07bacdb2050cb270122810007652c6775fe3a2fbe6c43ab34c1d3d0244747fe"
     },
     {
       "bytes": 281100,
@@ -1796,9 +1806,9 @@
       "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
     },
     {
-      "bytes": 12735,
+      "bytes": 13478,
       "path": "tsao_computation/data/registry/adapters.json",
-      "sha256": "700746f4748808516b439b41de38ca00c4dcb0cd3269596cd2a4122a4ec3862d"
+      "sha256": "d07bacdb2050cb270122810007652c6775fe3a2fbe6c43ab34c1d3d0244747fe"
     },
     {
       "bytes": 281100,

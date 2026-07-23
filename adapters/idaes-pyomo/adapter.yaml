@@ -7,7 +7,11 @@
   "maturity": "A4",
   "name": "IDAES + Pyomo",
   "parser_policy": "Conservative: unknown or incomplete output is not promoted to converged or validated.",
-  "runnable_when": "At least one declared executable is detected and all required inputs, licenses, and environment checks pass.",
+  "python_modules": [
+    "idaes",
+    "pyomo"
+  ],
+  "runnable_when": "All declared Python modules and at least one declared executable are detected, and all required inputs, licenses, data, and environment checks pass.",
   "slug": "idaes-pyomo",
   "workflow": "process-simulation"
 }
