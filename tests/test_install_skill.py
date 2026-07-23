@@ -1,9 +1,29 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 
 from scripts import install_skill
+
+
+def _write_manifest(source: Path) -> None:
+    records = []
+    for path in sorted(item for item in source.rglob("*") if item.is_file()):
+        if path.name == "manifest.json":
+            continue
+        data = path.read_bytes()
+        records.append(
+            {
+                "bytes": len(data),
+                "path": path.relative_to(source).as_posix(),
+                "sha256": hashlib.sha256(data).hexdigest(),
+            }
+        )
+    (source / "manifest.json").write_text(
+        json.dumps({"files": records}, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
 
 
 def make_source(root: Path) -> Path:
@@ -13,8 +33,8 @@ def make_source(root: Path) -> Path:
         "---\nname: TsaoSciComputation\ndescription: test\n---\n", encoding="utf-8"
     )
     (source / "VERSION").write_text("3.0.0\n", encoding="utf-8")
-    (source / "manifest.json").write_text("{}\n", encoding="utf-8")
     (source / "scripts" / "verify_all.py").write_text("print('ok')\n", encoding="utf-8")
+    _write_manifest(source)
     return source
 
 
@@ -45,6 +65,43 @@ def test_install_validate_and_uninstall_roundtrip(tmp_path: Path) -> None:
     assert receipt["skill"] == "TsaoSciComputation"
     install_skill.uninstall_skill(destination)
     assert not destination.exists()
+
+
+def test_validation_detects_tampering_and_unlisted_files(tmp_path: Path) -> None:
+    source = make_source(tmp_path)
+    destination = tmp_path / "installed" / "TsaoSciComputation"
+    install_skill.install_skill(source, destination, agent="codex", scope="project")
+    (destination / "SKILL.md").write_text("tampered\n", encoding="utf-8")
+    (destination / "unexpected.txt").write_text("unlisted\n", encoding="utf-8")
+
+    problems = install_skill.validate_installation(destination)
+
+    assert any("hash differs" in problem and "SKILL.md" in problem for problem in problems)
+    assert any("unlisted files" in problem and "unexpected.txt" in problem for problem in problems)
+
+
+def test_validation_rejects_manifest_path_escape(tmp_path: Path) -> None:
+    destination = tmp_path / "TsaoSciComputation"
+    destination.mkdir()
+    (destination / "SKILL.md").write_text("name: TsaoSciComputation\n", encoding="utf-8")
+    (destination / "VERSION").write_text("3.0.0\n", encoding="utf-8")
+    (destination / "scripts").mkdir()
+    (destination / "scripts" / "verify_all.py").write_text("pass\n", encoding="utf-8")
+    (destination / install_skill.RECEIPT_NAME).write_text(
+        json.dumps({"skill": "TsaoSciComputation", "version": "3.0.0"}), encoding="utf-8"
+    )
+    (destination / "manifest.json").write_text(
+        json.dumps(
+            {
+                "files": [
+                    {"bytes": 0, "path": "../escape", "sha256": "0" * 64},
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    assert any("escapes the installation root" in item for item in install_skill.validate_installation(destination))
 
 
 def test_dry_run_does_not_modify_destination(tmp_path: Path) -> None:
