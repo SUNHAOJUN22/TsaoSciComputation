@@ -5,11 +5,6 @@ import json
 from pathlib import Path
 from typing import Any
 
-if __package__:
-    from . import _bootstrap  # noqa: F401
-else:
-    import _bootstrap  # noqa: F401
-
 ROOT = Path(__file__).resolve().parents[1]
 REQUIRED_HEADINGS = (
     "## Purpose",
