@@ -10,8 +10,9 @@ from typing import Any
 
 import _bootstrap  # noqa: F401
 
+from tsao_computation.errors import StateTransitionError
 from tsao_computation.security.paths import confined_path
-from tsao_computation.state.machine import TRANSITIONS
+from tsao_computation.state.machine import ScientificStateMachine, TRANSITIONS
 from tsao_computation.validation.acceptance import REQUIRED
 
 Probe = tuple[str, Callable[[], bool]]
@@ -117,27 +118,32 @@ def uncertainty_mutants() -> list[Probe]:
 
 
 def state_mutants() -> list[Probe]:
-    illegal = ("proposed", "scientifically-accepted")
+    source = "proposed"
+    target = "scientifically-accepted"
     mutants: list[tuple[str, Callable[[], bool]]] = [
-        ("state-any-known", lambda: illegal[1] in TRANSITIONS),
-        ("state-target-present", lambda: bool(illegal[1])),
-        ("state-source-known", lambda: illegal[0] in TRANSITIONS),
+        ("state-any-known", lambda: target in TRANSITIONS),
+        ("state-target-present", lambda: bool(target)),
+        ("state-source-known", lambda: source in TRANSITIONS),
         ("state-always", lambda: True),
-        ("state-nonterminal", lambda: illegal[0] != "superseded"),
-        (
-            "state-scientifically-accepted-special",
-            lambda: illegal[1] == "scientifically-accepted",
-        ),
-        (
-            "state-chain-search",
-            lambda: any(illegal[1] in targets for targets in TRANSITIONS.values()),
-        ),
+        ("state-nonterminal", lambda: source != "superseded"),
+        ("state-scientifically-accepted-special", lambda: target == "scientifically-accepted"),
+        ("state-chain-search", lambda: any(target in targets for targets in TRANSITIONS.values())),
         (
             "state-ignore-source",
-            lambda: illegal[1] in {item for targets in TRANSITIONS.values() for item in targets},
+            lambda: target in {item for targets in TRANSITIONS.values() for item in targets},
         ),
     ]
-    return [(name, lambda fn=fn: bool(fn()) is True) for name, fn in mutants]
+
+    def killed(fn: Callable[[], bool]) -> bool:
+        mutant_accepts = fn()
+        actual_rejects = False
+        try:
+            ScientificStateMachine(source).transition(target, evidence="mutation probe")
+        except StateTransitionError:
+            actual_rejects = True
+        return mutant_accepts and actual_rejects
+
+    return [(name, lambda fn=fn: killed(fn)) for name, fn in mutants]
 
 
 def path_mutants() -> list[Probe]:
