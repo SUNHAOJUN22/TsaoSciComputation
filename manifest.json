@@ -56,14 +56,14 @@
       "sha256": "7bc58f7c95c8af67138d30379c290b1f58f5dfaafd54823b5ff82348b072e442"
     },
     {
-      "bytes": 4162,
+      "bytes": 4243,
       "path": "README.md",
-      "sha256": "89669684ec4393bb00757d5d7ed9a32a4440b9d38c3d8b88f9b78001619894ff"
+      "sha256": "eddcb8d4606fcd50de1eb24cd5c4c8d15472656de81ccf3c40482b2ae66b93de"
     },
     {
-      "bytes": 3296,
+      "bytes": 3376,
       "path": "README.zh-CN.md",
-      "sha256": "279048426171583a386647d3253a76acfbdf20a0d882e66e03c534347df4fa9e"
+      "sha256": "ddc0c9c3ac00faeb60fc06c68d0068129f83824dea21e1d2603822996c080dab"
     },
     {
       "bytes": 537,
@@ -356,9 +356,9 @@
       "sha256": "8283e818921cb37cf2c8284bafba2e6835a35f6d8134eccc1872024fa177178b"
     },
     {
-      "bytes": 486,
+      "bytes": 485,
       "path": "benchmarks/latest.json",
-      "sha256": "e732bb250daa45f72077a364686c247bbfa9392079abe60cb4c26de02bbe3a2c"
+      "sha256": "4c429b4d00d0fe1797a914355f53311e1be309fcc3eca94413acd234e7c1951c"
     },
     {
       "bytes": 14680,
@@ -1238,17 +1238,17 @@
     {
       "bytes": 982,
       "path": "evidence/quality-baseline.json",
-      "sha256": "aafaee0b80e0e60037bfca455218ff1c85ce84d7116963549c1c27652e3cb9f7"
+      "sha256": "94e7b48a0aac0fb374a62155983141da03a4df4ea0561757781ef031d4d9f40f"
     },
     {
       "bytes": 88,
       "path": "evidence/quality-check.json",
-      "sha256": "2d02b96cf257df7ad392d6bc627d8af2b03f6a16f1fe185a192009ed978adb39"
+      "sha256": "48fce72550671e43833eb09d678b0fd8d18e6333952bf70859627cad32cde542"
     },
     {
       "bytes": 72,
       "path": "evidence/security-scan.json",
-      "sha256": "cb80266d4929e340d2430462c7fd949640f67945bdd351ae6aaca5307789ba9e"
+      "sha256": "00e7899dcf83385808b0e41d62011b7fd1bc2939aaf8e92f957911af721bd5a4"
     },
     {
       "bytes": 109,
@@ -1406,9 +1406,9 @@
       "sha256": "52f7f5c3360f7b6b49bc754f55be0581dabbf1b0d05851b87ba01e6cad9c9461"
     },
     {
-      "bytes": 6195,
+      "bytes": 6228,
       "path": "reports/REMOTE_FINALIZATION.json",
-      "sha256": "18a32dc4e01b25a279ab59c3cfeccf4957fafde1f2bd726f36db8acf700e7a33"
+      "sha256": "6b4ee963630829e9a28b621105cde02d8892363ae12d4ce378770acccf6bddea"
     },
     {
       "bytes": 225,
@@ -1536,9 +1536,9 @@
       "sha256": "fa0616139c1859cdea40c7546ed624cf94dc72c6e7235d6ec6fcea415414bf19"
     },
     {
-      "bytes": 5155,
+      "bytes": 5684,
       "path": "scripts/verify_all.py",
-      "sha256": "38a70b056ebb4a47fb20187e33685bce15938e3cc68a202fee47ad58abad55c9"
+      "sha256": "40f161e50338beb91c1d0684801190aca78d1db07b04717a01a824045b10176f"
     },
     {
       "bytes": 3251,
@@ -1684,6 +1684,11 @@
       "bytes": 1254,
       "path": "tests/test_security_scan.py",
       "sha256": "4cd753e26b6b009958e6e18da5cae026d71b2e26e49f8f3a7154e14c44ab0485"
+    },
+    {
+      "bytes": 1478,
+      "path": "tests/test_verify_all.py",
+      "sha256": "17efe947a9c4f132b310fda15b95b2d51e748dc0649eabefdea7cc672799d16f"
     },
     {
       "bytes": 380,

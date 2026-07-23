@@ -6,7 +6,7 @@
     "controlled_mutants_killed": 64,
     "controlled_mutants_survived": 0,
     "tests_failed": 0,
-    "tests_passed": 432,
+    "tests_passed": 435,
     "workflows": 20
   },
   "coverage": {

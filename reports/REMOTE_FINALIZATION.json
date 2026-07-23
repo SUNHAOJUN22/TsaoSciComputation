@@ -1,14 +1,14 @@
 {
   "adapters": 27,
   "canonical_verification": {
-    "benchmark": "VALIDATED",
-    "entrypoint": "python scripts/verify_all.py --profile all",
-    "profiles": [
+    "all_profile": [
       "quality",
       "core",
-      "package",
-      "benchmark"
+      "package"
     ],
+    "benchmark": "VALIDATED_SEPARATELY",
+    "benchmark_profile": "benchmark",
+    "entrypoint": "python scripts/verify_all.py --profile all",
     "remote_branches": [
       "main"
     ],
@@ -300,14 +300,14 @@
   },
   "runtime_dependencies": 0,
   "security": {
-    "files_scanned": 381,
+    "files_scanned": 382,
     "findings": 0
   },
   "status": "VALIDATED",
   "tests": {
     "errors": 0,
     "failures": 0,
-    "passed": 432
+    "passed": 435
   },
   "version": "3.0.0",
   "workflows": 20
