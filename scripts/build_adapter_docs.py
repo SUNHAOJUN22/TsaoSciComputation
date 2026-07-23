@@ -5,11 +5,6 @@ import json
 from pathlib import Path
 from typing import Any
 
-if __package__:
-    from . import _bootstrap  # noqa: F401
-else:
-    import _bootstrap  # noqa: F401
-
 ROOT = Path(__file__).resolve().parents[1]
 REQUIRED_HEADINGS = (
     "## Description",
@@ -40,7 +35,7 @@ def render_adapter(record: dict[str, Any], capabilities: list[dict[str, Any]]) -
     executables = ", ".join(f"`{item}`" for item in record.get("executables", [])) or "No executable is declared; this adapter is guidance-only until a lawful integration is configured."
     capability_lines = (
         "\n".join(
-            f"- `{item['id']}` `{item['slug']}` — {item['name_en']}"
+            f"- `{item['id']}` `{item['slug']']}` — {item['name_en']}"
             for item in related
         )
         or "- No capability is hard-wired to this adapter. Select it only after method and environment qualification."
