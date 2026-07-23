@@ -117,14 +117,17 @@ def uncertainty_mutants() -> list[Probe]:
 
 
 def state_mutants() -> list[Probe]:
-    illegal = ("proposed", "accepted")
+    illegal = ("proposed", "scientifically-accepted")
     mutants: list[tuple[str, Callable[[], bool]]] = [
         ("state-any-known", lambda: illegal[1] in TRANSITIONS),
         ("state-target-present", lambda: bool(illegal[1])),
         ("state-source-known", lambda: illegal[0] in TRANSITIONS),
         ("state-always", lambda: True),
         ("state-nonterminal", lambda: illegal[0] != "superseded"),
-        ("state-accepted-special", lambda: illegal[1] == "accepted"),
+        (
+            "state-scientifically-accepted-special",
+            lambda: illegal[1] == "scientifically-accepted",
+        ),
         (
             "state-chain-search",
             lambda: any(illegal[1] in targets for targets in TRANSITIONS.values()),
