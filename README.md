@@ -2,7 +2,7 @@
 
 # TsaoSciComputation
 
-**Evidence-bound, solver-aware scientific-computation orchestration from electrons to processes.**
+**Evidence-bound scientific-computation orchestration from electrons to processes.**
 
 ![version](https://img.shields.io/badge/version-3.0.0-2563eb) ![capabilities](https://img.shields.io/badge/capabilities-164-7c3aed) ![adapters](https://img.shields.io/badge/adapters-27-ea580c) ![workflows](https://img.shields.io/badge/workflows-20-0891b2)
 
@@ -10,81 +10,71 @@
 
 </div>
 
-## Purpose
+## What it is
 
-TsaoSciComputation converts a research question into a reproducible computation program across molecular quantum chemistry, periodic DFT, reaction paths, molecular dynamics, enhanced sampling, machine-learning potentials, catalysis, polymerization, polymer/composite modeling, FEM, multiphysics, CFD, extrusion, flowsheets, reactors, dynamics/control, digital twins, multiscale handoffs, and HPC execution.
-
-It provides orchestration, contracts, validators, secure execution primitives, conservative parsers, registries, examples, tests, and release tooling. It never pretends that an external solver, license, pseudopotential, basis database, or production cluster is available.
-
-## Trust model
+TsaoSciComputation turns a research question into a reproducible computation plan:
 
 ```text
-proposed → planned → prepared → submitted → running → completed
-         → parsed → converged → validated → accepted
+question → calculation contract → workflow routing → environment preflight
+         → bounded execution → conservative parsing → convergence/physics checks
+         → uncertainty/applicability → evidence-bound acceptance → report/handoff
 ```
 
-A successful process exit proves only completion. Acceptance is fail-closed and requires numerical convergence, physical validation, uncertainty, applicability, evidence lineage, and required expert approvals.
+It supplies contracts, registries, validators, secure execution primitives, conservative parsers, examples, tests, and deterministic packaging. It does **not** bundle or impersonate external scientific solvers, licenses, databases, or production HPC infrastructure.
 
-## Architecture
+## Verified baseline
 
-```text
-question → calculation contract → workflow router → adapter discovery
-         → preflight → bounded execution → conservative parsing
-         → convergence → physical validation → UQ/applicability
-         → evidence-bound acceptance → multiscale handoff/report
-```
-
-The ordinary source tree separates contracts/state, lazy registries/routing, workflows, adapters, execution/security, validation/UQ, provenance, schemas, examples, tests, and deterministic release tooling. Runtime has no mandatory third-party dependency. Package registry assets are mirrored and verified so editable and isolated wheel installations behave identically.
-
-## Current verified baseline
-
-| Gate | Result |
+| Item | Verified result |
 |---|---:|
+| Version | 3.0.0 |
+| Capabilities / adapters / workflows | 164 / 27 / 20 |
+| Runtime dependencies | 0 mandatory third-party packages |
 | Tests | 431 passed, 0 failed |
-| Statement coverage | 98.80% |
-| Branch coverage | 96.81% |
+| Statement / branch coverage | 98.80% / 96.81% |
 | Controlled mutation probes | 64/64 killed |
 | Repository security scan | 0 findings |
-| Capability / adapter / workflow records | 164 / 27 / 20 |
-| Runtime dependencies | 0 |
-| Source ZIP and tar.gz | byte-identical rebuilds |
+| Source archives | byte-identical ZIP and tar.gz rebuilds |
 | Wheel | byte-identical rebuild and isolated install |
+| Remote branches | `main` only |
 
-The detailed machine-readable baseline is in `evidence/quality-baseline.json`. No live scientific-solver execution is included in these claims.
+Machine-readable evidence is stored in [`evidence/quality-baseline.json`](evidence/quality-baseline.json), [`reports/REMOTE_FINALIZATION.json`](reports/REMOTE_FINALIZATION.json), and [`benchmarks/latest.json`](benchmarks/latest.json). These results validate the orchestration repository; they do not claim live third-party solver or production-cluster execution.
 
 ## Quick start
 
 ```bash
+git clone https://github.com/SUNHAOJUN22/TsaoSciComputation.git
+cd TsaoSciComputation
+python -m pip install -e .
+
 python -m tsao_computation --version
 python -m tsao_computation route "Use DFT and MD to study a polymer interface"
 python -m tsao_computation probe
-python scripts/init_project.py --name demo --question "How does morphology affect conductivity?"
+python scripts/init_project.py --root demo --name demo \
+  --question "How does morphology affect conductivity?"
 ```
 
-## CLI
+Useful commands:
 
 ```bash
-python -m tsao_computation route "OpenFOAM non-Newtonian extrusion"
 python -m tsao_computation list capabilities
 python -m tsao_computation list adapters
 python -m tsao_computation list workflows
-python -m tsao_computation probe --workers 8
 python -m tsao_computation validate-contract examples/organic-dft/contract.json
 python -m tsao_computation validate-repository --root .
 ```
 
-## Solver adapters
+## Full validation
 
-Gaussian, ORCA, Psi4, PySCF, Quantum ESPRESSO, CP2K, VASP, ABACUS, GPAW, ASE/pymatgen, GROMACS, OpenMM, LAMMPS, PLUMED, DeePMD-kit, MACE, DOLFINx, MOOSE, Elmer, Kratos, OpenFOAM, SU2, DWSIM, IDAES/Pyomo, OpenModelica, Cantera/RMG, and Aspen.
-
-Adapters discover executables, prepare argv-only command plans, and parse conservatively. `live_execution_verified` remains false until a specific environment/input/output evidence chain is attached. Commercial adapters are lawful local integration guides only.
-
-## Validation and release
+Install both validation and engineering-quality tools, then run the same gates used by CI:
 
 ```bash
-python -m pip install -e '.[validation]'
+python -m pip install -e '.[validation,quality]'
 python scripts/run_tests.py --coverage
 python scripts/quality_check.py
+python -m ruff check tsao_computation scripts tests
+python -m ruff format --check tsao_computation scripts tests
+python -m mypy --python-version 3.13 tsao_computation scripts
+python -m bandit -q -r tsao_computation scripts
 python scripts/validate_repository.py
 python scripts/validate_schemas.py
 python scripts/security_scan.py
@@ -92,24 +82,24 @@ python scripts/run_mutation_gate.py
 python scripts/sync_package_assets.py --check
 python scripts/build_capability_index.py --check
 python scripts/build_manifest.py --check
-python scripts/benchmark.py
 SOURCE_DATE_EPOCH=1700000000 python scripts/package_release.py
 python scripts/verify_wheel.py
 ```
 
-CI runs a Python 3.10/3.13 matrix on Ubuntu, Windows, and macOS, plus deterministic packaging and CodeQL. Third-party GitHub Actions are pinned to verified release commits.
+CI covers Python 3.10 and 3.13 on Ubuntu, Windows, and macOS, plus quality, security, deterministic packaging, isolated wheel installation, and CodeQL. GitHub Actions are pinned to immutable commits.
+
+## Scientific trust boundary
+
+```text
+completed ≠ parsed ≠ converged ≠ validated ≠ accepted
+```
+
+Acceptance is fail-closed. Missing convergence, physical checks, uncertainty, applicability limits, provenance, or required human approval prevents promotion to `accepted`. High-risk reactor, control, digital-twin, safety, runaway, and commercial handoff decisions always require expert review.
 
 ## Performance
 
-The CLI imports only lightweight modules; registries load lazily with bounded caches; environment probing is concurrent and capped. The current local baseline records a 1.951 ms CLI import, 1.333 ms cold load for all 164 capabilities, a 0.0689 ms route decision, and 731.24 MiB/s over a 5 MiB conservative parser fixture. These are orchestration microbenchmarks, not solver benchmarks; see `benchmarks/latest.json` and `docs/performance.md`.
+Registries are loaded lazily through bounded caches, probing is concurrent and capped, shell command construction is avoided, and release artifacts are streamed file-by-file. Performance is environment-specific; [`benchmarks/latest.json`](benchmarks/latest.json) is the source of truth and [`docs/performance.md`](docs/performance.md) explains the measurement boundary.
 
-## Known limits
+## Repository policy
 
-- Repository validation does not substitute for domain-expert review or experimental validation.
-- Scientific thresholds and applicability limits remain project-specific and belong in the calculation contract.
-- No production third-party solver, commercial license, or real HPC scheduler execution is claimed.
-- High-risk reactor, control, digital-twin, safety, runaway, and commercial handoff decisions require human approval.
-
-## Branch policy
-
-`main` is the only long-lived authoritative branch. Short-lived branches must be audited and deleted after validated integration. Historical Base64/Zstandard transfer directories are forbidden in the ordinary source tree. See `docs/branch-policy.md` and `docs/branch-consolidation-audit.md`.
+`main` is the only remote branch and the only authoritative development line. Historical branch heads are preserved by immutable archive tags, not by additional branches. Encoded transfer fragments, recovery controllers, temporary trigger files, and generated build caches are forbidden in the ordinary source tree.
