@@ -37,11 +37,10 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           STAGE=initialization
           record_failure() {
-            local stage="$STAGE"
             cd "$GITHUB_WORKSPACE"
-            printf '{\n  "outcome": "failure",\n  "schema_version": "1.0",\n  "stage": "%s"\n}\n' "$stage" > .final-hardening-status.json
+            printf '{\n  "outcome": "failure",\n  "schema_version": "1.0",\n  "stage": "%s"\n}\n' "$STAGE" > .final-hardening-status.json
             git add .final-hardening-status.json
-            git commit -m "Record final hardening failure at $stage" || true
+            git commit -m "Record final hardening failure at $STAGE" || true
             git push origin HEAD:refs/heads/main || true
           }
           trap record_failure ERR
@@ -53,9 +52,9 @@ jobs:
           find .github/workflows -maxdepth 1 -type f \
             ! -name ci.yml ! -name codeql.yml ! -name release.yml -delete
           find . -maxdepth 1 -type f -name '.*trigger*' -delete
-          rm -f .final-hardening-status.json
+          find . -maxdepth 1 -type f -name '.*status.json' -delete
 
-          STAGE=patch-safe-uninstall
+          STAGE=apply-source-migrations
           python - <<'PY'
           from pathlib import Path
 
@@ -81,11 +80,6 @@ jobs:
               shutil.rmtree(destination)
           '''
           path.write_text(text[:start] + replacement + text[end:], encoding='utf-8')
-          PY
-
-          STAGE=patch-legacy-tests
-          python - <<'PY'
-          from pathlib import Path
 
           path = Path('tests/test_core.py')
           text = path.read_text(encoding='utf-8')
@@ -129,7 +123,7 @@ jobs:
           path.write_text(text.replace(old, new, 1), encoding='utf-8')
           PY
 
-          STAGE=install-python310-dependencies
+          STAGE=python310-dependencies
           python -m pip install -e '.[validation,quality]'
           STAGE=generate-durable-artifacts
           python scripts/sync_package_assets.py
@@ -139,7 +133,7 @@ jobs:
           python -m ruff check --fix tsao_computation scripts tests
           python -m ruff format tsao_computation scripts tests
           python scripts/build_manifest.py
-          STAGE=python310-all
+          STAGE=python310-release-gates
           python scripts/verify_all.py --profile all
           printf 'success\n' > /tmp/tsao-python310-success
           trap - ERR
@@ -153,13 +147,27 @@ jobs:
           set -Eeuo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          STAGE=python313-initialization
+          record_failure() {
+            cd "$GITHUB_WORKSPACE"
+            printf '{\n  "outcome": "failure",\n  "schema_version": "1.0",\n  "stage": "%s"\n}\n' "$STAGE" > .final-hardening-status.json
+            git add .final-hardening-status.json
+            git commit -m "Record final hardening failure at $STAGE" || true
+            git push origin HEAD:refs/heads/main || true
+          }
+          trap record_failure ERR
           test -f /tmp/tsao-python310-success
           cd "$FINAL_TREE"
+
+          STAGE=python313-dependencies
           python -m pip install -e '.[validation,quality]'
+          STAGE=python313-release-gates
           python scripts/verify_all.py --profile all
+          STAGE=benchmark
           python scripts/verify_all.py --profile benchmark
           python -m coverage json -o /tmp/tsao-final-coverage.json
 
+          STAGE=installation-roundtrip
           rm -rf /tmp/TsaoSciComputation
           python scripts/install_skill.py --agent codex --scope project \
             --target /tmp/TsaoSciComputation --force
@@ -168,11 +176,13 @@ jobs:
           python scripts/install_skill.py --agent codex --scope project \
             --target /tmp/TsaoSciComputation --uninstall
 
+          STAGE=single-main-check
           mapfile -t branches < <(gh api --paginate \
             "repos/$GITHUB_REPOSITORY/branches?per_page=100" --jq '.[].name' | sort -u)
           test "${#branches[@]}" -eq 1
           test "${branches[0]}" = main
 
+          STAGE=refresh-evidence
           python - <<'PY'
           import json
           import os
@@ -234,28 +244,34 @@ jobs:
               'files_scanned': security['files_scanned'],
               'findings': len(security['findings']),
           }
-          trace = report.setdefault('requirements_traceability', {})
-          trace.update({
+          report['requirements_traceability'] = {
+              'adapter_document_standard': '27/27',
               'adapter_module_probes': 'VALIDATED_FAIL_CLOSED',
               'adapter_parser_boundary': 'NORMAL_EXIT_NOT_CONVERGENCE',
+              'calculation_contract': 'STRICT_PREFLIGHT',
+              'catalog_computational_subset': 164,
+              'direct_or_combined_adapters': 27,
               'installation_manifest_validation': 'VALIDATED',
-              'strict_scenario_examples': 12,
+              'malformed_contract_handling': 'VALIDATED_FAIL_CLOSED',
+              'root_intake_questions': 12,
+              'scientific_engine_shortlist': 32,
               'scientific_state_chain': 'VALIDATED',
               'strict_multiscale_handoff': 'VALIDATED',
-              'malformed_contract_handling': 'VALIDATED_FAIL_CLOSED',
-          })
+              'strict_scenario_examples': 12,
+              'workflow_document_standard': '20/20',
+          }
           report['hardening'] = {
-              'python_310_release_gates': 'VALIDATED',
-              'python_313_release_gates': 'VALIDATED',
               'benchmark': 'VALIDATED_SEPARATELY',
               'full_manifest_install_roundtrip': 'VALIDATED',
+              'python_310_release_gates': 'VALIDATED',
+              'python_313_release_gates': 'VALIDATED',
               'remote_branches': ['main'],
-              'temporary_branch_created': False,
               'status': 'VALIDATED',
+              'temporary_branch_created': False,
           }
           report_path.write_text(json.dumps(report, indent=2, sort_keys=True) + '\n', encoding='utf-8')
 
-          for filename, test_pattern, coverage_pattern, test_text, coverage_text, note in (
+          updates = (
               (
                   'README.md',
                   r'\| Tests \| \d+ passed, \d+ failed \|',
@@ -263,6 +279,7 @@ jobs:
                   f'| Tests | {tests} passed, 0 failed |',
                   f'| Statement / branch coverage | {statement:.2f}% / {branch:.2f}% |',
                   'Adapter discovery requires every declared executable and Python module; normal exit is not convergence. Installed copies are checked against the full SHA-256 manifest, and all 12 scenario contracts pass strict preflight validation.',
+                  '## Scientific trust boundary',
               ),
               (
                   'README.zh-CN.md',
@@ -271,24 +288,32 @@ jobs:
                   f'| 自动测试 | {tests} 通过，0 失败 |',
                   f'| 语句 / 分支覆盖率 | {statement:.2f}% / {branch:.2f}% |',
                   '适配器只有在全部声明的可执行程序和 Python 模块均通过探测后才可标记为可用；正常退出不等于数值收敛。安装副本按完整 SHA-256 Manifest 校验，12 类场景合同均通过严格前检。',
+                  '## 科学可信边界',
               ),
-          ):
+          )
+          for filename, test_pattern, coverage_pattern, test_text, coverage_text, note, marker in updates:
               path = root / filename
               text = path.read_text(encoding='utf-8')
               text = re.sub(test_pattern, test_text, text)
               text = re.sub(coverage_pattern, coverage_text, text)
-              marker = '## Scientific trust boundary' if filename == 'README.md' else '## 科学可信边界'
               if note not in text:
                   text = text.replace(marker, note + '\n\n' + marker, 1)
               path.write_text(text, encoding='utf-8')
           PY
 
+          STAGE=final-manifest-and-core
           python scripts/build_manifest.py
           python scripts/build_manifest.py --check
           python scripts/verify_all.py --profile core
 
+          STAGE=publish-non-workflow-results
           cd "$GITHUB_WORKSPACE"
           git -C "$FINAL_TREE" diff --name-only -z | while IFS= read -r -d '' path; do
+            case "$path" in
+              .github/workflows/*)
+                continue
+                ;;
+            esac
             if [ -f "$FINAL_TREE/$path" ]; then
               mkdir -p "$(dirname "$path")"
               cp "$FINAL_TREE/$path" "$path"
@@ -301,3 +326,4 @@ jobs:
           git add -u
           git commit -m 'Complete fail-closed repository hardening and refresh evidence'
           git push origin HEAD:refs/heads/main
+          trap - ERR
