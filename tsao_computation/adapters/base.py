@@ -15,6 +15,7 @@ _COMPLETION_SUCCESS = re.compile(
     r"\bnormal\s+termination\b|"
     r"\b(?:run|job|calculation|simulation)\s+(?:finished|completed)(?:\s+successfully)?\b|"
     r"\b(?:finished|completed)\s+successfully\b|"
+    r"\b(?:finished|completed)\b|"
     r"\btotal\s+wall\s+time\b",
     re.IGNORECASE,
 )
