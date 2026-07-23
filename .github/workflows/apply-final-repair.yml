@@ -1,0 +1,118 @@
+name: Apply tested final repository repair
+
+on:
+  push:
+    branches: [main]
+    paths: [.final-repair-trigger]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: final-fail-closed-hardening
+  cancel-in-progress: true
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+          cache: pip
+      - name: Apply durable source and test repairs
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          python -m pip install -e '.[validation,quality]'
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('scripts/install_skill.py')
+          text = path.read_text(encoding='utf-8')
+          start = text.index('def uninstall_skill(')
+          end = text.index('\n\ndef build_parser()', start)
+          replacement = '''def uninstall_skill(
+              destination: Path, *, force: bool = False, dry_run: bool = False
+          ) -> None:
+              if not destination.exists():
+                  raise FileNotFoundError(f"installation not found: {destination}")
+              if not force:
+                  problems = validate_installation(destination)
+                  if problems:
+                      raise ValueError(
+                          "refusing to remove an invalid installation; "
+                          f"use --force: {problems}"
+                      )
+              if dry_run:
+                  print(f"DRY-RUN uninstall {destination}")
+                  return
+              shutil.rmtree(destination)
+          '''
+          path.write_text(text[:start] + replacement + text[end:], encoding='utf-8')
+
+          path = Path('tests/test_core.py')
+          text = path.read_text(encoding='utf-8')
+          text = text.replace(
+              '"a", "b", "q", 1, "1", {}, "r", 0, 0, "d", "identity", "validated"',
+              '"a", "b", "q", 1, "1", {"temperature_K": 298}, "r", 0, 0, "d", "identity", "validated"',
+          )
+          text = text.replace(
+              'HandoffRecord("a", "b", "q", 1, "1", {}, "r", 0, 0, "d", "identity", "accepted")',
+              'HandoffRecord("a", "b", "q", 1, "1", {"temperature_K": 298}, "r", 0, 0, "d", "identity", "accepted")',
+          )
+          old = '''    for s in (
+                  "planned",
+                  "prepared",
+                  "submitted",
+                  "running",
+                  "completed",
+                  "parsed",
+                  "converged",
+                  "validated",
+                  "accepted",
+              ):
+                  m.transition(s, evidence=s)
+              assert m.state == "accepted" and len(m.events) == 9'''
+          new = '''    for s in (
+                  "specified",
+                  "prepared",
+                  "preflight-passed",
+                  "submitted",
+                  "running",
+                  "completed",
+                  "parsed",
+                  "numerically-converged",
+                  "physically-validated",
+                  "scientifically-accepted",
+              ):
+                  m.transition(s, evidence=s)
+              assert m.state == "scientifically-accepted" and len(m.events) == 10'''
+          if old not in text:
+              raise SystemExit('state happy-path test anchor not found')
+          path.write_text(text.replace(old, new, 1), encoding='utf-8')
+          PY
+          python -m ruff check --fix tsao_computation scripts tests
+          python -m ruff format tsao_computation scripts tests
+          python scripts/sync_package_assets.py
+          python scripts/build_adapter_docs.py
+          python scripts/build_workflow_docs.py
+          python scripts/build_examples.py
+          python scripts/build_manifest.py
+          python scripts/verify_all.py --profile quality
+          python scripts/verify_all.py --profile core
+      - name: Publish tested repair
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git add -A
+          git commit -m 'Repair final gates and synchronize strict tests'
+          git push origin HEAD:refs/heads/main
