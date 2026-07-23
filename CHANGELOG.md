@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased — 2026-07-23
+
+- Hardened adapter parsing so abnormal or failed termination cannot be promoted through positive substrings, and explicit convergence requires a completed run.
+- Rejected unknown calculation-contract fields, non-object mappings, non-string mapping keys, and invalid validation tolerances instead of coercing them.
+- Required structured human-approval evidence for fail-closed scientific acceptance.
+- Corrected canonical-state mutation probes to test the actual illegal transition and restored the 64-probe gate.
+- Separated environment-dependent benchmarks from deterministic CI release gates and made uploaded artifact names collision-safe.
+- Simplified the English and Chinese README files around purpose, use, verification, scope, and scientific trust boundaries.
+
 ## 3.0.0 — 2026-07-22
 
 - Replaced damaged encoded source-transfer machinery with an ordinary, browsable source tree.
