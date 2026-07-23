@@ -1,17 +1,33 @@
 from __future__ import annotations
 
+from collections.abc import Iterable, Mapping
 from dataclasses import asdict, dataclass, field
 from typing import Any, ClassVar
 
 from ..errors import ContractError
 
 
-def _string_tuple(value: object) -> tuple[str, ...]:
+def _string_tuple(value: object, *, field_name: str) -> tuple[str, ...]:
     if value is None:
         return ()
     if isinstance(value, str):
         return (value,)
-    return tuple(map(str, value))  # type: ignore[arg-type]
+    if isinstance(value, Mapping) or not isinstance(value, Iterable):
+        raise ContractError(f"{field_name} must be a string or an array of strings")
+    return tuple(str(item) for item in value)
+
+
+def _mapping_tuple(value: object, *, field_name: str) -> tuple[dict[str, Any], ...]:
+    if value is None:
+        return ()
+    if isinstance(value, (str, bytes, Mapping)) or not isinstance(value, Iterable):
+        raise ContractError(f"{field_name} must be an array of objects")
+    result: list[dict[str, Any]] = []
+    for item in value:
+        if not isinstance(item, Mapping):
+            raise ContractError(f"{field_name} must contain only objects")
+        result.append({str(key): item_value for key, item_value in item.items()})
+    return tuple(result)
 
 
 @dataclass(frozen=True, slots=True)
@@ -61,7 +77,7 @@ class CalculationContract:
             raise ContractError("system definition must be non-empty")
         if not self.target_observables:
             raise ContractError("at least one target observable is required")
-        if any(not str(item).strip() for item in self.target_observables):
+        if any(not item.strip() for item in self.target_observables):
             raise ContractError("target observables must be non-empty strings")
         if any(not item.strip() for item in self.scales + self.methods):
             raise ContractError("scales and methods must be non-empty strings")
@@ -82,22 +98,32 @@ class CalculationContract:
             question=str(data["question"]),
             system=dict(data["system"]),
             conditions=dict(data["conditions"]),
-            target_observables=_string_tuple(data["target_observables"]),
+            target_observables=_string_tuple(
+                data["target_observables"], field_name="target_observables"
+            ),
             workflow=data.get("workflow"),
-            assumptions=_string_tuple(data.get("assumptions")),
+            assumptions=_string_tuple(data.get("assumptions"), field_name="assumptions"),
             acceptance_criteria=dict(data.get("acceptance_criteria", {})),
             model_object=dict(data.get("model_object", {})),
-            scales=_string_tuple(scale_value),
-            methods=_string_tuple(method_value),
+            scales=_string_tuple(scale_value, field_name="scales"),
+            methods=_string_tuple(method_value, field_name="methods"),
             boundary_conditions=dict(data.get("boundary_conditions", {})),
             initial_conditions=dict(data.get("initial_conditions", {})),
-            parameter_sources=tuple(dict(item) for item in data.get("parameter_sources", ())),
+            parameter_sources=_mapping_tuple(
+                data.get("parameter_sources"), field_name="parameter_sources"
+            ),
             convergence_plan=dict(data.get("convergence_plan", {})),
             validation_plan=dict(data.get("validation_plan", {})),
-            uncertainty_sources=_string_tuple(data.get("uncertainty_sources")),
+            uncertainty_sources=_string_tuple(
+                data.get("uncertainty_sources"), field_name="uncertainty_sources"
+            ),
             compute_resources=dict(data.get("compute_resources", {})),
-            expected_artifacts=_string_tuple(data.get("expected_artifacts")),
-            human_approval_nodes=_string_tuple(data.get("human_approval_nodes")),
+            expected_artifacts=_string_tuple(
+                data.get("expected_artifacts"), field_name="expected_artifacts"
+            ),
+            human_approval_nodes=_string_tuple(
+                data.get("human_approval_nodes"), field_name="human_approval_nodes"
+            ),
             schema_version=str(data.get("schema_version", "1.0")),
         )
 
