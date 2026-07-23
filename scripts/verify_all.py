@@ -51,6 +51,7 @@ def verify_core() -> int:
             ("repository audit", (PYTHON, "scripts/validate_repository.py")),
             ("schema validation", (PYTHON, "scripts/validate_schemas.py")),
             ("packaged registry assets", (PYTHON, "scripts/sync_package_assets.py", "--check")),
+            ("adapter metadata", (PYTHON, "scripts/validate_adapter_metadata.py")),
             ("capability index", (PYTHON, "scripts/build_capability_index.py", "--check")),
             ("adapter documentation", (PYTHON, "scripts/build_adapter_docs.py", "--check")),
             ("workflow documentation", (PYTHON, "scripts/build_workflow_docs.py", "--check")),
