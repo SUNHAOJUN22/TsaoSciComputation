@@ -22,6 +22,7 @@ def base_contract() -> dict[str, Any]:
     (
         ("system", ["not", "an", "object"]),
         ("conditions", "ambient"),
+        ("conditions", None),
         ("model_object", []),
         ("boundary_conditions", 3),
         ("initial_conditions", "zero"),
@@ -62,4 +63,18 @@ def test_workflow_must_be_a_nonempty_string_or_null() -> None:
     payload = base_contract()
     payload["workflow"] = {"slug": "cfd"}
     with pytest.raises(ContractError, match="workflow"):
+        CalculationContract.from_dict(payload)
+
+
+def test_unknown_fields_are_rejected_instead_of_ignored() -> None:
+    payload = base_contract()
+    payload["unsupported_option"] = True
+    with pytest.raises(ContractError, match="unknown contract fields"):
+        CalculationContract.from_dict(payload)
+
+
+def test_mapping_keys_are_not_silently_coerced() -> None:
+    payload = base_contract()
+    payload["system"] = {1: "invalid JSON-style key"}
+    with pytest.raises(ContractError, match="system keys must be strings"):
         CalculationContract.from_dict(payload)
