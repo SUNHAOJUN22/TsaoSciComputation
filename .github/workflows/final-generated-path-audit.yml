@@ -29,25 +29,35 @@ jobs:
         with:
           python-version: '3.13'
           cache: pip
+
       - name: Validate the durable main tree
+        id: audit
+        continue-on-error: true
         shell: bash
         run: |
           set -euo pipefail
+          stage() { printf '%s\n' "$1" > "$GITHUB_WORKSPACE/.generated-path-audit-stage"; }
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
 
+          stage prepare-final-tree
           rm -rf "$FINAL_TREE"
           git worktree add --detach "$FINAL_TREE" HEAD
           cd "$FINAL_TREE"
           rm -f \
             .github/workflows/final-generated-path-audit.yml \
-            .final-generated-path-audit-trigger
+            .final-generated-path-audit-trigger \
+            .generated-path-audit-status.json
 
+          stage verify-single-main
           mapfile -t branches < <(gh api --paginate "repos/$GITHUB_REPOSITORY/branches?per_page=100" --jq '.[].name' | sort -u)
           test "${#branches[@]}" -eq 1
           test "${branches[0]}" = main
 
+          stage install-quality-dependencies
           python -m pip install -e '.[validation,quality]'
+
+          stage format-changed-files
           python -m ruff format \
             tsao_computation/provenance/manifest.py \
             scripts/security_scan.py \
@@ -56,7 +66,7 @@ jobs:
             tests/test_security_scan.py \
             tests/test_generated_path_policy.py
 
-          # Reproduce a repository-local environment without spending time installing it.
+          stage simulate-generated-paths
           mkdir -p .venv/lib .tox/cache htmlcov .tsao-computation/runtime
           ln -s "$(command -v python)" .venv/python
           printf "eval('generated only')\n" > .venv/lib/generated.py
@@ -65,12 +75,31 @@ jobs:
           printf '{"generated": true}\n' > .tsao-computation/runtime/state.json
           printf 'generated\n' > .coverage.worker
 
-          python scripts/verify_all.py --profile quality
+          stage quality-rules
+          python scripts/quality_check.py
+          stage ruff-lint
+          python -m ruff check tsao_computation scripts tests
+          stage ruff-format-check
+          python -m ruff format --check tsao_computation scripts tests
+          stage mypy
+          python -m mypy --python-version 3.13 tsao_computation scripts
+          stage bandit
+          python -m bandit -q -r tsao_computation scripts
+          stage security-scan
+          python scripts/security_scan.py
+          stage mutation-gate
+          python scripts/run_mutation_gate.py
+
+          stage bootstrap-manifest
           python scripts/build_manifest.py
+          stage canonical-all
           python scripts/verify_all.py --profile all
+          stage benchmark
           python scripts/verify_all.py --profile benchmark
+          stage coverage-json
           python -m coverage json -o /tmp/tsao-generated-path-coverage.json
 
+          stage refresh-evidence
           python - <<'PY'
           import json
           import os
@@ -195,15 +224,18 @@ jobs:
           zh_path.write_text(zh, encoding='utf-8')
           PY
 
+          stage final-manifest
           python scripts/build_manifest.py
           python scripts/build_manifest.py --check
+          stage final-core
           python scripts/verify_all.py --profile core
 
+          stage publish-evidence
           cd "$GITHUB_WORKSPACE"
           : > /tmp/durable-paths.txt
           git -C "$FINAL_TREE" diff --name-only | while IFS= read -r path; do
             case "$path" in
-              .github/workflows/final-generated-path-audit.yml|.final-generated-path-audit-trigger)
+              .github/workflows/final-generated-path-audit.yml|.final-generated-path-audit-trigger|.generated-path-audit-status.json)
                 continue
                 ;;
             esac
@@ -219,3 +251,41 @@ jobs:
             git commit -m 'Validate generated-path policy and refresh evidence'
             git push origin HEAD:refs/heads/main
           fi
+          stage success
+
+      - name: Record audit outcome
+        if: always()
+        shell: bash
+        env:
+          AUDIT_OUTCOME: ${{ steps.audit.outcome }}
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git fetch origin main
+          git reset --hard origin/main
+          STAGE=unknown
+          if [ -f .generated-path-audit-stage ]; then
+            STAGE=$(cat .generated-path-audit-stage)
+          fi
+          python - <<PY
+          import json
+          import os
+          from pathlib import Path
+          Path('.generated-path-audit-status.json').write_text(
+              json.dumps(
+                  {
+                      'outcome': os.environ['AUDIT_OUTCOME'],
+                      'stage': ${STAGE@Q},
+                      'schema_version': '1.0',
+                  },
+                  indent=2,
+                  sort_keys=True,
+              ) + '\n',
+              encoding='utf-8',
+          )
+          PY
+          git add .generated-path-audit-status.json
+          git commit -m "Record generated-path audit outcome: $AUDIT_OUTCOME at $STAGE"
+          git push origin HEAD:refs/heads/main
+          test "$AUDIT_OUTCOME" = success
