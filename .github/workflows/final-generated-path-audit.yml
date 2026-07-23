@@ -10,12 +10,12 @@ permissions:
 
 concurrency:
   group: final-generated-path-audit
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 40
     env:
       FINAL_TREE: /tmp/tsao-final-generated-path-audit
       GH_TOKEN: ${{ github.token }}
@@ -56,9 +56,10 @@ jobs:
             tests/test_security_scan.py \
             tests/test_generated_path_policy.py
 
-          # Reproduce the common local workflow that previously polluted repository checks.
-          python -m venv .venv
-          mkdir -p .tox/cache htmlcov .tsao-computation/runtime
+          # Reproduce a repository-local environment without spending time installing it.
+          mkdir -p .venv/lib .tox/cache htmlcov .tsao-computation/runtime
+          ln -s "$(command -v python)" .venv/python
+          printf "eval('generated only')\n" > .venv/lib/generated.py
           printf "eval('generated only')\n" > .tox/cache/generated.py
           printf "eval('generated only')\n" > htmlcov/generated.html
           printf '{"generated": true}\n' > .tsao-computation/runtime/state.json
