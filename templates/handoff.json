@@ -1,13 +1,23 @@
 {
-  "applicability": "declared domain",
-  "conditions": {},
-  "model_uncertainty": null,
+  "applicability": "declared domain and receiving-model limits",
+  "conditions": {
+    "composition": "project-specific",
+    "pressure": "project-specific or not applicable",
+    "temperature": "project-specific"
+  },
+  "model_uncertainty": {
+    "basis": "model-form or calibration assessment",
+    "value": "project-specific"
+  },
   "quantity": "quantity",
   "reference_state": "declared reference",
   "source_model": "source",
-  "statistical_uncertainty": null,
+  "statistical_uncertainty": {
+    "basis": "sampling or fit assessment",
+    "value": "project-specific"
+  },
   "target_model": "target",
-  "transformation": "identity",
+  "transformation": "identity or explicit conversion formula",
   "unit": "1",
   "validation_status": "unvalidated",
   "value": 0.0
