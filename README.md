@@ -29,7 +29,7 @@ It supplies contracts, registries, validators, secure execution primitives, cons
 | Version | 3.0.0 |
 | Capabilities / adapters / workflows | 164 / 27 / 20 |
 | Runtime dependencies | 0 mandatory third-party packages |
-| Tests | 432 passed, 0 failed |
+| Tests | 435 passed, 0 failed |
 | Statement / branch coverage | 98.80% / 96.81% |
 | Controlled mutation probes | 64/64 killed |
 | Repository security scan | 0 findings |
@@ -53,18 +53,24 @@ python scripts/init_project.py --root demo --name demo \
   --question "How does morphology affect conductivity?"
 ```
 
-## Verify everything
+## Verification
 
-The README, CI, and release workflow use the same cross-platform verification entrypoint:
+README, CI, and Release share one cross-platform entrypoint:
 
 ```bash
 python -m pip install -e '.[validation,quality]'
 python scripts/verify_all.py --profile all
 ```
 
-`all` runs quality, tests and coverage, repository/schema/asset/manifest validation, security and mutation gates, reproducible source packaging, reproducible wheel building, and isolated wheel installation. For focused diagnosis, use `core`, `quality`, `package`, or `benchmark` instead.
+`all` runs the deterministic release gates: quality, tests and coverage, repository/schema/asset/manifest validation, security and mutation checks, reproducible source packaging, reproducible wheel building, and isolated wheel installation.
 
-CI runs `core` on Python 3.10 and 3.13 across Ubuntu, Windows, and macOS; it also runs the quality, benchmark, packaging, and CodeQL gates. Release candidates must pass `--profile all`. GitHub Actions are pinned to immutable commits.
+Performance measurements are environment-specific and intentionally separate:
+
+```bash
+python scripts/verify_all.py --profile benchmark
+```
+
+For focused diagnosis, use `core`, `quality`, or `package`. CI runs `core` on Python 3.10 and 3.13 across Ubuntu, Windows, and macOS, plus quality, benchmark, packaging, and CodeQL jobs. Release candidates must pass `--profile all`. GitHub Actions are pinned to immutable commits.
 
 ## Scientific trust boundary
 
@@ -74,7 +80,7 @@ completed ≠ parsed ≠ converged ≠ validated ≠ accepted
 
 Acceptance is fail-closed. Missing convergence, physical checks, uncertainty, applicability limits, provenance, or required human approval prevents promotion to `accepted`. High-risk reactor, control, digital-twin, safety, runaway, and commercial handoff decisions always require expert review.
 
-Performance is environment-specific. [`benchmarks/latest.json`](benchmarks/latest.json) is the source of truth, and [`docs/performance.md`](docs/performance.md) defines the measurement boundary.
+Performance results are recorded in [`benchmarks/latest.json`](benchmarks/latest.json); [`docs/performance.md`](docs/performance.md) defines their measurement boundary.
 
 ## Repository policy
 
