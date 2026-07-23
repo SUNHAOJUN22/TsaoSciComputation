@@ -7,7 +7,7 @@ import shutil
 import subprocess  # nosec B404
 import sys
 import tempfile
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -118,25 +118,40 @@ def verify_benchmark() -> int:
     return run("orchestration microbenchmark", (PYTHON, "scripts/benchmark.py"))
 
 
+PROFILE_FUNCTIONS: dict[str, Callable[[], int]] = {
+    "core": verify_core,
+    "quality": verify_quality,
+    "package": verify_package,
+    "benchmark": verify_benchmark,
+}
+RELEASE_PROFILE_NAMES = ("quality", "core", "package")
+
+
+def selected_verifications(profile: str) -> tuple[Callable[[], int], ...]:
+    if profile == "all":
+        return tuple(PROFILE_FUNCTIONS[name] for name in RELEASE_PROFILE_NAMES)
+    try:
+        return (PROFILE_FUNCTIONS[profile],)
+    except KeyError as error:
+        raise ValueError(f"unknown verification profile: {profile}") from error
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Run the canonical TsaoSciComputation verification profiles."
     )
     parser.add_argument(
         "--profile",
-        choices=("core", "quality", "package", "benchmark", "all"),
+        choices=(*PROFILE_FUNCTIONS, "all"),
         default="all",
+        help=(
+            "all runs the deterministic release gates (quality, core, package); "
+            "benchmark remains separate because it is environment-specific"
+        ),
     )
     args = parser.parse_args()
 
-    profiles = {
-        "core": (verify_core,),
-        "quality": (verify_quality,),
-        "package": (verify_package,),
-        "benchmark": (verify_benchmark,),
-        "all": (verify_quality, verify_core, verify_package),
-    }
-    for verification in profiles[args.profile]:
+    for verification in selected_verifications(args.profile):
         returncode = verification()
         if returncode:
             return returncode
