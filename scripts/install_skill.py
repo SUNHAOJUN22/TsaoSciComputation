@@ -221,13 +221,10 @@ def install_skill(
 def uninstall_skill(destination: Path, *, force: bool = False, dry_run: bool = False) -> None:
     if not destination.exists():
         raise FileNotFoundError(f"installation not found: {destination}")
-    receipt = destination / RECEIPT_NAME
-    if not receipt.is_file() and not force:
-        raise ValueError(f"refusing to remove an unverified directory; use --force: {destination}")
-    if receipt.is_file():
-        payload = json.loads(receipt.read_text(encoding="utf-8"))
-        if payload.get("skill") != SKILL_NAME and not force:
-            raise ValueError(f"receipt does not belong to {SKILL_NAME}")
+    if not force:
+        problems = validate_installation(destination)
+        if problems:
+            raise ValueError(f"refusing to remove an invalid installation; use --force: {problems}")
     if dry_run:
         print(f"DRY-RUN uninstall {destination}")
         return

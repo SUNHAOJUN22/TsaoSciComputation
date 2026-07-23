@@ -190,9 +190,7 @@ class CalculationContract:
             convergence_plan=_mapping(
                 data.get("convergence_plan", {}), field_name="convergence_plan"
             ),
-            validation_plan=_mapping(
-                data.get("validation_plan", {}), field_name="validation_plan"
-            ),
+            validation_plan=_mapping(data.get("validation_plan", {}), field_name="validation_plan"),
             uncertainty_sources=_string_tuple(
                 data.get("uncertainty_sources"), field_name="uncertainty_sources"
             ),

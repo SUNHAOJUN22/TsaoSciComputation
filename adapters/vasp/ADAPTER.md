@@ -28,12 +28,13 @@ This adapter provides discovery, input/output contracts, conservative parsing, a
 ## Prerequisites
 
 - Candidate executable(s): `vasp_std`
+- Required Python module(s): None declared.
 - The user must provide a lawful installation, license where required, version information, and required scientific data files.
 - The calculation contract must identify the observable, method, units, reference state, convergence plan, validation plan, and resource envelope.
 
 ## Environment probe
 
-Run `python -m tsao_computation probe` and retain the executable path, version, environment, license outcome, and probe timestamp. A detected executable is not proof that a scientifically valid run is possible.
+Run `python -m tsao_computation probe` and retain the executable path, required-module outcome, version, environment, license outcome, and probe timestamp. Python-library adapters are unavailable unless every declared module is import-discoverable through the selected interpreter. A detected executable is not proof that a scientifically valid run is possible.
 
 ## Input contract
 
@@ -46,7 +47,7 @@ Preserve native stdout/stderr and output files, return code, hashes, parser vers
 ## Preflight
 
 1. Strictly validate the calculation contract.
-2. Probe the executable and lawful environment.
+2. Probe the executable, required modules, and lawful environment.
 3. Validate files, syntax, units, model consistency, resources, and output paths.
 4. Confirm the convergence and scientific-validation plans before submission.
 
@@ -60,11 +61,11 @@ Validate file completeness, exit status, units, conservation or invariants, meth
 
 ## Convergence
 
-Require method-appropriate SCF, geometry, force, residual, mesh, time-step, sampling, queue, or process convergence evidence. A single successful run is not a convergence study.
+Require method-appropriate SCF, geometry, force, residual, mesh, time-step, sampling, queue, or process convergence evidence. Normal exit alone is not convergence, and a single successful run is not a convergence study.
 
 ## Common errors
 
-Environment or license missing; malformed input; unavailable data file; invalid structure or units; numerical nonconvergence; insufficient memory; MPI/GPU/queue failure; parser mismatch; or model inapplicability.
+Environment, module, or license missing; malformed input; unavailable data file; invalid structure or units; numerical nonconvergence; insufficient memory; MPI/GPU/queue failure; parser mismatch; or model inapplicability.
 
 ## Recovery
 
@@ -72,7 +73,7 @@ Recovery is bounded and auditable. Record the original setting, replacement, rea
 
 ## Provenance
 
-Record adapter slug, solver/version, executable path, platform, input/output hashes, method fingerprint, parameters and sources, timestamps, resource use, parser version, validation results, and human approvals.
+Record adapter slug, solver/version, executable path, required-module probe, platform, input/output hashes, method fingerprint, parameters and sources, timestamps, resource use, parser version, validation results, and human approvals.
 
 ## Examples
 
@@ -82,4 +83,5 @@ Use the closest workflow example under `examples/`, then replace every system-sp
 
 - `python -m tsao_computation probe`
 - `python -m tsao_computation validate-contract <contract.json> --strict`
+- `python scripts/validate_adapter_metadata.py`
 - `python scripts/verify_all.py --profile core`

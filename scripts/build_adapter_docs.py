@@ -37,8 +37,7 @@ def render_adapter(record: dict[str, Any], capabilities: list[dict[str, Any]]) -
         or "No executable is declared; this adapter is guidance-only until a lawful integration is configured."
     )
     python_modules = (
-        ", ".join(f"`{item}`" for item in record.get("python_modules", []))
-        or "None declared."
+        ", ".join(f"`{item}`" for item in record.get("python_modules", [])) or "None declared."
     )
     capability_lines = (
         "\n".join(f"- `{item['id']}` `{item['slug']}` — {item['name_en']}" for item in related)

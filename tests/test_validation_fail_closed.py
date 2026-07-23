@@ -34,9 +34,7 @@ def test_convergence_tolerances_must_be_finite_and_non_negative(
     absolute: float, relative: float
 ) -> None:
     with pytest.raises(ValueError, match="finite and non-negative"):
-        convergence_check(
-            [1.0, 1.1], absolute_tolerance=absolute, relative_tolerance=relative
-        )
+        convergence_check([1.0, 1.1], absolute_tolerance=absolute, relative_tolerance=relative)
 
 
 @pytest.mark.parametrize(

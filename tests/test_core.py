@@ -47,7 +47,7 @@ def test_003_contract_empty_observable():
 def test_004_handoff_valid():
     assert (
         HandoffRecord(
-            "a", "b", "q", 1, "1", {}, "r", 0, 0, "d", "identity", "validated"
+            "a", "b", "q", 1, "1", {"temperature_K": 298}, "r", 0, 0, "d", "identity", "validated"
         ).validation_status
         == "validated"
     )
@@ -56,25 +56,28 @@ def test_004_handoff_valid():
 @pytest.mark.integration
 def test_005_handoff_invalid():
     with pytest.raises(ContractError):
-        HandoffRecord("a", "b", "q", 1, "1", {}, "r", 0, 0, "d", "identity", "accepted")
+        HandoffRecord(
+            "a", "b", "q", 1, "1", {"temperature_K": 298}, "r", 0, 0, "d", "identity", "accepted"
+        )
 
 
 @pytest.mark.integration
 def test_006_state_happy_path():
     m = ScientificStateMachine()
-    for s in (
-        "planned",
+    for state in (
+        "specified",
         "prepared",
+        "preflight-passed",
         "submitted",
         "running",
         "completed",
         "parsed",
-        "converged",
-        "validated",
-        "accepted",
+        "numerically-converged",
+        "physically-validated",
+        "scientifically-accepted",
     ):
-        m.transition(s, evidence=s)
-    assert m.state == "accepted" and len(m.events) == 9
+        m.transition(state, evidence=state)
+    assert m.state == "scientifically-accepted" and len(m.events) == 10
 
 
 @pytest.mark.integration

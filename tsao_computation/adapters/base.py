@@ -170,9 +170,7 @@ class Adapter:
         completed = _COMPLETION_SUCCESS.search(output) is not None and not completion_failed
         convergence_failed = _CONVERGENCE_FAILURE.search(output) is not None
         converged = (
-            completed
-            and _CONVERGENCE_SUCCESS.search(output) is not None
-            and not convergence_failed
+            completed and _CONVERGENCE_SUCCESS.search(output) is not None and not convergence_failed
         )
         return {
             "completed": completed,
