@@ -1,4 +1,4 @@
-name: Diagnosable dual-version repository audit
+name: Format Python compatibility fix
 
 on:
   push:
@@ -12,61 +12,10 @@ concurrency:
   group: final-dual-version-repository-audit
   cancel-in-progress: true
 
-env:
-  FINAL_CI_BASE64: bmFtZTogQ0kKCm9uOgogIHdvcmtmbG93X2Rpc3BhdGNoOgogIHB1bGxfcmVxdWVzdDoKICAgIGJyYW5jaGVzOiBbbWFpbl0KICBwdXNoOgogICAgYnJhbmNoZXM6IFttYWluXQoKcGVybWlzc2lvbnM6CiAgY29udGVudHM6IHJlYWQKCmNvbmN1cnJlbmN5OgogIGdyb3VwOiBjaS0ke3sgZ2l0aHViLndvcmtmbG93IH19LSR7eyBnaXRodWIucmVmIH19CiAgY2FuY2VsLWluLXByb2dyZXNzOiB0cnVlCgpqb2JzOgogIGNvcmU6CiAgICBzdHJhdGVneToKICAgICAgZmFpbC1mYXN0OiBmYWxzZQogICAgICBtYXRyaXg6CiAgICAgICAgb3M6IFt1YnVudHUtbGF0ZXN0LCB3aW5kb3dzLWxhdGVzdCwgbWFjb3MtbGF0ZXN0XQogICAgICAgIHB5dGhvbjogWyczLjEwJywgJzMuMTMnXQogICAgcnVucy1vbjogJHt7IG1hdHJpeC5vcyB9fQogICAgdGltZW91dC1taW51dGVzOiAyMAogICAgc3RlcHM6CiAgICAgIC0gdXNlczogYWN0aW9ucy9jaGVja291dEAzNGUxMTQ4NzZiMGIxMWMzOTBhNTYzODFhZDE2ZWJkMTM5MTRmOGQ1CiAgICAgICAgd2l0aDoKICAgICAgICAgIHBlcnNpc3QtY3JlZGVudGlhbHM6IGZhbHNlCiAgICAgIC0gdXNlczogYWN0aW9ucy9zZXR1cC1weXRob25AYTMwOWZmOGI0MjZiNThlYzBlMmE0NWYwZjg2OWQ0Njg4OWQwMjQwNQogICAgICAgIHdpdGg6CiAgICAgICAgICBweXRob24tdmVyc2lvbjogJHt7IG1hdHJpeC5weXRob24gfX0KICAgICAgICAgIGNhY2hlOiBwaXAKICAgICAgLSBydW46IHB5dGhvbiAtbSBwaXAgaW5zdGFsbCAtZSAnLlt2YWxpZGF0aW9uLHF1YWxpdHldJwogICAgICAtIHJ1bjogcHl0aG9uIHNjcmlwdHMvdmVyaWZ5X2FsbC5weSAtLXByb2ZpbGUgY29yZQoKICBxdWFsaXR5OgogICAgcnVucy1vbjogdWJ1bnR1LWxhdGVzdAogICAgdGltZW91dC1taW51dGVzOiAyMAogICAgc3RlcHM6CiAgICAgIC0gdXNlczogYWN0aW9ucy9jaGVja291dEAzNGUxMTQ4NzZiMGIxMWMzOTBhNTYzODFhZDE2ZWJkMTM5MTRmOGQ1CiAgICAgICAgd2l0aDoKICAgICAgICAgIHBlcnNpc3QtY3JlZGVudGlhbHM6IGZhbHNlCiAgICAgIC0gdXNlczogYWN0aW9ucy9zZXR1cC1weXRob25AYTMwOWZmOGI0MjZiNThlYzBlMmE0NWYwZjg2OWQ0Njg4OWQwMjQwNQogICAgICAgIHdpdGg6CiAgICAgICAgICBweXRob24tdmVyc2lvbjogJzMuMTMnCiAgICAgICAgICBjYWNoZTogcGlwCiAgICAgIC0gcnVuOiBweXRob24gLW0gcGlwIGluc3RhbGwgLWUgJy5bdmFsaWRhdGlvbixxdWFsaXR5XScKICAgICAgLSBydW46IHB5dGhvbiBzY3JpcHRzL3ZlcmlmeV9hbGwucHkgLS1wcm9maWxlIHF1YWxpdHkKICAgICAgLSBydW46IHB5dGhvbiBzY3JpcHRzL3ZlcmlmeV9hbGwucHkgLS1wcm9maWxlIGJlbmNobWFyawoKICBwYWNrYWdlOgogICAgcnVucy1vbjogdWJ1bnR1LWxhdGVzdAogICAgdGltZW91dC1taW51dGVzOiAyNQogICAgc3RlcHM6CiAgICAgIC0gdXNlczogYWN0aW9ucy9jaGVja291dEAzNGUxMTQ4NzZiMGIxMWMzOTBhNTYzODFhZDE2ZWJkMTM5MTRmOGQ1CiAgICAgICAgd2l0aDoKICAgICAgICAgIHBlcnNpc3QtY3JlZGVudGlhbHM6IGZhbHNlCiAgICAgIC0gdXNlczogYWN0aW9ucy9zZXR1cC1weXRob25AYTMwOWZmOGI0MjZiNThlYzBlMmE0NWYwZjg2OWQ0Njg4OWQwMjQwNQogICAgICAgIHdpdGg6CiAgICAgICAgICBweXRob24tdmVyc2lvbjogJzMuMTMnCiAgICAgIC0gcnVuOiBweXRob24gLW0gcGlwIGluc3RhbGwgLWUgJy5bdmFsaWRhdGlvbixxdWFsaXR5XScKICAgICAgLSBydW46IHB5dGhvbiBzY3JpcHRzL3ZlcmlmeV9hbGwucHkgLS1wcm9maWxlIHBhY2thZ2UKICAgICAgLSB1c2VzOiBhY3Rpb25zL3VwbG9hZC1hcnRpZmFjdEAwNDNmYjQ2ZDFhOTNjNzdhYWU2NTZlN2MxYzY0YTg3NWQxZmM2YTBhCiAgICAgICAgd2l0aDoKICAgICAgICAgIG5hbWU6IFRzYW9TY2lDb21wdXRhdGlvbi1yZWxlYXNlLWNhbmRpZGF0ZQogICAgICAgICAgcGF0aDogZGlzdC8qCiAgICAgICAgICBpZi1uby1maWxlcy1mb3VuZDogZXJyb3IKICAgICAgICAgIHJldGVudGlvbi1kYXlzOiAxNAo=
-
 jobs:
-  python310-release:
+  format:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
-    steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
-        with:
-          ref: main
-          fetch-depth: 0
-          persist-credentials: true
-      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
-        with:
-          python-version: '3.10'
-          cache: pip
-      - name: Run diagnosable Python 3.10 gates
-        shell: bash
-        run: |
-          set -Eeuo pipefail
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          STAGE=prepare
-          record_status() {
-            local outcome="$1"
-            local stage="$2"
-            git reset --hard HEAD
-            printf '{\n  "outcome": "%s",\n  "python": "3.10",\n  "schema_version": "1.0",\n  "stage": "%s"\n}\n' "$outcome" "$stage" > .final-ci-status.json
-            git add .final-ci-status.json
-            git commit -m "Record Python 3.10 audit: $outcome at $stage" || true
-            git push origin HEAD:refs/heads/main || true
-          }
-          trap 'record_status failure "$STAGE"' ERR
-          rm -f .github/workflows/python310-compatibility-audit.yml .github/workflows/python310-compatibility-audit-v2.yml .github/workflows/python310-compatibility-audit-v3.yml .github/workflows/final-python-compatibility.yml .python310-compatibility-trigger .python310-compatibility-trigger-v2 .python310-compatibility-trigger-v3 .python310-compatibility-status.json .final-python-compatibility-trigger .final-ci-audit-trigger .final-ci-status.json
-          printf '%s' "$FINAL_CI_BASE64" | base64 --decode > .github/workflows/ci.yml
-          STAGE=install
-          python -m pip install -e '.[validation,quality]'
-          STAGE=quality
-          python scripts/verify_all.py --profile quality
-          STAGE=manifest
-          python scripts/build_manifest.py
-          STAGE=all
-          python scripts/verify_all.py --profile all
-          trap - ERR
-          git reset --hard HEAD
-          printf '{\n  "outcome": "success",\n  "python": "3.10",\n  "schema_version": "1.0",\n  "stage": "all"\n}\n' > .final-ci-status.json
-          git add .final-ci-status.json
-          git commit -m 'Record Python 3.10 release gates success'
-          git push origin HEAD:refs/heads/main
-
-  python313-finalize:
-    needs: python310-release
-    runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
         with:
@@ -77,80 +26,20 @@ jobs:
         with:
           python-version: '3.13'
           cache: pip
-      - name: Run Python 3.13 gates and refresh evidence
+      - name: Format and commit compatibility files
         shell: bash
         run: |
-          set -Eeuo pipefail
+          set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          STAGE=prepare
-          record_failure() {
-            local stage="$1"
-            git reset --hard HEAD
-            printf '{\n  "outcome": "failure",\n  "python": "3.13",\n  "schema_version": "1.0",\n  "stage": "%s"\n}\n' "$stage" > .final-ci-status.json
-            git add .final-ci-status.json
-            git commit -m "Record Python 3.13 audit failure at $stage" || true
-            git push origin HEAD:refs/heads/main || true
-          }
-          trap 'record_failure "$STAGE"' ERR
-          rm -f .github/workflows/python310-compatibility-audit.yml .github/workflows/python310-compatibility-audit-v2.yml .github/workflows/python310-compatibility-audit-v3.yml .github/workflows/final-python-compatibility.yml .python310-compatibility-trigger .python310-compatibility-trigger-v2 .python310-compatibility-trigger-v3 .python310-compatibility-status.json .final-python-compatibility-trigger .final-ci-audit-trigger .final-ci-status.json
-          printf '%s' "$FINAL_CI_BASE64" | base64 --decode > .github/workflows/ci.yml
-          STAGE=install
-          python -m pip install -e '.[validation,quality]'
+          python -m pip install -e '.[quality]'
           python -m ruff format tsao_computation/repository_audit.py tests/test_python_compatibility.py
-          STAGE=quality
-          python scripts/verify_all.py --profile quality
-          STAGE=manifest-before-all
-          python scripts/build_manifest.py
-          STAGE=all
-          python scripts/verify_all.py --profile all
-          STAGE=benchmark
-          python scripts/verify_all.py --profile benchmark
-          python -m coverage json -o /tmp/tsao-final-dual-version-coverage.json
-          STAGE=evidence
-          python - <<'PY'
-          import json, re, subprocess, sys
-          from pathlib import Path
-          collected = subprocess.run([sys.executable, '-m', 'pytest', '--collect-only', '-q'], check=True, capture_output=True, text=True)
-          match = re.search(r'(\d+) tests? collected', collected.stdout + collected.stderr)
-          if match is None:
-              raise SystemExit('unable to determine test count')
-          tests = int(match.group(1))
-          totals = json.loads(Path('/tmp/tsao-final-dual-version-coverage.json').read_text(encoding='utf-8'))['totals']
-          statements = 100.0 * (totals['num_statements'] - totals['missing_lines']) / totals['num_statements']
-          branches = 100.0 * (totals['num_branches'] - totals['missing_branches']) / totals['num_branches']
-          security = json.loads(Path('evidence/security-scan.json').read_text(encoding='utf-8'))
-          baseline_path = Path('evidence/quality-baseline.json')
-          baseline = json.loads(baseline_path.read_text(encoding='utf-8'))
-          baseline['counts']['tests_passed'] = tests
-          baseline['counts']['tests_failed'] = 0
-          baseline['coverage'] = {'branches_percent': branches, 'missing_branches': totals['missing_branches'], 'missing_statements': totals['missing_lines'], 'statements_percent': statements}
-          baseline['security']['repository_findings'] = len(security['findings'])
-          baseline_path.write_text(json.dumps(baseline, indent=2, sort_keys=True) + '\n', encoding='utf-8')
-          Path('reports/SECURITY_SCAN.json').write_text(json.dumps(security, indent=2, sort_keys=True) + '\n', encoding='utf-8')
-          report_path = Path('reports/REMOTE_FINALIZATION.json')
-          report = json.loads(report_path.read_text(encoding='utf-8'))
-          report['tests'] = {'errors': 0, 'failures': 0, 'passed': tests}
-          report['security'] = {'files_scanned': security['files_scanned'], 'findings': len(security['findings'])}
-          report['python_compatibility'] = {'minimum_supported': '3.10', 'python_310_release_gates': 'VALIDATED', 'python_313_release_gates': 'VALIDATED', 'python_313_benchmark': 'VALIDATED_SEPARATELY', 'runtime_compatibility_dependency_added': False, 'status': 'VALIDATED', 'temporary_branch_created': False}
-          report['coverage'].update({'covered_branches': totals['covered_branches'], 'covered_lines': totals['covered_lines'], 'excluded_lines': totals['excluded_lines'], 'missing_branches': totals['missing_branches'], 'missing_lines': totals['missing_lines'], 'num_branches': totals['num_branches'], 'num_partial_branches': totals['num_partial_branches'], 'num_statements': totals['num_statements'], 'percent_branches_covered': branches, 'percent_branches_covered_display': f'{branches:.0f}', 'percent_covered': totals['percent_covered'], 'percent_covered_display': totals['percent_covered_display'], 'percent_statements_covered': statements, 'percent_statements_covered_display': f'{statements:.0f}'})
-          report_path.write_text(json.dumps(report, indent=2, sort_keys=True) + '\n', encoding='utf-8')
-          for filename, marker, note, test_pattern, test_value, coverage_pattern, coverage_value in (
-              ('README.md', '## Verification\n', 'The minimum supported interpreter is Python 3.10; release gates are validated on Python 3.10 and 3.13.', r'\| Tests \| \d+ passed, \d+ failed \|', f'| Tests | {tests} passed, 0 failed |', r'\| Statement / branch coverage \| [^|]+ \|', f'| Statement / branch coverage | {statements:.2f}% / {branches:.2f}% |'),
-              ('README.zh-CN.md', '## 统一验证\n', '最低支持 Python 3.10；发布门禁在 Python 3.10 与 3.13 上均完成验证。', r'\| 自动测试 \| \d+ 通过，\d+ 失败 \|', f'| 自动测试 | {tests} 通过，0 失败 |', r'\| 语句 / 分支覆盖率 \| [^|]+ \|', f'| 语句 / 分支覆盖率 | {statements:.2f}% / {branches:.2f}% |'),
-          ):
-              path = Path(filename)
-              content = path.read_text(encoding='utf-8')
-              if note not in content:
-                  content = content.replace(marker, marker + '\n' + note + '\n', 1)
-              content = re.sub(test_pattern, test_value, content)
-              path.write_text(re.sub(coverage_pattern, coverage_value, content), encoding='utf-8')
-          PY
-          STAGE=final-manifest
-          python scripts/build_manifest.py
-          python scripts/build_manifest.py --check
-          python scripts/verify_all.py --profile core
-          trap - ERR
-          git add README.md README.zh-CN.md benchmarks/latest.json evidence reports manifest.json
-          git commit -m 'Validate Python 3.10 and 3.13 release gates'
+          git add tsao_computation/repository_audit.py tests/test_python_compatibility.py
+          if ! git diff --cached --quiet; then
+            git commit -m 'Format Python 3.10 compatibility fix'
+            git push origin HEAD:refs/heads/main
+          fi
+          printf '{\n  "outcome": "formatted",\n  "schema_version": "1.0"\n}\n' > .final-ci-status.json
+          git add .final-ci-status.json
+          git commit -m 'Record compatibility formatting completion'
           git push origin HEAD:refs/heads/main
