@@ -10,17 +10,17 @@
 
 </div>
 
-## What it is
+## Purpose
 
-TsaoSciComputation turns a scientific question into a traceable program:
+TsaoSciComputation converts a scientific question into a traceable calculation program:
 
 ```text
-question → strict calculation contract → scale/method routing → environment preflight
-         → bounded execution → conservative parsing → numerical/physical validation
-         → uncertainty/applicability → evidence-bound acceptance → multiscale handoff
+question → strict contract → method/scale route → environment preflight
+         → bounded execution → conservative parsing → validation
+         → uncertainty/applicability → acceptance → multiscale handoff
 ```
 
-It does not bundle or impersonate external solvers, licenses, databases, pseudopotentials, basis sets, private data, or production HPC infrastructure.
+It orchestrates scientific work; it does **not** bundle or impersonate external solvers, licenses, databases, basis sets, pseudopotentials, private data, or production HPC infrastructure.
 
 ## Verified baseline
 
@@ -37,65 +37,59 @@ It does not bundle or impersonate external solvers, licenses, databases, pseudop
 | Wheel | byte-identical rebuild and isolated install |
 | Remote branches | `main` only |
 
-Machine-readable evidence is stored in `evidence/quality-baseline.json`, `reports/REMOTE_FINALIZATION.json`, and `benchmarks/latest.json`.
+The authoritative machine-readable evidence is in `evidence/quality-baseline.json`, `reports/REMOTE_FINALIZATION.json`, and `benchmarks/latest.json`.
 
-## Coverage boundary
-
-The uploaded catalog contains 322 skills, including a 164-item computational subset and a 32-engine shortlist. This repository also has 164 capabilities, but reorganizes them into 20 validation-aware workflows rather than copying catalog slugs one-for-one. It has 27 core adapters; 21 of the 32 engine rows are represented directly or through combined adapters, while 11 remain explicit non-standalone limits. See [`docs/coverage-matrix.md`](docs/coverage-matrix.md).
-
-## Quick start
+## Start
 
 ```bash
 git clone https://github.com/SUNHAOJUN22/TsaoSciComputation.git
 cd TsaoSciComputation
 python -m pip install -e .
 
-python -m tsao_computation --version
 python -m tsao_computation route "Use DFT and MD to study a polymer interface"
 python scripts/init_project.py --root demo --name demo \
   --question "How does morphology affect conductivity?"
-```
-
-Start from [`templates/calculation-contract.json`](templates/calculation-contract.json), then require the complete preflight contract:
-
-```bash
-python -m tsao_computation validate-contract contract.json --strict
+python -m tsao_computation validate-contract \
+  templates/calculation-contract.json --strict
 python -m tsao_computation probe
 ```
+
+The strict contract is the control point: malformed fields, missing preflight information, unavailable executables or Python modules, unsafe paths, invalid state transitions, and incomplete acceptance evidence fail closed.
+
+## Scope
+
+The repository contains 164 differentiated capabilities organized into 20 validation-aware workflows and 27 core adapters. Of the 32 engines in the source shortlist, 21 are represented directly or through combined adapters; 11 remain explicit non-standalone limits. See [`docs/coverage-matrix.md`](docs/coverage-matrix.md).
+
+## Verify
+
+```bash
+python -m pip install -e '.[validation,quality]'
+python scripts/verify_all.py --profile all
+python scripts/verify_all.py --profile benchmark
+```
+
+`all` is the deterministic release gate: quality, tests and coverage, repository/schema/asset/manifest checks, security, controlled mutation probes, reproducible source and wheel builds, and isolated wheel installation. `benchmark` is environment-dependent telemetry and is deliberately separate from release acceptance. CI validates the core matrix on Python 3.10 and 3.13 across Ubuntu, Windows, and macOS; Actions are pinned to immutable commits.
 
 ## Install as an Agent Skill
 
 ```bash
 python scripts/install_skill.py --agent codex --scope user --dry-run
 python scripts/install_skill.py --agent codex --scope user
-python scripts/install_skill.py --agent claude --scope project
-python scripts/install_skill.py --agent open-agent-skills --target /custom/skills
 python scripts/install_skill.py --agent codex --scope user --validate
-python scripts/install_skill.py --agent codex --scope user --uninstall
 ```
 
-Use `--force` only for an intentional replacement or verified uninstall override. The installer supports Windows, Linux, macOS, offline copies, and explicit custom targets.
-
-## Verification
-
-The minimum supported interpreter is Python 3.10; release gates are validated on Python 3.10 and 3.13.
-
-```bash
-python -m pip install -e '.[validation,quality]'
-python scripts/verify_all.py --profile all
-python scripts/verify_all.py --profile benchmark  # environment-specific; separate from release gates
-```
-
-`all` runs quality, tests and coverage, repository/schema/asset/manifest validation, security and mutation checks, reproducible source packaging, reproducible wheel building, and isolated wheel installation. CI also covers Python 3.10/3.13 on Ubuntu, Windows, and macOS. GitHub Actions are pinned to immutable commits.
+Use `--force` only for an intentional, reviewed replacement or uninstall override.
 
 ## Scientific trust boundary
+
+Adapter discovery requires every declared executable and Python module; normal exit is not convergence. Installed copies are checked against the full SHA-256 manifest, and all 12 scenario contracts pass strict preflight validation.
 
 ```text
 completed ≠ parsed ≠ converged ≠ validated ≠ accepted
 ```
 
-Acceptance is fail-closed. Missing convergence, physical checks, uncertainty, applicability, provenance, or required human approval prevents promotion to `scientifically-accepted`. High-risk reactor, control, digital-twin, safety, runaway, and commercial handoff decisions require expert review.
+Acceptance remains fail-closed. Missing convergence, physical checks, uncertainty, applicability, provenance, evidence, or required human approval prevents scientific acceptance. Reactor, control, digital-twin, safety, runaway, and commercial handoff decisions require domain-expert review.
 
 ## Repository policy
 
-`main` is the only remote branch and authoritative development line. Historical branch heads are preserved by immutable archive tags, not additional branches. Generated environments and caches are consistently pruned, while real source and configuration files remain in scope.
+`main` is the only remote branch and the authoritative line. Historical branch heads belong in immutable archive tags, not additional branches. Generated environments and caches are excluded; real source, configuration, tests, evidence, and release metadata remain auditable.
