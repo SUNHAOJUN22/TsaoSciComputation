@@ -18,20 +18,28 @@ def test_security_scan_ignores_generated_directories_and_reports_findings(
     (tmp_path / "source.txt").write_text("safe", encoding="utf-8")
     (tmp_path / "unsafe.py").write_text(dangerous_text, encoding="utf-8")
     for directory in (
-        ".pytest_cache",
+        ".hypothesis",
         ".mypy_cache",
+        ".nox",
+        ".pytest_cache",
         ".ruff_cache",
+        ".tox",
+        ".tsao-computation",
+        ".venv",
         "__pycache__",
+        "build",
         "dist",
         "dist-a",
         "dist-b",
-        "build",
+        "htmlcov",
         "tsao_scicomputation.egg-info",
+        "venv",
     ):
         path = tmp_path / directory
         path.mkdir()
         (path / "generated.txt").write_text(dangerous_text, encoding="utf-8")
     (tmp_path / ".coverage").write_text("ignored", encoding="utf-8")
+    (tmp_path / ".coverage.worker").write_text("ignored", encoding="utf-8")
 
     report = load_scan()(tmp_path)
 
