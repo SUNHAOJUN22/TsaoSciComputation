@@ -1,5 +1,20 @@
 {
   "adapters": 27,
+  "canonical_verification": {
+    "benchmark": "VALIDATED",
+    "entrypoint": "python scripts/verify_all.py --profile all",
+    "profiles": [
+      "quality",
+      "core",
+      "package",
+      "benchmark"
+    ],
+    "remote_branches": [
+      "main"
+    ],
+    "status": "VALIDATED",
+    "temporary_branch_created": false
+  },
   "capabilities": 164,
   "claim_boundary": "No live third-party solver, commercial-license environment, or production HPC execution is claimed.",
   "coverage": {
@@ -285,7 +300,7 @@
   },
   "runtime_dependencies": 0,
   "security": {
-    "files_scanned": 380,
+    "files_scanned": 381,
     "findings": 0
   },
   "status": "VALIDATED",
