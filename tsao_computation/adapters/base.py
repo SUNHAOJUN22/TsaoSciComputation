@@ -4,6 +4,7 @@ import json
 import re
 import shutil
 import subprocess  # nosec B404
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -32,6 +33,13 @@ def _resolve_executable(candidate: str) -> str | None:
     if path.parent != Path(".") and path.is_file():
         return str(path.resolve())
     return shutil.which(candidate)
+
+
+def _module_probe_interpreter(candidate: str, found: str) -> str:
+    name = Path(found).name.casefold()
+    if name.startswith("python") or name.startswith("pypy"):
+        return found
+    return sys.executable
 
 
 def _missing_python_modules(executable: str, modules: tuple[str, ...]) -> tuple[str, ...]:
@@ -83,18 +91,22 @@ class Adapter:
         found = _resolve_executable(candidate)
         if not found:
             return AdapterProbe(self.slug, False, None, f"executable not detected: {candidate}")
-        missing = _missing_python_modules(found, self.python_modules)
+        module_interpreter = _module_probe_interpreter(candidate, found)
+        missing = _missing_python_modules(module_interpreter, self.python_modules)
         if missing:
             return AdapterProbe(
                 self.slug,
                 False,
                 found,
                 "detected "
-                f"{candidate}, but required Python modules are missing: {', '.join(missing)}",
+                f"{candidate}, but required Python modules are missing from "
+                f"{module_interpreter}: {', '.join(missing)}",
             )
         reason = f"detected {candidate}"
         if self.python_modules:
-            reason += f" with modules: {', '.join(self.python_modules)}"
+            reason += (
+                f" with modules in {module_interpreter}: {', '.join(self.python_modules)}"
+            )
         return AdapterProbe(self.slug, True, found, reason)
 
     def probe(self) -> AdapterProbe:
