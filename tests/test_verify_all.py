@@ -46,6 +46,22 @@ def test_run_commands_stops_after_first_failure(monkeypatch) -> None:
     assert labels == ["first", "second"]
 
 
+def test_quality_refreshes_manifest_after_generated_evidence(monkeypatch) -> None:
+    captured: list[tuple[str, Sequence[str]]] = []
+
+    def fake_run_commands(commands: Sequence[tuple[str, Sequence[str]]]) -> int:
+        captured.extend(commands)
+        return 0
+
+    monkeypatch.setattr(verify_all, "run_commands", fake_run_commands)
+    assert verify_all.verify_quality() == 0
+    assert captured[-1] == (
+        "refresh repository manifest",
+        (verify_all.PYTHON, "scripts/build_manifest.py"),
+    )
+    assert captured[-2][0] == "controlled mutation gate"
+
+
 def test_sha256_reads_complete_file(tmp_path: Path) -> None:
     payload = (b"TsaoSciComputation\n" * 100_000) + b"final"
     path = tmp_path / "artifact.bin"
