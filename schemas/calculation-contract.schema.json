@@ -2,50 +2,49 @@
   "$id": "https://example.org/tsao/calculation-contract.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
+  "description": "Backward-compatible calculation contract. Fields listed in x-preflight-required must be populated before solver preflight.",
   "properties": {
-    "acceptance_criteria": {
-      "type": "object"
-    },
-    "assumptions": {
-      "items": {
-        "type": "string"
-      },
-      "type": "array"
-    },
-    "conditions": {
-      "type": "object"
-    },
-    "question": {
-      "minLength": 1,
-      "type": "string"
-    },
-    "schema_version": {
-      "type": "string"
-    },
-    "system": {
-      "minProperties": 1,
-      "type": "object"
-    },
+    "acceptance_criteria": {"type": "object"},
+    "assumptions": {"items": {"minLength": 1, "type": "string"}, "type": "array"},
+    "boundary_conditions": {"type": "object"},
+    "compute_resources": {"type": "object"},
+    "conditions": {"type": "object"},
+    "convergence_plan": {"type": "object"},
+    "expected_artifacts": {"items": {"minLength": 1, "type": "string"}, "type": "array"},
+    "human_approval_nodes": {"items": {"minLength": 1, "type": "string"}, "type": "array"},
+    "initial_conditions": {"type": "object"},
+    "methods": {"items": {"minLength": 1, "type": "string"}, "type": "array"},
+    "model_object": {"type": "object"},
+    "parameter_sources": {"items": {"type": "object"}, "type": "array"},
+    "question": {"minLength": 1, "type": "string"},
+    "scales": {"items": {"minLength": 1, "type": "string"}, "type": "array"},
+    "schema_version": {"type": "string"},
+    "system": {"minProperties": 1, "type": "object"},
     "target_observables": {
-      "items": {
-        "minLength": 1,
-        "type": "string"
-      },
+      "items": {"minLength": 1, "type": "string"},
       "minItems": 1,
       "type": "array"
     },
-    "workflow": {
-      "type": [
-        "string",
-        "null"
-      ]
-    }
+    "uncertainty_sources": {"items": {"minLength": 1, "type": "string"}, "type": "array"},
+    "validation_plan": {"type": "object"},
+    "workflow": {"type": ["string", "null"]}
   },
-  "required": [
-    "question",
-    "system",
-    "conditions",
-    "target_observables"
-  ],
-  "type": "object"
+  "required": ["question", "system", "conditions", "target_observables"],
+  "type": "object",
+  "x-preflight-required": [
+    "model_object",
+    "scales",
+    "methods",
+    "assumptions",
+    "boundary_conditions",
+    "initial_conditions",
+    "parameter_sources",
+    "convergence_plan",
+    "validation_plan",
+    "uncertainty_sources",
+    "compute_resources",
+    "expected_artifacts",
+    "human_approval_nodes",
+    "acceptance_criteria"
+  ]
 }
