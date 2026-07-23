@@ -29,7 +29,7 @@ It supplies contracts, registries, validators, secure execution primitives, cons
 | Version | 3.0.0 |
 | Capabilities / adapters / workflows | 164 / 27 / 20 |
 | Runtime dependencies | 0 mandatory third-party packages |
-| Tests | 431 passed, 0 failed |
+| Tests | 432 passed, 0 failed |
 | Statement / branch coverage | 98.80% / 96.81% |
 | Controlled mutation probes | 64/64 killed |
 | Repository security scan | 0 findings |
