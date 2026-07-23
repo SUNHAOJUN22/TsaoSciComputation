@@ -152,6 +152,8 @@ class CalculationContract:
     def from_dict(cls, data: Mapping[str, Any]) -> CalculationContract:
         if not isinstance(data, Mapping):
             raise ContractError("calculation contract must be an object")
+        if any(not isinstance(key, str) for key in data):
+            raise ContractError("contract field names must be strings")
         required = {"question", "system", "conditions", "target_observables"}
         missing = sorted(required - data.keys())
         if missing:
