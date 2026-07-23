@@ -48,12 +48,14 @@ jobs:
           python scripts/build_adapter_docs.py
           STAGE=generate-workflows
           python scripts/build_workflow_docs.py
-          STAGE=targeted-tests
-          python -m pytest -q \
-            tests/test_contract_completeness.py \
-            tests/test_install_skill.py \
-            tests/test_documentation_completeness.py \
-            tests/test_python_compatibility.py
+          STAGE=test-contract
+          python -m pytest -q tests/test_contract_completeness.py
+          STAGE=test-installer
+          python -m pytest -q tests/test_install_skill.py
+          STAGE=test-documentation
+          python -m pytest -q tests/test_documentation_completeness.py
+          STAGE=test-python-compatibility
+          python -m pytest -q tests/test_python_compatibility.py
           STAGE=quality
           python -m ruff check tsao_computation scripts tests
           python -m ruff format --check tsao_computation scripts tests
