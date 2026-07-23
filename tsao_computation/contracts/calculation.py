@@ -20,11 +20,11 @@ def _optional_string(value: object, *, field_name: str) -> str | None:
 
 
 def _mapping(value: object, *, field_name: str) -> dict[str, Any]:
-    if value is None:
-        return {}
     if not isinstance(value, Mapping):
         raise ContractError(f"{field_name} must be an object")
-    return {str(key): item for key, item in value.items()}
+    if any(not isinstance(key, str) for key in value):
+        raise ContractError(f"{field_name} keys must be strings")
+    return dict(value)
 
 
 def _string_tuple(value: object, *, field_name: str) -> tuple[str, ...]:
@@ -49,9 +49,7 @@ def _mapping_tuple(value: object, *, field_name: str) -> tuple[dict[str, Any], .
         raise ContractError(f"{field_name} must be an array of objects")
     result: list[dict[str, Any]] = []
     for item in value:
-        if not isinstance(item, Mapping):
-            raise ContractError(f"{field_name} must contain only objects")
-        normalized = {str(key): item_value for key, item_value in item.items()}
+        normalized = _mapping(item, field_name=field_name)
         if not normalized:
             raise ContractError(f"{field_name} must not contain empty objects")
         result.append(normalized)
@@ -97,6 +95,32 @@ class CalculationContract:
         "human_approval_nodes",
         "acceptance_criteria",
     )
+    ALLOWED_FIELDS: ClassVar[frozenset[str]] = frozenset(
+        {
+            "question",
+            "system",
+            "conditions",
+            "target_observables",
+            "workflow",
+            "assumptions",
+            "acceptance_criteria",
+            "model_object",
+            "scales",
+            "scale",
+            "methods",
+            "method",
+            "boundary_conditions",
+            "initial_conditions",
+            "parameter_sources",
+            "convergence_plan",
+            "validation_plan",
+            "uncertainty_sources",
+            "compute_resources",
+            "expected_artifacts",
+            "human_approval_nodes",
+            "schema_version",
+        }
+    )
 
     def __post_init__(self) -> None:
         _required_string(self.question, field_name="question")
@@ -132,6 +156,9 @@ class CalculationContract:
         missing = sorted(required - data.keys())
         if missing:
             raise ContractError(f"missing contract fields: {missing}")
+        unknown = sorted(set(data) - cls.ALLOWED_FIELDS)
+        if unknown:
+            raise ContractError(f"unknown contract fields: {unknown}")
         scale_value = data.get("scales", data.get("scale"))
         method_value = data.get("methods", data.get("method"))
         return cls(
@@ -144,31 +171,31 @@ class CalculationContract:
             workflow=_optional_string(data.get("workflow"), field_name="workflow"),
             assumptions=_string_tuple(data.get("assumptions"), field_name="assumptions"),
             acceptance_criteria=_mapping(
-                data.get("acceptance_criteria"), field_name="acceptance_criteria"
+                data.get("acceptance_criteria", {}), field_name="acceptance_criteria"
             ),
-            model_object=_mapping(data.get("model_object"), field_name="model_object"),
+            model_object=_mapping(data.get("model_object", {}), field_name="model_object"),
             scales=_string_tuple(scale_value, field_name="scales"),
             methods=_string_tuple(method_value, field_name="methods"),
             boundary_conditions=_mapping(
-                data.get("boundary_conditions"), field_name="boundary_conditions"
+                data.get("boundary_conditions", {}), field_name="boundary_conditions"
             ),
             initial_conditions=_mapping(
-                data.get("initial_conditions"), field_name="initial_conditions"
+                data.get("initial_conditions", {}), field_name="initial_conditions"
             ),
             parameter_sources=_mapping_tuple(
                 data.get("parameter_sources"), field_name="parameter_sources"
             ),
             convergence_plan=_mapping(
-                data.get("convergence_plan"), field_name="convergence_plan"
+                data.get("convergence_plan", {}), field_name="convergence_plan"
             ),
             validation_plan=_mapping(
-                data.get("validation_plan"), field_name="validation_plan"
+                data.get("validation_plan", {}), field_name="validation_plan"
             ),
             uncertainty_sources=_string_tuple(
                 data.get("uncertainty_sources"), field_name="uncertainty_sources"
             ),
             compute_resources=_mapping(
-                data.get("compute_resources"), field_name="compute_resources"
+                data.get("compute_resources", {}), field_name="compute_resources"
             ),
             expected_artifacts=_string_tuple(
                 data.get("expected_artifacts"), field_name="expected_artifacts"
