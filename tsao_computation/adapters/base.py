@@ -30,6 +30,8 @@ class CommandPlan:
 
 def _resolve_executable(candidate: str) -> str | None:
     path = Path(candidate).expanduser()
+    if path.is_absolute() and path.is_file():
+        return str(path)
     if path.parent != Path(".") and path.is_file():
         return str(path.resolve())
     return shutil.which(candidate)
