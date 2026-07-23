@@ -4,7 +4,18 @@ import json
 import re
 from pathlib import Path
 
-SKIP = {".git", ".pytest_cache", "__pycache__", "dist", "build", ".coverage"}
+SKIP_DIRS = {
+    ".git",
+    ".pytest_cache",
+    ".mypy_cache",
+    ".ruff_cache",
+    "__pycache__",
+    "dist",
+    "dist-a",
+    "dist-b",
+    "build",
+}
+SKIP_FILES = {".coverage"}
 BINARY_SUFFIXES = {".png", ".jpg", ".jpeg", ".zip", ".whl", ".gz", ".pyc"}
 PATTERNS = {
     "private_key": re.compile("-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----"),
@@ -19,9 +30,11 @@ def scan(root: Path) -> dict[str, object]:
     findings: list[dict[str, object]] = []
     scanned = 0
     for path in root.rglob("*"):
+        relative_parts = path.relative_to(root).parts
         if (
             not path.is_file()
-            or any(part in SKIP for part in path.parts)
+            or path.name in SKIP_FILES
+            or any(part in SKIP_DIRS or part.endswith(".egg-info") for part in relative_parts)
             or path.suffix.lower() in BINARY_SUFFIXES
         ):
             continue
