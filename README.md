@@ -29,8 +29,8 @@ It supplies contracts, registries, validators, secure execution primitives, cons
 | Version | 3.0.0 |
 | Capabilities / adapters / workflows | 164 / 27 / 20 |
 | Runtime dependencies | 0 mandatory third-party packages |
-| Tests | 437 passed, 0 failed |
-| Statement / branch coverage | 98.41% / 95.96% |
+| Tests | 443 passed, 0 failed |
+| Statement / branch coverage | 98.45% / 96.19% |
 | Controlled mutation probes | 64/64 killed |
 | Repository security scan | 0 findings |
 | Source archives | byte-identical ZIP and tar.gz rebuilds |
@@ -54,6 +54,8 @@ python scripts/init_project.py --root demo --name demo \
 ```
 
 ## Verification
+
+The minimum supported interpreter is Python 3.10; release gates are validated on Python 3.10 and 3.13.
 
 README, CI, and Release share one cross-platform entrypoint:
 

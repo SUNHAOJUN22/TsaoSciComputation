@@ -18,19 +18,19 @@
   "capabilities": 164,
   "claim_boundary": "No live third-party solver, commercial-license environment, or production HPC execution is claimed.",
   "coverage": {
-    "covered_branches": 190,
-    "covered_lines": 680,
+    "covered_branches": 202,
+    "covered_lines": 699,
     "excluded_lines": 0,
     "missing_branches": 8,
     "missing_lines": 11,
-    "num_branches": 198,
+    "num_branches": 210,
     "num_partial_branches": 8,
-    "num_statements": 691,
-    "percent_branches_covered": 95.95959595959596,
+    "num_statements": 710,
+    "percent_branches_covered": 96.19047619047619,
     "percent_branches_covered_display": "96",
-    "percent_covered": 97.86276715410574,
+    "percent_covered": 97.93478260869566,
     "percent_covered_display": "98",
-    "percent_statements_covered": 98.40810419681621,
+    "percent_statements_covered": 98.45070422535211,
     "percent_statements_covered_display": "98"
   },
   "generated_path_policy": {
@@ -306,16 +306,25 @@
     "survived": 0,
     "total": 64
   },
+  "python_compatibility": {
+    "minimum_supported": "3.10",
+    "python_310_release_gates": "VALIDATED",
+    "python_313_benchmark": "VALIDATED_SEPARATELY",
+    "python_313_release_gates": "VALIDATED",
+    "runtime_compatibility_dependency_added": false,
+    "status": "VALIDATED",
+    "temporary_branch_created": false
+  },
   "runtime_dependencies": 0,
   "security": {
-    "files_scanned": 383,
+    "files_scanned": 384,
     "findings": 0
   },
   "status": "VALIDATED",
   "tests": {
     "errors": 0,
     "failures": 0,
-    "passed": 437
+    "passed": 443
   },
   "version": "3.0.0",
   "workflows": 20
