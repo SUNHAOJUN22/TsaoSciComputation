@@ -8,6 +8,7 @@ import tomllib
 
 from . import __version__
 from .paths import SOURCE_REGISTRY_ROOT
+from .provenance.manifest import iter_repository_entries
 from .registries import adapters, capabilities, workflows
 
 REQUIRED_FILES = (
@@ -219,7 +220,11 @@ def audit_repository(root: Path) -> dict[str, object]:
     for path in sorted((root / "examples").glob("*/contract.json")):
         _load_json(path, problems)
 
-    symlinks = [path.relative_to(root).as_posix() for path in root.rglob("*") if path.is_symlink()]
+    symlinks = [
+        path.relative_to(root).as_posix()
+        for path in iter_repository_entries(root)
+        if path.is_symlink()
+    ]
     if symlinks:
         problems.append(f"symlinks are forbidden in the release tree: {symlinks}")
 
