@@ -1,29 +1,34 @@
 {
   "files": [
     {
-      "bytes": 4882,
-      "path": ".github/workflows/expand-source.yml",
-      "sha256": "6c29cde48a2faf98ea775cdbe9e56403d57b2fdeec8dc7dd93019e40758e286f"
+      "bytes": 3060,
+      "path": ".github/workflows/ci.yml",
+      "sha256": "3294550368646278c0ae9ef87c5546f2a440ca4dff5000373e30f7dafdc0f246"
     },
     {
-      "bytes": 2031,
-      "path": ".github/workflows/export-all-branches-main.yml",
-      "sha256": "45a71fc6c8129a9ca12abb61d9949e27bf617a078f1f88207cbbf3a88e19d8f7"
+      "bytes": 706,
+      "path": ".github/workflows/codeql.yml",
+      "sha256": "af58a03ac70f1f182d779202b62d89bc3ebcb3496e98cdd0a8632a3ff2fb8678"
     },
     {
-      "bytes": 6847,
-      "path": ".github/workflows/final-main-consolidation-controller.yml",
-      "sha256": "08fb433f9728841f5faec802870f5979ba9c3b7a819c937ac1e0c430ddee6b3b"
+      "bytes": 1748,
+      "path": ".github/workflows/materialize-final-manifest.yml",
+      "sha256": "b276488fd8ab48fcc60ada3f27dc480f45686411aeb69607c1a5f4fa94a976f5"
     },
     {
-      "bytes": 2002,
-      "path": ".github/workflows/recover-source-artifact-base.yml",
-      "sha256": "166be7190cb67b430b137626c43df0c01a0927cfb323eb5cc333d6c345f1e107"
+      "bytes": 1273,
+      "path": ".github/workflows/release.yml",
+      "sha256": "56957d0e79f908f4d7e6030807f381a8a9ff915dad10609cabe800cb92f3c2a7"
     },
     {
       "bytes": 108,
       "path": ".gitignore",
       "sha256": "b07adb4a8924fafd58862ff9fcfadd08b63f51d025d9bc702d37742fd9c08d5e"
+    },
+    {
+      "bytes": 184,
+      "path": ".single-main-complete.json",
+      "sha256": "b7c51be024ef37dcba915e70f0df5c26dfc17addd68df605c9703e4e9175fef2"
     },
     {
       "bytes": 295,
@@ -1371,9 +1376,9 @@
       "sha256": "78c42e7550e6b4abf75b8f83ec8b0fb0884f537b6a1910188c840fbce61115b2"
     },
     {
-      "bytes": 1371,
+      "bytes": 1430,
       "path": "pyproject.toml",
-      "sha256": "8d54908fb700595f96adaa733dd5b950e7c5b17fb31698302a07f003842388fb"
+      "sha256": "70c4f02ce5166cd9fe48e1d391d44ab9113a33ac115fa44d1e101dbb1bb28780"
     },
     {
       "bytes": 195,
