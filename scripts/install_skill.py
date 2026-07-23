@@ -7,15 +7,13 @@ import sys
 import tempfile
 from pathlib import Path
 
-if __package__:
-    from . import _bootstrap  # noqa: F401
-else:
-    import _bootstrap  # noqa: F401
+REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
+if str(REPOSITORY_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPOSITORY_ROOT))
 
-from tsao_computation.provenance.manifest import iter_repository_entries
+from tsao_computation.provenance.manifest import iter_repository_entries  # noqa: E402
 
 SKILL_NAME = "TsaoSciComputation"
-REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 RECEIPT_NAME = ".tsao-install.json"
 AGENT_ROOTS = {
     "codex": ".codex/skills",
