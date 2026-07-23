@@ -83,7 +83,7 @@ def _parse_project_version(text: str) -> str:
         if key.strip() != "version" or not separator:
             continue
         value = raw_value.split("#", 1)[0].strip()
-        if len(value) >= 2 and value[0] == value[-1] and value[0] in {"\"", "'"}:
+        if len(value) >= 2 and value[0] == value[-1] and value[0] in {'"', "'"}:
             return value[1:-1]
         raise ValueError("[project].version must be a quoted string")
 
@@ -118,9 +118,7 @@ def audit_repository(root: Path) -> dict[str, object]:
     pyproject_path = root / "pyproject.toml"
     if pyproject_path.is_file():
         try:
-            project_version = _parse_project_version(
-                pyproject_path.read_text(encoding="utf-8")
-            )
+            project_version = _parse_project_version(pyproject_path.read_text(encoding="utf-8"))
             if project_version != __version__:
                 problems.append("pyproject version and package __version__ differ")
         except (OSError, UnicodeDecodeError, ValueError) as exc:
