@@ -1,5 +1,5 @@
 # Branch policy
 
-`main` is the sole long-lived and authoritative branch.
+`main` is the sole remote branch and the sole authoritative development line for this repository.
 
-Short-lived branches are allowed only while implementing or validating a bounded change. Before deletion, their unique commits and artifacts must be audited and either integrated, superseded with an explicit rationale, or preserved by an immutable archive tag. Temporary transfer directories and encoded source fragments are forbidden in the ordinary source tree.
+Changes are committed only after local or CI validation. Historical development heads are preserved with immutable archive tags when needed; they are not retained as additional branches. Temporary transfer directories, encoded source fragments, recovery controllers, trigger files, and generated caches are forbidden in the ordinary source tree.
