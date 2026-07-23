@@ -1,8 +1,83 @@
 # DWSIM adapter
 
+## Description
+
+- Slug: `dwsim`
 - Workflow: `process-simulation`
 - Maturity: `A3`
 - License posture: `open-source`
 - Live execution verified in this repository: **no**
 
-The adapter discovers availability, validates inputs, builds an argv list, and parses outputs conservatively. It never bundles executables, licenses, keys, pseudopotentials, basis databases, or copyrighted manuals.
+This adapter provides discovery, input/output contracts, conservative parsing, and bounded recovery guidance. It never bundles executables, licenses, keys, pseudopotentials, basis databases, private data, or copyrighted manuals.
+
+## Capabilities
+
+- `TSC-115` `component-property-package` — Component and property-package selection
+- `TSC-116` `flowsheet-topology` — Flowsheet topology construction
+- `TSC-117` `unit-operation-model` — Unit-operation model qualification
+- `TSC-118` `recycle-convergence` — Recycle convergence strategy
+- `TSC-119` `process-energy-balance` — Process energy-balance validation
+- `TSC-120` `process-mass-balance` — Process mass-balance validation
+- `TSC-121` `process-optimization` — Process optimization formulation
+- `TSC-122` `process-sensitivity` — Process sensitivity analysis
+- `TSC-123` `commercial-simulator-handoff` — Commercial-simulator lawful handoff
+- `TSC-124` `flowsheet-uncertainty` — Flowsheet uncertainty analysis
+
+## Prerequisites
+
+- Candidate executable(s): `DWSIM.CLI`
+- The user must provide a lawful installation, license where required, version information, and required scientific data files.
+- The calculation contract must identify the observable, method, units, reference state, convergence plan, validation plan, and resource envelope.
+
+## Environment probe
+
+Run `python -m tsao_computation probe` and retain the executable path, version, environment, license outcome, and probe timestamp. A detected executable is not proof that a scientifically valid run is possible.
+
+## Input contract
+
+Inputs must include the native model/input deck, method fingerprint, units, conditions, boundary or initial conditions where applicable, parameter provenance, expected outputs, and restart policy. Reject ambiguous defaults and undeclared reference states.
+
+## Output contract
+
+Preserve native stdout/stderr and output files, return code, hashes, parser version, parsed values with units, convergence evidence, warnings, and provenance. Unknown or incomplete output remains unvalidated.
+
+## Preflight
+
+1. Strictly validate the calculation contract.
+2. Probe the executable and lawful environment.
+3. Validate files, syntax, units, model consistency, resources, and output paths.
+4. Confirm the convergence and scientific-validation plans before submission.
+
+## Run guidance
+
+Build an argv list without shell construction, use an explicit working directory and bounded timeout, record the environment, and never claim execution when only guidance or input generation occurred.
+
+## Validation
+
+Validate file completeness, exit status, units, conservation or invariants, method-specific physical checks, benchmark/literature/experiment comparison, uncertainty, applicability, and whether the result answers the research question.
+
+## Convergence
+
+Require method-appropriate SCF, geometry, force, residual, mesh, time-step, sampling, queue, or process convergence evidence. A single successful run is not a convergence study.
+
+## Common errors
+
+Environment or license missing; malformed input; unavailable data file; invalid structure or units; numerical nonconvergence; insufficient memory; MPI/GPU/queue failure; parser mismatch; or model inapplicability.
+
+## Recovery
+
+Recovery is bounded and auditable. Record the original setting, replacement, reason, attempt count, and possible scientific impact. Escalate repeated, unknown, safety, licensing, or model-validity failures.
+
+## Provenance
+
+Record adapter slug, solver/version, executable path, platform, input/output hashes, method fingerprint, parameters and sources, timestamps, resource use, parser version, validation results, and human approvals.
+
+## Examples
+
+Use the closest workflow example under `examples/`, then replace every system-specific value with contract-backed data. Examples are templates, not evidence that DWSIM is installed.
+
+## Scripts
+
+- `python -m tsao_computation probe`
+- `python -m tsao_computation validate-contract <contract.json> --strict`
+- `python scripts/verify_all.py --profile core`

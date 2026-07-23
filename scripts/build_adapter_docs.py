@@ -32,22 +32,22 @@ def _load(path: Path) -> list[dict[str, Any]]:
 def render_adapter(record: dict[str, Any], capabilities: list[dict[str, Any]]) -> str:
     slug = str(record["slug"])
     related = [item for item in capabilities if slug in item.get("recommended_adapters", [])]
-    executables = ", ".join(f"`{item}`" for item in record.get("executables", [])) or "No executable is declared; this adapter is guidance-only until a lawful integration is configured."
+    executables = (
+        ", ".join(f"`{item}`" for item in record.get("executables", []))
+        or "No executable is declared; this adapter is guidance-only until a lawful integration is configured."
+    )
     capability_lines = (
-        "\n".join(
-            f"- `{item['id']}` `{item['slug']}` — {item['name_en']}"
-            for item in related
-        )
+        "\n".join(f"- `{item['id']}` `{item['slug']}` — {item['name_en']}" for item in related)
         or "- No capability is hard-wired to this adapter. Select it only after method and environment qualification."
     )
-    return f"""# {record['name']} adapter
+    return f"""# {record["name"]} adapter
 
 ## Description
 
 - Slug: `{slug}`
-- Workflow: `{record['workflow']}`
-- Maturity: `{record['maturity']}`
-- License posture: `{record['license_kind']}`
+- Workflow: `{record["workflow"]}`
+- Maturity: `{record["maturity"]}`
+- License posture: `{record["license_kind"]}`
 - Live execution verified in this repository: **no**
 
 This adapter provides discovery, input/output contracts, conservative parsing, and bounded recovery guidance. It never bundles executables, licenses, keys, pseudopotentials, basis databases, private data, or copyrighted manuals.
@@ -107,7 +107,7 @@ Record adapter slug, solver/version, executable path, platform, input/output has
 
 ## Examples
 
-Use the closest workflow example under `examples/`, then replace every system-specific value with contract-backed data. Examples are templates, not evidence that {record['name']} is installed.
+Use the closest workflow example under `examples/`, then replace every system-specific value with contract-backed data. Examples are templates, not evidence that {record["name"]} is installed.
 
 ## Scripts
 

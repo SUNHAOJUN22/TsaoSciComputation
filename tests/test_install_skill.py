@@ -21,12 +21,14 @@ def make_source(root: Path) -> Path:
 def test_resolve_destination_for_user_and_project(tmp_path: Path) -> None:
     home = tmp_path / "home"
     project = tmp_path / "project"
-    assert install_skill.resolve_destination(
-        "codex", "user", None, home=home, cwd=project
-    ) == (home / ".codex/skills/TsaoSciComputation").resolve()
-    assert install_skill.resolve_destination(
-        "claude", "project", None, home=home, cwd=project
-    ) == (project / ".claude/skills/TsaoSciComputation").resolve()
+    assert (
+        install_skill.resolve_destination("codex", "user", None, home=home, cwd=project)
+        == (home / ".codex/skills/TsaoSciComputation").resolve()
+    )
+    assert (
+        install_skill.resolve_destination("claude", "project", None, home=home, cwd=project)
+        == (project / ".claude/skills/TsaoSciComputation").resolve()
+    )
 
 
 def test_install_validate_and_uninstall_roundtrip(tmp_path: Path) -> None:

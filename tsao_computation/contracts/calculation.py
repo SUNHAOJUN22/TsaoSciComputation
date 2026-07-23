@@ -82,7 +82,9 @@ class CalculationContract:
         if any(not item.strip() for item in self.scales + self.methods):
             raise ContractError("scales and methods must be non-empty strings")
         if any(not item.strip() for item in self.uncertainty_sources + self.expected_artifacts):
-            raise ContractError("uncertainty sources and expected artifacts must be non-empty strings")
+            raise ContractError(
+                "uncertainty sources and expected artifacts must be non-empty strings"
+            )
         if any(not item.strip() for item in self.human_approval_nodes):
             raise ContractError("human approval nodes must be non-empty strings")
 
@@ -137,7 +139,9 @@ class CalculationContract:
     def assert_ready_for_preflight(self) -> None:
         gaps = self.specification_gaps()
         if gaps:
-            raise ContractError(f"contract is not ready for preflight; missing fields: {list(gaps)}")
+            raise ContractError(
+                f"contract is not ready for preflight; missing fields: {list(gaps)}"
+            )
 
     def to_dict(self) -> dict[str, Any]:
         result = asdict(self)

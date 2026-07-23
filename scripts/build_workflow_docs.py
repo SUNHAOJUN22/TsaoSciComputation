@@ -29,19 +29,22 @@ def render_workflow(record: dict[str, Any], capability_map: dict[str, dict[str, 
         f"- `{identifier}` `{capability_map[identifier]['slug']}` — {capability_map[identifier]['name_en']}"
         for identifier in record["capability_ids"]
     )
-    adapters = ", ".join(f"`{item}`" for item in record.get("recommended_adapters", [])) or "No adapter is preselected; route by method fitness and lawful availability."
+    adapters = (
+        ", ".join(f"`{item}`" for item in record.get("recommended_adapters", []))
+        or "No adapter is preselected; route by method fitness and lawful availability."
+    )
     gates = " → ".join(f"`{item}`" for item in record["required_gates"])
     keywords = ", ".join(f"`{item}`" for item in record.get("keywords", []))
     return f"""---
-name: {record['slug']}
-description: {record['name_en']} workflow with explicit contracts, preflight, convergence, physical validation, uncertainty, provenance, and fail-closed acceptance.
+name: {record["slug"]}
+description: {record["name_en"]} workflow with explicit contracts, preflight, convergence, physical validation, uncertainty, provenance, and fail-closed acceptance.
 ---
 
-# {record['name_en']}
+# {record["name_en"]}
 
 ## Purpose
 
-Use this workflow for {record['name_en'].lower()} tasks after the root contract establishes the observable, scale, method, evidence, and resource boundary. Routing keywords include {keywords}.
+Use this workflow for {record["name_en"].lower()} tasks after the root contract establishes the observable, scale, method, evidence, and resource boundary. Routing keywords include {keywords}.
 
 ## Entry questions
 
