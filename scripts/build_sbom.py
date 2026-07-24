@@ -61,7 +61,9 @@ def build_documents(
     project = load_project(root)
     version = (root / "VERSION").read_text(encoding="utf-8").strip()
     artifacts = artifact_records(output)
-    resolved_epoch = epoch if epoch is not None else int(os.environ.get("SOURCE_DATE_EPOCH", "1700000000"))
+    resolved_epoch = (
+        epoch if epoch is not None else int(os.environ.get("SOURCE_DATE_EPOCH", "1700000000"))
+    )
     created = created_time(resolved_epoch)
     fingerprint = hashlib.sha256(
         json.dumps({"version": version, "artifacts": artifacts}, sort_keys=True).encode()
@@ -75,12 +77,16 @@ def build_documents(
         name = requirement_name(requirement)
         ref = f"pkg:pypi/{name.lower().replace('_', '-')}"
         runtime_refs.append(ref)
-        dependencies.append({"name": name, "requirement": requirement, "group": "runtime", "ref": ref})
+        dependencies.append(
+            {"name": name, "requirement": requirement, "group": "runtime", "ref": ref}
+        )
     for group, requirements in sorted(project.get("optional-dependencies", {}).items()):
         for requirement in requirements:
             name = requirement_name(requirement)
             ref = f"pkg:pypi/{name.lower().replace('_', '-')}?group={group}"
-            dependencies.append({"name": name, "requirement": requirement, "group": group, "ref": ref})
+            dependencies.append(
+                {"name": name, "requirement": requirement, "group": group, "ref": ref}
+            )
 
     cyclone_components: list[dict[str, Any]] = [
         {
@@ -116,7 +122,11 @@ def build_documents(
             "timestamp": created,
             "tools": {
                 "components": [
-                    {"type": "application", "name": "TsaoSciComputation SBOM builder", "version": "1.0"}
+                    {
+                        "type": "application",
+                        "name": "TsaoSciComputation SBOM builder",
+                        "version": "1.0",
+                    }
                 ]
             },
             "component": {
@@ -179,7 +189,9 @@ def build_documents(
                 "spdxElementId": "SPDXRef-Package-TsaoSciComputation",
                 "relationshipType": "DEPENDS_ON" if item["group"] == "runtime" else "OTHER",
                 "relatedSpdxElement": spdx_id,
-                "comment": "Runtime dependency" if item["group"] == "runtime" else f"Optional dependency group: {item['group']}",
+                "comment": "Runtime dependency"
+                if item["group"] == "runtime"
+                else f"Optional dependency group: {item['group']}",
             }
         )
 
@@ -208,7 +220,10 @@ def build_documents(
         "SPDXID": "SPDXRef-DOCUMENT",
         "name": f"TsaoSciComputation-{version}",
         "documentNamespace": namespace,
-        "creationInfo": {"created": created, "creators": ["Tool: TsaoSciComputation-SBOM-builder-1.0"]},
+        "creationInfo": {
+            "created": created,
+            "creators": ["Tool: TsaoSciComputation-SBOM-builder-1.0"],
+        },
         "packages": spdx_packages,
         "files": spdx_files,
         "relationships": relationships,

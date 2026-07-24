@@ -123,12 +123,12 @@ def verify_package() -> int:
     returncode = run("wheel rebuild and isolated install", (PYTHON, "scripts/verify_wheel.py"))
     if returncode:
         return returncode
-    returncode = run(
-        "deterministic SPDX and CycloneDX SBOMs", (PYTHON, "scripts/build_sbom.py")
-    )
+    returncode = run("deterministic SPDX and CycloneDX SBOMs", (PYTHON, "scripts/build_sbom.py"))
     if returncode:
         return returncode
-    returncode = run("release manifest and checksums", (PYTHON, "scripts/build_release_manifest.py"))
+    returncode = run(
+        "release manifest and checksums", (PYTHON, "scripts/build_release_manifest.py")
+    )
     if returncode:
         return returncode
     print(

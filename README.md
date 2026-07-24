@@ -29,8 +29,8 @@ It orchestrates scientific work; it does **not** bundle or impersonate external 
 | Version | 3.0.1 |
 | Capabilities / adapters / workflows | 164 / 27 / 20 |
 | Runtime dependencies | 0 mandatory third-party packages |
-| Tests | 514 passed, 0 failed |
-| Statement / branch coverage | 97.02% / 93.06% |
+| Tests | 525 passed, 0 failed |
+| Statement / branch coverage | 96.86% / 93.24% |
 | Controlled mutation probes | 64/64 killed |
 | Repository security scan | 0 findings |
 | Source archives | byte-identical ZIP and tar.gz rebuilds |

@@ -6,18 +6,23 @@
     "controlled_mutants_killed": 64,
     "controlled_mutants_survived": 0,
     "tests_failed": 0,
-    "tests_passed": 514,
+    "tests_passed": 525,
     "workflows": 20
   },
   "coverage": {
-    "branches_percent": 93.05555555555556,
+    "branches_percent": 93.24324324324324,
     "missing_branches": 20,
-    "missing_statements": 27,
-    "statements_percent": 97.02315325248071
+    "missing_statements": 29,
+    "statements_percent": 96.86147186147186
   },
   "packaging": {
+    "cyclonedx_sbom": true,
+    "github_sigstore_attestations_required_at_release": true,
+    "release_manifest": true,
+    "sha256_checksums": true,
     "source_tar_gz_byte_identical_rebuild": true,
     "source_zip_byte_identical_rebuild": true,
+    "spdx_sbom": true,
     "wheel_byte_identical_rebuild": true,
     "wheel_isolated_install": true
   },
@@ -26,5 +31,5 @@
     "repository_findings": 0,
     "runtime_dependencies": 0
   },
-  "version": "3.0.0"
+  "version": "3.0.1"
 }

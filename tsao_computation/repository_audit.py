@@ -125,7 +125,9 @@ def audit_repository(root: Path) -> dict[str, object]:
             problems.append(f"forbidden transfer path: {item}")
 
     version_path = root / "VERSION"
-    version_value = version_path.read_text(encoding="utf-8").strip() if version_path.is_file() else ""
+    version_value = (
+        version_path.read_text(encoding="utf-8").strip() if version_path.is_file() else ""
+    )
     if version_value and version_value != __version__:
         problems.append("VERSION and package __version__ differ")
     pyproject_path = root / "pyproject.toml"

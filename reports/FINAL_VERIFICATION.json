@@ -1,22 +1,31 @@
 {
   "benchmark": "PASS",
   "branch": "main",
-  "branch_coverage_percent": 93.05555555555556,
+  "branch_coverage_percent": 93.24324324324324,
   "controlled_mutants": "64/64",
+  "cyclonedx_sbom": true,
+  "platform_settings_gaps": [
+    "private_vulnerability_reporting_requires_repository_admin_enablement"
+  ],
+  "private_vulnerability_reporting": false,
   "python_310_core": "PASS",
   "python_313_all": "PASS",
+  "release_manifest_and_checksums": true,
   "remote_branches": [
     "main"
   ],
   "schema_version": "1.0",
   "security_findings": 0,
+  "sigstore_release_attestation_required": true,
   "skill_install_validate_uninstall": true,
   "source_archives_reproducible": true,
-  "statement_coverage_percent": 97.02315325248071,
+  "spdx_sbom": true,
+  "statement_coverage_percent": 96.86147186147186,
   "status": "VALIDATED",
   "temporary_branch_created": false,
   "tests_failed": 0,
-  "tests_passed": 514,
-  "verified_at_utc": "2026-07-24T02:26:03.207279+00:00",
+  "tests_passed": 525,
+  "verified_at_utc": "2026-07-24T03:59:04.287092+00:00",
+  "version": "3.0.1",
   "wheel_reproducible_and_isolated_install": true
 }
