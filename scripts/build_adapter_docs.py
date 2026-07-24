@@ -8,6 +8,7 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 REQUIRED_HEADINGS = (
     "## Description",
+    "## Certification",
     "## Capabilities",
     "## Prerequisites",
     "## Environment probe",
@@ -43,6 +44,13 @@ def render_adapter(record: dict[str, Any], capabilities: list[dict[str, Any]]) -
         "\n".join(f"- `{item['id']}` `{item['slug']}` — {item['name_en']}" for item in related)
         or "- No capability is hard-wired to this adapter. Select it only after method and environment qualification."
     )
+    certification = dict(record["certification"])
+    certification_evidence = ", ".join(
+        f"`{item}`" for item in certification["evidence"]
+    )
+    certification_limitations = "\n".join(
+        f"- {item}" for item in certification["limitations"]
+    )
     return f"""# {record["name"]} adapter
 
 ## Description
@@ -51,9 +59,22 @@ def render_adapter(record: dict[str, Any], capabilities: list[dict[str, Any]]) -
 - Workflow: `{record["workflow"]}`
 - Maturity: `{record["maturity"]}`
 - License posture: `{record["license_kind"]}`
-- Live execution verified in this repository: **no**
+- Live execution verified in this repository: **{"yes" if record["live_execution_verified"] else "no"}**
 
 This adapter provides discovery, input/output contracts, conservative parsing, and bounded recovery guidance. It never bundles executables, licenses, keys, pseudopotentials, basis databases, private data, or copyrighted manuals.
+
+## Certification
+
+- Certification level: `{certification["level"]}`
+- Evidence scope: `{certification["evidence_scope"]}`
+- Last repository verification: `{certification["last_verified"]}`
+- Live solver execution verified: **{"yes" if certification["live_solver_execution"] else "no"}**
+- Versioned solver evidence: {", ".join(certification["solver_versions"]) or "None recorded."}
+- Repository evidence: {certification_evidence}
+
+{certification_limitations}
+
+`A5` is reserved for a versioned live-solver smoke test with fixture hashes and platform evidence. Levels `A0`–`A4` do not establish installed solver availability.
 
 ## Capabilities
 
