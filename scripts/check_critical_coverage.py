@@ -1,17 +1,29 @@
 from __future__ import annotations
 
 import json
+import os
+import tempfile
 from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def current_coverage_path() -> Path:
+    configured = os.environ.get("TSAO_COVERAGE_JSON")
+    if configured:
+        return Path(configured).expanduser().resolve()
+    return Path(tempfile.gettempdir()) / "tsao-current-coverage.json"
+
+
 def check(
-    coverage_path: Path = ROOT / "evidence" / "coverage.json",
+    coverage_path: Path | None = None,
     policy_path: Path = ROOT / "evidence" / "critical-coverage-policy.json",
 ) -> list[str]:
-    coverage = json.loads(coverage_path.read_text(encoding="utf-8"))
+    resolved_coverage = coverage_path or current_coverage_path()
+    if not resolved_coverage.is_file():
+        return [f"current coverage JSON is missing: {resolved_coverage}"]
+    coverage = json.loads(resolved_coverage.read_text(encoding="utf-8"))
     policy = json.loads(policy_path.read_text(encoding="utf-8"))
     problems: list[str] = []
     totals = coverage["totals"]
