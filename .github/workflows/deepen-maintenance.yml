@@ -87,6 +87,7 @@ jobs:
           mkdir -p reports
           python -m pip freeze --all > reports/DEPENDENCY_SNAPSHOT.txt
           python -m pip_audit --local --skip-editable --progress-spinner=off --format=json --output reports/DEPENDENCY_AUDIT.json
+          python scripts/build_manifest.py
           echo skill-roundtrip > /tmp/maintenance-stage
           rm -rf /tmp/TsaoSciComputation
           python scripts/install_skill.py --agent codex --scope project --target /tmp/TsaoSciComputation --force
