@@ -1,10 +1,29 @@
 {
+  "asset_count": 12,
   "branch": "main",
-  "exit_code": 1,
-  "failed_at_utc": "2026-07-24T05:37:40.520742+00:00",
-  "log_tail": "FINAL_VERIFICATION.json: OK\nSOURCE_BUILD_REPORT.json: OK\nTsaoSciComputation-3.0.1.cdx.json: OK\nTsaoSciComputation-3.0.1.provenance.sigstore.json: OK\nTsaoSciComputation-3.0.1.sbom.sigstore.json: OK\nTsaoSciComputation-3.0.1.spdx.json: OK\nTsaoSciComputation-3.0.1.tar.gz: OK\nTsaoSciComputation-3.0.1.zip: OK\nWHEEL_VERIFICATION.json: OK\ntsao_scicomputation-3.0.1-py3-none-any.whl: OK\n\n==> tests and coverage\n    /usr/bin/python scripts/run_tests.py --coverage\n/usr/bin/python: No module named coverage\n\nFAILED: tests and coverage (exit 1)",
+  "private_vulnerability_reporting_enabled": false,
+  "published_at": "2026-07-24T04:00:00Z",
+  "release_is_draft": false,
+  "release_is_prerelease": false,
+  "release_manifest_verified": true,
+  "release_name": "TsaoSciComputation v3.0.1",
+  "release_url": "https://github.com/SUNHAOJUN22/TsaoSciComputation/releases/tag/v3.0.1",
+  "remaining_admin_actions": [
+    "enable_private_vulnerability_reporting_in_repository_settings"
+  ],
+  "remote_branches": [
+    "main"
+  ],
+  "repository": "SUNHAOJUN22/TsaoSciComputation",
   "schema_version": "1.0",
-  "stage": "clean-and-validate-main",
-  "status": "FAILED",
-  "temporary_branch_created": false
+  "sha256_checksums_verified": true,
+  "status": "VERIFIED",
+  "tag": "v3.0.1",
+  "tag_commit": "42c89396a073527273e340f996fbf0ab1b1cceb9",
+  "tar_gz_attestation_verified": true,
+  "temporary_branch_created": false,
+  "verified_at_utc": "2026-07-24T05:40:44.526148+00:00",
+  "version": "3.0.1",
+  "wheel_attestation_verified": true,
+  "zip_attestation_verified": true
 }

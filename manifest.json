@@ -1436,6 +1436,11 @@
       "sha256": "6d6601c4778f1fd4a4f57c133aaabfe530dfa0ba4c4d430f78f739e6d68f72aa"
     },
     {
+      "bytes": 964,
+      "path": "reports/RELEASE_AUDIT.json",
+      "sha256": "16e307858ead9fceb8cd933bcdf98e90bceade4e041cd8a3c13c4822024df45c"
+    },
+    {
       "bytes": 7989,
       "path": "reports/REMOTE_FINALIZATION.json",
       "sha256": "af4c6c34e9fbe4081adf36eab11da99a37587e54d19edbc83690ad465429fabd"
