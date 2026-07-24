@@ -49,6 +49,8 @@ def build_once(root: Path, output: Path, epoch: str) -> Path:
 
 def main() -> int:
     root = Path(".").resolve()
+    version = (root / "VERSION").read_text(encoding="utf-8").strip()
+    expected = f"{version} 164 27 20"
     dist = root / "dist"
     dist.mkdir(exist_ok=True)
     with tempfile.TemporaryDirectory(prefix="tsao-wheel-") as temporary:
@@ -81,7 +83,7 @@ def main() -> int:
             cwd=temporary_root,
             text=True,
         ).strip()
-        if verification != "3.0.0 164 27 20":
+        if verification != expected:
             raise SystemExit(f"isolated wheel verification failed: {verification}")
 
     report = {
@@ -91,7 +93,7 @@ def main() -> int:
         "bytes": destination.stat().st_size,
         "byte_identical_rebuild": True,
         "isolated_install": True,
-        "verification": "3.0.0 164 27 20",
+        "verification": expected,
     }
     (dist / "WHEEL_VERIFICATION.json").write_text(
         json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
