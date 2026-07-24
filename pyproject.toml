@@ -1,21 +1,62 @@
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools>=80"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "tsao-scicomputation"
-version = "3.0.0"
+dynamic = ["version"]
 description = "Evidence-bound, solver-aware, full-scale scientific computation orchestration"
 readme = "README.md"
 requires-python = ">=3.10"
-license = {text = "MIT"}
+license = "MIT"
+license-files = ["LICENSE"]
 authors = [{name = "SUNHAOJUN22"}]
+keywords = [
+  "scientific-computing",
+  "multiscale-modeling",
+  "computational-chemistry",
+  "molecular-simulation",
+  "finite-element",
+  "process-simulation",
+  "reproducibility",
+]
 dependencies = []
-classifiers = ["Programming Language :: Python :: 3", "License :: OSI Approved :: MIT License", "Operating System :: OS Independent"]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Scientific/Engineering",
+]
+
+[project.urls]
+Repository = "https://github.com/SUNHAOJUN22/TsaoSciComputation"
+Issues = "https://github.com/SUNHAOJUN22/TsaoSciComputation/issues"
+Changelog = "https://github.com/SUNHAOJUN22/TsaoSciComputation/blob/main/CHANGELOG.md"
+Security = "https://github.com/SUNHAOJUN22/TsaoSciComputation/security/policy"
 
 [project.optional-dependencies]
-validation = ["pytest>=8", "coverage>=7", "jsonschema>=4", "PyYAML>=6"]
-quality = ["ruff>=0.12", "mypy>=1.16", "bandit>=1.8", "build>=1.2", "types-jsonschema>=4.25", "setuptools>=80", "wheel>=0.45"]
+validation = [
+  "pytest>=8",
+  "coverage>=7",
+  "jsonschema>=4",
+  "PyYAML>=6",
+  "tomli>=2; python_version < '3.11'",
+]
+quality = [
+  "ruff>=0.12",
+  "mypy>=1.16",
+  "bandit>=1.8",
+  "build>=1.2",
+  "types-jsonschema>=4.25",
+  "setuptools>=80",
+  "wheel>=0.45",
+]
 
 [project.scripts]
 tsao-computation = "tsao_computation.cli:main"
@@ -24,8 +65,11 @@ tsao-computation = "tsao_computation.cli:main"
 packages = {find = {include = ["tsao_computation*"]}}
 include-package-data = true
 
+[tool.setuptools.dynamic]
+version = {file = ["VERSION"]}
+
 [tool.setuptools.package-data]
-tsao_computation = ["data/registry/*.json"]
+tsao_computation = ["data/registry/*.json", "py.typed"]
 
 [tool.coverage.run]
 branch = true
