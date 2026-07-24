@@ -37,7 +37,7 @@ It orchestrates scientific work; it does **not** bundle or impersonate external 
 | Wheel | byte-identical rebuild and isolated install |
 | Remote branches | `main` only |
 
-The authoritative machine-readable evidence is in `evidence/quality-baseline.json`, `reports/REMOTE_FINALIZATION.json`, and `benchmarks/latest.json`.
+The authoritative machine-readable evidence is in `reports/FINAL_VERIFICATION.json`, `evidence/quality-baseline.json`, `reports/REMOTE_FINALIZATION.json`, and `benchmarks/latest.json`.
 
 ## Start
 

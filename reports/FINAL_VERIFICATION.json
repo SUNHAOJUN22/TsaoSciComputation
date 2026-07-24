@@ -1,9 +1,10 @@
 {
+  "benchmark": "PASS",
   "branch": "main",
   "branch_coverage_percent": 93.05555555555556,
   "controlled_mutants": "64/64",
   "python_310_core": "PASS",
-  "python_313_quality_core_package_benchmark": "PASS",
+  "python_313_all": "PASS",
   "remote_branches": [
     "main"
   ],
@@ -16,6 +17,6 @@
   "temporary_branch_created": false,
   "tests_failed": 0,
   "tests_passed": 514,
-  "verified_at_utc": "2026-07-23T17:32:50.274251+00:00",
+  "verified_at_utc": "2026-07-24T02:26:03.207279+00:00",
   "wheel_reproducible_and_isolated_install": true
 }

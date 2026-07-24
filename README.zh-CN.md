@@ -35,7 +35,7 @@ TsaoSciComputation 将科学问题转化为可追溯的计算程序：
 | Wheel | 字节级可重复构建并通过隔离安装 |
 | 远程分支 | 仅 `main` |
 
-权威机器可读证据位于 `evidence/quality-baseline.json`、`reports/REMOTE_FINALIZATION.json` 和 `benchmarks/latest.json`。
+权威机器可读证据位于 `reports/FINAL_VERIFICATION.json`、`evidence/quality-baseline.json`、`reports/REMOTE_FINALIZATION.json` 和 `benchmarks/latest.json`。
 
 ## 开始使用
 
