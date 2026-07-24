@@ -1,201 +1,83 @@
-name: Complete v3.0.2 on main r3
+name: CI
 
 on:
-  issues:
-    types: [opened]
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
 
 permissions:
-  contents: write
-  issues: write
+  contents: read
 
 concurrency:
-  group: complete-v302-main
-  cancel-in-progress: false
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  complete:
-    if: >-
-      github.repository == 'SUNHAOJUN22/TsaoSciComputation' &&
-      github.event.issue.user.login == 'SUNHAOJUN22' &&
-      github.event.issue.title == 'Complete v3.0.2 on main r3'
-    runs-on: ubuntu-latest
-    timeout-minutes: 120
-    env:
-      GH_TOKEN: ${{ github.token }}
-      ISSUE_NUMBER: ${{ github.event.issue.number }}
+  core:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python: ['3.10', '3.13']
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
         with:
-          ref: main
-          fetch-depth: 0
-          persist-credentials: true
+          persist-credentials: false
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+      - run: python -m pip install -e '.[validation,quality]'
+      - run: python scripts/verify_all.py --profile core
+
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          persist-credentials: false
       - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
         with:
           python-version: '3.13'
           cache: pip
-      - name: Apply, generate, and pre-verify v3.0.2
-        shell: bash
-        run: |
-          set -Eeuo pipefail
-          : > /tmp/v302-completion.log
-          exec > >(tee -a /tmp/v302-completion.log) 2>&1
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+      - run: python -m pip install -e '.[validation,quality]'
+      - run: python scripts/verify_all.py --profile quality
 
-          echo install-base > /tmp/v302-completion-stage
-          python -m pip install -e '.[validation,quality]'
-          echo prepare-helper > /tmp/v302-completion-stage
-          python scripts/_complete_v302.py prepare
-          echo apply-governance > /tmp/v302-completion-stage
-          python scripts/_apply_v302_governance.py apply
-          echo apply-adapter-certification > /tmp/v302-completion-stage
-          python scripts/_apply_adapter_certification.py
-          echo apply-scientific-governance > /tmp/v302-completion-stage
-          python scripts/_finalize_scientific_governance.py apply
-          echo apply-confidence-model > /tmp/v302-completion-stage
-          python scripts/_apply_confidence_model.py
-          sed -i '/^[[:space:]]*init_path = ROOT \/ "tsao_computation" \/ "validation" \/ "__init__.py"$/d' scripts/_apply_confidence_model.py
-          echo sync-version > /tmp/v302-completion-stage
-          python scripts/sync_version_metadata.py --release-date 2026-07-24
-          echo install-v302 > /tmp/v302-completion-stage
-          python -m pip install -e '.[validation,quality,security]'
-          echo ruff-fix > /tmp/v302-completion-stage
-          python -m ruff check --fix tsao_computation scripts tests _bootstrap.py
-          echo ruff-format > /tmp/v302-completion-stage
-          python -m ruff format tsao_computation scripts tests _bootstrap.py
-          echo ruff-confirm > /tmp/v302-completion-stage
-          python -m ruff check tsao_computation scripts tests _bootstrap.py
-          echo sync-package-assets > /tmp/v302-completion-stage
-          python scripts/sync_package_assets.py
-          echo build-adapter-docs > /tmp/v302-completion-stage
-          python scripts/build_adapter_docs.py
-          echo build-workflow-docs > /tmp/v302-completion-stage
-          python scripts/build_workflow_docs.py
-          echo build-examples > /tmp/v302-completion-stage
-          python scripts/build_examples.py
-          echo scientific-benchmarks > /tmp/v302-completion-stage
-          python scripts/run_scientific_benchmarks.py
-          echo tests-and-coverage > /tmp/v302-completion-stage
-          TSAO_COVERAGE_JSON=/tmp/maintenance-coverage.json python scripts/run_tests.py --coverage
-          cp /tmp/maintenance-coverage.json /tmp/scientific-coverage.json
-          cp /tmp/maintenance-coverage.json evidence/coverage.json
-
-          echo dependency-audit > /tmp/v302-completion-stage
-          mkdir -p reports
-          python -m pip freeze --all > reports/DEPENDENCY_SNAPSHOT.txt
-          timeout 300 python -m pip_audit --local --skip-editable --progress-spinner=off --format=json --output reports/DEPENDENCY_AUDIT.json
-          echo preliminary-manifest > /tmp/v302-completion-stage
-          python scripts/build_manifest.py
-
-          echo install-roundtrip > /tmp/v302-completion-stage
-          rm -rf /tmp/TsaoSciComputation
-          python scripts/install_skill.py --agent codex --scope project --target /tmp/TsaoSciComputation --force
-          python scripts/install_skill.py --agent codex --scope project --target /tmp/TsaoSciComputation --validate
-          python scripts/install_skill.py --agent codex --scope project --target /tmp/TsaoSciComputation --uninstall
-
-          echo single-main-precheck > /tmp/v302-completion-stage
-          mapfile -t branches < <(gh api --paginate "repos/$GITHUB_REPOSITORY/branches?per_page=100" --jq '.[].name' | sort -u)
-          test "${#branches[@]}" -eq 1
-          test "${branches[0]}" = main
+  package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          persist-credentials: false
       - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
         with:
-          python-version: '3.10'
-          cache: pip
-      - name: Verify Python 3.10 core
-        shell: bash
-        run: |
-          set -Eeuo pipefail
-          exec > >(tee -a /tmp/v302-completion.log) 2>&1
-          echo python-3.10-install > /tmp/v302-completion-stage
-          python -m pip install -e '.[validation,quality,security]'
-          echo python-3.10-core > /tmp/v302-completion-stage
-          python scripts/verify_all.py --profile core
+          python-version: '3.13'
+      - run: python -m pip install -e '.[validation,quality]'
+      - run: python scripts/verify_all.py --profile package
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: TsaoSciComputation-release-candidate-${{ github.run_id }}-${{ github.run_attempt }}
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 14
+
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          persist-credentials: false
       - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
         with:
           python-version: '3.13'
           cache: pip
-      - name: Finalize, fully verify, and publish non-workflow payload
-        shell: bash
-        run: |
-          set -Eeuo pipefail
-          exec > >(tee -a /tmp/v302-completion.log) 2>&1
-          echo final-install > /tmp/v302-completion-stage
-          python -m pip install -e '.[validation,quality,security]'
-
-          echo finalize-maintenance > /tmp/v302-completion-stage
-          python scripts/_apply_v302_governance.py finalize
-          echo finalize-scientific > /tmp/v302-completion-stage
-          python scripts/_finalize_scientific_governance.py finalize
-          echo cleanup-temporary-tools > /tmp/v302-completion-stage
-          python scripts/_complete_v302.py cleanup
-
-          echo full-manifest > /tmp/v302-completion-stage
-          python scripts/build_manifest.py
-          echo full-release-gates > /tmp/v302-completion-stage
-          python scripts/verify_all.py --profile all
-          echo benchmark-telemetry > /tmp/v302-completion-stage
-          python scripts/verify_all.py --profile benchmark
-          echo final-manifest > /tmp/v302-completion-stage
-          python scripts/build_manifest.py
-          echo metadata-check > /tmp/v302-completion-stage
-          python scripts/sync_version_metadata.py --check
-          echo repository-audit > /tmp/v302-completion-stage
-          python scripts/validate_repository.py
-          echo schema-validation > /tmp/v302-completion-stage
-          python scripts/validate_schemas.py
-          echo adapter-validation > /tmp/v302-completion-stage
-          python scripts/validate_adapter_metadata.py
-          echo coverage-policy > /tmp/v302-completion-stage
-          TSAO_COVERAGE_JSON=/tmp/maintenance-coverage.json python scripts/check_critical_coverage.py
-          echo manifest-check > /tmp/v302-completion-stage
-          python scripts/build_manifest.py --check
-          echo final-pytest > /tmp/v302-completion-stage
-          python -m pytest -q
-
-          echo single-main-final > /tmp/v302-completion-stage
-          mapfile -t branches < <(gh api --paginate "repos/$GITHUB_REPOSITORY/branches?per_page=100" --jq '.[].name' | sort -u)
-          test "${#branches[@]}" -eq 1
-          test "${branches[0]}" = main
-
-          echo commit-non-workflow-main > /tmp/v302-completion-stage
-          git reset
-          git add -A -- . ':(exclude).github/workflows/**'
-          git diff --cached --quiet && { echo 'No verified non-workflow changes were produced' >&2; exit 1; }
-          git commit -m 'Complete and verify v3.0.2 payload on main'
-          git push origin HEAD:refs/heads/main
-
-          echo handoff-workflow-publication > /tmp/v302-completion-stage
-          gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body 'All v3.0.2 non-workflow files were fully verified and committed directly to main. The connected GitHub app can now publish the exact already-tested production CI and dependency-audit workflow contents without creating a branch.'
-      - name: Record exact completion failure
-        if: ${{ failure() }}
-        shell: bash
-        run: |
-          set +e
-          export FAILED_STAGE="$(cat /tmp/v302-completion-stage 2>/dev/null || echo unknown)"
-          python - <<'PY'
-          import json
-          import os
-          from datetime import datetime, timezone
-          from pathlib import Path
-
-          log = Path('/tmp/v302-completion.log')
-          tail = log.read_text(encoding='utf-8', errors='replace').splitlines()[-80:] if log.exists() else []
-          payload = {
-              'schema_version': '1.0',
-              'status': 'FAILED',
-              'stage': os.environ['FAILED_STAGE'],
-              'branch': 'main',
-              'temporary_branch_created': False,
-              'failed_at_utc': datetime.now(timezone.utc).isoformat(),
-              'log_tail_lines': tail,
-          }
-          path = Path('reports/V302_COMPLETION_FAILURE.json')
-          path.parent.mkdir(parents=True, exist_ok=True)
-          path.write_text(json.dumps(payload, indent=2, sort_keys=True) + '\n', encoding='utf-8')
-          PY
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add reports/V302_COMPLETION_FAILURE.json
-          git commit -m "Record v3.0.2 completion failure at $FAILED_STAGE" || true
-          git push origin HEAD:refs/heads/main || true
-          gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body "v3.0.2 completion failed at stage: $FAILED_STAGE. Readable evidence was committed to reports/V302_COMPLETION_FAILURE.json." || true
+      - run: python -m pip install -e '.[validation,quality]'
+      - run: python scripts/verify_all.py --profile benchmark
