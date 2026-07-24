@@ -1,4 +1,4 @@
-name: Complete v3.0.2 on main
+name: Complete v3.0.2 on main r2
 
 on:
   issues:
@@ -18,7 +18,7 @@ jobs:
     if: >-
       github.repository == 'SUNHAOJUN22/TsaoSciComputation' &&
       github.event.issue.user.login == 'SUNHAOJUN22' &&
-      github.event.issue.title == 'Complete v3.0.2 on main'
+      github.event.issue.title == 'Complete v3.0.2 on main r2'
     runs-on: ubuntu-latest
     timeout-minutes: 120
     env:
@@ -40,40 +40,61 @@ jobs:
           set -Eeuo pipefail
           : > /tmp/v302-completion.log
           exec > >(tee -a /tmp/v302-completion.log) 2>&1
-          echo apply-and-preverify > /tmp/v302-completion-stage
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
 
+          echo install-base > /tmp/v302-completion-stage
           python -m pip install -e '.[validation,quality]'
+          echo prepare-helper > /tmp/v302-completion-stage
           python scripts/_complete_v302.py prepare
+          echo apply-governance > /tmp/v302-completion-stage
           python scripts/_apply_v302_governance.py apply
+          echo apply-adapter-certification > /tmp/v302-completion-stage
           python scripts/_apply_adapter_certification.py
+          echo apply-scientific-governance > /tmp/v302-completion-stage
           python scripts/_finalize_scientific_governance.py apply
+          echo apply-confidence-model > /tmp/v302-completion-stage
           python scripts/_apply_confidence_model.py
           sed -i '/^[[:space:]]*init_path = ROOT \/ "tsao_computation" \/ "validation" \/ "__init__.py"$/d' scripts/_apply_confidence_model.py
+          echo sync-version > /tmp/v302-completion-stage
           python scripts/sync_version_metadata.py --release-date 2026-07-24
+          echo install-v302 > /tmp/v302-completion-stage
           python -m pip install -e '.[validation,quality,security]'
+          echo ruff-fix > /tmp/v302-completion-stage
           python -m ruff check --fix tsao_computation scripts tests _bootstrap.py
+          echo ruff-format > /tmp/v302-completion-stage
           python -m ruff format tsao_computation scripts tests _bootstrap.py
+          echo ruff-confirm > /tmp/v302-completion-stage
+          python -m ruff check tsao_computation scripts tests _bootstrap.py
+          echo sync-package-assets > /tmp/v302-completion-stage
           python scripts/sync_package_assets.py
+          echo build-adapter-docs > /tmp/v302-completion-stage
           python scripts/build_adapter_docs.py
+          echo build-workflow-docs > /tmp/v302-completion-stage
           python scripts/build_workflow_docs.py
+          echo build-examples > /tmp/v302-completion-stage
           python scripts/build_examples.py
+          echo scientific-benchmarks > /tmp/v302-completion-stage
           python scripts/run_scientific_benchmarks.py
+          echo tests-and-coverage > /tmp/v302-completion-stage
           TSAO_COVERAGE_JSON=/tmp/maintenance-coverage.json python scripts/run_tests.py --coverage
           cp /tmp/maintenance-coverage.json /tmp/scientific-coverage.json
           cp /tmp/maintenance-coverage.json evidence/coverage.json
 
+          echo dependency-audit > /tmp/v302-completion-stage
           mkdir -p reports
           python -m pip freeze --all > reports/DEPENDENCY_SNAPSHOT.txt
           timeout 300 python -m pip_audit --local --skip-editable --progress-spinner=off --format=json --output reports/DEPENDENCY_AUDIT.json
+          echo preliminary-manifest > /tmp/v302-completion-stage
           python scripts/build_manifest.py
 
+          echo install-roundtrip > /tmp/v302-completion-stage
           rm -rf /tmp/TsaoSciComputation
           python scripts/install_skill.py --agent codex --scope project --target /tmp/TsaoSciComputation --force
           python scripts/install_skill.py --agent codex --scope project --target /tmp/TsaoSciComputation --validate
           python scripts/install_skill.py --agent codex --scope project --target /tmp/TsaoSciComputation --uninstall
 
+          echo single-main-precheck > /tmp/v302-completion-stage
           mapfile -t branches < <(gh api --paginate "repos/$GITHUB_REPOSITORY/branches?per_page=100" --jq '.[].name' | sort -u)
           test "${#branches[@]}" -eq 1
           test "${branches[0]}" = main
@@ -86,8 +107,9 @@ jobs:
         run: |
           set -Eeuo pipefail
           exec > >(tee -a /tmp/v302-completion.log) 2>&1
-          echo python-3.10-core > /tmp/v302-completion-stage
+          echo python-3.10-install > /tmp/v302-completion-stage
           python -m pip install -e '.[validation,quality,security]'
+          echo python-3.10-core > /tmp/v302-completion-stage
           python scripts/verify_all.py --profile core
       - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
         with:
@@ -98,36 +120,54 @@ jobs:
         run: |
           set -Eeuo pipefail
           exec > >(tee -a /tmp/v302-completion.log) 2>&1
-          echo finalize-and-publish > /tmp/v302-completion-stage
+          echo final-install > /tmp/v302-completion-stage
           python -m pip install -e '.[validation,quality,security]'
 
+          echo finalize-maintenance > /tmp/v302-completion-stage
           python scripts/_apply_v302_governance.py finalize
+          echo finalize-scientific > /tmp/v302-completion-stage
           python scripts/_finalize_scientific_governance.py finalize
+          echo cleanup-temporary-tools > /tmp/v302-completion-stage
           python scripts/_complete_v302.py cleanup
 
+          echo full-manifest > /tmp/v302-completion-stage
           python scripts/build_manifest.py
+          echo full-release-gates > /tmp/v302-completion-stage
           python scripts/verify_all.py --profile all
+          echo benchmark-telemetry > /tmp/v302-completion-stage
           python scripts/verify_all.py --profile benchmark
+          echo final-manifest > /tmp/v302-completion-stage
           python scripts/build_manifest.py
+          echo metadata-check > /tmp/v302-completion-stage
           python scripts/sync_version_metadata.py --check
+          echo repository-audit > /tmp/v302-completion-stage
           python scripts/validate_repository.py
+          echo schema-validation > /tmp/v302-completion-stage
           python scripts/validate_schemas.py
+          echo adapter-validation > /tmp/v302-completion-stage
           python scripts/validate_adapter_metadata.py
+          echo coverage-policy > /tmp/v302-completion-stage
           TSAO_COVERAGE_JSON=/tmp/maintenance-coverage.json python scripts/check_critical_coverage.py
+          echo manifest-check > /tmp/v302-completion-stage
           python scripts/build_manifest.py --check
+          echo final-pytest > /tmp/v302-completion-stage
           python -m pytest -q
 
+          echo single-main-final > /tmp/v302-completion-stage
           mapfile -t branches < <(gh api --paginate "repos/$GITHUB_REPOSITORY/branches?per_page=100" --jq '.[].name' | sort -u)
           test "${#branches[@]}" -eq 1
           test "${branches[0]}" = main
 
+          echo commit-main > /tmp/v302-completion-stage
           git add -A
           git diff --cached --quiet && { echo 'No completion changes were produced' >&2; exit 1; }
           git commit -m 'Complete and verify v3.0.2 on main'
           git push origin HEAD:refs/heads/main
 
+          echo close-trigger > /tmp/v302-completion-stage
           gh issue close "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --comment 'v3.0.2 was completed and fully verified directly on main. The C0-C5 scientific-confidence model, eight scientific reference benchmarks, adapter certification, maintenance governance, dependency audit, and README evidence were included. No branch was created; the temporary completion workflow restored normal production CI before committing.'
 
+          echo release-dispatch > /tmp/v302-completion-stage
           if gh release view v3.0.2 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             echo 'Release v3.0.2 already exists; no duplicate dispatch needed.'
           elif git ls-remote --exit-code --tags origin refs/tags/v3.0.2 >/dev/null 2>&1; then
@@ -149,7 +189,7 @@ jobs:
           from pathlib import Path
 
           log = Path('/tmp/v302-completion.log')
-          tail = '\n'.join(log.read_text(encoding='utf-8', errors='replace').splitlines()[-140:]) if log.exists() else ''
+          tail = log.read_text(encoding='utf-8', errors='replace').splitlines()[-80:] if log.exists() else []
           payload = {
               'schema_version': '1.0',
               'status': 'FAILED',
@@ -157,7 +197,7 @@ jobs:
               'branch': 'main',
               'temporary_branch_created': False,
               'failed_at_utc': datetime.now(timezone.utc).isoformat(),
-              'log_tail': tail,
+              'log_tail_lines': tail,
           }
           path = Path('reports/V302_COMPLETION_FAILURE.json')
           path.parent.mkdir(parents=True, exist_ok=True)
@@ -168,4 +208,4 @@ jobs:
           git add reports/V302_COMPLETION_FAILURE.json
           git commit -m "Record v3.0.2 completion failure at $FAILED_STAGE" || true
           git push origin HEAD:refs/heads/main || true
-          gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body "v3.0.2 completion failed at stage: $FAILED_STAGE. Machine-readable evidence was committed to reports/V302_COMPLETION_FAILURE.json." || true
+          gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body "v3.0.2 completion failed at stage: $FAILED_STAGE. Readable evidence was committed to reports/V302_COMPLETION_FAILURE.json." || true
