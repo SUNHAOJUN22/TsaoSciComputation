@@ -1,4 +1,4 @@
-name: CI v3.0.2 scientific finalizer
+name: CI v3.0.2 scientific finalizer r2
 
 on:
   push:
@@ -82,6 +82,7 @@ jobs:
           rm -f scripts/_finalize_scientific_governance.py
           rm -f .github/workflows/deepen-maintenance.yml .deepen-maintenance
           rm -f reports/MAINTENANCE_GOVERNANCE_FAILURE.json
+          rm -f reports/SCIENTIFIC_GOVERNANCE_FAILURE.json
           cp /tmp/production-ci.yml .github/workflows/ci.yml
 
           echo install-full-toolchain > /tmp/scientific-stage
@@ -162,6 +163,7 @@ jobs:
           rm -f scripts/_apply_v302_governance.py scripts/_finalize_scientific_governance.py
           rm -f scripts/_apply_adapter_certification.py
           rm -f reports/MAINTENANCE_GOVERNANCE_FAILURE.json
+          rm -f reports/SCIENTIFIC_GOVERNANCE_FAILURE.json
           cp /tmp/production-ci.yml .github/workflows/ci.yml
 
           echo final-clean-validation > /tmp/scientific-stage
@@ -195,7 +197,7 @@ jobs:
           from pathlib import Path
 
           log = Path('/tmp/scientific-finalizer.log')
-          tail = '\n'.join(log.read_text(encoding='utf-8', errors='replace').splitlines()[-180:]) if log.exists() else ''
+          tail = '\n'.join(log.read_text(encoding='utf-8', errors='replace').splitlines()[-60:]) if log.exists() else ''
           payload = {
               'schema_version': '1.0',
               'status': 'FAILED',
