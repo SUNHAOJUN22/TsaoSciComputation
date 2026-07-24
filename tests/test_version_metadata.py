@@ -10,7 +10,7 @@ from tsao_computation import __version__
 
 def test_canonical_version_metadata_is_consistent() -> None:
     version = Path("VERSION").read_text(encoding="utf-8").strip()
-    assert version == "3.0.1"
+    assert version == sync_version_metadata.read_version()
     assert __version__ == version
     assert sync_version_metadata.consistency_problems() == []
 
