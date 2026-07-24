@@ -4,9 +4,9 @@
 
 **Evidence-bound scientific-computation orchestration from electrons to processes.**
 
-![version](https://img.shields.io/badge/version-3.0.0-2563eb) ![capabilities](https://img.shields.io/badge/capabilities-164-7c3aed) ![adapters](https://img.shields.io/badge/adapters-27-ea580c) ![workflows](https://img.shields.io/badge/workflows-20-0891b2)
+![version](https://img.shields.io/badge/version-3.0.1-2563eb) ![capabilities](https://img.shields.io/badge/capabilities-164-7c3aed) ![adapters](https://img.shields.io/badge/adapters-27-ea580c) ![workflows](https://img.shields.io/badge/workflows-20-0891b2)
 
-[中文说明](README.zh-CN.md) · [Root Skill](SKILL.md) · [Capabilities](capability-index/README.md) · [Coverage](docs/coverage-matrix.md) · [Architecture](docs/architecture.md) · [Security](SECURITY.md)
+[中文说明](README.zh-CN.md) · [Root Skill](SKILL.md) · [Capabilities](capability-index/README.md) · [Coverage](docs/coverage-matrix.md) · [Architecture](docs/architecture.md) · [Releases](docs/release.md) · [Security](SECURITY.md)
 
 </div>
 
@@ -26,7 +26,7 @@ It orchestrates scientific work; it does **not** bundle or impersonate external 
 
 | Item | Verified result |
 |---|---:|
-| Version | 3.0.0 |
+| Version | 3.0.1 |
 | Capabilities / adapters / workflows | 164 / 27 / 20 |
 | Runtime dependencies | 0 mandatory third-party packages |
 | Tests | 514 passed, 0 failed |
@@ -35,6 +35,7 @@ It orchestrates scientific work; it does **not** bundle or impersonate external 
 | Repository security scan | 0 findings |
 | Source archives | byte-identical ZIP and tar.gz rebuilds |
 | Wheel | byte-identical rebuild and isolated install |
+| Supply-chain evidence | SPDX + CycloneDX SBOMs, SHA-256 Manifest, Sigstore attestations |
 | Remote branches | `main` only |
 
 The authoritative machine-readable evidence is in `reports/FINAL_VERIFICATION.json`, `evidence/quality-baseline.json`, `reports/REMOTE_FINALIZATION.json`, and `benchmarks/latest.json`.
@@ -68,7 +69,19 @@ python scripts/verify_all.py --profile all
 python scripts/verify_all.py --profile benchmark
 ```
 
-`all` is the deterministic release gate: quality, tests and coverage, repository/schema/asset/manifest checks, security, controlled mutation probes, reproducible source and wheel builds, and isolated wheel installation. `benchmark` is environment-dependent telemetry and is deliberately separate from release acceptance. CI validates the core matrix on Python 3.10 and 3.13 across Ubuntu, Windows, and macOS; Actions are pinned to immutable commits.
+`all` is the deterministic release gate: version consistency, quality, tests and coverage, repository/Schema/asset/Manifest checks, security, controlled mutation probes, reproducible source and Wheel builds, isolated installation, SBOM generation, and release checksums. `benchmark` is environment-dependent telemetry and is deliberately separate from release acceptance. CI validates the core matrix on Python 3.10 and 3.13 across Ubuntu, Windows, and macOS; Actions are pinned to immutable commits.
+
+## Releases
+
+Formal releases are created only by the governed Release workflow after every deterministic gate passes. Each immutable `vX.Y.Z` release contains reproducible archives and Wheel, SPDX and CycloneDX SBOMs, `SHA256SUMS`, a release Manifest, final verification evidence, and GitHub/Sigstore provenance bundles.
+
+```bash
+sha256sum -c SHA256SUMS
+gh attestation verify TsaoSciComputation-X.Y.Z.zip \
+  --repo SUNHAOJUN22/TsaoSciComputation
+```
+
+See [`docs/release.md`](docs/release.md) for the complete publication and consumer-verification process.
 
 ## Install as an Agent Skill
 
@@ -82,7 +95,7 @@ Use `--force` only for an intentional, reviewed replacement or uninstall overrid
 
 ## Scientific trust boundary
 
-Adapter discovery requires every declared executable and Python module; normal exit is not convergence. Installed copies are checked against the full SHA-256 manifest, and all 12 scenario contracts pass strict preflight validation.
+Adapter discovery requires every declared executable and Python module; normal exit is not convergence. Installed copies are checked against the full SHA-256 Manifest, and all 12 scenario contracts pass strict preflight validation.
 
 ```text
 completed ≠ parsed ≠ converged ≠ validated ≠ accepted
@@ -92,4 +105,4 @@ Acceptance remains fail-closed. Missing convergence, physical checks, uncertaint
 
 ## Repository policy
 
-`main` is the only remote branch and the authoritative line. Historical branch heads belong in immutable archive tags, not additional branches. Generated environments and caches are excluded; real source, configuration, tests, evidence, and release metadata remain auditable.
+`main` is the only upstream remote branch and the authoritative line. External contributions use fork branches; the canonical repository does not retain feature branches. Historical releases are immutable tags. Generated environments and caches are excluded; real source, configuration, tests, evidence, and release metadata remain auditable.
