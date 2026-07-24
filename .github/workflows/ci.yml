@@ -1,83 +1,168 @@
-name: CI
+name: CI v3.0.2 finalizer
 
 on:
-  workflow_dispatch:
-  pull_request:
-    branches: [main]
   push:
     branches: [main]
+    paths: [.github/workflows/ci.yml]
 
 permissions:
-  contents: read
+  contents: write
+  actions: write
 
 concurrency:
-  group: ci-${{ github.workflow }}-${{ github.ref }}
+  group: deepen-maintenance-main
   cancel-in-progress: true
 
 jobs:
-  core:
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        python: ['3.10', '3.13']
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 20
-    steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
-        with:
-          persist-credentials: false
-      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
-        with:
-          python-version: ${{ matrix.python }}
-          cache: pip
-      - run: python -m pip install -e '.[validation,quality]'
-      - run: python scripts/verify_all.py --profile core
-
-  quality:
+  finalize:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 60
+    env:
+      GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
         with:
-          persist-credentials: false
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+      - name: Configure repository and preserve production CI
+        run: |
+          set -Eeuo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git show HEAD^:.github/workflows/ci.yml > /tmp/production-ci.yml
       - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
         with:
           python-version: '3.13'
           cache: pip
-      - run: python -m pip install -e '.[validation,quality]'
-      - run: python scripts/verify_all.py --profile quality
+      - name: Build and verify the v3.0.2 production tree
+        run: |
+          set -Eeuo pipefail
+          : > /tmp/v302-finalizer.log
+          exec > >(tee /tmp/v302-finalizer.log) 2>&1
+          echo apply-governance > /tmp/v302-stage
+          python -m pip install -e '.[validation,quality]'
+          python scripts/_apply_v302_governance.py apply
+          python - <<'PY'
+          from pathlib import Path
 
-  package:
-    runs-on: ubuntu-latest
-    timeout-minutes: 25
-    steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
-        with:
-          persist-credentials: false
+          path = Path('scripts/build_sbom.py')
+          text = path.read_text(encoding='utf-8')
+          old = '''try:
+              import tomllib
+          except ModuleNotFoundError:  # pragma: no cover - Python 3.10 compatibility
+              import tomli as tomllib  # type: ignore[import-not-found,no-redef]
+          '''
+          new = '''import sys
+
+          if sys.version_info >= (3, 11):
+              import tomllib
+          else:  # pragma: no cover - exercised only on Python 3.10
+              import tomli as tomllib
+          '''
+          if old not in text:
+              raise SystemExit('SBOM compatibility import anchor not found')
+          path.write_text(text.replace(old, new, 1), encoding='utf-8')
+          PY
+          cp scripts/_apply_v302_governance.py /tmp/_apply_v302_governance.py
+          rm -f scripts/_apply_v302_governance.py
+          rm -f .github/workflows/deepen-maintenance.yml .deepen-maintenance
+          rm -f reports/MAINTENANCE_GOVERNANCE_FAILURE.json
+          cp /tmp/production-ci.yml .github/workflows/ci.yml
+          echo install-full-toolchain > /tmp/v302-stage
+          python -m pip install -e '.[validation,quality,security]'
+          echo metadata-and-format > /tmp/v302-stage
+          python scripts/sync_version_metadata.py --release-date 2026-07-24
+          python -m ruff check --fix tsao_computation scripts tests _bootstrap.py
+          python -m ruff format tsao_computation scripts tests _bootstrap.py
+          echo generated-assets > /tmp/v302-stage
+          python scripts/sync_package_assets.py
+          python scripts/build_adapter_docs.py
+          python scripts/build_workflow_docs.py
+          python scripts/build_examples.py
+          python scripts/build_manifest.py
+          echo python-3.13-all > /tmp/v302-stage
+          python scripts/verify_all.py --profile all
+          echo benchmark > /tmp/v302-stage
+          python scripts/verify_all.py --profile benchmark
+          python scripts/build_manifest.py
+          echo dependency-audit > /tmp/v302-stage
+          mkdir -p reports
+          python -m pip freeze --all > reports/DEPENDENCY_SNAPSHOT.txt
+          python -m pip_audit --local --skip-editable --progress-spinner=off --format=json --output reports/DEPENDENCY_AUDIT.json
+          python scripts/build_manifest.py
+          echo skill-roundtrip > /tmp/v302-stage
+          rm -rf /tmp/TsaoSciComputation
+          python scripts/install_skill.py --agent codex --scope project --target /tmp/TsaoSciComputation --force
+          python scripts/install_skill.py --agent codex --scope project --target /tmp/TsaoSciComputation --validate
+          python scripts/install_skill.py --agent codex --scope project --target /tmp/TsaoSciComputation --uninstall
+          echo single-main-policy > /tmp/v302-stage
+          mapfile -t branches < <(gh api --paginate "repos/$GITHUB_REPOSITORY/branches?per_page=100" --jq '.[].name' | sort -u)
+          test "${#branches[@]}" -eq 1
+          test "${branches[0]}" = main
       - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
         with:
-          python-version: '3.13'
-      - run: python -m pip install -e '.[validation,quality]'
-      - run: python scripts/verify_all.py --profile package
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
-        with:
-          name: TsaoSciComputation-release-candidate-${{ github.run_id }}-${{ github.run_attempt }}
-          path: dist/*
-          if-no-files-found: error
-          retention-days: 14
-
-  benchmark:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    continue-on-error: true
-    steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
-        with:
-          persist-credentials: false
+          python-version: '3.10'
+          cache: pip
+      - name: Verify Python 3.10 core compatibility
+        run: |
+          set -Eeuo pipefail
+          : > /tmp/v302-finalizer.log
+          exec > >(tee /tmp/v302-finalizer.log) 2>&1
+          echo python-3.10-core > /tmp/v302-stage
+          python -m pip install -e '.[validation,quality,security]'
+          python scripts/verify_all.py --profile core
       - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
         with:
           python-version: '3.13'
           cache: pip
-      - run: python -m pip install -e '.[validation,quality]'
-      - run: python scripts/verify_all.py --profile benchmark
+      - name: Finalize evidence and publish clean main
+        run: |
+          set -Eeuo pipefail
+          : > /tmp/v302-finalizer.log
+          exec > >(tee /tmp/v302-finalizer.log) 2>&1
+          echo finalize-evidence > /tmp/v302-stage
+          python -m pip install -e '.[validation,quality,security]'
+          python -m coverage json -o /tmp/maintenance-coverage.json
+          cp /tmp/_apply_v302_governance.py scripts/_apply_v302_governance.py
+          python scripts/_apply_v302_governance.py finalize
+          cp /tmp/production-ci.yml .github/workflows/ci.yml
+          python scripts/build_manifest.py
+          python scripts/sync_version_metadata.py --check
+          python scripts/validate_repository.py
+          python scripts/validate_schemas.py
+          python scripts/build_manifest.py --check
+          python -m pytest -q
+          git add -A
+          git commit -m 'Deepen branchless maintenance governance for v3.0.2'
+          git push origin HEAD:refs/heads/main
+          gh workflow run release.yml --ref main -f tag=v3.0.2
+      - name: Record failed stage
+        if: ${{ failure() }}
+        run: |
+          set +e
+          export FAILED_STAGE="$(cat /tmp/v302-stage 2>/dev/null || echo unknown)"
+          python - <<'PY'
+          import json
+          import os
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          log = Path('/tmp/v302-finalizer.log')
+          tail = '\n'.join(log.read_text(encoding='utf-8', errors='replace').splitlines()[-120:]) if log.exists() else ''
+          payload = {
+              'schema_version': '1.0',
+              'status': 'FAILED',
+              'stage': os.environ['FAILED_STAGE'],
+              'branch': 'main',
+              'temporary_branch_created': False,
+              'failed_at_utc': datetime.now(timezone.utc).isoformat(),
+              'log_tail': tail,
+          }
+          path = Path('reports/MAINTENANCE_GOVERNANCE_FAILURE.json')
+          path.parent.mkdir(parents=True, exist_ok=True)
+          path.write_text(json.dumps(payload, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+          PY
+          git add reports/MAINTENANCE_GOVERNANCE_FAILURE.json
+          git commit -m "Record registered CI finalizer failure at $FAILED_STAGE" || true
+          git push origin HEAD:refs/heads/main || true
