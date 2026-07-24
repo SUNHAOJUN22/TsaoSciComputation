@@ -1,4 +1,4 @@
-name: CI v3.0.2 final evidence publisher
+name: CI v3.0.2 final evidence publisher r2
 
 on:
   push:
@@ -90,6 +90,7 @@ jobs:
 
           echo format-and-generate > /tmp/v302-final-stage
           python scripts/sync_version_metadata.py --release-date 2026-07-24
+          python -m pip install -e '.[validation,quality,security]'
           python -m ruff check --fix tsao_computation scripts tests _bootstrap.py
           python -m ruff format tsao_computation scripts tests _bootstrap.py
           python scripts/sync_package_assets.py
