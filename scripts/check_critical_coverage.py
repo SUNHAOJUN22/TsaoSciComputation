@@ -1,0 +1,48 @@
+from __future__ import annotations
+
+import json
+from pathlib import Path
+from typing import Any
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def check(
+    coverage_path: Path = ROOT / "evidence" / "coverage.json",
+    policy_path: Path = ROOT / "evidence" / "critical-coverage-policy.json",
+) -> list[str]:
+    coverage = json.loads(coverage_path.read_text(encoding="utf-8"))
+    policy = json.loads(policy_path.read_text(encoding="utf-8"))
+    problems: list[str] = []
+    totals = coverage["totals"]
+    statement = float(totals["percent_statements_covered"])
+    branch = float(totals["percent_branches_covered"])
+    if statement < float(policy["repository"]["minimum_statement_percent"]):
+        problems.append(f"repository statement coverage is {statement:.2f}%")
+    if branch < float(policy["repository"]["minimum_branch_percent"]):
+        problems.append(f"repository branch coverage is {branch:.2f}%")
+
+    files: dict[str, Any] = coverage["files"]
+    for relative, thresholds in policy["critical_files"].items():
+        record = files.get(relative)
+        if record is None:
+            problems.append(f"critical coverage file is missing: {relative}")
+            continue
+        summary = record["summary"]
+        statement = float(summary["percent_statements_covered"])
+        branch = float(summary["percent_branches_covered"])
+        if statement < float(thresholds["minimum_statement_percent"]):
+            problems.append(f"{relative} statement coverage is {statement:.2f}%")
+        if branch < float(thresholds["minimum_branch_percent"]):
+            problems.append(f"{relative} branch coverage is {branch:.2f}%")
+    return problems
+
+
+def main() -> int:
+    problems = check()
+    print(json.dumps({"passed": not problems, "problems": problems}, indent=2, sort_keys=True))
+    return 0 if not problems else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
