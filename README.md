@@ -4,9 +4,9 @@
 
 **Evidence-bound scientific-computation orchestration from electrons to processes.**
 
-![version](https://img.shields.io/badge/version-3.0.1-2563eb) ![capabilities](https://img.shields.io/badge/capabilities-164-7c3aed) ![adapters](https://img.shields.io/badge/adapters-27-ea580c) ![workflows](https://img.shields.io/badge/workflows-20-0891b2)
+![version](https://img.shields.io/badge/version-3.0.2-2563eb) ![capabilities](https://img.shields.io/badge/capabilities-164-7c3aed) ![adapters](https://img.shields.io/badge/adapters-27-ea580c) ![workflows](https://img.shields.io/badge/workflows-20-0891b2)
 
-[中文说明](README.zh-CN.md) · [Root Skill](SKILL.md) · [Capabilities](capability-index/README.md) · [Coverage](docs/coverage-matrix.md) · [Architecture](docs/architecture.md) · [Releases](docs/release.md) · [Security](SECURITY.md)
+[中文说明](README.zh-CN.md) · [Root Skill](SKILL.md) · [Capabilities](capability-index/README.md) · [Coverage](docs/coverage-matrix.md) · [Scientific validation](docs/scientific-validation.md) · [Confidence](docs/scientific-confidence.md) · [Architecture](docs/architecture.md) · [Releases](docs/release.md) · [Maintenance](docs/dependency-maintenance.md) · [Security](SECURITY.md)
 
 </div>
 
@@ -26,12 +26,14 @@ It orchestrates scientific work; it does **not** bundle or impersonate external 
 
 | Item | Verified result |
 |---|---:|
-| Version | 3.0.1 |
+| Version | 3.0.2 |
 | Capabilities / adapters / workflows | 164 / 27 / 20 |
 | Runtime dependencies | 0 mandatory third-party packages |
-| Tests | 525 passed, 0 failed |
-| Statement / branch coverage | 96.86% / 93.24% |
+| Tests | 553 passed, 0 failed |
+| Statement / branch coverage | 97.27% / 93.48% |
 | Controlled mutation probes | 64/64 killed |
+| Scientific reference benchmarks | 8/8 passed |
+| Scientific confidence model | C0–C5 fail-closed |
 | Repository security scan | 0 findings |
 | Source archives | byte-identical ZIP and tar.gz rebuilds |
 | Wheel | byte-identical rebuild and isolated install |
@@ -69,7 +71,7 @@ python scripts/verify_all.py --profile all
 python scripts/verify_all.py --profile benchmark
 ```
 
-`all` is the deterministic release gate: version consistency, quality, tests and coverage, repository/Schema/asset/Manifest checks, security, controlled mutation probes, reproducible source and Wheel builds, isolated installation, SBOM generation, and release checksums. `benchmark` is environment-dependent telemetry and is deliberately separate from release acceptance. CI validates the core matrix on Python 3.10 and 3.13 across Ubuntu, Windows, and macOS; Actions are pinned to immutable commits.
+`all` is the deterministic release gate: version consistency, quality, tests and coverage, repository/Schema/asset/Manifest checks, security, controlled mutation probes, reproducible source and Wheel builds, isolated installation, SBOM generation, and release checksums. `benchmark` is environment-dependent telemetry and is deliberately separate from release acceptance. A separate read-only weekly dependency audit records known-vulnerability evidence without creating an upstream branch. CI validates the core matrix on Python 3.10 and 3.13 across Ubuntu, Windows, and macOS; Actions are pinned to immutable commits.
 
 ## Releases
 
@@ -95,7 +97,7 @@ Use `--force` only for an intentional, reviewed replacement or uninstall overrid
 
 ## Scientific trust boundary
 
-Adapter discovery requires every declared executable and Python module; normal exit is not convergence. Installed copies are checked against the full SHA-256 Manifest, and all 12 scenario contracts pass strict preflight validation.
+Adapter discovery requires every declared executable and Python module; normal exit is not convergence. Installed copies are checked against the full SHA-256 Manifest, and all 12 scenario contracts pass strict preflight validation. Eight deterministic analytical, conservation, and invariant benchmarks must also pass; they do not claim third-party solver execution.
 
 ```text
 completed ≠ parsed ≠ converged ≠ validated ≠ accepted

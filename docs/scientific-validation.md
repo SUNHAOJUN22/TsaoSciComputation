@@ -22,3 +22,8 @@ python scripts/run_scientific_benchmarks.py
 The machine-readable result is `evidence/scientific-benchmarks.json`. Each record contains observed and expected values, absolute and relative error, tolerance, domain, and the invariant being checked.
 
 These cases validate internal mathematics and physical invariants. They do **not** certify Gaussian, VASP, OpenFOAM, Aspen, GROMACS, another third-party solver, a commercial license, production HPC, plant controls, or user-supplied models and data.
+
+## Result confidence
+
+Reference benchmarks test internal analytical, conservation, and invariant behavior. Individual calculation results are separately assessed using the fail-closed [C0–C5 confidence model](scientific-confidence.md); benchmark success does not automatically raise a user result to any confidence level.
+

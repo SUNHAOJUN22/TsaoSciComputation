@@ -56,6 +56,9 @@ quality = [
   "setuptools>=80",
   "wheel>=0.45",
 ]
+security = [
+  "pip-audit==2.10.0",
+]
 
 [project.scripts]
 tsao-computation = "tsao_computation.cli:main"

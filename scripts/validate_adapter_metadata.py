@@ -65,9 +65,7 @@ def validate(root: Path = ROOT) -> list[str]:
         else:
             if certification.get("level") != maturity:
                 problems.append(f"adapter {slug} certification level differs from maturity")
-            if certification.get("live_solver_execution") != record.get(
-                "live_execution_verified"
-            ):
+            if certification.get("live_solver_execution") != record.get("live_execution_verified"):
                 problems.append(f"adapter {slug} live certification flags disagree")
             try:
                 date.fromisoformat(str(certification.get("last_verified")))

@@ -40,6 +40,10 @@ python scripts/verify_all.py --profile benchmark
 
 Do not weaken thresholds, delete negative tests, broaden exception handling, suppress security findings, or rewrite evidence merely to make CI green.
 
+## Dependency maintenance
+
+The upstream repository does not enable Dependabot version-update pull requests because they create update branches. Review the read-only weekly dependency-audit artifact, make reviewed changes directly on `main`, run every deterministic gate, and issue a patch release for security-relevant or user-visible changes. See `docs/dependency-maintenance.md`.
+
 ## Version and release changes
 
 `VERSION` is the only authoritative version source. Run:

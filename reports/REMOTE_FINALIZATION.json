@@ -44,6 +44,8 @@
   "hardening": {
     "benchmark": "VALIDATED_SEPARATELY",
     "cyclonedx_sbom": "VALIDATED",
+    "dependency_audit": "VALIDATED",
+    "dependency_update_policy": "BRANCHLESS_SINGLE_MAIN",
     "full_manifest_install_roundtrip": "VALIDATED",
     "private_vulnerability_reporting": "DOCUMENTED_FALLBACK_REQUIRES_ADMIN",
     "python_310_core_gates": "VALIDATED",
@@ -358,8 +360,8 @@
   "tests": {
     "errors": 0,
     "failures": 0,
-    "passed": 525
+    "passed": 553
   },
-  "version": "3.0.1",
+  "version": "3.0.2",
   "workflows": 20
 }

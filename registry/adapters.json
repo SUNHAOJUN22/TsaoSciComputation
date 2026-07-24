@@ -1,5 +1,27 @@
 [
   {
+    "certification": {
+      "evidence": [
+        "metadata-schema",
+        "environment-probe-contract",
+        "input-contract",
+        "argv-command-plan",
+        "conservative-parser-policy"
+      ],
+      "evidence_scope": "repository-fixture-only",
+      "fixture_hashes": [],
+      "last_verified": "2026-07-24",
+      "level": "A3",
+      "limitations": [
+        "No live third-party solver execution is claimed by this certification.",
+        "Adapter presence does not establish solver availability or model applicability."
+      ],
+      "live_solver_execution": false,
+      "solver_versions": [],
+      "verified_platforms": [
+        "repository-ci-contract-fixtures"
+      ]
+    },
     "executables": [
       "g16",
       "g09"
@@ -14,6 +36,30 @@
     "workflow": "quantum-chemistry"
   },
   {
+    "certification": {
+      "evidence": [
+        "metadata-schema",
+        "environment-probe-contract",
+        "input-contract",
+        "argv-command-plan",
+        "conservative-parser-policy",
+        "deterministic-success-and-failure-fixtures",
+        "numerical-and-physical-validation-gates"
+      ],
+      "evidence_scope": "repository-fixture-only",
+      "fixture_hashes": [],
+      "last_verified": "2026-07-24",
+      "level": "A4",
+      "limitations": [
+        "No live third-party solver execution is claimed by this certification.",
+        "Adapter presence does not establish solver availability or model applicability."
+      ],
+      "live_solver_execution": false,
+      "solver_versions": [],
+      "verified_platforms": [
+        "repository-ci-contract-fixtures"
+      ]
+    },
     "executables": [
       "orca"
     ],
@@ -27,6 +73,30 @@
     "workflow": "quantum-chemistry"
   },
   {
+    "certification": {
+      "evidence": [
+        "metadata-schema",
+        "environment-probe-contract",
+        "input-contract",
+        "argv-command-plan",
+        "conservative-parser-policy",
+        "deterministic-success-and-failure-fixtures",
+        "numerical-and-physical-validation-gates"
+      ],
+      "evidence_scope": "repository-fixture-only",
+      "fixture_hashes": [],
+      "last_verified": "2026-07-24",
+      "level": "A4",
+      "limitations": [
+        "No live third-party solver execution is claimed by this certification.",
+        "Adapter presence does not establish solver availability or model applicability."
+      ],
+      "live_solver_execution": false,
+      "solver_versions": [],
+      "verified_platforms": [
+        "repository-ci-contract-fixtures"
+      ]
+    },
     "executables": [
       "psi4"
     ],
@@ -40,6 +110,30 @@
     "workflow": "quantum-chemistry"
   },
   {
+    "certification": {
+      "evidence": [
+        "metadata-schema",
+        "environment-probe-contract",
+        "input-contract",
+        "argv-command-plan",
+        "conservative-parser-policy",
+        "deterministic-success-and-failure-fixtures",
+        "numerical-and-physical-validation-gates"
+      ],
+      "evidence_scope": "repository-fixture-only",
+      "fixture_hashes": [],
+      "last_verified": "2026-07-24",
+      "level": "A4",
+      "limitations": [
+        "No live third-party solver execution is claimed by this certification.",
+        "Adapter presence does not establish solver availability or model applicability."
+      ],
+      "live_solver_execution": false,
+      "solver_versions": [],
+      "verified_platforms": [
+        "repository-ci-contract-fixtures"
+      ]
+    },
     "executables": [
       "python"
     ],
@@ -56,6 +150,30 @@
     "workflow": "quantum-chemistry"
   },
   {
+    "certification": {
+      "evidence": [
+        "metadata-schema",
+        "environment-probe-contract",
+        "input-contract",
+        "argv-command-plan",
+        "conservative-parser-policy",
+        "deterministic-success-and-failure-fixtures",
+        "numerical-and-physical-validation-gates"
+      ],
+      "evidence_scope": "repository-fixture-only",
+      "fixture_hashes": [],
+      "last_verified": "2026-07-24",
+      "level": "A4",
+      "limitations": [
+        "No live third-party solver execution is claimed by this certification.",
+        "Adapter presence does not establish solver availability or model applicability."
+      ],
+      "live_solver_execution": false,
+      "solver_versions": [],
+      "verified_platforms": [
+        "repository-ci-contract-fixtures"
+      ]
+    },
     "executables": [
       "pw.x"
     ],
@@ -69,6 +187,30 @@
     "workflow": "periodic-dft"
   },
   {
+    "certification": {
+      "evidence": [
+        "metadata-schema",
+        "environment-probe-contract",
+        "input-contract",
+        "argv-command-plan",
+        "conservative-parser-policy",
+        "deterministic-success-and-failure-fixtures",
+        "numerical-and-physical-validation-gates"
+      ],
+      "evidence_scope": "repository-fixture-only",
+      "fixture_hashes": [],
+      "last_verified": "2026-07-24",
+      "level": "A4",
+      "limitations": [
+        "No live third-party solver execution is claimed by this certification.",
+        "Adapter presence does not establish solver availability or model applicability."
+      ],
+      "live_solver_execution": false,
+      "solver_versions": [],
+      "verified_platforms": [
+        "repository-ci-contract-fixtures"
+      ]
+    },
     "executables": [
       "cp2k"
     ],
@@ -82,6 +224,28 @@
     "workflow": "periodic-dft"
   },
   {
+    "certification": {
+      "evidence": [
+        "metadata-schema",
+        "environment-probe-contract",
+        "input-contract",
+        "argv-command-plan",
+        "conservative-parser-policy"
+      ],
+      "evidence_scope": "repository-fixture-only",
+      "fixture_hashes": [],
+      "last_verified": "2026-07-24",
+      "level": "A3",
+      "limitations": [
+        "No live third-party solver execution is claimed by this certification.",
+        "Adapter presence does not establish solver availability or model applicability."
+      ],
+      "live_solver_execution": false,
+      "solver_versions": [],
+      "verified_platforms": [
+        "repository-ci-contract-fixtures"
+      ]
+    },
     "executables": [
       "vasp_std"
     ],
@@ -95,6 +259,28 @@
     "workflow": "periodic-dft"
   },
   {
+    "certification": {
+      "evidence": [
+        "metadata-schema",
+        "environment-probe-contract",
+        "input-contract",
+        "argv-command-plan",
+        "conservative-parser-policy"
+      ],
+      "evidence_scope": "repository-fixture-only",
+      "fixture_hashes": [],
+      "last_verified": "2026-07-24",
+      "level": "A3",
+      "limitations": [
+        "No live third-party solver execution is claimed by this certification.",
+        "Adapter presence does not establish solver availability or model applicability."
+      ],
+      "live_solver_execution": false,
+      "solver_versions": [],
+      "verified_platforms": [
+        "repository-ci-contract-fixtures"
+      ]
+    },
     "executables": [
       "ABACUS"
     ],
@@ -108,6 +294,28 @@
     "workflow": "periodic-dft"
   },
   {
+    "certification": {
+      "evidence": [
+        "metadata-schema",
+        "environment-probe-contract",
+        "input-contract",
+        "argv-command-plan",
+        "conservative-parser-policy"
+      ],
+      "evidence_scope": "repository-fixture-only",
+      "fixture_hashes": [],
+      "last_verified": "2026-07-24",
+      "level": "A3",
+      "limitations": [
+        "No live third-party solver execution is claimed by this certification.",
+        "Adapter presence does not establish solver availability or model applicability."
+      ],
+      "live_solver_execution": false,
+      "solver_versions": [],
+      "verified_platforms": [
+        "repository-ci-contract-fixtures"
+      ]
+    },
     "executables": [
       "gpaw"
     ],
@@ -121,6 +329,30 @@
     "workflow": "periodic-dft"
   },
   {
+    "certification": {
+      "evidence": [
+        "metadata-schema",
+        "environment-probe-contract",
+        "input-contract",
+        "argv-command-plan",
+        "conservative-parser-policy",
+        "deterministic-success-and-failure-fixtures",
+        "numerical-and-physical-validation-gates"
+      ],
+      "evidence_scope": "repository-fixture-only",
+      "fixture_hashes": [],
+      "last_verified": "2026-07-24",
+      "level": "A4",
+      "limitations": [
+        "No live third-party solver execution is claimed by this certification.",
+        "Adapter presence does not establish solver availability or model applicability."
+      ],
+      "live_solver_execution": false,
+      "solver_versions": [],
+      "verified_platforms": [
+        "repository-ci-contract-fixtures"
+      ]
+    },
     "executables": [
       "python"
     ],
@@ -138,6 +370,30 @@
     "workflow": "periodic-dft"
   },
   {
+    "certification": {
+      "evidence": [
+        "metadata-schema",
+        "environment-probe-contract",
+        "input-contract",
+        "argv-command-plan",
+        "conservative-parser-policy",
+        "deterministic-success-and-failure-fixtures",
+        "numerical-and-physical-validation-gates"
+      ],
+      "evidence_scope": "repository-fixture-only",
+      "fixture_hashes": [],
+      "last_verified": "2026-07-24",
+      "level": "A4",
+      "limitations": [
+        "No live third-party solver execution is claimed by this certification.",
+        "Adapter presence does not establish solver availability or model applicability."
+      ],
+      "live_solver_execution": false,
+      "solver_versions": [],
+      "verified_platforms": [
+        "repository-ci-contract-fixtures"
+      ]
+    },
     "executables": [
       "gmx"
     ],
@@ -151,6 +407,30 @@
     "workflow": "molecular-dynamics"
   },
   {
+    "certification": {
+      "evidence": [
+        "metadata-schema",
+        "environment-probe-contract",
+        "input-contract",
+        "argv-command-plan",
+        "conservative-parser-policy",
+        "deterministic-success-and-failure-fixtures",
+        "numerical-and-physical-validation-gates"
+      ],
+      "evidence_scope": "repository-fixture-only",
+      "fixture_hashes": [],
+      "last_verified": "2026-07-24",
+      "level": "A4",
+      "limitations": [
+        "No live third-party solver execution is claimed by this certification.",
+        "Adapter presence does not establish solver availability or model applicability."
+      ],
+      "live_solver_execution": false,
+      "solver_versions": [],
+      "verified_platforms": [
+        "repository-ci-contract-fixtures"
+      ]
+    },
     "executables": [
       "python"
     ],
@@ -167,6 +447,30 @@
     "workflow": "molecular-dynamics"
   },
   {
+    "certification": {
+      "evidence": [
+        "metadata-schema",
+        "environment-probe-contract",
+        "input-contract",
+        "argv-command-plan",
+        "conservative-parser-policy",
+        "deterministic-success-and-failure-fixtures",
+        "numerical-and-physical-validation-gates"
+      ],
+      "evidence_scope": "repository-fixture-only",
+      "fixture_hashes": [],
+      "last_verified": "2026-07-24",
+      "level": "A4",
+      "limitations": [
+        "No live third-party solver execution is claimed by this certification.",
+        "Adapter presence does not establish solver availability or model applicability."
+      ],
+      "live_solver_execution": false,
+      "solver_versions": [],
+      "verified_platforms": [
+        "repository-ci-contract-fixtures"
+      ]
+    },
     "executables": [
       "lmp",
       "lmp_mpi"
@@ -181,6 +485,30 @@
     "workflow": "molecular-dynamics"
   },
   {
+    "certification": {
+      "evidence": [
+        "metadata-schema",
+        "environment-probe-contract",
+        "input-contract",
+        "argv-command-plan",
+        "conservative-parser-policy",
+        "deterministic-success-and-failure-fixtures",
+        "numerical-and-physical-validation-gates"
+      ],
+      "evidence_scope": "repository-fixture-only",
+      "fixture_hashes": [],
+      "last_verified": "2026-07-24",
+      "level": "A4",
+      "limitations": [
+        "No live third-party solver execution is claimed by this certification.",
+        "Adapter presence does not establish solver availability or model applicability."
+      ],
+      "live_solver_execution": false,
+      "solver_versions": [],
+      "verified_platforms": [
+        "repository-ci-contract-fixtures"
+      ]
+    },
     "executables": [
       "plumed"
     ],
@@ -194,6 +522,28 @@
     "workflow": "enhanced-sampling"
   },
   {
+    "certification": {
+      "evidence": [
+        "metadata-schema",
+        "environment-probe-contract",
+        "input-contract",
+        "argv-command-plan",
+        "conservative-parser-policy"
+      ],
+      "evidence_scope": "repository-fixture-only",
+      "fixture_hashes": [],
+      "last_verified": "2026-07-24",
+      "level": "A3",
+      "limitations": [
+        "No live third-party solver execution is claimed by this certification.",
+        "Adapter presence does not establish solver availability or model applicability."
+      ],
+      "live_solver_execution": false,
+      "solver_versions": [],
+      "verified_platforms": [
+        "repository-ci-contract-fixtures"
+      ]
+    },
     "executables": [
       "dp"
     ],
@@ -207,6 +557,28 @@
     "workflow": "machine-learning-potential"
   },
   {
+    "certification": {
+      "evidence": [
+        "metadata-schema",
+        "environment-probe-contract",
+        "input-contract",
+        "argv-command-plan",
+        "conservative-parser-policy"
+      ],
+      "evidence_scope": "repository-fixture-only",
+      "fixture_hashes": [],
+      "last_verified": "2026-07-24",
+      "level": "A3",
+      "limitations": [
+        "No live third-party solver execution is claimed by this certification.",
+        "Adapter presence does not establish solver availability or model applicability."
+      ],
+      "live_solver_execution": false,
+      "solver_versions": [],
+      "verified_platforms": [
+        "repository-ci-contract-fixtures"
+      ]
+    },
     "executables": [
       "python"
     ],
@@ -223,6 +595,30 @@
     "workflow": "machine-learning-potential"
   },
   {
+    "certification": {
+      "evidence": [
+        "metadata-schema",
+        "environment-probe-contract",
+        "input-contract",
+        "argv-command-plan",
+        "conservative-parser-policy",
+        "deterministic-success-and-failure-fixtures",
+        "numerical-and-physical-validation-gates"
+      ],
+      "evidence_scope": "repository-fixture-only",
+      "fixture_hashes": [],
+      "last_verified": "2026-07-24",
+      "level": "A4",
+      "limitations": [
+        "No live third-party solver execution is claimed by this certification.",
+        "Adapter presence does not establish solver availability or model applicability."
+      ],
+      "live_solver_execution": false,
+      "solver_versions": [],
+      "verified_platforms": [
+        "repository-ci-contract-fixtures"
+      ]
+    },
     "executables": [
       "python"
     ],
@@ -239,6 +635,28 @@
     "workflow": "finite-element"
   },
   {
+    "certification": {
+      "evidence": [
+        "metadata-schema",
+        "environment-probe-contract",
+        "input-contract",
+        "argv-command-plan",
+        "conservative-parser-policy"
+      ],
+      "evidence_scope": "repository-fixture-only",
+      "fixture_hashes": [],
+      "last_verified": "2026-07-24",
+      "level": "A3",
+      "limitations": [
+        "No live third-party solver execution is claimed by this certification.",
+        "Adapter presence does not establish solver availability or model applicability."
+      ],
+      "live_solver_execution": false,
+      "solver_versions": [],
+      "verified_platforms": [
+        "repository-ci-contract-fixtures"
+      ]
+    },
     "executables": [
       "moose-opt"
     ],
@@ -252,6 +670,28 @@
     "workflow": "multiphysics"
   },
   {
+    "certification": {
+      "evidence": [
+        "metadata-schema",
+        "environment-probe-contract",
+        "input-contract",
+        "argv-command-plan",
+        "conservative-parser-policy"
+      ],
+      "evidence_scope": "repository-fixture-only",
+      "fixture_hashes": [],
+      "last_verified": "2026-07-24",
+      "level": "A3",
+      "limitations": [
+        "No live third-party solver execution is claimed by this certification.",
+        "Adapter presence does not establish solver availability or model applicability."
+      ],
+      "live_solver_execution": false,
+      "solver_versions": [],
+      "verified_platforms": [
+        "repository-ci-contract-fixtures"
+      ]
+    },
     "executables": [
       "ElmerSolver"
     ],
@@ -265,6 +705,28 @@
     "workflow": "finite-element"
   },
   {
+    "certification": {
+      "evidence": [
+        "metadata-schema",
+        "environment-probe-contract",
+        "input-contract",
+        "argv-command-plan",
+        "conservative-parser-policy"
+      ],
+      "evidence_scope": "repository-fixture-only",
+      "fixture_hashes": [],
+      "last_verified": "2026-07-24",
+      "level": "A3",
+      "limitations": [
+        "No live third-party solver execution is claimed by this certification.",
+        "Adapter presence does not establish solver availability or model applicability."
+      ],
+      "live_solver_execution": false,
+      "solver_versions": [],
+      "verified_platforms": [
+        "repository-ci-contract-fixtures"
+      ]
+    },
     "executables": [
       "python"
     ],
@@ -281,6 +743,30 @@
     "workflow": "multiphysics"
   },
   {
+    "certification": {
+      "evidence": [
+        "metadata-schema",
+        "environment-probe-contract",
+        "input-contract",
+        "argv-command-plan",
+        "conservative-parser-policy",
+        "deterministic-success-and-failure-fixtures",
+        "numerical-and-physical-validation-gates"
+      ],
+      "evidence_scope": "repository-fixture-only",
+      "fixture_hashes": [],
+      "last_verified": "2026-07-24",
+      "level": "A4",
+      "limitations": [
+        "No live third-party solver execution is claimed by this certification.",
+        "Adapter presence does not establish solver availability or model applicability."
+      ],
+      "live_solver_execution": false,
+      "solver_versions": [],
+      "verified_platforms": [
+        "repository-ci-contract-fixtures"
+      ]
+    },
     "executables": [
       "simpleFoam",
       "pimpleFoam"
@@ -295,6 +781,28 @@
     "workflow": "cfd"
   },
   {
+    "certification": {
+      "evidence": [
+        "metadata-schema",
+        "environment-probe-contract",
+        "input-contract",
+        "argv-command-plan",
+        "conservative-parser-policy"
+      ],
+      "evidence_scope": "repository-fixture-only",
+      "fixture_hashes": [],
+      "last_verified": "2026-07-24",
+      "level": "A3",
+      "limitations": [
+        "No live third-party solver execution is claimed by this certification.",
+        "Adapter presence does not establish solver availability or model applicability."
+      ],
+      "live_solver_execution": false,
+      "solver_versions": [],
+      "verified_platforms": [
+        "repository-ci-contract-fixtures"
+      ]
+    },
     "executables": [
       "SU2_CFD"
     ],
@@ -308,6 +816,28 @@
     "workflow": "cfd"
   },
   {
+    "certification": {
+      "evidence": [
+        "metadata-schema",
+        "environment-probe-contract",
+        "input-contract",
+        "argv-command-plan",
+        "conservative-parser-policy"
+      ],
+      "evidence_scope": "repository-fixture-only",
+      "fixture_hashes": [],
+      "last_verified": "2026-07-24",
+      "level": "A3",
+      "limitations": [
+        "No live third-party solver execution is claimed by this certification.",
+        "Adapter presence does not establish solver availability or model applicability."
+      ],
+      "live_solver_execution": false,
+      "solver_versions": [],
+      "verified_platforms": [
+        "repository-ci-contract-fixtures"
+      ]
+    },
     "executables": [
       "DWSIM.CLI"
     ],
@@ -321,6 +851,30 @@
     "workflow": "process-simulation"
   },
   {
+    "certification": {
+      "evidence": [
+        "metadata-schema",
+        "environment-probe-contract",
+        "input-contract",
+        "argv-command-plan",
+        "conservative-parser-policy",
+        "deterministic-success-and-failure-fixtures",
+        "numerical-and-physical-validation-gates"
+      ],
+      "evidence_scope": "repository-fixture-only",
+      "fixture_hashes": [],
+      "last_verified": "2026-07-24",
+      "level": "A4",
+      "limitations": [
+        "No live third-party solver execution is claimed by this certification.",
+        "Adapter presence does not establish solver availability or model applicability."
+      ],
+      "live_solver_execution": false,
+      "solver_versions": [],
+      "verified_platforms": [
+        "repository-ci-contract-fixtures"
+      ]
+    },
     "executables": [
       "idaes"
     ],
@@ -338,6 +892,28 @@
     "workflow": "process-simulation"
   },
   {
+    "certification": {
+      "evidence": [
+        "metadata-schema",
+        "environment-probe-contract",
+        "input-contract",
+        "argv-command-plan",
+        "conservative-parser-policy"
+      ],
+      "evidence_scope": "repository-fixture-only",
+      "fixture_hashes": [],
+      "last_verified": "2026-07-24",
+      "level": "A3",
+      "limitations": [
+        "No live third-party solver execution is claimed by this certification.",
+        "Adapter presence does not establish solver availability or model applicability."
+      ],
+      "live_solver_execution": false,
+      "solver_versions": [],
+      "verified_platforms": [
+        "repository-ci-contract-fixtures"
+      ]
+    },
     "executables": [
       "omc"
     ],
@@ -351,6 +927,30 @@
     "workflow": "dynamic-control"
   },
   {
+    "certification": {
+      "evidence": [
+        "metadata-schema",
+        "environment-probe-contract",
+        "input-contract",
+        "argv-command-plan",
+        "conservative-parser-policy",
+        "deterministic-success-and-failure-fixtures",
+        "numerical-and-physical-validation-gates"
+      ],
+      "evidence_scope": "repository-fixture-only",
+      "fixture_hashes": [],
+      "last_verified": "2026-07-24",
+      "level": "A4",
+      "limitations": [
+        "No live third-party solver execution is claimed by this certification.",
+        "Adapter presence does not establish solver availability or model applicability."
+      ],
+      "live_solver_execution": false,
+      "solver_versions": [],
+      "verified_platforms": [
+        "repository-ci-contract-fixtures"
+      ]
+    },
     "executables": [
       "python"
     ],
@@ -368,6 +968,26 @@
     "workflow": "reactor-engineering"
   },
   {
+    "certification": {
+      "evidence": [
+        "metadata-schema",
+        "environment-probe-contract",
+        "input-contract"
+      ],
+      "evidence_scope": "repository-fixture-only",
+      "fixture_hashes": [],
+      "last_verified": "2026-07-24",
+      "level": "A2",
+      "limitations": [
+        "No live third-party solver execution is claimed by this certification.",
+        "Adapter presence does not establish solver availability or model applicability."
+      ],
+      "live_solver_execution": false,
+      "solver_versions": [],
+      "verified_platforms": [
+        "repository-ci-contract-fixtures"
+      ]
+    },
     "executables": [],
     "license_kind": "commercial",
     "live_execution_verified": false,

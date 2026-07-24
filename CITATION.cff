@@ -4,7 +4,7 @@ message: Please cite the repository version and the scientific methods/software 
 type: software
 authors:
   - name: SUNHAOJUN22
-version: 3.0.1
+version: 3.0.2
 date-released: 2026-07-24
 license: MIT
 repository-code: https://github.com/SUNHAOJUN22/TsaoSciComputation

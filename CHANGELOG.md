@@ -4,6 +4,20 @@
 
 No unreleased changes.
 
+## 3.0.2 — 2026-07-24
+
+- Added a machine-readable, fail-closed C0–C5 scientific-confidence assessment with sequential evidence requirements, JSON Schema validation, and explicit engineering-decision boundaries.
+- Added eight deterministic analytical, conservation, and invariant scientific reference benchmarks spanning heat transfer, flow, reactors, molecular dynamics, polymer statistical mechanics, electrostatics, and electrothermal coupling.
+- Replaced the permissive Adapter shape check with a strict no-unknown-fields Schema and structured A0–A5 certification evidence; A5 requires versioned live-solver evidence.
+- Added a critical coverage policy that prevents repository and high-trust module coverage from silently regressing.
+- Added explicit Schema/API compatibility and repository Ruleset desired-state policies without falsely claiming platform settings are enabled.
+- Added a structured pull-request template aligned with the single-`main`, evidence-first contribution model.
+- Added a branchless weekly dependency-vulnerability audit using a pinned `pip-audit` toolchain and read-only GitHub permissions.
+- Added CODEOWNERS for security-sensitive, release, workflow, contract, adapter, and validation paths.
+- Added structured software-defect, scientific-validity, and capability-request issue forms with explicit security and data-handling boundaries.
+- Added support, conduct, and dependency-maintenance policies aligned with the canonical single-`main` upstream model.
+- Added regression tests that prevent branch-creating dependency automation, unpinned maintenance Actions, blank public issues, and unsafe security-report routing.
+
 ## 3.0.1 — 2026-07-24
 
 - Hardened adapter parsing so abnormal, failed, incomplete, or negatively converged output cannot be promoted through positive substrings; explicit convergence now requires a completed run.

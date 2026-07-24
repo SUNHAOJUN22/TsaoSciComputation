@@ -1,4 +1,26 @@
 {
+  "certification": {
+    "evidence": [
+      "metadata-schema",
+      "environment-probe-contract",
+      "input-contract",
+      "argv-command-plan",
+      "conservative-parser-policy"
+    ],
+    "evidence_scope": "repository-fixture-only",
+    "fixture_hashes": [],
+    "last_verified": "2026-07-24",
+    "level": "A3",
+    "limitations": [
+      "No live third-party solver execution is claimed by this certification.",
+      "Adapter presence does not establish solver availability or model applicability."
+    ],
+    "live_solver_execution": false,
+    "solver_versions": [],
+    "verified_platforms": [
+      "repository-ci-contract-fixtures"
+    ]
+  },
   "executables": [
     "python"
   ],

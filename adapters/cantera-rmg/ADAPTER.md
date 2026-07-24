@@ -10,6 +10,20 @@
 
 This adapter provides discovery, input/output contracts, conservative parsing, and bounded recovery guidance. It never bundles executables, licenses, keys, pseudopotentials, basis databases, private data, or copyrighted manuals.
 
+## Certification
+
+- Certification level: `A4`
+- Evidence scope: `repository-fixture-only`
+- Last repository verification: `2026-07-24`
+- Live solver execution verified: **no**
+- Versioned solver evidence: None recorded.
+- Repository evidence: `metadata-schema`, `environment-probe-contract`, `input-contract`, `argv-command-plan`, `conservative-parser-policy`, `deterministic-success-and-failure-fixtures`, `numerical-and-physical-validation-gates`
+
+- No live third-party solver execution is claimed by this certification.
+- Adapter presence does not establish solver availability or model applicability.
+
+`A5` is reserved for a versioned live-solver smoke test with fixture hashes and platform evidence. Levels `A0`–`A4` do not establish installed solver availability.
+
 ## Capabilities
 
 - `TSC-125` `cstr-model` — CSTR model construction

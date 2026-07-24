@@ -9,7 +9,9 @@ from tsao_computation.validation.scientific_benchmarks import write_report
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Run deterministic scientific reference benchmarks.")
+    parser = argparse.ArgumentParser(
+        description="Run deterministic scientific reference benchmarks."
+    )
     parser.add_argument(
         "--output",
         type=Path,

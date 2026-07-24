@@ -45,12 +45,8 @@ def render_adapter(record: dict[str, Any], capabilities: list[dict[str, Any]]) -
         or "- No capability is hard-wired to this adapter. Select it only after method and environment qualification."
     )
     certification = dict(record["certification"])
-    certification_evidence = ", ".join(
-        f"`{item}`" for item in certification["evidence"]
-    )
-    certification_limitations = "\n".join(
-        f"- {item}" for item in certification["limitations"]
-    )
+    certification_evidence = ", ".join(f"`{item}`" for item in certification["evidence"])
+    certification_limitations = "\n".join(f"- {item}" for item in certification["limitations"])
     return f"""# {record["name"]} adapter
 
 ## Description

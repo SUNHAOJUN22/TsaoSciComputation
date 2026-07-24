@@ -4,7 +4,7 @@
 
 **从电子尺度到流程尺度的证据约束型科学计算编排系统。**
 
-[English](README.md) · [根 Skill](SKILL.md) · [能力索引](capability-index/README.md) · [覆盖矩阵](docs/coverage-matrix.md) · [架构](docs/architecture.md) · [发布治理](docs/release.md) · [安全](SECURITY.md)
+[English](README.md) · [根 Skill](SKILL.md) · [能力索引](capability-index/README.md) · [覆盖矩阵](docs/coverage-matrix.md) · [科学验证](docs/scientific-validation.md) · [可信等级](docs/scientific-confidence.md) · [架构](docs/architecture.md) · [发布治理](docs/release.md) · [安全](SECURITY.md)
 
 </div>
 
@@ -24,12 +24,14 @@ TsaoSciComputation 将科学问题转化为可追溯的计算程序：
 
 | 项目 | 结果 |
 |---|---:|
-| 版本 | 3.0.1 |
+| 版本 | 3.0.2 |
 | 能力 / 适配器 / 工作流 | 164 / 27 / 20 |
 | 强制运行时第三方依赖 | 0 |
-| 自动测试 | 525 通过，0 失败 |
-| 语句 / 分支覆盖率 | 96.86% / 93.24% |
+| 自动测试 | 553 通过，0 失败 |
+| 语句 / 分支覆盖率 | 97.27% / 93.48% |
 | 受控变异探针 | 64/64 被识别 |
+| 科学参考基准 | 8/8 通过 |
+| 科学可信等级 | C0–C5，缺项拒绝升级 |
 | 仓库安全扫描 | 0 项发现 |
 | 源码包 | ZIP 与 tar.gz 字节级可重复构建 |
 | Wheel | 字节级可重复构建并通过隔离安装 |
@@ -67,7 +69,7 @@ python scripts/verify_all.py --profile all
 python scripts/verify_all.py --profile benchmark
 ```
 
-`all` 是确定性的发布硬门禁，覆盖版本一致性、代码质量、测试与覆盖率、仓库/Schema/资源/Manifest 校验、安全扫描、受控变异探针、源码包与 Wheel 可重复构建、Wheel 隔离安装、SBOM 生成和发布校验和。`benchmark` 受运行环境影响，只作为独立性能观测，不参与发布验收。CI 在 Ubuntu、Windows、macOS 上验证 Python 3.10 与 3.13，所有 GitHub Actions 均固定到不可变提交。
+`all` 是确定性的发布硬门禁，覆盖版本一致性、代码质量、测试与覆盖率、仓库/Schema/资源/Manifest 校验、安全扫描、受控变异探针、源码包与 Wheel 可重复构建、Wheel 隔离安装、SBOM 生成和发布校验和。`benchmark` 受运行环境影响，只作为独立性能观测，不参与发布验收。 独立的只读周度依赖审计记录已知漏洞证据，且不会在上游创建 branch。CI 在 Ubuntu、Windows、macOS 上验证 Python 3.10 与 3.13，所有 GitHub Actions 均固定到不可变提交。
 
 ## 正式发布
 
@@ -93,7 +95,7 @@ python scripts/install_skill.py --agent codex --scope user --validate
 
 ## 科学可信边界
 
-适配器只有在全部声明的可执行程序和 Python 模块均通过探测后才可标记为可用；正常退出不等于数值收敛。安装副本按完整 SHA-256 Manifest 校验，12 类场景合同均通过严格前检。
+适配器只有在全部声明的可执行程序和 Python 模块均通过探测后才可标记为可用；正常退出不等于数值收敛。安装副本按完整 SHA-256 Manifest 校验，12 类场景合同均通过严格前检。 另有8项确定性的解析解、守恒与不变量基准必须通过，但这些基准不声称第三方求解器已真实运行。
 
 ```text
 completed ≠ parsed ≠ converged ≠ validated ≠ accepted
