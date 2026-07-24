@@ -1541,9 +1541,9 @@
       "sha256": "16e307858ead9fceb8cd933bcdf98e90bceade4e041cd8a3c13c4822024df45c"
     },
     {
-      "bytes": 8084,
+      "bytes": 8083,
       "path": "reports/REMOTE_FINALIZATION.json",
-      "sha256": "1112e46a539c6882eef46b1dc0332522b8f5f141ef4ca5ff0b560c9b280523b8"
+      "sha256": "f4987788b4c49fe9a6321596585a6765e797a23bd894f01cd524222884c3d3f9"
     },
     {
       "bytes": 225,
