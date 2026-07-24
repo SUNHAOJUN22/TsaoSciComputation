@@ -49,6 +49,8 @@ jobs:
           python scripts/_apply_v302_governance.py apply
           python scripts/_apply_adapter_certification.py
           python scripts/_finalize_scientific_governance.py apply
+          python scripts/_apply_confidence_model.py
+          sed -i '/^[[:space:]]*init_path = ROOT \/ "tsao_computation" \/ "validation" \/ "__init__.py"$/d' scripts/_apply_confidence_model.py
           python scripts/sync_version_metadata.py --release-date 2026-07-24
           python -m pip install -e '.[validation,quality,security]'
           python -m ruff check --fix tsao_computation scripts tests _bootstrap.py
@@ -124,7 +126,7 @@ jobs:
           git commit -m 'Complete and verify v3.0.2 on main'
           git push origin HEAD:refs/heads/main
 
-          gh issue close "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --comment 'v3.0.2 was completed and fully verified directly on main. No branch was created; the temporary completion workflow restored the normal production CI before committing.'
+          gh issue close "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --comment 'v3.0.2 was completed and fully verified directly on main. The C0-C5 scientific-confidence model, eight scientific reference benchmarks, adapter certification, maintenance governance, dependency audit, and README evidence were included. No branch was created; the temporary completion workflow restored normal production CI before committing.'
 
           if gh release view v3.0.2 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             echo 'Release v3.0.2 already exists; no duplicate dispatch needed.'
