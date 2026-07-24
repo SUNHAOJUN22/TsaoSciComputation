@@ -44,154 +44,11 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
 
-          python - <<'PY'
-          from pathlib import Path
-
-          dollar = '$'
-          workflow = '''name: CI
-
-          on:
-            workflow_dispatch:
-            pull_request:
-              branches: [main]
-            push:
-              branches: [main]
-
-          permissions:
-            contents: read
-
-          concurrency:
-            group: ci-__DOLLAR__{{ github.workflow }}-__DOLLAR__{{ github.ref }}
-            cancel-in-progress: true
-
-          jobs:
-            core:
-              strategy:
-                fail-fast: false
-                matrix:
-                  os: [ubuntu-latest, windows-latest, macos-latest]
-                  python: ['3.10', '3.13']
-              runs-on: __DOLLAR__{{ matrix.os }}
-              timeout-minutes: 20
-              steps:
-                - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
-                  with:
-                    persist-credentials: false
-                - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
-                  with:
-                    python-version: __DOLLAR__{{ matrix.python }}
-                    cache: pip
-                - run: python -m pip install -e '.[validation,quality]'
-                - run: python scripts/verify_all.py --profile core
-
-            quality:
-              runs-on: ubuntu-latest
-              timeout-minutes: 20
-              steps:
-                - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
-                  with:
-                    persist-credentials: false
-                - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
-                  with:
-                    python-version: '3.13'
-                    cache: pip
-                - run: python -m pip install -e '.[validation,quality]'
-                - run: python scripts/verify_all.py --profile quality
-
-            package:
-              runs-on: ubuntu-latest
-              timeout-minutes: 25
-              steps:
-                - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
-                  with:
-                    persist-credentials: false
-                - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
-                  with:
-                    python-version: '3.13'
-                - run: python -m pip install -e '.[validation,quality]'
-                - run: python scripts/verify_all.py --profile package
-                - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
-                  with:
-                    name: TsaoSciComputation-release-candidate-__DOLLAR__{{ github.run_id }}-__DOLLAR__{{ github.run_attempt }}
-                    path: dist/*
-                    if-no-files-found: error
-                    retention-days: 14
-
-            benchmark:
-              runs-on: ubuntu-latest
-              timeout-minutes: 10
-              continue-on-error: true
-              steps:
-                - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
-                  with:
-                    persist-credentials: false
-                - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
-                  with:
-                    python-version: '3.13'
-                    cache: pip
-                - run: python -m pip install -e '.[validation,quality]'
-                - run: python scripts/verify_all.py --profile benchmark
-          '''
-          lines = [line[10:] if line.startswith('          ') else line for line in workflow.splitlines()]
-          Path('/tmp/production-ci.yml').write_text(
-              '\n'.join(lines).replace('__DOLLAR__', dollar).lstrip() + '\n',
-              encoding='utf-8',
-          )
-          PY
-
           python -m pip install -e '.[validation,quality]'
+          python scripts/_complete_v302.py prepare
           python scripts/_apply_v302_governance.py apply
           python scripts/_apply_adapter_certification.py
           python scripts/_finalize_scientific_governance.py apply
-
-          python - <<'PY'
-          from pathlib import Path
-
-          sbom = Path('scripts/build_sbom.py')
-          text = sbom.read_text(encoding='utf-8')
-          old = '''try:
-              import tomllib
-          except ModuleNotFoundError:  # pragma: no cover - Python 3.10 compatibility
-              import tomli as tomllib  # type: ignore[import-not-found,no-redef]
-          '''
-          new = '''import sys
-
-          if sys.version_info >= (3, 11):
-              import tomllib
-          else:  # pragma: no cover - exercised only on Python 3.10
-              import tomli as tomllib
-          '''
-          if old in text:
-              sbom.write_text(text.replace(old, new, 1), encoding='utf-8')
-
-          governance = Path('scripts/_apply_v302_governance.py')
-          text = governance.read_text(encoding='utf-8')
-          old = '''    dependency = json.loads((ROOT / "reports/DEPENDENCY_AUDIT.json").read_text(encoding="utf-8"))
-              vulnerable = [item for item in dependency.get("dependencies", []) if item.get("vulns")]
-          '''
-          new = '''    dependency_payload = json.loads(
-                  (ROOT / "reports/DEPENDENCY_AUDIT.json").read_text(encoding="utf-8")
-              )
-              dependencies = (
-                  dependency_payload
-                  if isinstance(dependency_payload, list)
-                  else dependency_payload.get("dependencies", [])
-              )
-              vulnerable = [item for item in dependencies if item.get("vulns")]
-          '''
-          if old not in text:
-              raise SystemExit('dependency-audit parsing anchor not found')
-          governance.write_text(text.replace(old, new, 1), encoding='utf-8')
-          PY
-
-          cp /tmp/production-ci.yml .github/workflows/ci.yml
-          rm -f .github/workflows/deepen-maintenance.yml
-          rm -f .github/workflows/v302-issue-finalizer.yml
-          rm -f .deepen-maintenance
-          rm -f reports/MAINTENANCE_GOVERNANCE_FAILURE.json
-          rm -f reports/SCIENTIFIC_GOVERNANCE_FAILURE.json
-          rm -f reports/V302_COMPLETION_FAILURE.json
-
           python scripts/sync_version_metadata.py --release-date 2026-07-24
           python -m pip install -e '.[validation,quality,security]'
           python -m ruff check --fix tsao_computation scripts tests _bootstrap.py
@@ -204,6 +61,7 @@ jobs:
           TSAO_COVERAGE_JSON=/tmp/maintenance-coverage.json python scripts/run_tests.py --coverage
           cp /tmp/maintenance-coverage.json /tmp/scientific-coverage.json
           cp /tmp/maintenance-coverage.json evidence/coverage.json
+
           mkdir -p reports
           python -m pip freeze --all > reports/DEPENDENCY_SNAPSHOT.txt
           timeout 300 python -m pip_audit --local --skip-editable --progress-spinner=off --format=json --output reports/DEPENDENCY_AUDIT.json
@@ -243,9 +101,7 @@ jobs:
 
           python scripts/_apply_v302_governance.py finalize
           python scripts/_finalize_scientific_governance.py finalize
-          rm -f scripts/_apply_adapter_certification.py
-          rm -f scripts/_finalize_scientific_governance.py
-          rm -f reports/V302_COMPLETION_FAILURE.json
+          python scripts/_complete_v302.py cleanup
 
           python scripts/build_manifest.py
           python scripts/verify_all.py --profile all
