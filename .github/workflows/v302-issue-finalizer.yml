@@ -30,96 +30,14 @@ jobs:
           ref: main
           fetch-depth: 0
           persist-credentials: true
-      - name: Configure repository and preserve production CI
+      - name: Configure repository and preserve verified production CI
         run: |
           set -Eeuo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          cat > /tmp/production-ci.yml <<'EOF'
-          name: CI
-
-          on:
-            workflow_dispatch:
-            pull_request:
-              branches: [main]
-            push:
-              branches: [main]
-
-          permissions:
-            contents: read
-
-          concurrency:
-            group: ci-${{ github.workflow }}-${{ github.ref }}
-            cancel-in-progress: true
-
-          jobs:
-            core:
-              strategy:
-                fail-fast: false
-                matrix:
-                  os: [ubuntu-latest, windows-latest, macos-latest]
-                  python: ['3.10', '3.13']
-              runs-on: ${{ matrix.os }}
-              timeout-minutes: 20
-              steps:
-                - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
-                  with:
-                    persist-credentials: false
-                - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
-                  with:
-                    python-version: ${{ matrix.python }}
-                    cache: pip
-                - run: python -m pip install -e '.[validation,quality]'
-                - run: python scripts/verify_all.py --profile core
-
-            quality:
-              runs-on: ubuntu-latest
-              timeout-minutes: 20
-              steps:
-                - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
-                  with:
-                    persist-credentials: false
-                - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
-                  with:
-                    python-version: '3.13'
-                    cache: pip
-                - run: python -m pip install -e '.[validation,quality]'
-                - run: python scripts/verify_all.py --profile quality
-
-            package:
-              runs-on: ubuntu-latest
-              timeout-minutes: 25
-              steps:
-                - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
-                  with:
-                    persist-credentials: false
-                - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
-                  with:
-                    python-version: '3.13'
-                - run: python -m pip install -e '.[validation,quality]'
-                - run: python scripts/verify_all.py --profile package
-                - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
-                  with:
-                    name: TsaoSciComputation-release-candidate-${{ github.run_id }}-${{ github.run_attempt }}
-                    path: dist/*
-                    if-no-files-found: error
-                    retention-days: 14
-
-            benchmark:
-              runs-on: ubuntu-latest
-              timeout-minutes: 10
-              continue-on-error: true
-              steps:
-                - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
-                  with:
-                    persist-credentials: false
-                - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
-                  with:
-                    python-version: '3.13'
-                    cache: pip
-                - run: python -m pip install -e '.[validation,quality]'
-                - run: python scripts/verify_all.py --profile benchmark
-          EOF
+          git show 29500b53d3baa03d11c2bc5a35ec3bcba1ab6cc7:.github/workflows/ci.yml > /tmp/production-ci.yml
+          grep -F 'github.run_id' /tmp/production-ci.yml
+          grep -F 'github.run_attempt' /tmp/production-ci.yml
       - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
         with:
           python-version: '3.13'
