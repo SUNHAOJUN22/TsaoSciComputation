@@ -1,0 +1,10 @@
+{
+  "branch": "main",
+  "exit_code": 1,
+  "failed_at_utc": "2026-07-24T05:37:40.520742+00:00",
+  "log_tail": "FINAL_VERIFICATION.json: OK\nSOURCE_BUILD_REPORT.json: OK\nTsaoSciComputation-3.0.1.cdx.json: OK\nTsaoSciComputation-3.0.1.provenance.sigstore.json: OK\nTsaoSciComputation-3.0.1.sbom.sigstore.json: OK\nTsaoSciComputation-3.0.1.spdx.json: OK\nTsaoSciComputation-3.0.1.tar.gz: OK\nTsaoSciComputation-3.0.1.zip: OK\nWHEEL_VERIFICATION.json: OK\ntsao_scicomputation-3.0.1-py3-none-any.whl: OK\n\n==> tests and coverage\n    /usr/bin/python scripts/run_tests.py --coverage\n/usr/bin/python: No module named coverage\n\nFAILED: tests and coverage (exit 1)",
+  "schema_version": "1.0",
+  "stage": "clean-and-validate-main",
+  "status": "FAILED",
+  "temporary_branch_created": false
+}
