@@ -1,8 +1,18 @@
 from __future__ import annotations
 
 import argparse
+import os
 import subprocess  # nosec B404
 import sys
+import tempfile
+from pathlib import Path
+
+
+def coverage_json_path() -> Path:
+    configured = os.environ.get("TSAO_COVERAGE_JSON")
+    if configured:
+        return Path(configured).expanduser().resolve()
+    return Path(tempfile.gettempdir()) / "tsao-current-coverage.json"
 
 
 def main() -> int:
@@ -22,6 +32,14 @@ def main() -> int:
     if args.marker:
         coverage_command.extend(["-m", args.marker])
     result = subprocess.run(coverage_command, check=False)  # nosec B603
+    if result.returncode != 0:
+        return result.returncode
+
+    output = coverage_json_path()
+    output.parent.mkdir(parents=True, exist_ok=True)
+    result = subprocess.run(  # nosec B603
+        [sys.executable, "-m", "coverage", "json", "-o", str(output)], check=False
+    )
     if result.returncode != 0:
         return result.returncode
     return subprocess.run(  # nosec B603
