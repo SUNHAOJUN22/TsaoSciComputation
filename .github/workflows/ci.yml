@@ -1,4 +1,4 @@
-name: CI v3.0.2 scientific finalizer r2
+name: CI v3.0.2 scientific finalizer r3
 
 on:
   push:
