@@ -1,4 +1,4 @@
-name: CI v3.0.2 scientific finalizer r3
+name: CI v3.0.2 parallel scientific finalizer
 
 on:
   push:
@@ -13,45 +13,32 @@ concurrency:
   group: deepen-maintenance-main
   cancel-in-progress: true
 
+env:
+  TREE_ARTIFACT: v302-materialized-tree
+
 jobs:
-  finalize:
+  materialize:
     runs-on: ubuntu-latest
-    timeout-minutes: 70
-    env:
-      GH_TOKEN: ${{ github.token }}
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
         with:
           ref: main
           fetch-depth: 0
-          persist-credentials: true
-
-      - name: Configure repository and preserve production CI
-        shell: bash
-        run: |
-          set -Eeuo pipefail
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git show de1c901ab6cd02fba5811547f7e5f9c9063b30cd:.github/workflows/ci.yml > /tmp/production-ci.yml
-
+          persist-credentials: false
       - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
         with:
           python-version: '3.13'
           cache: pip
-
-      - name: Apply, format, and verify the Python 3.13 production tree
+      - name: Materialize the governed production tree once
         shell: bash
         run: |
           set -Eeuo pipefail
-          : > /tmp/scientific-finalizer.log
-          exec > >(tee /tmp/scientific-finalizer.log) 2>&1
-          echo dependencies > /tmp/scientific-stage
-          python -m pip install -e '.[validation,quality]'
-
-          echo apply-governance > /tmp/scientific-stage
+          git show de1c901ab6cd02fba5811547f7e5f9c9063b30cd:.github/workflows/ci.yml > /tmp/production-ci.yml
           cp scripts/_apply_v302_governance.py /tmp/_apply_v302_governance.py
           cp scripts/_apply_adapter_certification.py /tmp/_apply_adapter_certification.py
           cp scripts/_finalize_scientific_governance.py /tmp/_finalize_scientific_governance.py
+          python -m pip install -e '.[validation,quality]'
           python scripts/_apply_v302_governance.py apply
           python scripts/_apply_adapter_certification.py
           python scripts/_finalize_scientific_governance.py apply
@@ -75,8 +62,6 @@ jobs:
           if old in text:
               path.write_text(text.replace(old, new, 1), encoding='utf-8')
           PY
-
-          echo clean-temporary-files > /tmp/scientific-stage
           rm -f scripts/_apply_v302_governance.py
           rm -f scripts/_apply_adapter_certification.py
           rm -f scripts/_finalize_scientific_governance.py
@@ -84,89 +69,193 @@ jobs:
           rm -f reports/MAINTENANCE_GOVERNANCE_FAILURE.json
           rm -f reports/SCIENTIFIC_GOVERNANCE_FAILURE.json
           cp /tmp/production-ci.yml .github/workflows/ci.yml
-
-          echo install-full-toolchain > /tmp/scientific-stage
           python -m pip install -e '.[validation,quality,security]'
-          echo metadata-and-format > /tmp/scientific-stage
           python scripts/sync_version_metadata.py --release-date 2026-07-24
           python -m ruff check --fix tsao_computation scripts tests _bootstrap.py
           python -m ruff format tsao_computation scripts tests _bootstrap.py
-
-          echo generated-assets > /tmp/scientific-stage
           python scripts/sync_package_assets.py
           python scripts/build_adapter_docs.py
           python scripts/build_workflow_docs.py
           python scripts/build_examples.py
           python scripts/run_scientific_benchmarks.py
           python scripts/build_manifest.py
-
-          echo python-3.13-all > /tmp/scientific-stage
-          python scripts/verify_all.py --profile all
-          echo benchmark > /tmp/scientific-stage
-          python scripts/verify_all.py --profile benchmark
-          python scripts/build_manifest.py
-
-          echo dependency-audit > /tmp/scientific-stage
-          mkdir -p reports
-          python -m pip freeze --all > reports/DEPENDENCY_SNAPSHOT.txt
-          python -m pip_audit --local --skip-editable --progress-spinner=off --format=json --output reports/DEPENDENCY_AUDIT.json
-          python scripts/build_manifest.py
-
-          echo skill-roundtrip > /tmp/scientific-stage
-          rm -rf /tmp/TsaoSciComputation
-          python scripts/install_skill.py --agent codex --scope project --target /tmp/TsaoSciComputation --force
-          python scripts/install_skill.py --agent codex --scope project --target /tmp/TsaoSciComputation --validate
-          python scripts/install_skill.py --agent codex --scope project --target /tmp/TsaoSciComputation --uninstall
-
-          echo single-main-policy > /tmp/scientific-stage
-          mapfile -t branches < <(gh api --paginate "repos/$GITHUB_REPOSITORY/branches?per_page=100" --jq '.[].name' | sort -u)
-          test "${#branches[@]}" -eq 1
-          test "${branches[0]}" = main
-
-      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+          tar --exclude='./.git' --exclude='./dist' -czf /tmp/materialized-tree.tar.gz .
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
-          python-version: '3.10'
-          cache: pip
+          name: ${{ env.TREE_ARTIFACT }}
+          path: |
+            /tmp/materialized-tree.tar.gz
+            /tmp/_apply_v302_governance.py
+            /tmp/_apply_adapter_certification.py
+            /tmp/_finalize_scientific_governance.py
+          if-no-files-found: error
+          retention-days: 1
 
-      - name: Verify Python 3.10 core compatibility
+  python313-release:
+    needs: materialize
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: ${{ env.TREE_ARTIFACT }}
+          path: /tmp/materialized
+      - name: Restore materialized tree
         shell: bash
         run: |
           set -Eeuo pipefail
-          : > /tmp/scientific-finalizer.log
-          exec > >(tee /tmp/scientific-finalizer.log) 2>&1
-          echo python-3.10-core > /tmp/scientific-stage
-          python -m pip install -e '.[validation,quality,security]'
-          python scripts/verify_all.py --profile core
-
+          find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+          tar -xzf /tmp/materialized/materialized-tree.tar.gz -C .
       - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
         with:
           python-version: '3.13'
           cache: pip
-
-      - name: Finalize evidence, README, clean main, and release
+      - name: Run Python 3.13 deterministic release gates
         shell: bash
         run: |
           set -Eeuo pipefail
-          : > /tmp/scientific-finalizer.log
-          exec > >(tee /tmp/scientific-finalizer.log) 2>&1
-          echo final-python-3.13-tests > /tmp/scientific-stage
+          python -m pip install -e '.[validation,quality,security]'
+          python scripts/verify_all.py --profile all
+          python scripts/verify_all.py --profile benchmark
+
+  python310-core:
+    needs: materialize
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: ${{ env.TREE_ARTIFACT }}
+          path: /tmp/materialized
+      - name: Restore materialized tree
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+          tar -xzf /tmp/materialized/materialized-tree.tar.gz -C .
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.10'
+          cache: pip
+      - name: Run Python 3.10 core gates
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python -m pip install -e '.[validation,quality,security]'
+          python scripts/verify_all.py --profile core
+
+  dependency-and-install:
+    needs: materialize
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: ${{ env.TREE_ARTIFACT }}
+          path: /tmp/materialized
+      - name: Restore materialized tree
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+          tar -xzf /tmp/materialized/materialized-tree.tar.gz -C .
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+          cache: pip
+      - name: Audit dependencies, installed Skill, and branch policy
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python -m pip install -e '.[validation,quality,security]'
+          mkdir -p reports
+          python -m pip freeze --all > reports/DEPENDENCY_SNAPSHOT.txt
+          timeout 300 python -m pip_audit --local --skip-editable --progress-spinner=off --format=json --output reports/DEPENDENCY_AUDIT.json
+          python scripts/build_manifest.py
+          rm -rf /tmp/TsaoSciComputation
+          python scripts/install_skill.py --agent codex --scope project --target /tmp/TsaoSciComputation --force
+          python scripts/install_skill.py --agent codex --scope project --target /tmp/TsaoSciComputation --validate
+          python scripts/install_skill.py --agent codex --scope project --target /tmp/TsaoSciComputation --uninstall
+          mapfile -t branches < <(gh api --paginate "repos/$GITHUB_REPOSITORY/branches?per_page=100" --jq '.[].name' | sort -u)
+          test "${#branches[@]}" -eq 1
+          test "${branches[0]}" = main
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        if: ${{ always() }}
+        with:
+          name: v302-dependency-evidence
+          path: |
+            reports/DEPENDENCY_SNAPSHOT.txt
+            reports/DEPENDENCY_AUDIT.json
+          if-no-files-found: warn
+          retention-days: 1
+
+  finalize:
+    needs: [materialize, python313-release, python310-core, dependency-and-install]
+    if: ${{ needs.python313-release.result == 'success' && needs.python310-core.result == 'success' && needs.dependency-and-install.result == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: ${{ env.TREE_ARTIFACT }}
+          path: /tmp/materialized
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: v302-dependency-evidence
+          path: /tmp/dependency-evidence
+      - name: Restore materialized tree and audit evidence
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+          tar -xzf /tmp/materialized/materialized-tree.tar.gz -C .
+          mkdir -p reports
+          find /tmp/dependency-evidence -type f -name 'DEPENDENCY_*' -exec cp {} reports/ \;
+          cp /tmp/materialized/_apply_v302_governance.py scripts/_apply_v302_governance.py
+          cp /tmp/materialized/_finalize_scientific_governance.py scripts/_finalize_scientific_governance.py
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+          cache: pip
+      - name: Refresh README and publish the clean verified tree
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           python -m pip install -e '.[validation,quality,security]'
           python scripts/run_tests.py --coverage
           python -m coverage json -o /tmp/maintenance-coverage.json
           cp /tmp/maintenance-coverage.json /tmp/scientific-coverage.json
-
-          echo finalize-evidence > /tmp/scientific-stage
-          cp /tmp/_apply_v302_governance.py scripts/_apply_v302_governance.py
-          cp /tmp/_finalize_scientific_governance.py scripts/_finalize_scientific_governance.py
+          cp /tmp/maintenance-coverage.json evidence/coverage.json
           python scripts/_apply_v302_governance.py finalize
           python scripts/_finalize_scientific_governance.py finalize
-          rm -f scripts/_apply_v302_governance.py scripts/_finalize_scientific_governance.py
+          rm -f scripts/_apply_v302_governance.py
           rm -f scripts/_apply_adapter_certification.py
+          rm -f scripts/_finalize_scientific_governance.py
           rm -f reports/MAINTENANCE_GOVERNANCE_FAILURE.json
           rm -f reports/SCIENTIFIC_GOVERNANCE_FAILURE.json
-          cp /tmp/production-ci.yml .github/workflows/ci.yml
-
-          echo final-clean-validation > /tmp/scientific-stage
           python scripts/run_scientific_benchmarks.py
           python scripts/build_adapter_docs.py
           python scripts/build_manifest.py
@@ -177,40 +266,42 @@ jobs:
           python scripts/check_critical_coverage.py
           python scripts/build_manifest.py --check
           python -m pytest -q
-
-          echo publish > /tmp/scientific-stage
           git add -A
           git commit -m 'Deepen scientific certification and maintenance governance for v3.0.2'
           git push origin HEAD:refs/heads/main
           gh workflow run release.yml --ref main -f tag=v3.0.2
 
-      - name: Record failed stage
-        if: ${{ failure() }}
+  report-failure:
+    needs: [materialize, python313-release, python310-core, dependency-and-install, finalize]
+    if: ${{ always() && needs.finalize.result != 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+      - name: Record failed parallel gate
         shell: bash
         run: |
-          set +e
-          export FAILED_STAGE="$(cat /tmp/scientific-stage 2>/dev/null || echo unknown)"
-          python - <<'PY'
-          import json
-          import os
-          from datetime import datetime, timezone
-          from pathlib import Path
-
-          log = Path('/tmp/scientific-finalizer.log')
-          tail = '\n'.join(log.read_text(encoding='utf-8', errors='replace').splitlines()[-60:]) if log.exists() else ''
-          payload = {
-              'schema_version': '1.0',
-              'status': 'FAILED',
-              'stage': os.environ['FAILED_STAGE'],
-              'branch': 'main',
-              'temporary_branch_created': False,
-              'failed_at_utc': datetime.now(timezone.utc).isoformat(),
-              'log_tail': tail,
+          set -Eeuo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          mkdir -p reports
+          cat > reports/SCIENTIFIC_GOVERNANCE_FAILURE.json <<EOF
+          {
+            "schema_version": "1.0",
+            "status": "FAILED",
+            "branch": "main",
+            "temporary_branch_created": false,
+            "materialize": "${{ needs.materialize.result }}",
+            "python_313_release": "${{ needs.python313-release.result }}",
+            "python_310_core": "${{ needs.python310-core.result }}",
+            "dependency_and_install": "${{ needs.dependency-and-install.result }}",
+            "finalize": "${{ needs.finalize.result }}"
           }
-          path = Path('reports/SCIENTIFIC_GOVERNANCE_FAILURE.json')
-          path.parent.mkdir(parents=True, exist_ok=True)
-          path.write_text(json.dumps(payload, indent=2, sort_keys=True) + '\n', encoding='utf-8')
-          PY
+          EOF
           git add reports/SCIENTIFIC_GOVERNANCE_FAILURE.json
-          git commit -m "Record scientific governance failure at $FAILED_STAGE" || true
+          git commit -m 'Record failed v3.0.2 parallel scientific gate' || true
           git push origin HEAD:refs/heads/main || true
