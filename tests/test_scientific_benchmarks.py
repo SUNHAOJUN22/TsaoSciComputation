@@ -37,6 +37,14 @@ def test_scientific_report_is_deterministic(tmp_path: Path) -> None:
     assert "no third-party solver execution" in payload["claim_boundary"]
 
 
+def test_zero_reference_uses_absolute_tolerance() -> None:
+    accepted = assess("zero", "test", 5.0e-7, 0.0, 1.0e-6, "zero residual")
+    rejected = assess("zero", "test", 2.0e-6, 0.0, 1.0e-6, "zero residual")
+    assert accepted.passed
+    assert accepted.absolute_error == accepted.relative_error
+    assert not rejected.passed
+
+
 @pytest.mark.parametrize(
     ("observed", "expected", "tolerance"),
     [
