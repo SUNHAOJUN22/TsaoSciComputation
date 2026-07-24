@@ -43,6 +43,7 @@ jobs:
           VERSION_VALUE="$(tr -d '[:space:]' < VERSION)"
           TAG="${{ inputs.tag }}"
           test "$TAG" = "v$VERSION_VALUE"
+          echo "VERSION_VALUE=$VERSION_VALUE" >> "$GITHUB_ENV"
           python scripts/sync_version_metadata.py --check
           if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             echo "Release already exists: $TAG" >&2
@@ -69,16 +70,6 @@ jobs:
           cp reports/FINAL_VERIFICATION.json dist/FINAL_VERIFICATION.json
           python scripts/build_release_manifest.py --output-dir dist
 
-      - name: Create immutable release tag
-        shell: bash
-        run: |
-          set -Eeuo pipefail
-          TAG="${{ inputs.tag }}"
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git tag -a "$TAG" "$GITHUB_SHA" -m "TsaoSciComputation $TAG"
-          git push origin "refs/tags/$TAG"
-
       - name: Attest release provenance
         id: provenance
         uses: actions/attest@59d89421af93a897026c735860bf21b6eb4f7b26
@@ -96,13 +87,12 @@ jobs:
             dist/TsaoSciComputation-*.zip
             dist/TsaoSciComputation-*.tar.gz
             dist/tsao_scicomputation-*.whl
-          sbom-path: dist/TsaoSciComputation-*.spdx.json
+          sbom-path: dist/TsaoSciComputation-${{ env.VERSION_VALUE }}.spdx.json
 
       - name: Complete release evidence bundle
         shell: bash
         run: |
           set -Eeuo pipefail
-          VERSION_VALUE="$(tr -d '[:space:]' < VERSION)"
           cp "${{ steps.provenance.outputs.bundle-path }}" \
             "dist/TsaoSciComputation-${VERSION_VALUE}.provenance.sigstore.json"
           cp "${{ steps.sbom-attestation.outputs.bundle-path }}" \
@@ -116,18 +106,31 @@ jobs:
           if-no-files-found: error
           retention-days: 90
 
-      - name: Publish GitHub Release
+      - name: Publish immutable tag and GitHub Release
         shell: bash
         run: |
           set -Eeuo pipefail
           TAG="${{ inputs.tag }}"
-          VERSION_VALUE="${TAG#v}"
+          cleanup_unpublished_tag() {
+            code=$?
+            set +e
+            if ! gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+              git push origin ":refs/tags/$TAG" || true
+            fi
+            exit "$code"
+          }
+          trap cleanup_unpublished_tag ERR
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git tag -a "$TAG" "$GITHUB_SHA" -m "TsaoSciComputation $TAG"
+          git push origin "refs/tags/$TAG"
           gh release create "$TAG" dist/* \
             --repo "$GITHUB_REPOSITORY" \
             --verify-tag \
             --latest \
             --title "TsaoSciComputation $TAG" \
             --notes-file "docs/releases/v${VERSION_VALUE}.md"
+          trap - ERR
 
       - name: Verification guidance
         shell: bash
