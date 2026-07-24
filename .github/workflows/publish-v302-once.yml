@@ -1,0 +1,146 @@
+name: Publish verified v3.0.2 once
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: write
+  id-token: write
+  attestations: write
+  artifact-metadata: write
+  issues: write
+
+concurrency:
+  group: publish-v302-once
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: >-
+      github.repository == 'SUNHAOJUN22/TsaoSciComputation' &&
+      github.event.issue.user.login == 'SUNHAOJUN22' &&
+      github.event.issue.title == 'Publish verified v3.0.2 release'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      GH_TOKEN: ${{ github.token }}
+      ISSUE_NUMBER: ${{ github.event.issue.number }}
+      TARGET_SHA: 30a90f1fe0292e1a5036499ea3f5717feb3c19c1
+      TAG: v3.0.2
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: 30a90f1fe0292e1a5036499ea3f5717feb3c19c1
+          fetch-depth: 0
+          persist-credentials: true
+
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+          cache: pip
+
+      - name: Validate immutable release target
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          test "$(tr -d '[:space:]' < VERSION)" = '3.0.2'
+          python scripts/sync_version_metadata.py --check
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "Release already exists: $TAG" >&2
+            exit 2
+          fi
+          if git ls-remote --exit-code --tags origin "refs/tags/$TAG" >/dev/null 2>&1; then
+            echo "Tag already exists without a release: $TAG" >&2
+            exit 3
+          fi
+
+      - name: Rebuild and fully verify target
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          export SOURCE_DATE_EPOCH="$(git show -s --format=%ct "$TARGET_SHA")"
+          python -m pip install -e '.[validation,quality,security]'
+          python scripts/sync_package_assets.py
+          python scripts/build_adapter_docs.py
+          python scripts/build_workflow_docs.py
+          python scripts/build_examples.py
+          python scripts/build_manifest.py
+          python scripts/verify_all.py --profile all
+          python scripts/verify_all.py --profile benchmark
+          cp reports/FINAL_VERIFICATION.json dist/FINAL_VERIFICATION.json
+          unset GITHUB_SHA
+          python scripts/build_release_manifest.py --output-dir dist
+
+      - name: Attest release provenance
+        id: provenance
+        uses: actions/attest@59d89421af93a897026c735860bf21b6eb4f7b26
+        with:
+          subject-path: |
+            dist/TsaoSciComputation-*.zip
+            dist/TsaoSciComputation-*.tar.gz
+            dist/tsao_scicomputation-*.whl
+
+      - name: Attest release SBOM
+        id: sbom-attestation
+        uses: actions/attest@59d89421af93a897026c735860bf21b6eb4f7b26
+        with:
+          subject-path: |
+            dist/TsaoSciComputation-*.zip
+            dist/TsaoSciComputation-*.tar.gz
+            dist/tsao_scicomputation-*.whl
+          sbom-path: dist/TsaoSciComputation-3.0.2.spdx.json
+
+      - name: Complete release evidence bundle
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          cp "${{ steps.provenance.outputs.bundle-path }}" \
+            dist/TsaoSciComputation-3.0.2.provenance.sigstore.json
+          cp "${{ steps.sbom-attestation.outputs.bundle-path }}" \
+            dist/TsaoSciComputation-3.0.2.sbom.sigstore.json
+          unset GITHUB_SHA
+          python scripts/build_release_manifest.py --output-dir dist
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: TsaoSciComputation-v3.0.2-${{ github.run_id }}-${{ github.run_attempt }}
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Publish immutable target tag and Release
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          cleanup_unpublished_tag() {
+            code=$?
+            set +e
+            if ! gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+              git push origin ":refs/tags/$TAG" || true
+            fi
+            exit "$code"
+          }
+          trap cleanup_unpublished_tag ERR
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git tag -a "$TAG" "$TARGET_SHA" -m "TsaoSciComputation $TAG"
+          git push origin "refs/tags/$TAG"
+          gh release create "$TAG" dist/* \
+            --repo "$GITHUB_REPOSITORY" \
+            --verify-tag \
+            --latest \
+            --title "TsaoSciComputation $TAG" \
+            --notes-file docs/releases/v3.0.2.md
+          trap - ERR
+          gh issue close "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" \
+            --comment "Published $TAG from verified production commit $TARGET_SHA with reproducible archives, Wheel, checksums, SBOMs, release Manifest, and GitHub/Sigstore attestations. No branch was created."
+
+      - name: Report release failure
+        if: ${{ failure() }}
+        shell: bash
+        run: |
+          set +e
+          gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" \
+            --body 'The one-shot v3.0.2 publication failed. No successful Release is being claimed; inspect the Publish verified v3.0.2 once workflow run before retrying.' || true
