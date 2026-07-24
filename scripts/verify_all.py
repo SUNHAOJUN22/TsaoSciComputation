@@ -56,6 +56,14 @@ def verify_core() -> int:
     return run_commands(
         (
             ("tests and coverage", (PYTHON, "scripts/run_tests.py", "--coverage")),
+            (
+                "scientific reference benchmarks",
+                (PYTHON, "scripts/run_scientific_benchmarks.py"),
+            ),
+            (
+                "critical coverage policy",
+                (PYTHON, "scripts/check_critical_coverage.py"),
+            ),
             ("version metadata", (PYTHON, "scripts/sync_version_metadata.py", "--check")),
             ("repository audit", (PYTHON, "scripts/validate_repository.py")),
             ("schema validation", (PYTHON, "scripts/validate_schemas.py")),
