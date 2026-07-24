@@ -12,11 +12,19 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 PYTHON = sys.executable
-CODE_PATHS = ("tsao_computation", "scripts", "tests")
-SOURCE_ARTIFACTS = (
-    "TsaoSciComputation-3.0.0.zip",
-    "TsaoSciComputation-3.0.0.tar.gz",
-)
+CODE_PATHS = ("tsao_computation", "scripts", "tests", "_bootstrap.py")
+
+
+def version() -> str:
+    return (ROOT / "VERSION").read_text(encoding="utf-8").strip()
+
+
+def source_artifacts() -> tuple[str, str]:
+    release_version = version()
+    return (
+        f"TsaoSciComputation-{release_version}.zip",
+        f"TsaoSciComputation-{release_version}.tar.gz",
+    )
 
 
 def run(label: str, command: Sequence[str], *, env: dict[str, str] | None = None) -> int:
@@ -48,6 +56,7 @@ def verify_core() -> int:
     return run_commands(
         (
             ("tests and coverage", (PYTHON, "scripts/run_tests.py", "--coverage")),
+            ("version metadata", (PYTHON, "scripts/sync_version_metadata.py", "--check")),
             ("repository audit", (PYTHON, "scripts/validate_repository.py")),
             ("schema validation", (PYTHON, "scripts/validate_schemas.py")),
             ("packaged registry assets", (PYTHON, "scripts/sync_package_assets.py", "--check")),
@@ -80,10 +89,9 @@ def verify_quality() -> int:
 
 
 def verify_package() -> int:
-    version = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
-    artifacts = tuple(name.replace("3.0.0", version) for name in SOURCE_ARTIFACTS)
+    artifacts = source_artifacts()
     environment = dict(os.environ)
-    environment["SOURCE_DATE_EPOCH"] = "1700000000"
+    environment["SOURCE_DATE_EPOCH"] = environment.get("SOURCE_DATE_EPOCH", "1700000000")
     shutil.rmtree(ROOT / "dist", ignore_errors=True)
 
     with tempfile.TemporaryDirectory(prefix="tsao-source-build-") as temporary:
@@ -115,7 +123,18 @@ def verify_package() -> int:
     returncode = run("wheel rebuild and isolated install", (PYTHON, "scripts/verify_wheel.py"))
     if returncode:
         return returncode
-    print("\nPASS: source archives and wheel are reproducible; isolated install succeeded.")
+    returncode = run(
+        "deterministic SPDX and CycloneDX SBOMs", (PYTHON, "scripts/build_sbom.py")
+    )
+    if returncode:
+        return returncode
+    returncode = run("release manifest and checksums", (PYTHON, "scripts/build_release_manifest.py"))
+    if returncode:
+        return returncode
+    print(
+        "\nPASS: source archives, wheel, SBOMs, and release manifests are reproducible; "
+        "isolated install succeeded."
+    )
     return 0
 
 
