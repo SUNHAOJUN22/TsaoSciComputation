@@ -37,8 +37,12 @@ def assess(
     if tolerance < 0:
         raise ValueError("benchmark tolerance must be non-negative")
     absolute_error = abs(observed - expected)
-    scale = max(abs(expected), 1.0e-15)
-    relative_error = absolute_error / scale
+    if expected == 0.0:
+        relative_error = absolute_error
+        passed = absolute_error <= tolerance
+    else:
+        relative_error = absolute_error / abs(expected)
+        passed = relative_error <= tolerance
     return BenchmarkResult(
         benchmark_id=benchmark_id,
         domain=domain,
@@ -47,7 +51,7 @@ def assess(
         absolute_error=absolute_error,
         relative_error=relative_error,
         tolerance=tolerance,
-        passed=relative_error <= tolerance,
+        passed=passed,
         invariant=invariant,
     )
 
