@@ -11,7 +11,9 @@ Security fixes are released from the canonical `main` line. Historical tags rema
 
 ## Report a vulnerability privately
 
-Use **Security → Report a vulnerability** in this GitHub repository. Do not disclose a suspected vulnerability in a public issue, pull request, discussion, benchmark log, or example dataset.
+First open the repository **Security** tab. When **Report a vulnerability** is available, use that private, structured reporting form. Do not disclose a suspected vulnerability in a public issue, pull request, discussion, benchmark log, or example dataset.
+
+If GitHub does not display the private-reporting button, use a non-public contact route listed on the repository owner's GitHub profile and identify the message as a TsaoSciComputation security report. Do not put exploit details in a public contact form. Maintainers with repository access should create a draft repository security advisory instead of a public issue.
 
 Include only the minimum information needed to reproduce and assess the report:
 
