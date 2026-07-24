@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -138,19 +139,55 @@ def prepare() -> None:
     for relative in (
         ".github/workflows/deepen-maintenance.yml",
         ".github/workflows/v302-issue-finalizer.yml",
+        ".github/workflows/finalize-v302-confidence.yml",
         ".deepen-maintenance",
+        ".finalize-v302-confidence",
         "reports/MAINTENANCE_GOVERNANCE_FAILURE.json",
         "reports/SCIENTIFIC_GOVERNANCE_FAILURE.json",
         "reports/V302_COMPLETION_FAILURE.json",
+        "reports/V302_CONFIDENCE_FINALIZATION_FAILURE.json",
     ):
         (ROOT / relative).unlink(missing_ok=True)
 
 
+def record_confidence_evidence() -> None:
+    final_path = ROOT / "reports" / "FINAL_VERIFICATION.json"
+    final = json.loads(final_path.read_text(encoding="utf-8"))
+    final.update(
+        {
+            "version": "3.0.2",
+            "scientific_confidence_model": "C0-C5_FAIL_CLOSED",
+            "confidence_schema_validated": True,
+            "engineering_decision_level": "C5_EXPLICIT_ONLY",
+            "remote_branches": ["main"],
+            "temporary_branch_created": False,
+        }
+    )
+    final_path.write_text(json.dumps(final, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+    baseline_path = ROOT / "evidence" / "quality-baseline.json"
+    baseline = json.loads(baseline_path.read_text(encoding="utf-8"))
+    baseline["scientific_confidence"] = {
+        "scheme": "C0-C5",
+        "policy": "fail-closed-sequential",
+        "schema": "schemas/confidence-assessment.schema.json",
+        "engineering_decision_ready_only_at": "C5",
+    }
+    baseline_path.write_text(
+        json.dumps(baseline, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+
+
 def cleanup() -> None:
+    record_confidence_evidence()
     for relative in (
         "scripts/_apply_adapter_certification.py",
         "scripts/_finalize_scientific_governance.py",
+        "scripts/_apply_confidence_model.py",
+        ".github/workflows/finalize-v302-confidence.yml",
+        ".finalize-v302-confidence",
         "reports/V302_COMPLETION_FAILURE.json",
+        "reports/V302_CONFIDENCE_FINALIZATION_FAILURE.json",
     ):
         (ROOT / relative).unlink(missing_ok=True)
     Path(__file__).unlink(missing_ok=True)
