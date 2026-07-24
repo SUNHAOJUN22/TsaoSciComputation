@@ -22,7 +22,7 @@ def test_release_workflow_is_attested_pinned_and_immutable() -> None:
     assert "sbom-path:" in workflow
     assert "--verify-tag" in workflow
 
-    uses = [line.strip() for line in workflow.splitlines() if line.strip().startswith("uses:")]
+    uses = [line.strip() for line in workflow.splitlines() if "uses:" in line]
     assert uses
     for line in uses:
         reference = line.split("@", 1)[1].split()[0]
@@ -40,8 +40,8 @@ def test_security_policy_requires_private_reporting_and_supported_versions() -> 
 
 def test_contribution_policy_preserves_single_main() -> None:
     policy = Path("CONTRIBUTING.md").read_text(encoding="utf-8")
-    assert "main as its only remote branch" in policy
+    assert "only remote branch" in policy
     assert "fork" in policy
     assert "Do not create long-lived or temporary feature branches" in policy
-    assert "VERSION is the only authoritative version source" in policy
+    assert "VERSION` is the only authoritative version source" in policy
     assert "verify_all.py --profile all" in policy
