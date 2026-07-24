@@ -63,10 +63,12 @@ CAPABILITY_REQUIRED = {
 }
 
 
-def _parse_project_version(text: str) -> str:
-    """Read the quoted ``[project].version`` value without a TOML dependency."""
+def _parse_project_version(text: str, version_file_value: str | None = None) -> str:
+    """Read a static project version or the controlled VERSION-file source."""
 
-    in_project = False
+    table = ""
+    dynamic_declared = False
+    dynamic_source = False
     for raw_line in text.splitlines():
         line = raw_line.strip()
         if not line or line.startswith("#"):
@@ -74,20 +76,30 @@ def _parse_project_version(text: str) -> str:
 
         table_line = line.split("#", 1)[0].strip()
         if table_line.startswith("[") and table_line.endswith("]"):
-            in_project = table_line == "[project]"
-            continue
-        if not in_project:
+            table = table_line
             continue
 
         key, separator, raw_value = line.partition("=")
-        if key.strip() != "version" or not separator:
+        if not separator:
             continue
+        key = key.strip()
         value = raw_value.split("#", 1)[0].strip()
-        if len(value) >= 2 and value[0] == value[-1] and value[0] in {'"', "'"}:
-            return value[1:-1]
-        raise ValueError("[project].version must be a quoted string")
 
-    raise ValueError("missing [project].version")
+        if table == "[project]" and key == "version":
+            if len(value) >= 2 and value[0] == value[-1] and value[0] in {'"', "'"}:
+                return value[1:-1]
+            raise ValueError("[project].version must be a quoted string")
+        if table == "[project]" and key == "dynamic":
+            dynamic_declared = "version" in value
+        if table == "[tool.setuptools.dynamic]" and key == "version":
+            compact = value.replace(" ", "")
+            dynamic_source = compact == '{file=["VERSION"]}' or compact == "{file=['VERSION']}"
+
+    if dynamic_declared and dynamic_source:
+        return version_file_value if version_file_value is not None else "VERSION"
+    if dynamic_declared:
+        raise ValueError("dynamic project version must be sourced from VERSION")
+    raise ValueError("missing [project].version or controlled dynamic version")
 
 
 def _load_json(path: Path, problems: list[str]) -> Any:
@@ -113,14 +125,17 @@ def audit_repository(root: Path) -> dict[str, object]:
             problems.append(f"forbidden transfer path: {item}")
 
     version_path = root / "VERSION"
-    if version_path.is_file() and version_path.read_text(encoding="utf-8").strip() != __version__:
+    version_value = version_path.read_text(encoding="utf-8").strip() if version_path.is_file() else ""
+    if version_value and version_value != __version__:
         problems.append("VERSION and package __version__ differ")
     pyproject_path = root / "pyproject.toml"
     if pyproject_path.is_file():
         try:
-            project_version = _parse_project_version(pyproject_path.read_text(encoding="utf-8"))
+            project_version = _parse_project_version(
+                pyproject_path.read_text(encoding="utf-8"), version_value
+            )
             if project_version != __version__:
-                problems.append("pyproject version and package __version__ differ")
+                problems.append("pyproject version source and package __version__ differ")
         except (OSError, UnicodeDecodeError, ValueError) as exc:
             problems.append(f"invalid pyproject.toml: {exc}")
 
