@@ -4,6 +4,7 @@ import argparse
 import hashlib
 import json
 import os
+import shutil
 import subprocess  # nosec B404
 from pathlib import Path
 from typing import Any
@@ -24,8 +25,11 @@ def source_commit(root: Path) -> str:
     supplied = os.environ.get("GITHUB_SHA")
     if supplied:
         return supplied
+    git = shutil.which("git")
+    if git is None:
+        raise RuntimeError("git executable is required when GITHUB_SHA is unavailable")
     return subprocess.check_output(  # nosec B603
-        ["git", "rev-parse", "HEAD"], cwd=root, text=True
+        [git, "rev-parse", "HEAD"], cwd=root, text=True
     ).strip()
 
 
