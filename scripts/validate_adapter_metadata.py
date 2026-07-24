@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import json
+import re
+from datetime import date
 from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
+MATURITY = {"A0", "A1", "A2", "A3", "A4", "A5"}
 
 
 def _load(path: Path) -> Any:
@@ -30,7 +33,7 @@ def validate(root: Path = ROOT) -> list[str]:
             problems.append(f"adapter entry {index} is not an object")
             continue
         slug = record.get("slug")
-        if not isinstance(slug, str) or not slug:
+        if not isinstance(slug, str) or not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", slug):
             problems.append(f"adapter entry {index} has an invalid slug")
             continue
         if slug in seen:
@@ -52,6 +55,33 @@ def validate(root: Path = ROOT) -> list[str]:
             problems.append(f"adapter {slug} has invalid Python module declarations")
         if "python" in executables and not modules:
             problems.append(f"adapter {slug} uses Python but declares no required modules")
+
+        maturity = record.get("maturity")
+        certification = record.get("certification")
+        if maturity not in MATURITY:
+            problems.append(f"adapter {slug} has invalid maturity")
+        if not isinstance(certification, dict):
+            problems.append(f"adapter {slug} lacks structured certification")
+        else:
+            if certification.get("level") != maturity:
+                problems.append(f"adapter {slug} certification level differs from maturity")
+            if certification.get("live_solver_execution") != record.get(
+                "live_execution_verified"
+            ):
+                problems.append(f"adapter {slug} live certification flags disagree")
+            try:
+                date.fromisoformat(str(certification.get("last_verified")))
+            except ValueError:
+                problems.append(f"adapter {slug} has invalid certification date")
+            if maturity == "A5":
+                if not record.get("live_execution_verified"):
+                    problems.append(f"adapter {slug} A5 requires live execution evidence")
+                if not certification.get("solver_versions"):
+                    problems.append(f"adapter {slug} A5 requires solver versions")
+                if not certification.get("fixture_hashes"):
+                    problems.append(f"adapter {slug} A5 requires fixture hashes")
+            elif record.get("live_execution_verified"):
+                problems.append(f"adapter {slug} live execution requires A5 maturity")
 
         adapter_path = root / "adapters" / slug / "adapter.yaml"
         try:
