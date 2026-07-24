@@ -4,7 +4,7 @@
 
 **从电子尺度到流程尺度的证据约束型科学计算编排系统。**
 
-[English](README.md) · [根 Skill](SKILL.md) · [能力索引](capability-index/README.md) · [覆盖矩阵](docs/coverage-matrix.md) · [架构](docs/architecture.md) · [安全](SECURITY.md)
+[English](README.md) · [根 Skill](SKILL.md) · [能力索引](capability-index/README.md) · [覆盖矩阵](docs/coverage-matrix.md) · [架构](docs/architecture.md) · [发布治理](docs/release.md) · [安全](SECURITY.md)
 
 </div>
 
@@ -24,7 +24,7 @@ TsaoSciComputation 将科学问题转化为可追溯的计算程序：
 
 | 项目 | 结果 |
 |---|---:|
-| 版本 | 3.0.0 |
+| 版本 | 3.0.1 |
 | 能力 / 适配器 / 工作流 | 164 / 27 / 20 |
 | 强制运行时第三方依赖 | 0 |
 | 自动测试 | 514 通过，0 失败 |
@@ -33,6 +33,7 @@ TsaoSciComputation 将科学问题转化为可追溯的计算程序：
 | 仓库安全扫描 | 0 项发现 |
 | 源码包 | ZIP 与 tar.gz 字节级可重复构建 |
 | Wheel | 字节级可重复构建并通过隔离安装 |
+| 供应链证据 | SPDX + CycloneDX SBOM、SHA-256 Manifest、Sigstore 证明 |
 | 远程分支 | 仅 `main` |
 
 权威机器可读证据位于 `reports/FINAL_VERIFICATION.json`、`evidence/quality-baseline.json`、`reports/REMOTE_FINALIZATION.json` 和 `benchmarks/latest.json`。
@@ -66,7 +67,19 @@ python scripts/verify_all.py --profile all
 python scripts/verify_all.py --profile benchmark
 ```
 
-`all` 是确定性的发布硬门禁，覆盖代码质量、测试与覆盖率、仓库/Schema/资源/Manifest 校验、安全扫描、受控变异探针、源码包与 Wheel 可重复构建以及 Wheel 隔离安装。`benchmark` 受运行环境影响，只作为独立性能观测，不参与发布验收。CI 在 Ubuntu、Windows、macOS 上验证 Python 3.10 与 3.13，所有 GitHub Actions 均固定到不可变提交。
+`all` 是确定性的发布硬门禁，覆盖版本一致性、代码质量、测试与覆盖率、仓库/Schema/资源/Manifest 校验、安全扫描、受控变异探针、源码包与 Wheel 可重复构建、Wheel 隔离安装、SBOM 生成和发布校验和。`benchmark` 受运行环境影响，只作为独立性能观测，不参与发布验收。CI 在 Ubuntu、Windows、macOS 上验证 Python 3.10 与 3.13，所有 GitHub Actions 均固定到不可变提交。
+
+## 正式发布
+
+正式版本只能由受控 Release 工作流在全部确定性门禁通过后创建。每个不可变 `vX.Y.Z` Release 都包含可重复构建的源码包和 Wheel、SPDX 与 CycloneDX SBOM、`SHA256SUMS`、发布 Manifest、最终验证证据以及 GitHub/Sigstore 证明包。
+
+```bash
+sha256sum -c SHA256SUMS
+gh attestation verify TsaoSciComputation-X.Y.Z.zip \
+  --repo SUNHAOJUN22/TsaoSciComputation
+```
+
+完整发布和使用者验证流程见 [`docs/release.md`](docs/release.md)。
 
 ## 安装为 Agent Skill
 
@@ -90,4 +103,4 @@ completed ≠ parsed ≠ converged ≠ validated ≠ accepted
 
 ## 仓库策略
 
-远程仓库只保留 `main`，并以其作为唯一权威开发线。历史分支头应保存为不可变归档标签，而不是额外 branch。生成环境和缓存统一排除，真实源码、配置、测试、证据与发布元数据保持可审计。
+上游远程仓库只保留 `main`，并以其作为唯一权威开发线。外部贡献使用 fork 内分支，上游仓库不保留功能 branch。历史版本使用不可变标签保存。生成环境和缓存统一排除，真实源码、配置、测试、证据与发布元数据保持可审计。
