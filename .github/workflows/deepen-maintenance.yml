@@ -41,6 +41,27 @@ jobs:
           echo apply-governance > /tmp/maintenance-stage
           python -m pip install -e '.[validation,quality]'
           python scripts/_apply_v302_governance.py apply
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('scripts/build_sbom.py')
+          text = path.read_text(encoding='utf-8')
+          old = '''try:
+              import tomllib
+          except ModuleNotFoundError:  # pragma: no cover - Python 3.10 compatibility
+              import tomli as tomllib  # type: ignore[import-not-found,no-redef]
+          '''
+          new = '''import sys
+
+          if sys.version_info >= (3, 11):
+              import tomllib
+          else:  # pragma: no cover - exercised only on Python 3.10
+              import tomli as tomllib
+          '''
+          if old not in text:
+              raise SystemExit('SBOM compatibility import anchor not found')
+          path.write_text(text.replace(old, new, 1), encoding='utf-8')
+          PY
           cp scripts/_apply_v302_governance.py /tmp/_apply_v302_governance.py
           rm -f scripts/_apply_v302_governance.py
           rm -f .github/workflows/deepen-maintenance.yml .deepen-maintenance
