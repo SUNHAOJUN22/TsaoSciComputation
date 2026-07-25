@@ -9,25 +9,28 @@
     "workflows": 20
   },
   "coverage": {
-    "branch_percent": 93.47826086956522,
-    "statement_percent": 97.270245677889
+    "branch_percent": 93.67469879518072,
+    "statement_percent": 97.31903485254692
   },
   "dependency_vulnerabilities": 0,
   "remote_branches": [
     "main"
   ],
   "repository_security_findings": 0,
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "scientific_reference_benchmarks": "8/8",
   "source_archives_reproducible": true,
   "status": "VALIDATED",
   "temporary_branch_created": false,
   "tests": {
     "failed": 0,
-    "passed": 554
+    "passed": 557
   },
-  "verification_run_id": 30169703740,
-  "verified_at_utc": "2026-07-25T18:29:33.829102+00:00",
+  "verification_run_id": 30170690525,
+  "verified_at_utc": "2026-07-25T18:59:21.810746+00:00",
   "version": "3.0.2",
-  "wheel_reproducible_and_isolated_install": true
+  "wheel_reproducible_and_isolated_install": true,
+  "windows_core_regression_run_id": 30170463327,
+  "windows_python_310_core": "PASS",
+  "windows_python_313_core": "PASS"
 }
