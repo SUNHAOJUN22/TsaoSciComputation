@@ -1716,9 +1716,9 @@
       "sha256": "0c277ee6c4d7329801caf34a4fddfe7b0399d0c28b09226abedada214fcdf795"
     },
     {
-      "bytes": 2324,
+      "bytes": 2628,
       "path": "scripts/check_critical_coverage.py",
-      "sha256": "e7b4b3a168471948f22cde7885d9b301e36ff13068a464c94c644148592ea349"
+      "sha256": "f28e1a7df3768e4b944c7df8be6469e6ebf7ae3be5535b0e780f1acd5e1e59a2"
     },
     {
       "bytes": 387,
@@ -1971,9 +1971,9 @@
       "sha256": "57f09ae844f972c0a55771f3603f81a0a88d46b537eea8b37ff7632752f23935"
     },
     {
-      "bytes": 1883,
+      "bytes": 2283,
       "path": "tests/test_critical_coverage.py",
-      "sha256": "9b8aee6cb50c168e70c91dbceee360098290c643b7f433fd1548102045498092"
+      "sha256": "5b85e313da32cd4560ca06a86847b11ad0637301cde34a9d7df43b12f13aca0d"
     },
     {
       "bytes": 1719,
