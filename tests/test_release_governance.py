@@ -50,5 +50,15 @@ def test_contribution_policy_preserves_single_main() -> None:
 def test_repository_line_endings_are_cross_platform_deterministic() -> None:
     attributes = Path(".gitattributes").read_text(encoding="utf-8")
     assert "* text=auto eol=lf" in attributes
-    for pattern in ("*.png", "*.jpg", "*.jpeg", "*.gif", "*.webp", "*.pdf", "*.zip", "*.gz", "*.whl"):
+    for pattern in (
+        "*.png",
+        "*.jpg",
+        "*.jpeg",
+        "*.gif",
+        "*.webp",
+        "*.pdf",
+        "*.zip",
+        "*.gz",
+        "*.whl",
+    ):
         assert f"{pattern} binary" in attributes
