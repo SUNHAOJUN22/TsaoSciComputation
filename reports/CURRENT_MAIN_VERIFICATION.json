@@ -1,0 +1,33 @@
+{
+  "branch": "main",
+  "claim_boundary": "Validated for repository orchestration, contracts, routing, deterministic fixtures, packaging and documentation. No live third-party solver or production HPC execution is claimed.",
+  "controlled_mutants": "64/64",
+  "counts": {
+    "adapters": 27,
+    "capabilities": 164,
+    "visual_assets": 12,
+    "workflows": 20
+  },
+  "coverage": {
+    "branch_percent": 93.47826086956522,
+    "statement_percent": 97.270245677889
+  },
+  "dependency_vulnerabilities": 0,
+  "remote_branches": [
+    "main"
+  ],
+  "repository_security_findings": 0,
+  "schema_version": "1.0",
+  "scientific_reference_benchmarks": "8/8",
+  "source_archives_reproducible": true,
+  "status": "VALIDATED",
+  "temporary_branch_created": false,
+  "tests": {
+    "failed": 0,
+    "passed": 554
+  },
+  "verification_run_id": 30169703740,
+  "verified_at_utc": "2026-07-25T18:29:33.829102+00:00",
+  "version": "3.0.2",
+  "wheel_reproducible_and_isolated_install": true
+}

@@ -131,7 +131,22 @@ python scripts/verify_all.py --profile benchmark
 ### 当前 `main` 验证状态
 
 <!-- CURRENT_MAIN_VERIFICATION:START -->
-二次终审正在运行。只有全部确定性门禁、最终 pytest、依赖审计和单一 main 检查通过后，才会在此写入当前主线结论。
+已于 `2026-07-25T18:29:33.829102+00:00` 由 GitHub Actions 运行 `30169703740` 完成验证。
+
+| 当前主线项目 | 结果 |
+|---|---:|
+| 版本 | 3.0.2 |
+| 能力 / 适配器 / 工作流 | 164 / 27 / 20 |
+| 自动测试 | 554 通过，0 失败 |
+| 语句 / 分支覆盖率 | 97.27% / 93.48% |
+| 受控变异探针 | 64/64 被识别 |
+| 科学参考基准 | 8/8 通过 |
+| 仓库 / 依赖安全发现 | 0 / 0 |
+| 源码包 / Wheel | 可重复 / 可重复并通过隔离安装 |
+| 科研视觉资产 | 12 幅自包含 SVG |
+| 远程分支 | 仅 `main` |
+
+机器可读证据：[`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json)。
 <!-- CURRENT_MAIN_VERIFICATION:END -->
 
 ### v3.0.2 已验证发布基线

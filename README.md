@@ -131,7 +131,22 @@ python scripts/verify_all.py --profile benchmark
 ### Current `main` verification
 
 <!-- CURRENT_MAIN_VERIFICATION:START -->
-Second-pass verification is running. Current-head claims will be written here only after every deterministic gate, final pytest, dependency audit and single-main check passes.
+Validated on `2026-07-25T18:29:33.829102+00:00` by GitHub Actions run `30169703740`.
+
+| Current-main item | Result |
+|---|---:|
+| Version | 3.0.2 |
+| Capabilities / adapters / workflows | 164 / 27 / 20 |
+| Tests | 554 passed, 0 failed |
+| Statement / branch coverage | 97.27% / 93.48% |
+| Controlled mutation probes | 64/64 killed |
+| Scientific reference benchmarks | 8/8 passed |
+| Repository / dependency findings | 0 / 0 |
+| Source archives / Wheel | reproducible / reproducible + isolated install |
+| Scientific visual assets | 12 self-contained SVGs |
+| Remote branches | `main` only |
+
+Machine-readable evidence: [`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json).
 <!-- CURRENT_MAIN_VERIFICATION:END -->
 
 ### v3.0.2 verified release baseline
