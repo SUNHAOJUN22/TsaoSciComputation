@@ -50,6 +50,7 @@ jobs:
 
           roots = (Path('scripts'), Path('tsao_computation'))
           changed: list[str] = []
+          whitespace = b' \t\r\n'
           for path in sorted(candidate for root in roots for candidate in root.rglob('*.py')):
               source = path.read_bytes()
               tree = ast.parse(source.decode('utf-8'), filename=str(path))
@@ -58,7 +59,7 @@ jobs:
               for line in source.splitlines(keepends=True):
                   offsets.append(cursor)
                   cursor += len(line)
-              insertions: list[int] = []
+              insertions: list[tuple[int, bytes]] = []
               for node in ast.walk(tree):
                   if not isinstance(node, ast.Call):
                       continue
@@ -71,11 +72,18 @@ jobs:
                   end = offsets[node.end_lineno - 1] + node.end_col_offset
                   if source[end - 1:end] != b')':
                       raise RuntimeError(f'unexpected write_text call ending: {path}:{node.lineno}')
-                  insertions.append(end - 1)
+                  previous = end - 2
+                  while previous >= 0 and source[previous:previous + 1] in whitespace:
+                      previous -= 1
+                  if previous < 0:
+                      raise RuntimeError(f'empty write_text call: {path}:{node.lineno}')
+                  payload = b' newline="\\n"' if source[previous:previous + 1] == b',' else b', newline="\\n"'
+                  insertions.append((previous + 1, payload))
               if not insertions:
                   continue
-              for position in sorted(insertions, reverse=True):
-                  source = source[:position] + b', newline="\\n"' + source[position:]
+              for position, payload in sorted(insertions, key=lambda item: item[0], reverse=True):
+                  source = source[:position] + payload + source[position:]
+              ast.parse(source.decode('utf-8'), filename=str(path))
               path.write_bytes(source)
               changed.append(path.as_posix())
           if not changed:
