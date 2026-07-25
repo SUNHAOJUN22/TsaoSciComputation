@@ -196,7 +196,9 @@ def main() -> int:
     }
     output = Path("evidence/mutation-report.json")
     output.parent.mkdir(exist_ok=True)
-    output.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    output.write_text(
+        json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8", newline="\n"
+    )
     print(
         json.dumps(
             {key: value for key, value in report.items() if key != "results"}, sort_keys=True

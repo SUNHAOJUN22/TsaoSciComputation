@@ -22,7 +22,7 @@ def main() -> int:
     text = render(root)
     if args.check:
         return 0 if path.read_text(encoding="utf-8") == text else 1
-    path.write_text(text, encoding="utf-8")
+    path.write_text(text, encoding="utf-8", newline="\n")
     return 0
 
 

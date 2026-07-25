@@ -127,7 +127,7 @@ def main(argv: list[str] | None = None) -> int:
         return 1 if problems else 0
 
     for path, content in rendered_metadata(ROOT, release_date).items():
-        path.write_text(content, encoding="utf-8")
+        path.write_text(content, encoding="utf-8", newline="\n")
     problems = consistency_problems(ROOT, release_date)
     if problems:
         raise SystemExit(f"version metadata remains inconsistent: {problems}")

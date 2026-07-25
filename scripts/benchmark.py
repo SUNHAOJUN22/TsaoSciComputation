@@ -76,7 +76,9 @@ def main() -> int:
     }
     output = Path("benchmarks/latest.json")
     output.parent.mkdir(exist_ok=True)
-    output.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    output.write_text(
+        json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8", newline="\n"
+    )
     print(json.dumps(result, sort_keys=True))
     return 0
 

@@ -58,7 +58,9 @@ def main() -> int:
     }
     output = Path("evidence/quality-check.json")
     output.parent.mkdir(exist_ok=True)
-    output.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    output.write_text(
+        json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8", newline="\n"
+    )
     print(json.dumps(report, sort_keys=True))
     return 0 if not problems else 1
 

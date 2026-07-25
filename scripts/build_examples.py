@@ -820,8 +820,8 @@ def main() -> int:
                 changed.append(readme_path.relative_to(ROOT).as_posix())
         else:
             directory.mkdir(parents=True, exist_ok=True)
-            contract_path.write_text(contract_text, encoding="utf-8")
-            readme_path.write_text(readme_text, encoding="utf-8")
+            contract_path.write_text(contract_text, encoding="utf-8", newline="\n")
+            readme_path.write_text(readme_text, encoding="utf-8", newline="\n")
     if changed:
         print(json.dumps({"out_of_date": changed}, indent=2, sort_keys=True))
         return 1

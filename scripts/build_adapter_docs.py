@@ -154,7 +154,7 @@ def main() -> int:
                 changed.append(path.relative_to(ROOT).as_posix())
         else:
             path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_text(text, encoding="utf-8")
+            path.write_text(text, encoding="utf-8", newline="\n")
     if changed:
         print(json.dumps({"out_of_date": changed}, indent=2))
         return 1

@@ -241,8 +241,12 @@ def write_documents(
     spdx, cyclonedx = build_documents(root, output, epoch)
     spdx_path = output / f"TsaoSciComputation-{version}.spdx.json"
     cdx_path = output / f"TsaoSciComputation-{version}.cdx.json"
-    spdx_path.write_text(json.dumps(spdx, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    cdx_path.write_text(json.dumps(cyclonedx, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    spdx_path.write_text(
+        json.dumps(spdx, indent=2, sort_keys=True) + "\n", encoding="utf-8", newline="\n"
+    )
+    cdx_path.write_text(
+        json.dumps(cyclonedx, indent=2, sort_keys=True) + "\n", encoding="utf-8", newline="\n"
+    )
     return spdx_path, cdx_path
 
 

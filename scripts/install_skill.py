@@ -208,7 +208,7 @@ def install_skill(
             "version": (source / "VERSION").read_text(encoding="utf-8").strip(),
         }
         (staging / RECEIPT_NAME).write_text(
-            json.dumps(receipt, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+            json.dumps(receipt, indent=2, sort_keys=True) + "\n", encoding="utf-8", newline="\n"
         )
         problems = validate_installation(staging)
         if problems:

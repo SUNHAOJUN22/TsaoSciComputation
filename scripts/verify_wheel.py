@@ -96,7 +96,7 @@ def main() -> int:
         "verification": expected,
     }
     (dist / "WHEEL_VERIFICATION.json").write_text(
-        json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+        json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8", newline="\n"
     )
     print(json.dumps(report, sort_keys=True))
     return 0

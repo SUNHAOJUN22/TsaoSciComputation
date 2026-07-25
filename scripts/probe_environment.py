@@ -24,7 +24,7 @@ def main() -> int:
     ]
     text = json.dumps(data, indent=2, sort_keys=True) + "\n"
     if args.output:
-        args.output.write_text(text, encoding="utf-8")
+        args.output.write_text(text, encoding="utf-8", newline="\n")
     else:
         print(text, end="")
     return 0

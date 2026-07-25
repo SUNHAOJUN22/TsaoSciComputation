@@ -55,10 +55,13 @@ def write_manifest(root: Path = ROOT, output_dir: Path | None = None) -> tuple[P
     }
     manifest = output / "RELEASE_MANIFEST.json"
     checksums = output / "SHA256SUMS"
-    manifest.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    manifest.write_text(
+        json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8", newline="\n"
+    )
     checksums.write_text(
         "".join(f"{item['sha256']}  {item['name']}\n" for item in records),
         encoding="utf-8",
+        newline="\n",
     )
     return manifest, checksums
 

@@ -94,11 +94,13 @@ def main() -> int:
         },
     }
     report_path = output_dir / "SOURCE_BUILD_REPORT.json"
-    report_path.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    report_path.write_text(
+        json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8", newline="\n"
+    )
     sums = "".join(
         f"{metadata['sha256']}  {name}\n" for name, metadata in sorted(report["artifacts"].items())
     )
-    (output_dir / "SHA256SUMS").write_text(sums, encoding="utf-8")
+    (output_dir / "SHA256SUMS").write_text(sums, encoding="utf-8", newline="\n")
     print(json.dumps(report, sort_keys=True))
     return 0
 
