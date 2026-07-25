@@ -14,12 +14,15 @@ This directory contains original, repository-local SVG illustrations created for
 
 - `hero-multiscale.svg` — electron-to-process architecture
 - `agent-orchestration.svg` — governed AI scientific agent
+- `capability-landscape.svg` — capability, workflow, validation, and governance layers
 - `quantum-to-md.svg` — electronic-structure to molecular-dynamics handoff
+- `electronic-structure-landscape.svg` — DFT density, self-consistency, energy and observable gates
 - `polymer-process.svg` — polymer-to-process multiscale transfer
+- `continuum-multiphysics.svg` — CFD, FEM, heat, mechanics and field coupling
+- `process-optimization-uq.svg` — flowsheet optimization, sensitivity, UQ and reviewed decisions
+- `engine-ecosystem.svg` — external solver adapter ecosystem
 - `evidence-loop.svg` — fail-closed scientific acceptance loop
 - `confidence-ladder.svg` — C0–C5 confidence model
-- `engine-ecosystem.svg` — external solver adapter ecosystem
 - `digital-thread.svg` — reproducibility and supply-chain evidence
-- `capability-landscape.svg` — capability, workflow, validation, and governance layers
 
 Run `python -m pytest tests/test_readme_visuals.py -q` to validate the asset inventory and README references.
