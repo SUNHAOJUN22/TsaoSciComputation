@@ -59,6 +59,23 @@ TsaoSciComputation 将科学问题转化为可追溯的计算程序：显式定�
 
 代表性范围包括电子结构、量子化学、原子级模拟、增强采样、机器学习势、介观与连续介质模型、反应工程、CFD、多物理场、流程模拟、优化、不确定度、可重复性以及跨尺度交接。
 
+## 专业能力图谱
+
+<table>
+<tr>
+<td width="50%"><img src="assets/visuals/electronic-structure-landscape.svg" alt="DFT 电子结构与能量地形" width="100%"></td>
+<td width="50%"><img src="assets/visuals/continuum-multiphysics.svg" alt="CFD FEM 与连续介质多物理场工作流" width="100%"></td>
+</tr>
+<tr>
+<td align="center"><b>电子结构与 DFT</b><br>几何、电子密度、自洽、能量、力与观测量级验收。</td>
+<td align="center"><b>CFD、FEM 与多物理场</b><br>网格质量、守恒、场耦合、稳定性和离散误差证据。</td>
+</tr>
+</table>
+
+<img src="assets/visuals/process-optimization-uq.svg" alt="流程优化 不确定度量化与受审核工程决策工作流" width="100%">
+
+流程层将流程图构建、模型校准、不确定度传播、敏感性分析、约束搜索和人工授权明确分离。可行性、不确定度、安全性、适用域或审核证据不完整时，数值最优解不得进入工程接受状态。
+
 ## 求解器感知型生态
 
 <img src="assets/visuals/engine-ecosystem.svg" alt="科学计算求解器与适配器生态" width="100%">
@@ -111,6 +128,12 @@ python scripts/verify_all.py --profile benchmark
 
 `all` 运行确定性的发布硬门禁，包括代码质量与安全检查、测试和分支覆盖率、科学参考基准、关键覆盖率策略、版本与注册表同步、仓库及 Schema 校验、适配器与文档校验、受控变异探针、源码包与 Wheel 可重复构建、隔离安装、SPDX/CycloneDX SBOM、校验和以及发布 Manifest。`benchmark` 受运行环境影响，仅作为独立性能观测，不参与发布验收。
 
+### 当前 `main` 验证状态
+
+<!-- CURRENT_MAIN_VERIFICATION:START -->
+二次终审正在运行。只有全部确定性门禁、最终 pytest、依赖审计和单一 main 检查通过后，才会在此写入当前主线结论。
+<!-- CURRENT_MAIN_VERIFICATION:END -->
+
 ### v3.0.2 已验证发布基线
 
 | 项目 | 机器记录结果 |
@@ -128,7 +151,7 @@ python scripts/verify_all.py --profile benchmark
 | 供应链证据 | SPDX + CycloneDX SBOM、SHA-256 Manifest、Sigstore 证明 |
 | 远程分支 | 仅 `main` |
 
-本表对应 2026-07-24 形成的不可变 v3.0.2 验证证据。当前 `main` 的新增修改只有重新通过同一套硬门禁后，才可称为已验证。权威机器记录位于 `reports/FINAL_VERIFICATION.json`、`evidence/quality-baseline.json`、`reports/REMOTE_FINALIZATION.json` 和 `benchmarks/latest.json`。
+本表对应 2026-07-24 形成的不可变 v3.0.2 验证证据。当前主线证据单独记录，避免后续文档和测试变更反向改写历史发布记录。权威发布记录位于 `reports/FINAL_VERIFICATION.json`、`evidence/quality-baseline.json`、`reports/REMOTE_FINALIZATION.json` 和 `benchmarks/latest.json`。
 
 ## CI、发布与 Skill 安装
 
@@ -152,7 +175,7 @@ completed ≠ parsed ≠ converged ≠ validated ≠ accepted
 
 内部基准通过不代表第三方求解器已经真实运行。缺少收敛、物理检查、不确定度、适用域、溯源、证据或必要人工审批中的任一项，均不得进入科学接受状态。反应器、控制、数字孪生、安全、失控反应和商业决策等高风险结论必须由合格的领域专家审核。
 
-`assets/visuals/` 中的图片是为本仓库生成的原创解释性矢量图，不是求解器截图、性能曲线或真实外部引擎运行证据。图片完整性及 README 引用均由自动测试检查。
+`assets/visuals/` 中的 12 幅图片是为本仓库生成的原创解释性矢量图，不是求解器截图、性能曲线或真实外部引擎运行证据。图片完整性、可访问性、源码分发收录以及中英文 README 引用均由自动测试检查。
 
 ## 仓库策略
 
