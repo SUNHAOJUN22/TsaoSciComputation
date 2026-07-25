@@ -96,14 +96,14 @@
       "sha256": "e95b3b804fb534ffe0d6fb0bc156dff45a871e2cf996a4abfbdb9c29227557b4"
     },
     {
-      "bytes": 6034,
+      "bytes": 5688,
       "path": "README.md",
-      "sha256": "a41da49104880f96ced97046c336af68ced705eb379775365460080a71806a23"
+      "sha256": "5f9588851d897e30a9dcdb9dadd9b1a5017c1fbaa245916553dd0daff2a636e4"
     },
     {
-      "bytes": 5361,
+      "bytes": 5097,
       "path": "README.zh-CN.md",
-      "sha256": "734be77ea12baf5e10f37288d9da351d809e4266f60ca3f8ce46448abf328178"
+      "sha256": "9ade59ae0178fd4abd95fef3159c149677b02218bf9a67bca898ab9385d8f89e"
     },
     {
       "bytes": 3578,
