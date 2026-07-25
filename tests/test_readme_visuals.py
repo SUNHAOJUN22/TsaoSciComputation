@@ -30,12 +30,12 @@ def test_readme_visuals_are_self_contained_accessible_and_referenced() -> None:
     for name in VISUALS:
         relative = f"assets/visuals/{name}"
         text = (visual_root / name).read_text(encoding="utf-8")
-        assert text.startswith("<svg xmlns=\"http://www.w3.org/2000/svg\"")
+        assert text.startswith('<svg xmlns="http://www.w3.org/2000/svg"')
         assert " viewBox=" in text
         assert "<title" in text and "</title>" in text
         assert "<desc" in text and "</desc>" in text
         assert "<script" not in text.lower()
         assert "<image" not in text.lower()
-        assert "href=\"http" not in text.lower()
+        assert 'href="http' not in text.lower()
         assert 1_000 <= len(text.encode("utf-8")) <= 30_000
         assert all(relative in readme for readme in readmes)
