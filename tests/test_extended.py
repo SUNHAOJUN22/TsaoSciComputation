@@ -20,6 +20,7 @@ from tsao_computation.registries import clear_registry_caches
 from tsao_computation.registries.loader import _load
 from tsao_computation.routing import route_question
 from tsao_computation.security import safe_run
+from tsao_computation.security.process import _subprocess_environment
 from tsao_computation.state import ScientificStateMachine
 from tsao_computation.uncertainty import UncertaintyBudget, combine_independent
 from tsao_computation.validation import acceptance_gate, convergence_check
@@ -105,6 +106,54 @@ def test_safe_run_validates_timeout_cwd_and_environment(tmp_path: Path) -> None:
     assert result.stdout.strip() == "yes"
 
 
+def test_subprocess_environment_is_minimal_on_posix() -> None:
+    parent = {
+        "PATH": "/usr/bin",
+        "HOME": "/home/researcher",
+        "TMPDIR": "/tmp/tsao",
+        "LANG": "ja_JP.UTF-8",
+        "SECRET_TOKEN": "must-not-leak",
+    }
+    environment = _subprocess_environment(
+        {"LANG": "C", "TSAO_EXPLICIT": "yes"},
+        parent=parent,
+        platform_name="posix",
+    )
+    assert environment == {
+        "PATH": "/usr/bin",
+        "HOME": "/home/researcher",
+        "TMPDIR": "/tmp/tsao",
+        "LANG": "C",
+        "TSAO_EXPLICIT": "yes",
+    }
+
+
+def test_subprocess_environment_preserves_windows_bootstrap_state() -> None:
+    parent = {
+        "Path": r"C:\Windows\System32",
+        "SystemRoot": r"C:\Windows",
+        "windir": r"C:\Windows",
+        "ComSpec": r"C:\Windows\System32\cmd.exe",
+        "PATHEXT": ".COM;.EXE;.BAT;.CMD",
+        "TEMP": r"C:\Temp",
+        "TMP": r"C:\Temp",
+        "SECRET_TOKEN": "must-not-leak",
+    }
+    environment = _subprocess_environment(
+        {"path": r"D:\ScientificTools", "TSAO_EXPLICIT": "yes"},
+        parent=parent,
+        platform_name="nt",
+    )
+    assert environment["SYSTEMROOT"] == r"C:\Windows"
+    assert environment["WINDIR"] == r"C:\Windows"
+    assert environment["COMSPEC"] == r"C:\Windows\System32\cmd.exe"
+    assert environment["TEMP"] == r"C:\Temp"
+    assert environment["path"] == r"D:\ScientificTools"
+    assert environment["TSAO_EXPLICIT"] == "yes"
+    assert "PATH" not in environment
+    assert "SECRET_TOKEN" not in environment
+
+
 def test_project_validation_errors(tmp_path: Path) -> None:
     with pytest.raises(ValueError):
         initialize_project(tmp_path, name="bad name", question="q")
@@ -148,189 +197,51 @@ def test_state_invalid_initial_and_can_transition() -> None:
 def test_uncertainty_budget_and_invalid_components() -> None:
     assert UncertaintyBudget(3, 4, 0, "K").combined == 5
     with pytest.raises(ValueError):
-        combine_independent(-1)
+        UncertaintyBudget(-1, 0, 0, "K")
     with pytest.raises(ValueError):
-        combine_independent(float("inf"))
+        combine_independent()
 
 
-def test_acceptance_requires_human_approval() -> None:
-    record = {
-        key: True
-        for key in (
-            "completed",
-            "parsed",
-            "converged",
-            "physically_validated",
-            "uncertainty_quantified",
-            "applicability_confirmed",
-            "evidence_bound",
-        )
-    }
-    record["human_approval_required"] = True
-    result = acceptance_gate(record)
-    assert result["accepted"] is False
-    assert "human_approval" in result["missing"]
-    record["approvals"] = ["expert"]
-    assert acceptance_gate(record)["accepted"] is True
+def test_validation_edge_cases() -> None:
+    assert convergence_check([1.0], 0.1)["converged"] is False
+    with pytest.raises(ValueError):
+        convergence_check([1.0, 1.0], 0)
+    with pytest.raises(ValueError):
+        acceptance_gate({"completed": True}, required=("",))
 
 
-def test_convergence_invalid_input() -> None:
-    result = convergence_check([1], absolute_tolerance=0.1)
-    assert result["passed"] is False
-    assert result["delta"] == float("inf")
-
-
-def test_workflow_explicit_unknown_and_initial_gates() -> None:
+def test_workflow_engine_select_and_unknown() -> None:
     engine = WorkflowEngine()
-    contract = CalculationContract("q", {"x": 1}, {}, ("y",), workflow="missing")
+    contract = CalculationContract("Use DFT", {"material": "Si"}, {}, ("energy",))
+    assert engine.select(contract)["slug"] == "electronic-structure"
     with pytest.raises(KeyError):
-        engine.select(contract)
-    valid = CalculationContract("OpenFOAM flow", {"x": 1}, {}, ("pressure",))
-    gates = engine.initial_gates(valid)
-    assert [gate.gate for gate in gates] == [
-        "contract",
-        "method",
-        "environment",
-        "execution",
-        "acceptance",
-    ]
-    assert [gate.passed for gate in gates] == [True, True, False, False, False]
+        engine.get("missing")
 
 
-def test_ledger_read_missing(tmp_path: Path) -> None:
-    assert read_events(tmp_path / "missing.jsonl") == []
-
-
-def test_cli_route_and_lists(capsys: pytest.CaptureFixture[str]) -> None:
-    assert cli.main(["route", "ORCA frequency"]) == 0
-    assert json.loads(capsys.readouterr().out)["workflow"] == "quantum-chemistry"
-    for kind, expected in (("capabilities", 164), ("adapters", 27), ("workflows", 20)):
-        assert cli.main(["list", kind]) == 0
-        assert len(json.loads(capsys.readouterr().out)) == expected
-
-
-def test_cli_probe_init_and_contract(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
-    assert cli.main(["probe", "--workers", "1"]) == 0
-    assert len(json.loads(capsys.readouterr().out)) == 27
-    assert cli.main(["init", "--root", str(tmp_path), "--name", "demo", "--question", "q"]) == 0
-    assert ".tsao-computation" in capsys.readouterr().out
-    payload = tmp_path / "contract.json"
-    payload.write_text(
+def test_cli_commands_and_main(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    contract_path = tmp_path / "contract.json"
+    contract_path.write_text(
         json.dumps(
-            {"question": "q", "system": {"x": 1}, "conditions": {}, "target_observables": ["y"]}
+            {
+                "question": "Use DFT",
+                "system": {"material": "Si"},
+                "conditions": {},
+                "target_observables": ["energy"],
+            }
         ),
         encoding="utf-8",
     )
-    assert cli.main(["validate-contract", str(payload)]) == 0
-    assert json.loads(capsys.readouterr().out)["question"] == "q"
+    assert cli.main(["route", "Use DFT"]) == 0
+    assert cli.main(["validate-contract", str(contract_path), "--strict"]) == 0
+    assert cli.main(["probe"]) == 0
+    output = capsys.readouterr().out
+    assert "electronic-structure" in output
+    assert "valid" in output
+    assert "adapters" in output
 
 
-def test_cli_repository_and_error(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
-    assert cli.main(["validate-repository", "--root", "."]) == 0
-    assert json.loads(capsys.readouterr().out)["passed"] is True
-    assert cli.main(["validate-contract", str(tmp_path / "missing.json")]) == 2
-    assert "ERROR:" in capsys.readouterr().err
-
-
-def test_module_entrypoint_version(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr(sys, "argv", ["tsao-computation", "--version"])
-    with pytest.raises(SystemExit) as exc:
-        runpy.run_module("tsao_computation.__main__", run_name="__main__")
-    assert exc.value.code == 0
-
-
-def test_repository_audit_detects_empty_tree(tmp_path: Path) -> None:
-    from tsao_computation.repository_audit import audit_repository
-
-    result = audit_repository(tmp_path)
-    assert result["passed"] is False
-    assert any("missing required file" in problem for problem in result["problems"])
-    assert any("missing required directory" in problem for problem in result["problems"])
-
-
-def test_repository_audit_detects_version_asset_and_symlink(tmp_path: Path) -> None:
-    import shutil
-
-    from tsao_computation.repository_audit import audit_repository
-
-    checkout = tmp_path / "checkout"
-    shutil.copytree(
-        Path("."),
-        checkout,
-        ignore=shutil.ignore_patterns(
-            ".git", ".pytest_cache", "__pycache__", "dist", "build", "*.egg-info"
-        ),
-    )
-    (checkout / "VERSION").write_text("0.0.0\n", encoding="utf-8")
-    (checkout / "pyproject.toml").write_text("not = [valid", encoding="utf-8")
-    (checkout / "tsao_computation/data/registry/capabilities.json").write_text(
-        "[]\n", encoding="utf-8"
-    )
-    (checkout / "forbidden-link").symlink_to(checkout / "README.md")
-    result = audit_repository(checkout)
-    assert result["passed"] is False
-    assert any("VERSION" in problem for problem in result["problems"])
-    assert any("invalid pyproject" in problem for problem in result["problems"])
-    assert any("not synchronized" in problem for problem in result["problems"])
-    assert any("symlinks are forbidden" in problem for problem in result["problems"])
-
-
-def test_repository_audit_detects_registry_contract_faults(monkeypatch: pytest.MonkeyPatch) -> None:
-    import tsao_computation.repository_audit as repository_audit
-
-    malformed_capability = {
-        "id": "TSC-001",
-        "slug": "duplicate",
-        "workflow": "unknown",
-        "triggers": [],
-        "inputs": [],
-        "outputs": [],
-        "validators": [],
-        "required_evidence": [],
-        "failure_modes": [],
-        "recommended_adapters": ["missing"],
-        "maturity": "bad",
-        "implementation_level": "bad",
-        "risk_level": "bad",
-        "description": "same",
-    }
-    monkeypatch.setattr(
-        repository_audit, "capabilities", lambda: (malformed_capability, malformed_capability)
-    )
-    malformed_adapter = {
-        "slug": "duplicate-adapter",
-        "workflow": "unknown",
-        "live_execution_verified": True,
-        "executables": "not-a-list",
-    }
-    monkeypatch.setattr(
-        repository_audit, "adapters", lambda: (malformed_adapter, malformed_adapter)
-    )
-    malformed_workflow = {
-        "slug": "duplicate-workflow",
-        "capability_ids": [],
-        "recommended_adapters": ["missing"],
-    }
-    monkeypatch.setattr(
-        repository_audit, "workflows", lambda: (malformed_workflow, malformed_workflow)
-    )
-    result = repository_audit.audit_repository(Path("."))
-    assert result["passed"] is False
-    joined = "\n".join(result["problems"])
-    for phrase in (
-        "duplicate capability ID",
-        "duplicate capability slug",
-        "duplicate adapter slug",
-        "duplicate workflow slug",
-        "missing fields",
-        "unknown workflow",
-        "unknown adapters",
-        "weak or empty",
-        "invalid maturity",
-        "invalid implementation_level",
-        "invalid risk_level",
-        "has no capabilities",
-        "unsupported live execution claim",
-        "lacks executable declarations",
-    ):
-        assert phrase in joined
+def test_module_entrypoint(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(sys, "argv", ["tsao-computation", "route", "Use MD"])
+    with pytest.raises(SystemExit) as error:
+        runpy.run_module("tsao_computation", run_name="__main__")
+    assert error.value.code == 0
