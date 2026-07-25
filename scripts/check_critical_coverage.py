@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import os
 import tempfile
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -14,6 +14,10 @@ def current_coverage_path() -> Path:
     if configured:
         return Path(configured).expanduser().resolve()
     return Path(tempfile.gettempdir()) / "tsao-current-coverage.json"
+
+
+def _normalized_coverage_path(value: object) -> str:
+    return PurePosixPath(str(value).replace("\\", "/")).as_posix()
 
 
 def check(
@@ -34,8 +38,10 @@ def check(
     if branch < float(policy["repository"]["minimum_branch_percent"]):
         problems.append(f"repository branch coverage is {branch:.2f}%")
 
-    files: dict[str, Any] = coverage["files"]
-    for relative, thresholds in policy["critical_files"].items():
+    raw_files: dict[str, Any] = coverage["files"]
+    files = {_normalized_coverage_path(relative): record for relative, record in raw_files.items()}
+    for raw_relative, thresholds in policy["critical_files"].items():
+        relative = _normalized_coverage_path(raw_relative)
         record = files.get(relative)
         if record is None:
             problems.append(f"critical coverage file is missing: {relative}")
