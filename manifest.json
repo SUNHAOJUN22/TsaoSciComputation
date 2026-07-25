@@ -1586,6 +1586,11 @@
       "sha256": "4b1ea5595c760a27cc64a959eee5de1ae0574967d01a86e740ab0d56cf2412b3"
     },
     {
+      "bytes": 2135,
+      "path": "reports/CANONICALIZATION_FAILURE_DIAGNOSIS.txt",
+      "sha256": "093f55d7adb62ee69ec8c064e5f79022c608275d6f13ee6186e19f133611f334"
+    },
+    {
       "bytes": 1101,
       "path": "reports/CURRENT_MAIN_VERIFICATION.json",
       "sha256": "aafc4aa6d3785930954d718cfe758db6a29c7935a6473ee45745d0f2587a1337"

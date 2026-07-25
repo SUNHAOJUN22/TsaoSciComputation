@@ -1,0 +1,19 @@
+canonicalization_run_id=30171542539
+captured_by_run_id=30171589421
+
+report	Report result	﻿2026-07-25T19:24:45.0127997Z ##[group]Run if test 'skipped' = success && test 'skipped' = success; then
+report	Report result	2026-07-25T19:24:45.0129360Z ^[[36;1mif test 'skipped' = success && test 'skipped' = success; then^[[0m
+report	Report result	2026-07-25T19:24:45.0130477Z ^[[36;1m  gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body \^[[0m
+report	Report result	2026-07-25T19:24:45.0133845Z ^[[36;1m    "Canonical generated-text regression passed. Every production Path.write_text call now pins LF; an AST governance test prevents future regressions. Complete deterministic gates, benchmark and pytest passed on the prepared tree. The same Ubuntu-generated Manifest remained unchanged before and after the complete Windows core profile on Python 3.10 and 3.13. Prepared commit: . Workflow run: $GITHUB_RUN_ID. The one-shot workflow removed itself; no branch or PR was created."^[[0m
+report	Report result	2026-07-25T19:24:45.0137074Z ^[[36;1melse^[[0m
+report	Report result	2026-07-25T19:24:45.0138107Z ^[[36;1m  gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body \^[[0m
+report	Report result	2026-07-25T19:24:45.0139623Z ^[[36;1m    "Canonical generated-text regression failed. Prepare: skipped; Windows: skipped. Workflow run: $GITHUB_RUN_ID. No completion is claimed."^[[0m
+report	Report result	2026-07-25T19:24:45.0141057Z ^[[36;1m  exit 1^[[0m
+report	Report result	2026-07-25T19:24:45.0141576Z ^[[36;1mfi^[[0m
+report	Report result	2026-07-25T19:24:45.1000541Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+report	Report result	2026-07-25T19:24:45.1001848Z env:
+report	Report result	2026-07-25T19:24:45.1006227Z   GH_TOKEN: ***
+report	Report result	2026-07-25T19:24:45.1006878Z   ISSUE_NUMBER: 22
+report	Report result	2026-07-25T19:24:45.1007430Z ##[endgroup]
+report	Report result	2026-07-25T19:24:46.1274938Z https://github.com/SUNHAOJUN22/TsaoSciComputation/issues/22#issuecomment-5080238446
+report	Report result	2026-07-25T19:24:46.1301948Z ##[error]Process completed with exit code 1.
