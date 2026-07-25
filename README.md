@@ -115,6 +115,7 @@ python scripts/verify_all.py --profile benchmark
 
 | Item | Machine-recorded result |
 |---|---:|
+| Version | 3.0.2 |
 | Capabilities / adapters / workflows | 164 / 27 / 20 |
 | Mandatory runtime dependencies | 0 |
 | Tests | 553 passed, 0 failed |
