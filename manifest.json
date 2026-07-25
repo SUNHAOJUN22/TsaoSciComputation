@@ -71,9 +71,9 @@
       "sha256": "f417b371a3e3868b0449e82ca36d4b25c7926eda0bbeea829170ea0d5295138d"
     },
     {
-      "bytes": 4315,
+      "bytes": 5149,
       "path": "CHANGELOG.md",
-      "sha256": "74e10a5051fc15a8269862b7cc91d27fc9d1a563005b24f6a410d28a1d7048e1"
+      "sha256": "e55875d5f378ca685db7b19e747942fcfb8596fe1b2744a1edef9bf4fc2c5d92"
     },
     {
       "bytes": 307,
@@ -101,14 +101,14 @@
       "sha256": "62d6fdd9d587504092fe8417670b55895ea4db4fc845790f6270e8f50612b6e2"
     },
     {
-      "bytes": 11492,
+      "bytes": 11665,
       "path": "README.md",
-      "sha256": "74310f79bf0fdefa4d90c70b836bf7a11df45dbc5200c730731f08d28e11cc34"
+      "sha256": "a040e892597d2f0a8afc55819423ecb90bf07a88e32cb5fe016de4c060e1116a"
     },
     {
-      "bytes": 10705,
+      "bytes": 10852,
       "path": "README.zh-CN.md",
-      "sha256": "6503862dc29a01f99d2830396b6d8435f8a1cf2969d019602fc589b6136a5dab"
+      "sha256": "7e504987d64eb7e7124c266c8b4b798f4cf6cd8d0ad137675c4680c3a41848ce"
     },
     {
       "bytes": 3578,
@@ -476,9 +476,9 @@
       "sha256": "89aa71bd70d4a41496ffe092f60a5737c736b878f0bd40df1a5aa095ace14a72"
     },
     {
-      "bytes": 484,
+      "bytes": 485,
       "path": "benchmarks/latest.json",
-      "sha256": "100d0005ee0f958d03f3a27bd93bd584d073624fc9e02961f4849f349c3f951c"
+      "sha256": "47bc66c9a66f6db6fbaa71c11d6012a92ff7dadca56a03137d4d66408d3f28d6"
     },
     {
       "bytes": 14680,
@@ -1428,7 +1428,7 @@
     {
       "bytes": 72,
       "path": "evidence/security-scan.json",
-      "sha256": "815203d59358b35cfe63893c43579263a1d3eb58c8035c42b3060e8fc073a15f"
+      "sha256": "f665f5ffcc05c9025fe24b193fa9da764f86c94aa304d5a7c8d183866ad94edc"
     },
     {
       "bytes": 573,
@@ -1581,9 +1581,9 @@
       "sha256": "4b1ea5595c760a27cc64a959eee5de1ae0574967d01a86e740ab0d56cf2412b3"
     },
     {
-      "bytes": 1101,
+      "bytes": 1392,
       "path": "reports/CURRENT_MAIN_VERIFICATION.json",
-      "sha256": "aafc4aa6d3785930954d718cfe758db6a29c7935a6473ee45745d0f2587a1337"
+      "sha256": "d577a04b685f3de9296172c26c678077daf8be5b266d8a7b59ef3bea5d273b52"
     },
     {
       "bytes": 3115,
@@ -1624,6 +1624,11 @@
       "bytes": 225,
       "path": "reports/REPOSITORY_AUDIT.json",
       "sha256": "ee88b0db7b8b292599fa8f9c6d5655138ad23ab832ea8900a44c5623097ab57e"
+    },
+    {
+      "bytes": 1446,
+      "path": "reports/SECOND_PASS_FINAL_AUDIT.md",
+      "sha256": "59e856c90c79a4b978275949cc0cd9216d2354a01e6929cc198e023f2b9f0dc6"
     },
     {
       "bytes": 72,

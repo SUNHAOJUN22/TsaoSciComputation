@@ -1,6 +1,10 @@
 {
   "branch": "main",
-  "claim_boundary": "Validated for repository orchestration, contracts, routing, deterministic fixtures, packaging and documentation. No live third-party solver or production HPC execution is claimed.",
+  "canonical_checkout_lf": true,
+  "canonical_ci_evidence": "The final commit CI run is recorded in the closing comment of GitHub Issue #22.",
+  "canonical_generated_text_lf": true,
+  "canonical_text_parent_commit": "d44f3a9e1f69c876a3ddc7faffc003669a8e45d0",
+  "claim_boundary": "Validated for repository orchestration, contracts, routing, deterministic fixtures, packaging, documentation and cross-platform CI. No live third-party solver or production HPC execution is claimed.",
   "controlled_mutants": "64/64",
   "counts": {
     "adapters": 27,
@@ -12,25 +16,25 @@
     "branch_percent": 93.67469879518072,
     "statement_percent": 97.31903485254692
   },
+  "cross_platform_manifest_stability": "PASS",
   "dependency_vulnerabilities": 0,
+  "deterministic_finalization_run_id": 30172561968,
   "remote_branches": [
     "main"
   ],
   "repository_security_findings": 0,
-  "schema_version": "1.1",
+  "schema_version": "1.2",
   "scientific_reference_benchmarks": "8/8",
   "source_archives_reproducible": true,
   "status": "VALIDATED",
   "temporary_branch_created": false,
   "tests": {
     "failed": 0,
-    "passed": 557
+    "passed": 559
   },
-  "verification_run_id": 30170690525,
-  "verified_at_utc": "2026-07-25T18:59:21.810746+00:00",
+  "verified_at_utc": "2026-07-25T19:56:18.624713+00:00",
   "version": "3.0.2",
   "wheel_reproducible_and_isolated_install": true,
-  "windows_core_regression_run_id": 30170463327,
   "windows_python_310_core": "PASS",
   "windows_python_313_core": "PASS"
 }
