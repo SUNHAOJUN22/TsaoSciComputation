@@ -45,3 +45,10 @@ def test_contribution_policy_preserves_single_main() -> None:
     assert "Do not create long-lived or temporary feature branches" in policy
     assert "VERSION` is the only authoritative version source" in policy
     assert "verify_all.py --profile all" in policy
+
+
+def test_repository_line_endings_are_cross_platform_deterministic() -> None:
+    attributes = Path(".gitattributes").read_text(encoding="utf-8")
+    assert "* text=auto eol=lf" in attributes
+    for pattern in ("*.png", "*.jpg", "*.jpeg", "*.gif", "*.webp", "*.pdf", "*.zip", "*.gz", "*.whl"):
+        assert f"{pattern} binary" in attributes
