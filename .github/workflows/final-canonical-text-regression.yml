@@ -154,6 +154,39 @@ jobs:
           python scripts/validate_repository.py
           git diff --check
 
+      - name: Materialize a failure without committing transformed source
+        if: ${{ failure() }}
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          {
+            echo "final_canonical_run_id=$GITHUB_RUN_ID"
+            echo
+            if test -s /tmp/canonical-all.log; then
+              echo 'deterministic_all_tail:'
+              tail -n 180 /tmp/canonical-all.log | tr -d '\r' | tail -c 30000
+            else
+              echo 'pre_deterministic_diagnostics:'
+              python -m ruff check scripts tsao_computation tests/test_canonical_text_writes.py 2>&1 || true
+              python -m ruff format --check scripts tsao_computation tests/test_canonical_text_writes.py 2>&1 || true
+              python -m pytest tests/test_canonical_text_writes.py tests/test_release_governance.py -q 2>&1 || true
+              git status --short
+            fi
+          } > /tmp/final-canonical-diagnosis.txt
+          git reset --hard HEAD
+          rm -f .github/workflows/final-canonical-text-regression.yml
+          mkdir -p reports
+          cp /tmp/final-canonical-diagnosis.txt reports/CANONICALIZATION_FAILURE_DIAGNOSIS.txt
+          python scripts/build_manifest.py
+          python scripts/build_manifest.py --check
+          python scripts/validate_repository.py
+          git diff --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Materialize final canonical regression failure'
+          git push origin HEAD:refs/heads/main
+
       - name: Capture pytest summary
         id: summary
         shell: bash
@@ -225,6 +258,6 @@ jobs:
               "Final canonical text regression passed. Every production Path.write_text call explicitly pins LF and an AST governance test prevents regression. Complete deterministic release gates, benchmark and ${{ needs.prepare.outputs.pytest_summary }} passed. The same Ubuntu-generated Manifest remained unchanged before and after complete Windows core on Python 3.10 and 3.13. Commit: ${{ needs.prepare.outputs.final_sha }}. Workflow run: $GITHUB_RUN_ID. The one-shot workflow removed itself; no branch or PR was created."
           else
             gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body \
-              "Final canonical text regression failed. Prepare: ${{ needs.prepare.result }}; Windows: ${{ needs.windows.result }}. Workflow run: $GITHUB_RUN_ID. No completion is claimed."
+              "Final canonical text regression failed. Prepare: ${{ needs.prepare.result }}; Windows: ${{ needs.windows.result }}. Workflow run: $GITHUB_RUN_ID. Transformed source was discarded and a diagnosis report was committed. No completion is claimed."
             exit 1
           fi
