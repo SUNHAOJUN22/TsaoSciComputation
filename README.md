@@ -59,6 +59,23 @@ The core design is fail-closed:
 
 Representative scope includes electronic structure, quantum chemistry, atomistic and enhanced-sampling workflows, machine-learned potentials, mesoscale and continuum models, reaction engineering, CFD, multiphysics, process simulation, optimization, uncertainty, reproducibility and multiscale handoff.
 
+## Domain capability views
+
+<table>
+<tr>
+<td width="50%"><img src="assets/visuals/electronic-structure-landscape.svg" alt="DFT electronic structure and energy landscape" width="100%"></td>
+<td width="50%"><img src="assets/visuals/continuum-multiphysics.svg" alt="CFD FEM and continuum multiphysics workflow" width="100%"></td>
+</tr>
+<tr>
+<td align="center"><b>Electronic structure &amp; DFT</b><br>Geometry, density, self-consistency, energy, forces and observable-level acceptance.</td>
+<td align="center"><b>CFD, FEM &amp; multiphysics</b><br>Mesh quality, conservation, coupled fields, stability and discretization evidence.</td>
+</tr>
+</table>
+
+<img src="assets/visuals/process-optimization-uq.svg" alt="Process optimization uncertainty quantification and reviewed decision workflow" width="100%">
+
+The process layer separates flowsheet construction, model calibration, uncertainty propagation, sensitivity, constrained search and human authorization. A numerical optimum is rejected when feasibility, uncertainty, safety, applicability or review evidence is incomplete.
+
 ## Solver-aware ecosystem
 
 <img src="assets/visuals/engine-ecosystem.svg" alt="Scientific solver and adapter ecosystem" width="100%">
@@ -111,6 +128,12 @@ python scripts/verify_all.py --profile benchmark
 
 `all` runs the deterministic release gates: quality and security checks, tests and branch coverage, scientific reference benchmarks, critical coverage policy, version and registry synchronization, repository and Schema validation, adapter and documentation validation, controlled mutation probes, reproducible source and Wheel builds, isolated installation, SPDX and CycloneDX SBOM generation, checksums and release manifests. `benchmark` is environment-dependent telemetry and remains separate from release acceptance.
 
+### Current `main` verification
+
+<!-- CURRENT_MAIN_VERIFICATION:START -->
+Second-pass verification is running. Current-head claims will be written here only after every deterministic gate, final pytest, dependency audit and single-main check passes.
+<!-- CURRENT_MAIN_VERIFICATION:END -->
+
 ### v3.0.2 verified release baseline
 
 | Item | Machine-recorded result |
@@ -128,7 +151,7 @@ python scripts/verify_all.py --profile benchmark
 | Supply-chain evidence | SPDX + CycloneDX SBOMs, SHA-256 Manifest, Sigstore attestations |
 | Remote branches | `main` only |
 
-This table reports the immutable v3.0.2 verification evidence dated 2026-07-24. Current-head changes must pass the same gates before being described as verified. Authoritative records are stored in `reports/FINAL_VERIFICATION.json`, `evidence/quality-baseline.json`, `reports/REMOTE_FINALIZATION.json`, and `benchmarks/latest.json`.
+This table reports the immutable v3.0.2 verification evidence dated 2026-07-24. Current-head evidence is kept separately so later documentation and test changes do not rewrite a historical release record. Authoritative release records are stored in `reports/FINAL_VERIFICATION.json`, `evidence/quality-baseline.json`, `reports/REMOTE_FINALIZATION.json`, and `benchmarks/latest.json`.
 
 ## CI, release and installation
 
@@ -152,7 +175,7 @@ completed ≠ parsed ≠ converged ≠ validated ≠ accepted
 
 Benchmark success does not prove live third-party solver execution. Missing convergence, physical checks, uncertainty, applicability, provenance, evidence or required human approval prevents scientific acceptance. Reactor, control, digital-twin, safety, runaway and commercial decisions require qualified domain review.
 
-The illustrations in `assets/visuals/` are original explanatory diagrams generated for this repository. They are not screenshots, benchmark plots, or evidence of live external-engine execution. Their integrity and README references are automatically tested.
+The 12 illustrations in `assets/visuals/` are original explanatory diagrams generated for this repository. They are not screenshots, benchmark plots, or evidence of live external-engine execution. Their integrity, accessibility, source-distribution inclusion and bilingual README references are automatically tested.
 
 ## Repository policy
 
