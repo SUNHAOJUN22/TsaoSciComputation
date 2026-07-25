@@ -10,39 +10,19 @@
 
 </div>
 
-## Purpose
+## Overview
 
-TsaoSciComputation converts a scientific question into a traceable calculation program:
+TsaoSciComputation turns a scientific question into a traceable, fail-closed calculation program:
 
 ```text
-question → strict contract → method/scale route → environment preflight
+question → contract → method/scale route → environment preflight
          → bounded execution → conservative parsing → validation
          → uncertainty/applicability → acceptance → multiscale handoff
 ```
 
-It orchestrates scientific work; it does **not** bundle or impersonate external solvers, licenses, databases, basis sets, pseudopotentials, private data, or production HPC infrastructure.
+It orchestrates scientific work. It does **not** bundle or impersonate external solvers, licenses, databases, basis sets, pseudopotentials, private data, or production HPC infrastructure.
 
-## Verified baseline
-
-| Item | Verified result |
-|---|---:|
-| Version | 3.0.2 |
-| Capabilities / adapters / workflows | 164 / 27 / 20 |
-| Runtime dependencies | 0 mandatory third-party packages |
-| Tests | 553 passed, 0 failed |
-| Statement / branch coverage | 97.27% / 93.48% |
-| Controlled mutation probes | 64/64 killed |
-| Scientific reference benchmarks | 8/8 passed |
-| Scientific confidence model | C0–C5 fail-closed |
-| Repository security scan | 0 findings |
-| Source archives | byte-identical ZIP and tar.gz rebuilds |
-| Wheel | byte-identical rebuild and isolated install |
-| Supply-chain evidence | SPDX + CycloneDX SBOMs, SHA-256 Manifest, Sigstore attestations |
-| Remote branches | `main` only |
-
-The authoritative machine-readable evidence is in `reports/FINAL_VERIFICATION.json`, `evidence/quality-baseline.json`, `reports/REMOTE_FINALIZATION.json`, and `benchmarks/latest.json`.
-
-## Start
+## Quick start
 
 ```bash
 git clone https://github.com/SUNHAOJUN22/TsaoSciComputation.git
@@ -57,13 +37,29 @@ python -m tsao_computation validate-contract \
 python -m tsao_computation probe
 ```
 
-The strict contract is the control point: malformed fields, missing preflight information, unavailable executables or Python modules, unsafe paths, invalid state transitions, and incomplete acceptance evidence fail closed.
+External solvers remain optional and must be installed, licensed, and validated separately. Missing executables, malformed contracts, unsafe paths, illegal state transitions, or incomplete evidence are rejected rather than silently accepted.
 
-## Scope
+## Verified baseline
 
-The repository contains 164 differentiated capabilities organized into 20 validation-aware workflows and 27 core adapters. Of the 32 engines in the source shortlist, 21 are represented directly or through combined adapters; 11 remain explicit non-standalone limits. See [`docs/coverage-matrix.md`](docs/coverage-matrix.md).
+| Item | Verified result |
+|---|---:|
+| Version | 3.0.2 |
+| Capabilities / adapters / workflows | 164 / 27 / 20 |
+| Mandatory runtime dependencies | 0 |
+| Tests | 553 passed, 0 failed |
+| Statement / branch coverage | 97.27% / 93.48% |
+| Controlled mutation probes | 64/64 killed |
+| Scientific reference benchmarks | 8/8 passed |
+| Scientific confidence model | C0–C5 fail-closed |
+| Repository and dependency findings | 0 / 0 |
+| Source archives | byte-identical ZIP and tar.gz rebuilds |
+| Wheel | byte-identical rebuild and isolated install |
+| Supply-chain evidence | SPDX + CycloneDX SBOMs, SHA-256 Manifest, Sigstore attestations |
+| Remote branches | `main` only |
 
-## Verify
+Authoritative machine-readable evidence is stored in `reports/FINAL_VERIFICATION.json`, `evidence/quality-baseline.json`, `reports/REMOTE_FINALIZATION.json`, and `benchmarks/latest.json`.
+
+## Verification
 
 ```bash
 python -m pip install -e '.[validation,quality]'
@@ -71,21 +67,23 @@ python scripts/verify_all.py --profile all
 python scripts/verify_all.py --profile benchmark
 ```
 
-`all` is the deterministic release gate: version consistency, quality, tests and coverage, repository/Schema/asset/Manifest checks, security, controlled mutation probes, reproducible source and Wheel builds, isolated installation, SBOM generation, and release checksums. `benchmark` is environment-dependent telemetry and is deliberately separate from release acceptance. A separate read-only weekly dependency audit records known-vulnerability evidence without creating an upstream branch. CI validates the core matrix on Python 3.10 and 3.13 across Ubuntu, Windows, and macOS; Actions are pinned to immutable commits.
+`all` runs the deterministic release gates: version consistency, quality checks, tests and coverage, repository/Schema/asset/Manifest validation, security scanning, controlled mutation probes, reproducible source and Wheel builds, isolated installation, SBOM generation, and release checksums. `benchmark` is environment-dependent telemetry and remains separate from release acceptance.
 
-## Releases
+CI runs the core matrix on Python 3.10 and 3.13 across Ubuntu, Windows, and macOS. A read-only weekly dependency audit records known-vulnerability evidence without creating an upstream branch. All third-party Actions are pinned to immutable commits.
 
-Formal releases are created only by the governed Release workflow after every deterministic gate passes. Each immutable `vX.Y.Z` release contains reproducible archives and Wheel, SPDX and CycloneDX SBOMs, `SHA256SUMS`, a release Manifest, final verification evidence, and GitHub/Sigstore provenance bundles.
+## Scientific scope and boundaries
 
-```bash
-sha256sum -c SHA256SUMS
-gh attestation verify TsaoSciComputation-X.Y.Z.zip \
-  --repo SUNHAOJUN22/TsaoSciComputation
+The repository contains 164 differentiated capabilities, 20 validation-aware workflows, and 27 core adapters. Of 32 engines in the source shortlist, 21 are represented directly or through combined adapters; 11 remain explicit non-standalone limits. See [`docs/coverage-matrix.md`](docs/coverage-matrix.md).
+
+```text
+completed ≠ parsed ≠ converged ≠ validated ≠ accepted
 ```
 
-See [`docs/release.md`](docs/release.md) for the complete publication and consumer-verification process.
+Adapter discovery requires every declared executable and Python module. Normal exit does not prove convergence, benchmark success does not prove live third-party solver execution, and missing convergence, physical checks, uncertainty, applicability, provenance, evidence, or required human approval prevents scientific acceptance. High-risk reactor, control, digital-twin, safety, runaway, and commercial decisions require qualified domain review.
 
-## Install as an Agent Skill
+## Release and Skill installation
+
+Formal releases are produced only by the governed Release workflow after every deterministic gate passes. Each immutable `vX.Y.Z` release includes reproducible archives and Wheel, SPDX and CycloneDX SBOMs, `SHA256SUMS`, a release Manifest, final verification evidence, and GitHub/Sigstore provenance bundles.
 
 ```bash
 python scripts/install_skill.py --agent codex --scope user --dry-run
@@ -93,18 +91,8 @@ python scripts/install_skill.py --agent codex --scope user
 python scripts/install_skill.py --agent codex --scope user --validate
 ```
 
-Use `--force` only for an intentional, reviewed replacement or uninstall override.
-
-## Scientific trust boundary
-
-Adapter discovery requires every declared executable and Python module; normal exit is not convergence. Installed copies are checked against the full SHA-256 Manifest, and all 12 scenario contracts pass strict preflight validation. Eight deterministic analytical, conservation, and invariant benchmarks must also pass; they do not claim third-party solver execution.
-
-```text
-completed ≠ parsed ≠ converged ≠ validated ≠ accepted
-```
-
-Acceptance remains fail-closed. Missing convergence, physical checks, uncertainty, applicability, provenance, evidence, or required human approval prevents scientific acceptance. Reactor, control, digital-twin, safety, runaway, and commercial handoff decisions require domain-expert review.
+Use `--force` only for an intentional, reviewed replacement or uninstall override. See [`docs/release.md`](docs/release.md) for release and consumer-verification details.
 
 ## Repository policy
 
-`main` is the only upstream remote branch and the authoritative line. External contributions use fork branches; the canonical repository does not retain feature branches. Historical releases are immutable tags. Generated environments and caches are excluded; real source, configuration, tests, evidence, and release metadata remain auditable.
+`main` is the only upstream remote branch and the authoritative line. External contributions use fork branches; the canonical repository does not retain feature branches. Historical releases are immutable tags. Generated environments and caches are excluded, while source, configuration, tests, evidence, and release metadata remain auditable.
