@@ -1581,9 +1581,9 @@
       "sha256": "4b1ea5595c760a27cc64a959eee5de1ae0574967d01a86e740ab0d56cf2412b3"
     },
     {
-      "bytes": 1118,
+      "bytes": 11633,
       "path": "reports/CANONICALIZATION_FAILURE_DIAGNOSIS.txt",
-      "sha256": "6b27ecdbfd006739494c8d95406c8e7ab11b091168a938be740f47e565ba84b6"
+      "sha256": "000ab4841db78ab676da466554d8b58b55e9876f9cf05c34aeeabd3fa62ddcb5"
     },
     {
       "bytes": 1101,
@@ -2026,9 +2026,9 @@
       "sha256": "ae6057451ad2b8f347a9e0128b0030c16e8a0df3214c8ba43c47a34645a8de57"
     },
     {
-      "bytes": 2189,
+      "bytes": 2268,
       "path": "tests/test_release_governance.py",
-      "sha256": "cc432af122138ca512803b44a282f133d84a8a0c2c269824c564bc0108d30d55"
+      "sha256": "17dec6c524d5a3457419281dd3958838646d1a4ea586a328b5d8110d706def8b"
     },
     {
       "bytes": 1315,

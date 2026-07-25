@@ -1,0 +1,168 @@
+final_canonical_run_id=30172212533
+
+deterministic_all_tail:
+
+==> repository quality rules
+    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/quality_check.py
+{"passed": true, "problems": [], "python_files": 100, "schema_version": "1.0"}
+
+==> Ruff lint
+    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python -m ruff check tsao_computation scripts tests _bootstrap.py
+All checks passed!
+
+==> Ruff formatting
+    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python -m ruff format --check tsao_computation scripts tests _bootstrap.py
+101 files already formatted
+
+==> Mypy
+    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python -m mypy --python-version 3.13 tsao_computation scripts
+Success: no issues found in 70 source files
+
+==> Bandit
+    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python -m bandit -q -r tsao_computation scripts
+
+==> repository security scan
+    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/security_scan.py
+{"files_scanned": 461, "findings": [], "schema_version": "1.0"}
+
+==> controlled mutation gate
+    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/run_mutation_gate.py
+{"killed": 64, "method": "controlled non-equivalent operator mutation probes", "schema_version": "1.0", "survived": 0, "total": 64}
+
+==> refresh repository manifest
+    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/build_manifest.py
+
+==> tests and coverage
+    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/run_tests.py --coverage
+........................................................................ [ 12%]
+........................................................................ [ 25%]
+........................................................................ [ 38%]
+........................................................................ [ 51%]
+........................................................................ [ 64%]
+........................................................................ [ 77%]
+........................................................................ [ 90%]
+.......................................................                  [100%]
+559 passed in 3.04s
+Name                                                   Stmts   Miss Branch BrPart  Cover   Missing
+--------------------------------------------------------------------------------------------------
+tsao_computation/__init__.py                               8      2      0      0    75%   10-11
+tsao_computation/adapters/base.py                        102      9     30      5    89%   66, 74, 94-95, 97, 100-101, 103, 119
+tsao_computation/cli.py                                   63      0     14      1    99%   74->80
+tsao_computation/contracts/calculation.py                125      4     46      4    95%   34, 36, 49, 221
+tsao_computation/contracts/handoff.py                     33      3     12      3    87%   36, 38, 44
+tsao_computation/provenance/manifest.py                   43      4     18      3    89%   50-51, 68, 70
+tsao_computation/repository_audit.py                     166      6    104      3    97%   108-110, 125, 140, 229
+tsao_computation/validation/physical.py                   21      1      8      1    93%   26
+tsao_computation/validation/scientific_benchmarks.py     131      1     18      1    99%   243
+--------------------------------------------------------------------------------------------------
+TOTAL                                                   1119     30    332     21    96%
+
+32 files skipped due to complete coverage.
+
+==> scientific reference benchmarks
+    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/run_scientific_benchmarks.py
+{"claim_boundary": "Deterministic analytical, conservation, and invariant benchmarks; no third-party solver execution is claimed.", "failed": 0, "passed": 8, "results": [{"absolute_error": 1.7621459846850485e-12, "benchmark_id": "steady-conduction-1d", "domain": "heat-transfer", "expected": 0.0, "invariant": "finite-difference profile matches the linear analytical solution", "observed": 1.7621459846850485e-12, "passed": true, "relative_error": 1.7621459846850485e-12, "tolerance": 1e-11}, {"absolute_error": 2.454369162335074e-11, "benchmark_id": "poiseuille-pipe-flow", "domain": "fluid-dynamics", "expected": 0.00039269908169872416, "invariant": "integrated parabolic profile matches Hagen-Poiseuille flow", "observed": 0.00039269905715503254, "passed": true, "relative_error": 6.249999749727064e-08, "tolerance": 2e-07}, {"absolute_error": 5.551115123125783e-17, "benchmark_id": "cstr-first-order-balance", "domain": "reaction-engineering", "expected": 0.0, "invariant": "steady inlet-outlet-generation mass balance closes", "observed": -5.551115123125783e-17, "passed": true, "relative_error": 5.551115123125783e-17, "tolerance": 1e-14}, {"absolute_error": 1.0963452368173421e-14, "benchmark_id": "pfr-first-order-rk4", "domain": "reaction-engineering", "expected": 0.2465969639416065, "invariant": "RK4 plug-flow integration matches analytical first-order decay", "observed": 0.24659696394161745, "passed": true, "relative_error": 4.445899167992002e-14, "tolerance": 1e-11}, {"absolute_error": 9.999999982523988e-07, "benchmark_id": "harmonic-oscillator-verlet", "domain": "molecular-dynamics", "expected": 0.0, "invariant": "velocity-Verlet bounds total-energy drift", "observed": 9.999999982523988e-07, "passed": true, "relative_error": 9.999999982523988e-07, "tolerance": 1.1e-06}, {"absolute_error": 0.0, "benchmark_id": "gaussian-chain-second-moment", "domain": "polymer-statistical-mechanics", "expected": 2.84592, "invariant": "isotropic covariance trace equals N b^2", "observed": 2.84592, "passed": true, "relative_error": 0.0, "tolerance": 1e-14}, {"absolute_error": 0.0, "benchmark_id": "parallel-plate-electric-field", "domain": "electrostatics", "expected": 100000.0, "invariant": "central-difference electric field matches V/d", "observed": 100000.0, "passed": true, "relative_error": 0.0, "tolerance": 1e-14}, {"absolute_error": 0.0, "benchmark_id": "electrothermal-steady-balance", "domain": "multiphysics", "expected": 0.0, "invariant": "electrical input, Joule heating, and steady heat removal close", "observed": 0.0, "passed": true, "relative_error": 0.0, "tolerance": 1e-14}], "schema_version": "1.0", "total": 8}
+
+==> critical coverage policy
+    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/check_critical_coverage.py
+{
+  "passed": true,
+  "problems": []
+}
+
+==> version metadata
+    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/sync_version_metadata.py --check
+{"passed": true, "problems": [], "release_date": "2026-07-24", "schema_version": "1.0", "version": "3.0.2"}
+
+==> repository audit
+    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/validate_repository.py
+{
+  "counts": {
+    "adapters": 27,
+    "capabilities": 164,
+    "capability_input_profiles": 20,
+    "capability_output_profiles": 20,
+    "workflows": 20
+  },
+  "passed": true,
+  "problems": [],
+  "schema_version": "1.0"
+}
+
+==> schema validation
+    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/validate_schemas.py
+{
+  "passed": true,
+  "problems": [],
+  "schema_version": "1.0"
+}
+
+==> packaged registry assets
+    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/sync_package_assets.py --check
+
+==> adapter metadata
+    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/validate_adapter_metadata.py
+{
+  "passed": true,
+  "problems": []
+}
+
+==> capability index
+    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/build_capability_index.py --check
+
+==> adapter documentation
+    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/build_adapter_docs.py --check
+
+==> workflow documentation
+    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/build_workflow_docs.py --check
+
+==> scenario examples
+    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/build_examples.py --check
+
+==> repository manifest
+    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/build_manifest.py --check
+
+==> source build A
+    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/package_release.py --output-dir /tmp/tsao-source-build-51yen7e5/first
+{"artifacts": {"TsaoSciComputation-3.0.2.tar.gz": {"bytes": 253080, "sha256": "304e299d1c10ce1ebb04503729b364c0b0084aa2460e8da1920b2f4fec66dd49"}, "TsaoSciComputation-3.0.2.zip": {"bytes": 583046, "sha256": "ed0c2ceb616f8769906c6a4d9dce11d693a6169ddb8907807b4255c6c2eb70f3"}}, "file_count": 462, "schema_version": "1.0", "source_date_epoch": 1700000000, "version": "3.0.2"}
+
+==> source build B
+    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/package_release.py --output-dir /tmp/tsao-source-build-51yen7e5/second
+{"artifacts": {"TsaoSciComputation-3.0.2.tar.gz": {"bytes": 253080, "sha256": "304e299d1c10ce1ebb04503729b364c0b0084aa2460e8da1920b2f4fec66dd49"}, "TsaoSciComputation-3.0.2.zip": {"bytes": 583046, "sha256": "ed0c2ceb616f8769906c6a4d9dce11d693a6169ddb8907807b4255c6c2eb70f3"}}, "file_count": 462, "schema_version": "1.0", "source_date_epoch": 1700000000, "version": "3.0.2"}
+
+==> wheel rebuild and isolated install
+    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/verify_wheel.py
+Processing ./.
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: tsao-scicomputation
+  Building wheel for tsao-scicomputation (pyproject.toml): started
+  Building wheel for tsao-scicomputation (pyproject.toml): finished with status 'done'
+  Created wheel for tsao-scicomputation: filename=tsao_scicomputation-3.0.2-py3-none-any.whl size=58978 sha256=7e6937ffbf2417a73ee60db76f54802335a65de73f89d65a9dcc18c6a369d0af
+  Stored in directory: /tmp/pip-ephem-wheel-cache-n8dnurbk/wheels/0b/5e/4c/c753a318e94b62c7a2dea3c242cc346ea1bcbad20760c46702
+Successfully built tsao-scicomputation
+Processing ./.
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: tsao-scicomputation
+  Building wheel for tsao-scicomputation (pyproject.toml): started
+  Building wheel for tsao-scicomputation (pyproject.toml): finished with status 'done'
+  Created wheel for tsao-scicomputation: filename=tsao_scicomputation-3.0.2-py3-none-any.whl size=58978 sha256=7e6937ffbf2417a73ee60db76f54802335a65de73f89d65a9dcc18c6a369d0af
+  Stored in directory: /tmp/pip-ephem-wheel-cache-487xlkde/wheels/0b/5e/4c/c753a318e94b62c7a2dea3c242cc346ea1bcbad20760c46702
+Successfully built tsao-scicomputation
+Processing /home/runner/work/TsaoSciComputation/TsaoSciComputation/dist/tsao_scicomputation-3.0.2-py3-none-any.whl
+Installing collected packages: tsao-scicomputation
+Successfully installed tsao-scicomputation-3.0.2
+{"artifact": "tsao_scicomputation-3.0.2-py3-none-any.whl", "byte_identical_rebuild": true, "bytes": 58978, "isolated_install": true, "schema_version": "1.0", "sha256": "7e6937ffbf2417a73ee60db76f54802335a65de73f89d65a9dcc18c6a369d0af", "verification": "3.0.2 164 27 20"}
+
+==> deterministic SPDX and CycloneDX SBOMs
+    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/build_sbom.py
+{"sboms": ["TsaoSciComputation-3.0.2.spdx.json", "TsaoSciComputation-3.0.2.cdx.json"]}
+
+==> release manifest and checksums
+    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/build_release_manifest.py
+{"checksums": "SHA256SUMS", "manifest": "RELEASE_MANIFEST.json"}
+
+PASS: source archives, wheel, SBOMs, and release manifests are reproducible; isolated install succeeded.
+
+PASS: verification profile 'all' completed successfully.
