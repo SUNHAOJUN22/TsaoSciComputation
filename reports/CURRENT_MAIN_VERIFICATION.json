@@ -3,7 +3,7 @@
   "canonical_checkout_lf": true,
   "canonical_ci_evidence": "The final commit CI run is recorded in the closing comment of GitHub Issue #22.",
   "canonical_generated_text_lf": true,
-  "canonical_text_parent_commit": "d44f3a9e1f69c876a3ddc7faffc003669a8e45d0",
+  "canonical_text_parent_commit": "ac46f23465a767db18d2f470c0cf9aaf43d197c1",
   "claim_boundary": "Validated for repository orchestration, contracts, routing, deterministic fixtures, packaging, documentation and cross-platform CI. No live third-party solver or production HPC execution is claimed.",
   "controlled_mutants": "64/64",
   "counts": {
@@ -18,7 +18,7 @@
   },
   "cross_platform_manifest_stability": "PASS",
   "dependency_vulnerabilities": 0,
-  "deterministic_finalization_run_id": 30172561968,
+  "deterministic_finalization_run_id": 30172593367,
   "remote_branches": [
     "main"
   ],
@@ -32,7 +32,7 @@
     "failed": 0,
     "passed": 559
   },
-  "verified_at_utc": "2026-07-25T19:56:18.624713+00:00",
+  "verified_at_utc": "2026-07-25T19:58:34.499806+00:00",
   "version": "3.0.2",
   "wheel_reproducible_and_isolated_install": true,
   "windows_python_310_core": "PASS",
