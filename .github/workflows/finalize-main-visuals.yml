@@ -119,4 +119,22 @@ jobs:
         run: |
           set +e
           STAGE="$(cat /tmp/tsao-finalize-stage 2>/dev/null || echo unknown)"
-          gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body "Final main-only visual documentation verification failed at stage: $STAGE. Run ID: $GITHUB_RUN_ID. No successful verification is being claimed; the failure must be corrected before completion." || true
+          LOG_FILE=/tmp/verify-all.log
+          case "$STAGE" in
+            benchmark) LOG_FILE=/tmp/benchmark.log ;;
+            final-pytest) LOG_FILE=/tmp/pytest.log ;;
+          esac
+          {
+            echo "Final main-only visual documentation verification failed at stage: $STAGE."
+            echo
+            echo "Run ID: $GITHUB_RUN_ID. No successful verification is being claimed."
+            echo
+            echo '```text'
+            if test -f "$LOG_FILE"; then
+              tail -n 90 "$LOG_FILE" | tr -d '\r' | tail -c 12000
+            else
+              echo 'No stage log was captured.'
+            fi
+            echo '```'
+          } > /tmp/tsao-failure.md
+          gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body-file /tmp/tsao-failure.md || true
