@@ -6,14 +6,16 @@ from pathlib import Path
 from scripts.check_critical_coverage import check
 
 
-def write_coverage(path: Path, statement: float, branch: float) -> None:
+def write_coverage(
+    path: Path, statement: float, branch: float, *, file_name: str = "critical.py"
+) -> None:
     payload = {
         "totals": {
             "percent_statements_covered": statement,
             "percent_branches_covered": branch,
         },
         "files": {
-            "critical.py": {
+            file_name: {
                 "summary": {
                     "percent_statements_covered": statement,
                     "percent_branches_covered": branch,
@@ -24,14 +26,14 @@ def write_coverage(path: Path, statement: float, branch: float) -> None:
     path.write_text(json.dumps(payload), encoding="utf-8")
 
 
-def write_policy(path: Path) -> None:
+def write_policy(path: Path, *, file_name: str = "critical.py") -> None:
     payload = {
         "repository": {
             "minimum_statement_percent": 95.0,
             "minimum_branch_percent": 90.0,
         },
         "critical_files": {
-            "critical.py": {
+            file_name: {
                 "minimum_statement_percent": 95.0,
                 "minimum_branch_percent": 90.0,
             }
@@ -45,6 +47,14 @@ def test_current_coverage_can_pass(tmp_path: Path) -> None:
     policy = tmp_path / "policy.json"
     write_coverage(coverage, 96.0, 92.0)
     write_policy(policy)
+    assert check(coverage, policy) == []
+
+
+def test_current_coverage_normalizes_windows_paths(tmp_path: Path) -> None:
+    coverage = tmp_path / "coverage.json"
+    policy = tmp_path / "policy.json"
+    write_coverage(coverage, 96.0, 92.0, file_name=r"package\critical.py")
+    write_policy(policy, file_name="package/critical.py")
     assert check(coverage, policy) == []
 
 
