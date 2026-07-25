@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="620" viewBox="0 0 1440 620" role="img" aria-labelledby="title desc">
+  <title id="title">TsaoSciComputation multiscale scientific computing architecture</title>
+  <desc id="desc">A dark scientific visualization connecting electron, atom, molecule, material and process scales through an evidence-bound orchestration layer.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#07111f"/><stop offset="0.55" stop-color="#0b1730"/><stop offset="1" stop-color="#111936"/></linearGradient>
+    <linearGradient id="line" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#49d7ff"/><stop offset="0.5" stop-color="#8b7bff"/><stop offset="1" stop-color="#ff7ec7"/></linearGradient>
+    <radialGradient id="orb"><stop stop-color="#b9f4ff" stop-opacity="0.9"/><stop offset="1" stop-color="#38bdf8" stop-opacity="0"/></radialGradient>
+    <filter id="glow"><feGaussianBlur stdDeviation="6" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <pattern id="grid" width="44" height="44" patternUnits="userSpaceOnUse"><path d="M44 0H0V44" fill="none" stroke="#8ba3c7" stroke-opacity="0.08"/></pattern>
+  </defs>
+  <rect width="1440" height="620" rx="28" fill="url(#bg)"/>
+  <rect width="1440" height="620" rx="28" fill="url(#grid)"/>
+  <circle cx="170" cy="120" r="150" fill="url(#orb)" opacity="0.35"/>
+  <circle cx="1260" cy="500" r="210" fill="url(#orb)" opacity="0.2"/>
+  <text x="720" y="78" text-anchor="middle" fill="#f6f8ff" font-family="Inter,Segoe UI,sans-serif" font-size="42" font-weight="700">TsaoSciComputation</text>
+  <text x="720" y="116" text-anchor="middle" fill="#a9bbd7" font-family="Inter,Segoe UI,sans-serif" font-size="19">Evidence-bound orchestration from electrons to industrial processes</text>
+  <path d="M145 324 C340 225 480 425 675 314 S1015 218 1295 322" fill="none" stroke="url(#line)" stroke-width="5" stroke-linecap="round" filter="url(#glow)" opacity="0.95"/>
+  <g font-family="Inter,Segoe UI,sans-serif" text-anchor="middle">
+    <g transform="translate(160 322)"><circle r="70" fill="#0d2239" stroke="#49d7ff" stroke-width="2"/><ellipse rx="47" ry="19" fill="none" stroke="#73e8ff" transform="rotate(25)"/><ellipse rx="47" ry="19" fill="none" stroke="#73e8ff" transform="rotate(-25)"/><circle r="8" fill="#e8fbff"/><circle cx="40" cy="18" r="6" fill="#49d7ff"/><text y="105" fill="#eaf6ff" font-size="20" font-weight="700">ELECTRON</text><text y="130" fill="#8fa9c8" font-size="14">DFT · wavefunction · charge</text></g>
+    <g transform="translate(435 294)"><circle r="70" fill="#14213c" stroke="#6ea8ff" stroke-width="2"/><circle cx="-18" cy="-8" r="22" fill="#6ea8ff" opacity="0.9"/><circle cx="20" cy="10" r="25" fill="#b48cff" opacity="0.85"/><circle cx="2" cy="-28" r="17" fill="#d9c6ff" opacity="0.9"/><text y="105" fill="#edf0ff" font-size="20" font-weight="700">ATOM</text><text y="130" fill="#9da9ca" font-size="14">structure · force · spectrum</text></g>
+    <g transform="translate(720 336)"><circle r="82" fill="#191d40" stroke="#9b8cff" stroke-width="2"/><path d="M-50 20L-18-30L22-12L49 31L3 49Z" fill="none" stroke="#c2b8ff" stroke-width="5" stroke-linejoin="round"/><g fill="#f4f1ff"><circle cx="-50" cy="20" r="9"/><circle cx="-18" cy="-30" r="9"/><circle cx="22" cy="-12" r="9"/><circle cx="49" cy="31" r="9"/><circle cx="3" cy="49" r="9"/></g><text y="120" fill="#f1efff" font-size="20" font-weight="700">MOLECULE</text><text y="145" fill="#aaa6d3" font-size="14">MD · reaction · free energy</text></g>
+    <g transform="translate(1010 294)"><circle r="70" fill="#241a3d" stroke="#da7fd9" stroke-width="2"/><g fill="none" stroke="#f0a6e8" stroke-width="3"><path d="M-45-25C-15-55 4-8 30-34S64-10 42 14S4 26-17 52"/><path d="M-48 22C-20-3 2 36 29 9S58 35 43 49"/></g><text y="105" fill="#fff0fb" font-size="20" font-weight="700">MATERIAL</text><text y="130" fill="#c8a2c1" font-size="14">polymer · interface · continuum</text></g>
+    <g transform="translate(1280 322)"><circle r="70" fill="#2b1836" stroke="#ff7ec7" stroke-width="2"/><path d="M-42 35V-8H-20V-35H4V-14H28V-45H46V35Z" fill="none" stroke="#ffacd9" stroke-width="4"/><path d="M-50 35H53" stroke="#ffacd9" stroke-width="4"/><text y="105" fill="#fff0f8" font-size="20" font-weight="700">PROCESS</text><text y="130" fill="#d2a2be" font-size="14">reactor · plant · decision</text></g>
+  </g>
+  <g transform="translate(300 510)"><rect width="840" height="72" rx="18" fill="#0b1428" stroke="#5e78a8" stroke-opacity="0.7"/><text x="420" y="30" text-anchor="middle" fill="#f2f5ff" font-family="Inter,Segoe UI,sans-serif" font-size="18" font-weight="700">CONTRACT → PREFLIGHT → EXECUTION → VALIDATION → UNCERTAINTY → ACCEPTANCE</text><text x="420" y="54" text-anchor="middle" fill="#8fa3c4" font-family="Inter,Segoe UI,sans-serif" font-size="14">Every handoff is provenance-aware, fail-closed and bounded by applicability</text></g>
+</svg>
