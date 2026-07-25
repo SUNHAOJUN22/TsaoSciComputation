@@ -1,0 +1,105 @@
+name: Windows subprocess regression verification
+
+on:
+  issues:
+    types: [edited]
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: windows-process-regression
+  cancel-in-progress: false
+
+jobs:
+  windows:
+    if: >-
+      github.repository == 'SUNHAOJUN22/TsaoSciComputation' &&
+      github.event.issue.number == 22 &&
+      github.event.issue.user.login == 'SUNHAOJUN22' &&
+      contains(github.event.issue.body, '<!-- TSAO_WINDOWS_PROCESS_FIX_V1 -->')
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.10', '3.13']
+    runs-on: windows-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: main
+          persist-credentials: false
+
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+
+      - name: Install verification environment
+        run: python -m pip install -e '.[validation,quality]'
+
+      - name: Build the intended self-cleaned tree
+        run: >-
+          python -c "from pathlib import Path;
+          Path('.github/workflows/windows-process-regression.yml').unlink()"
+      - run: python scripts/build_manifest.py
+
+      - name: Run direct Windows subprocess regressions
+        run: >-
+          python -m pytest
+          tests/test_core.py::test_023_safe_process
+          tests/test_extended.py::test_execution_plan_success_and_failure
+          tests/test_extended.py::test_safe_run_validates_timeout_cwd_and_environment
+          tests/test_extended.py::test_subprocess_environment_is_minimal_on_posix
+          tests/test_extended.py::test_subprocess_environment_preserves_windows_bootstrap_state
+          -q
+
+      - name: Run complete Windows core gate
+        run: python scripts/verify_all.py --profile core
+
+  cleanup:
+    if: ${{ always() }}
+    needs: windows
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      GH_TOKEN: ${{ github.token }}
+      ISSUE_NUMBER: ${{ github.event.issue.number }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+
+      - name: Remove this workflow and synchronize Manifest
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          rm -f .github/workflows/windows-process-regression.yml
+          python scripts/build_manifest.py
+          python scripts/build_manifest.py --check
+          python scripts/validate_repository.py
+          git diff --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Remove completed Windows subprocess regression workflow'
+          git push origin HEAD:refs/heads/main
+
+      - name: Report Windows result
+        shell: bash
+        run: |
+          if test '${{ needs.windows.result }}' = success; then
+            gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body \
+              "Windows subprocess regression verification passed on Python 3.10 and 3.13, including both targeted subprocess tests and the complete core gate. Workflow run: $GITHUB_RUN_ID. The one-shot workflow removed itself; no branch or PR was created."
+          else
+            gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body \
+              "Windows subprocess regression verification failed. Workflow run: $GITHUB_RUN_ID. The one-shot workflow still removed itself; no completion is claimed."
+            exit 1
+          fi
