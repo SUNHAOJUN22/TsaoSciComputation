@@ -4,43 +4,23 @@
 
 **从电子尺度到流程尺度的证据约束型科学计算编排系统。**
 
-[English](README.md) · [根 Skill](SKILL.md) · [能力索引](capability-index/README.md) · [覆盖矩阵](docs/coverage-matrix.md) · [科学验证](docs/scientific-validation.md) · [可信等级](docs/scientific-confidence.md) · [架构](docs/architecture.md) · [发布治理](docs/release.md) · [安全](SECURITY.md)
+[English](README.md) · [根技能](SKILL.md) · [能力索引](capability-index/README.md) · [覆盖矩阵](docs/coverage-matrix.md) · [科学验证](docs/scientific-validation.md) · [可信等级](docs/scientific-confidence.md) · [架构](docs/architecture.md) · [发布治理](docs/release.md) · [依赖维护](docs/dependency-maintenance.md) · [安全](SECURITY.md)
 
 </div>
 
-## 用途
+## 概述
 
-TsaoSciComputation 将科学问题转化为可追溯的计算程序：
+TsaoSciComputation 将科学问题转化为可追溯、缺项拒绝推进的计算程序：
 
 ```text
-科学问题 → 严格计算合同 → 方法/尺度路由 → 环境前检
+科学问题 → 计算合同 → 方法/尺度路由 → 环境前检
          → 有界执行 → 保守解析 → 数值/物理验证
          → 不确定度/适用域 → 证据验收 → 跨尺度交接
 ```
 
 它负责组织和约束科学计算，不打包或冒充外部求解器、许可证、数据库、基组、赝势、私有数据或生产 HPC 环境。
 
-## 已验证基线
-
-| 项目 | 结果 |
-|---|---:|
-| 版本 | 3.0.2 |
-| 能力 / 适配器 / 工作流 | 164 / 27 / 20 |
-| 强制运行时第三方依赖 | 0 |
-| 自动测试 | 553 通过，0 失败 |
-| 语句 / 分支覆盖率 | 97.27% / 93.48% |
-| 受控变异探针 | 64/64 被识别 |
-| 科学参考基准 | 8/8 通过 |
-| 科学可信等级 | C0–C5，缺项拒绝升级 |
-| 仓库安全扫描 | 0 项发现 |
-| 源码包 | ZIP 与 tar.gz 字节级可重复构建 |
-| Wheel | 字节级可重复构建并通过隔离安装 |
-| 供应链证据 | SPDX + CycloneDX SBOM、SHA-256 Manifest、Sigstore 证明 |
-| 远程分支 | 仅 `main` |
-
-权威机器可读证据位于 `reports/FINAL_VERIFICATION.json`、`evidence/quality-baseline.json`、`reports/REMOTE_FINALIZATION.json` 和 `benchmarks/latest.json`。
-
-## 开始使用
+## 快速开始
 
 ```bash
 git clone https://github.com/SUNHAOJUN22/TsaoSciComputation.git
@@ -55,11 +35,27 @@ python -m tsao_computation validate-contract \
 python -m tsao_computation probe
 ```
 
-严格计算合同是总控制点：字段格式错误、前检信息缺失、可执行程序或 Python 模块不可用、路径越界、状态跳级以及验收证据不完整，均按 fail-closed 拒绝继续。
+外部求解器均为可选能力，必须另行合法安装、授权并验证。缺少可执行程序、计算合同格式错误、路径越界、状态跳级或证据不完整时，系统会拒绝继续，而不是静默放行。
 
-## 覆盖范围
+## 已验证基线
 
-仓库包含 164 项差异化能力、20 条带验证门的工作流和 27 个核心适配器。源清单列出的 32 个引擎中，21 个由独立或组合适配器表示，11 个明确保留为非独立适配边界。详见 [`docs/coverage-matrix.md`](docs/coverage-matrix.md)。
+| 项目 | 结果 |
+|---|---:|
+| 版本 | 3.0.2 |
+| 能力 / 适配器 / 工作流 | 164 / 27 / 20 |
+| 强制运行时第三方依赖 | 0 |
+| 自动测试 | 553 通过，0 失败 |
+| 语句 / 分支覆盖率 | 97.27% / 93.48% |
+| 受控变异探针 | 64/64 被识别 |
+| 科学参考基准 | 8/8 通过 |
+| 科学可信等级 | C0–C5，缺项拒绝升级 |
+| 仓库 / 依赖安全发现 | 0 / 0 |
+| 源码包 | ZIP 与 tar.gz 字节级可重复构建 |
+| Wheel | 字节级可重复构建并通过隔离安装 |
+| 供应链证据 | SPDX + CycloneDX SBOM、SHA-256 Manifest、Sigstore 证明 |
+| 远程分支 | 仅 `main` |
+
+权威机器可读证据位于 `reports/FINAL_VERIFICATION.json`、`evidence/quality-baseline.json`、`reports/REMOTE_FINALIZATION.json` 和 `benchmarks/latest.json`。
 
 ## 统一验证
 
@@ -69,21 +65,23 @@ python scripts/verify_all.py --profile all
 python scripts/verify_all.py --profile benchmark
 ```
 
-`all` 是确定性的发布硬门禁，覆盖版本一致性、代码质量、测试与覆盖率、仓库/Schema/资源/Manifest 校验、安全扫描、受控变异探针、源码包与 Wheel 可重复构建、Wheel 隔离安装、SBOM 生成和发布校验和。`benchmark` 受运行环境影响，只作为独立性能观测，不参与发布验收。 独立的只读周度依赖审计记录已知漏洞证据，且不会在上游创建 branch。CI 在 Ubuntu、Windows、macOS 上验证 Python 3.10 与 3.13，所有 GitHub Actions 均固定到不可变提交。
+`all` 运行确定性的发布硬门禁，包括版本一致性、代码质量、测试与覆盖率、仓库/Schema/资源/Manifest 校验、安全扫描、受控变异探针、源码包与 Wheel 可重复构建、隔离安装、SBOM 生成和发布校验和。`benchmark` 受运行环境影响，仅作为独立性能观测，不参与发布验收。
 
-## 正式发布
+CI 在 Ubuntu、Windows、macOS 上验证 Python 3.10 与 3.13。只读的周度依赖审计记录已知漏洞证据，不会在上游创建分支；所有第三方 GitHub Actions 均固定到不可变提交。
 
-正式版本只能由受控 Release 工作流在全部确定性门禁通过后创建。每个不可变 `vX.Y.Z` Release 都包含可重复构建的源码包和 Wheel、SPDX 与 CycloneDX SBOM、`SHA256SUMS`、发布 Manifest、最终验证证据以及 GitHub/Sigstore 证明包。
+## 科学范围与边界
 
-```bash
-sha256sum -c SHA256SUMS
-gh attestation verify TsaoSciComputation-X.Y.Z.zip \
-  --repo SUNHAOJUN22/TsaoSciComputation
+仓库包含 164 项差异化能力、20 条带验证门的工作流和 27 个核心适配器。源清单列出的 32 个引擎中，21 个由独立或组合适配器表示，11 个明确保留为非独立适配边界。详见 [`docs/coverage-matrix.md`](docs/coverage-matrix.md)。
+
+```text
+completed ≠ parsed ≠ converged ≠ validated ≠ accepted
 ```
 
-完整发布和使用者验证流程见 [`docs/release.md`](docs/release.md)。
+适配器只有在全部声明的可执行程序和 Python 模块均通过探测后才可标记为可用。程序正常退出不等于数值收敛，内部基准通过也不代表第三方求解器已经真实运行。缺少收敛、物理检查、不确定度、适用域、溯源、证据或必要人工审批中的任一项，均不得进入科学接受状态。反应器、控制、数字孪生、安全、失控反应和商业决策等高风险结论必须由合格的领域专家审核。
 
-## 安装为 Agent Skill
+## 正式发布与 Skill 安装
+
+正式版本只能由受控 Release 工作流在全部确定性门禁通过后创建。每个不可变 `vX.Y.Z` Release 均包含可重复构建的源码包和 Wheel、SPDX 与 CycloneDX SBOM、`SHA256SUMS`、发布 Manifest、最终验证证据及 GitHub/Sigstore 证明包。
 
 ```bash
 python scripts/install_skill.py --agent codex --scope user --dry-run
@@ -91,18 +89,8 @@ python scripts/install_skill.py --agent codex --scope user
 python scripts/install_skill.py --agent codex --scope user --validate
 ```
 
-只有经过明确审核的替换或卸载覆盖才使用 `--force`。
-
-## 科学可信边界
-
-适配器只有在全部声明的可执行程序和 Python 模块均通过探测后才可标记为可用；正常退出不等于数值收敛。安装副本按完整 SHA-256 Manifest 校验，12 类场景合同均通过严格前检。 另有8项确定性的解析解、守恒与不变量基准必须通过，但这些基准不声称第三方求解器已真实运行。
-
-```text
-completed ≠ parsed ≠ converged ≠ validated ≠ accepted
-```
-
-最终验收始终采用 fail-closed：缺少收敛、物理检查、不确定度、适用域、溯源、证据或必要人工审批中的任一项，均不得进入科学接受状态。反应器、控制、数字孪生、安全、失控反应和商业交接等高风险结论必须由领域专家审核。
+只有经过明确审核的替换或卸载覆盖才使用 `--force`。完整发布和使用者验证流程见 [`docs/release.md`](docs/release.md)。
 
 ## 仓库策略
 
-上游远程仓库只保留 `main`，并以其作为唯一权威开发线。外部贡献使用 fork 内分支，上游仓库不保留功能 branch。历史版本使用不可变标签保存。生成环境和缓存统一排除，真实源码、配置、测试、证据与发布元数据保持可审计。
+上游远程仓库仅保留 `main`，并以其作为唯一权威开发线。外部贡献使用 fork 内分支，上游仓库不保留功能分支。历史版本使用不可变标签保存。生成环境和缓存统一排除，源码、配置、测试、证据与发布元数据保持可审计。
