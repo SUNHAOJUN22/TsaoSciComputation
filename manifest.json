@@ -36,6 +36,11 @@
       "sha256": "3df770971d50d2df680f50b254caebfb9c4088fa9b3c5813fe869640bafc22d1"
     },
     {
+      "bytes": 8474,
+      "path": ".github/workflows/canonicalize-generated-text.yml",
+      "sha256": "a7e4dee32ec11fa609efa0e34e9a41a50e67bba549cdd3fdbd5395f05addbcc5"
+    },
+    {
       "bytes": 2528,
       "path": ".github/workflows/ci.yml",
       "sha256": "0ace1dacfe9e2058d47f3e7ca21b0a7edc8d5b853e1c9a93c65d7dda55ff4a79"
