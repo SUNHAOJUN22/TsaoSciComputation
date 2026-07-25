@@ -5,7 +5,7 @@ on:
     types: [edited]
 
 permissions:
-  actions: read
+  actions: write
   contents: write
   issues: write
 
@@ -247,16 +247,18 @@ jobs:
           git push origin HEAD:refs/heads/main
           git rev-parse HEAD > /tmp/final-sha
 
-      - name: Wait for the canonical cross-platform CI matrix
+      - name: Dispatch and wait for the canonical cross-platform CI matrix
         shell: bash
         run: |
           set -Eeuo pipefail
           echo ci-matrix > /tmp/tsao-second-pass-stage
           FINAL_SHA="$(cat /tmp/final-sha)"
+          gh workflow run ci.yml --repo "$GITHUB_REPOSITORY" --ref main
           CI_RUN_ID=''
           for _ in $(seq 1 180); do
             CI_RUN_ID="$(gh run list --repo "$GITHUB_REPOSITORY" --workflow ci.yml \
-              --commit "$FINAL_SHA" --limit 1 --json databaseId --jq '.[0].databaseId // empty')"
+              --event workflow_dispatch --commit "$FINAL_SHA" --limit 1 \
+              --json databaseId --jq '.[0].databaseId // empty')"
             if test -n "$CI_RUN_ID"; then
               STATUS="$(gh run view "$CI_RUN_ID" --repo "$GITHUB_REPOSITORY" \
                 --json status --jq '.status')"
@@ -282,7 +284,7 @@ jobs:
           CI_RUN_ID="$(cat /tmp/ci-run-id)"
           SUMMARY="$(tail -n 1 /tmp/final-pytest.log | tr -d '\r')"
           gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body \
-            "Second-pass main-only finalization passed. Deterministic release gates were executed twice around the generated current-main evidence; benchmark telemetry, final pytest, dependency audit, repository and security audits, reproducible source and Wheel builds, isolated installation, 12-asset visual integrity, single-main verification and the canonical Python 3.10/3.13 Ubuntu/Windows/macOS CI matrix all succeeded. Final pytest: $SUMMARY. Final commit: $FINAL_SHA. Finalization run: $GITHUB_RUN_ID. Canonical CI run: $CI_RUN_ID. The one-shot workflow removed itself; no branch or PR was created."
+            "Second-pass main-only finalization passed. Deterministic release gates were executed twice around the generated current-main evidence; benchmark telemetry, final pytest, dependency audit, repository and security audits, reproducible source and Wheel builds, isolated installation, 12-asset visual integrity, single-main verification and the explicitly dispatched canonical Python 3.10/3.13 Ubuntu/Windows/macOS CI matrix all succeeded. Final pytest: $SUMMARY. Final commit: $FINAL_SHA. Finalization run: $GITHUB_RUN_ID. Canonical CI run: $CI_RUN_ID. The one-shot workflow removed itself; no branch or PR was created."
           gh issue close "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --reason completed
 
       - name: Report failure
