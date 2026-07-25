@@ -39,7 +39,7 @@ def _subprocess_environment(
 
     source = os.environ if parent is None else parent
     platform = os.name if platform_name is None else platform_name
-    allowed = _PORTABLE_ENVIRONMENT_KEYS
+    allowed: tuple[str, ...] = _PORTABLE_ENVIRONMENT_KEYS
     if platform == "nt":
         allowed += _WINDOWS_ENVIRONMENT_KEYS
         source_by_name = {str(key).casefold(): str(value) for key, value in source.items()}
