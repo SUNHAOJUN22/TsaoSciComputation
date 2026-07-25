@@ -36,11 +36,6 @@
       "sha256": "3df770971d50d2df680f50b254caebfb9c4088fa9b3c5813fe869640bafc22d1"
     },
     {
-      "bytes": 8474,
-      "path": ".github/workflows/canonicalize-generated-text.yml",
-      "sha256": "a7e4dee32ec11fa609efa0e34e9a41a50e67bba549cdd3fdbd5395f05addbcc5"
-    },
-    {
       "bytes": 2528,
       "path": ".github/workflows/ci.yml",
       "sha256": "0ace1dacfe9e2058d47f3e7ca21b0a7edc8d5b853e1c9a93c65d7dda55ff4a79"
@@ -1586,9 +1581,9 @@
       "sha256": "4b1ea5595c760a27cc64a959eee5de1ae0574967d01a86e740ab0d56cf2412b3"
     },
     {
-      "bytes": 2135,
+      "bytes": 1118,
       "path": "reports/CANONICALIZATION_FAILURE_DIAGNOSIS.txt",
-      "sha256": "093f55d7adb62ee69ec8c064e5f79022c608275d6f13ee6186e19f133611f334"
+      "sha256": "0ee2da958e2ca4b28ad93bd06468c57bef1816f54662ce2b52165b9266dfd42d"
     },
     {
       "bytes": 1101,
@@ -1954,6 +1949,11 @@
       "bytes": 440,
       "path": "tests/test_adapters.py",
       "sha256": "ce72f0911aef8eb2ccfb6b7fbb5103dbba461cbcf9d2085654106817831f4816"
+    },
+    {
+      "bytes": 1025,
+      "path": "tests/test_canonical_text_writes.py",
+      "sha256": "bbe98b5b78342ce8bf67a3ad08b210ecd436c63ef1b46192bc8436e5cf6f2aed"
     },
     {
       "bytes": 837,
