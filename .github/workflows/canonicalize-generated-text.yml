@@ -77,7 +77,11 @@ jobs:
                       previous -= 1
                   if previous < 0:
                       raise RuntimeError(f'empty write_text call: {path}:{node.lineno}')
-                  payload = b' newline="\\n"' if source[previous:previous + 1] == b',' else b', newline="\\n"'
+                  payload = (
+                      b' newline="\\n"'
+                      if source[previous:previous + 1] == b','
+                      else b', newline="\\n"'
+                  )
                   insertions.append((previous + 1, payload))
               if not insertions:
                   continue
@@ -113,8 +117,12 @@ jobs:
                           (keyword.value for keyword in node.keywords if keyword.arg == "newline"),
                           None,
                       )
-                      assert isinstance(newline, ast.Constant), f"missing newline policy: {path}:{node.lineno}"
-                      assert newline.value == "\n", f"non-LF write policy: {path}:{node.lineno}"
+                      assert isinstance(newline, ast.Constant), (
+                          f"missing newline policy: {path}:{node.lineno}"
+                      )
+                      assert newline.value == "\n", (
+                          f"non-LF write policy: {path}:{node.lineno}"
+                      )
               assert calls >= 20
           PY
           python -m ruff check --fix scripts tsao_computation tests/test_canonical_text_writes.py
@@ -135,6 +143,39 @@ jobs:
           python -m pytest -q | tee /tmp/canonical-pytest.log
           python scripts/build_manifest.py --check
           git diff --check
+
+      - name: Materialize a real failure without committing transformed source
+        if: ${{ failure() }}
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          if test -s /tmp/canonical-all.log; then
+            tail -n 180 /tmp/canonical-all.log | tr -d '\r' | tail -c 30000 \
+              > /tmp/canonical-diagnosis.txt
+          else
+            {
+              echo 'Canonicalization preparation failed before deterministic-all logging.'
+              git status --short
+            } > /tmp/canonical-diagnosis.txt
+          fi
+          git reset --hard HEAD
+          rm -f .github/workflows/canonicalize-generated-text.yml
+          rm -f .github/workflows/materialize-exact-canonical-job.yml
+          rm -f .github/workflows/materialize-real-canonical-failure.yml
+          {
+            echo "canonicalization_run_id=$GITHUB_RUN_ID"
+            echo
+            cat /tmp/canonical-diagnosis.txt
+          } > reports/CANONICALIZATION_FAILURE_DIAGNOSIS.txt
+          python scripts/build_manifest.py
+          python scripts/build_manifest.py --check
+          python scripts/validate_repository.py
+          git diff --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Materialize deterministic canonicalization failure'
+          git push origin HEAD:refs/heads/main
 
       - name: Commit canonical generated text policy
         id: commit
@@ -173,7 +214,7 @@ jobs:
       - run: python scripts/build_manifest.py --check
 
   report:
-    if: ${{ always() }}
+    if: ${{ always() && needs.prepare.result != 'skipped' }}
     needs: [prepare, windows]
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -189,6 +230,6 @@ jobs:
               "Canonical generated-text regression passed. Every production Path.write_text call now pins LF; an AST governance test prevents future regressions. Complete deterministic gates, benchmark and pytest passed on the prepared tree. The same Ubuntu-generated Manifest remained unchanged before and after the complete Windows core profile on Python 3.10 and 3.13. Prepared commit: ${{ needs.prepare.outputs.final_sha }}. Workflow run: $GITHUB_RUN_ID. The one-shot workflow removed itself; no branch or PR was created."
           else
             gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body \
-              "Canonical generated-text regression failed. Prepare: ${{ needs.prepare.result }}; Windows: ${{ needs.windows.result }}. Workflow run: $GITHUB_RUN_ID. No completion is claimed."
+              "Canonical generated-text regression failed. Prepare: ${{ needs.prepare.result }}; Windows: ${{ needs.windows.result }}. Workflow run: $GITHUB_RUN_ID. The transformed source was discarded; a diagnosis report was committed instead. No completion is claimed."
             exit 1
           fi
