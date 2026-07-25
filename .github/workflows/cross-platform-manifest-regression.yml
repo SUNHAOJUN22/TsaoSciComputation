@@ -1,0 +1,112 @@
+name: Cross-platform Manifest regression
+
+on:
+  issues:
+    types: [edited]
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: cross-platform-manifest-regression
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    if: >-
+      github.repository == 'SUNHAOJUN22/TsaoSciComputation' &&
+      github.event.issue.number == 22 &&
+      github.event.issue.user.login == 'SUNHAOJUN22' &&
+      contains(github.event.issue.body, '<!-- TSAO_CROSS_PLATFORM_MANIFEST_V1 -->')
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      GH_TOKEN: ${{ github.token }}
+    outputs:
+      final_sha: ${{ steps.commit.outputs.final_sha }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+          cache: pip
+
+      - run: python -m pip install -e '.[validation,quality]'
+
+      - name: Remove workflow and generate the canonical Manifest once
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          rm -f .github/workflows/cross-platform-manifest-regression.yml
+          python scripts/build_manifest.py
+          python scripts/sync_version_metadata.py --check
+          python scripts/validate_repository.py
+          python scripts/build_manifest.py --check
+          python -m pytest tests/test_release_governance.py tests/test_readme_visuals.py -q
+          git diff --check
+
+      - name: Commit canonical LF tree
+        id: commit
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Finalize cross-platform deterministic Manifest policy'
+          git push origin HEAD:refs/heads/main
+          echo "final_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+  windows:
+    needs: prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.10', '3.13']
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: ${{ needs.prepare.outputs.final_sha }}
+          persist-credentials: false
+
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+
+      - run: python -m pip install -e '.[validation,quality]'
+
+      - name: Verify canonical Manifest before any generated command
+        run: python scripts/build_manifest.py --check
+
+      - name: Run complete Windows core without rebuilding Manifest
+        run: python scripts/verify_all.py --profile core
+
+  report:
+    if: ${{ always() }}
+    needs: [prepare, windows]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+      ISSUE_NUMBER: ${{ github.event.issue.number }}
+    steps:
+      - name: Report result
+        shell: bash
+        run: |
+          if test '${{ needs.prepare.result }}' = success && test '${{ needs.windows.result }}' = success; then
+            gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body \
+              "Cross-platform Manifest regression passed. A single Ubuntu-generated Manifest was committed, then verified unchanged on clean Windows checkouts before and after the complete core profile for Python 3.10 and 3.13. The LF/binary policy is effective. Final prepared commit: ${{ needs.prepare.outputs.final_sha }}. Workflow run: $GITHUB_RUN_ID. The one-shot workflow removed itself; no branch or PR was created."
+          else
+            gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body \
+              "Cross-platform Manifest regression failed. Prepare result: ${{ needs.prepare.result }}; Windows result: ${{ needs.windows.result }}. Workflow run: $GITHUB_RUN_ID. The workflow removed itself during prepare when possible; no completion is claimed."
+            exit 1
+          fi
