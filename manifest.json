@@ -1,6 +1,11 @@
 {
   "files": [
     {
+      "bytes": 356,
+      "path": ".gitattributes",
+      "sha256": "b2f26f95023598ab18a03ce9120e2d535bb0d4623801583e4831fe5b05da1706"
+    },
+    {
       "bytes": 510,
       "path": ".github/CODEOWNERS",
       "sha256": "b80d6b4c5eb98143577504a4da428f036f85aa7b2420238761abbd91077351a6"
@@ -2011,9 +2016,9 @@
       "sha256": "ae6057451ad2b8f347a9e0128b0030c16e8a0df3214c8ba43c47a34645a8de57"
     },
     {
-      "bytes": 1844,
+      "bytes": 2189,
       "path": "tests/test_release_governance.py",
-      "sha256": "04bef7c4980f2e778316194fdaa1bb371ff5eb96d8e64a8a2dcf4f0595c92d1e"
+      "sha256": "cc432af122138ca512803b44a282f133d84a8a0c2c269824c564bc0108d30d55"
     },
     {
       "bytes": 1315,
