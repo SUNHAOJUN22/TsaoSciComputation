@@ -51,6 +51,11 @@
       "sha256": "15d510e1f5228c7de316c385f6ae91044ce9fa30cbced49a30a85f6a21e9a1bb"
     },
     {
+      "bytes": 16082,
+      "path": ".github/workflows/main-audit.yml",
+      "sha256": "17aed5c9c05631a341cc54d3abc5362eb9a462d50dccfeb1b055d63f00776b70"
+    },
+    {
       "bytes": 5027,
       "path": ".github/workflows/release.yml",
       "sha256": "32761bc3509a1f5e0837e3d66501891632ebbd978a4351a886163b2f98f744d0"
@@ -71,9 +76,9 @@
       "sha256": "f417b371a3e3868b0449e82ca36d4b25c7926eda0bbeea829170ea0d5295138d"
     },
     {
-      "bytes": 5142,
+      "bytes": 5463,
       "path": "CHANGELOG.md",
-      "sha256": "702714c41f76aa5cf801785f6486485ba4e6e75d0808561496a3f91cb1777b72"
+      "sha256": "bf713da0fa1ab65200434f60c3133671a8b046227486e6544bdfe0cf7c663d62"
     },
     {
       "bytes": 307,
@@ -101,14 +106,14 @@
       "sha256": "62d6fdd9d587504092fe8417670b55895ea4db4fc845790f6270e8f50612b6e2"
     },
     {
-      "bytes": 13834,
+      "bytes": 15948,
       "path": "README.md",
-      "sha256": "345f3a6bcba2b6a30eeb91181ec4f00bce05014fb77276ac521290598e0bdb05"
+      "sha256": "d1cc203be2b7ba65c7e594f684714a20de02795bfd21e91aef349f0cf6dd920c"
     },
     {
-      "bytes": 12842,
+      "bytes": 14703,
       "path": "README.zh-CN.md",
-      "sha256": "a679a925db88560499061db88f4b8f7194bca0b0400f2245e38a3a9e6668e0ad"
+      "sha256": "dc755e0ad339827351892fd26a7bfa1e93fccb7eff7bab708e3422d94c0154a7"
     },
     {
       "bytes": 3578,
@@ -411,9 +416,9 @@
       "sha256": "f3e18e1a303411566df5f3ff5c451863c5de064f812bc2bd8dfde5feed700977"
     },
     {
-      "bytes": 2310,
+      "bytes": 2887,
       "path": "assets/visuals/README.md",
-      "sha256": "b4cdca2b5396147d9524a306f41bd066c046b47f7198bfc579114e519cbc816f"
+      "sha256": "09c02ac610b7a574ebcb05a3648f4eef95b88710949c86c5e20fafd9e54c7e8a"
     },
     {
       "bytes": 4455,
@@ -436,9 +441,19 @@
       "sha256": "d0f0d5f032040b153267bc045380c5f0a65f1ffc41141be43025a50165251b84"
     },
     {
+      "bytes": 4291,
+      "path": "assets/visuals/data-model-governance.svg",
+      "sha256": "42cbda9fda5e4a8cf784bd2e81a8e23d5737dd641147090f28bf4e13e6274782"
+    },
+    {
       "bytes": 4486,
       "path": "assets/visuals/digital-thread.svg",
       "sha256": "c3e2538f6a5f898d644e3b99437d684a01ae53b30c7c55826ec86293fc830928"
+    },
+    {
+      "bytes": 4322,
+      "path": "assets/visuals/electrochemical-interface.svg",
+      "sha256": "9c4be7de98ff6d5b90b2e00e45521ebfdee30f660367cfb9629248a2e48027a8"
     },
     {
       "bytes": 4340,
@@ -471,6 +486,11 @@
       "sha256": "ef6d90f44d31081410bea1e21bde4217136ea8f30816e96c22b4881349014c39"
     },
     {
+      "bytes": 3903,
+      "path": "assets/visuals/inverse-design-loop.svg",
+      "sha256": "da542ba6b62285dc482e0a75cb37222db360e5530e0f4cef3cd91173c8ea0142"
+    },
+    {
       "bytes": 6021,
       "path": "assets/visuals/mesoscale-phase-field.svg",
       "sha256": "3eb423395c85cc14ed9a284c84979f71a0bfd8757a9e5a0bf12ffe89e77a255c"
@@ -499,6 +519,21 @@
       "bytes": 6085,
       "path": "assets/visuals/reaction-kinetics-network.svg",
       "sha256": "8a685589c24e16e69a7414a3e244a88c60d96e81b623c64d9504483690cddb6f"
+    },
+    {
+      "bytes": 3987,
+      "path": "assets/visuals/reactor-safety-control.svg",
+      "sha256": "7dd14057476b25c059191dcc0e43474f3688ba13c23226ae5cf645a1056da62a"
+    },
+    {
+      "bytes": 3851,
+      "path": "assets/visuals/spectroscopy-observables.svg",
+      "sha256": "5198591a57ec3ab41af2323adcdb041fd5893cb2f0c515fcec916d8b53e7a57e"
+    },
+    {
+      "bytes": 3425,
+      "path": "assets/visuals/transport-degradation.svg",
+      "sha256": "2716ebdcd07f3b513114d646856a45e3c5b745c3067f4dd972ecdf8c80a452c7"
     },
     {
       "bytes": 5752,
@@ -2056,9 +2091,9 @@
       "sha256": "f46c1d35f8e9611e6c3d29de68819198d33e31913d4b58a2bf44c52ab00e4ded"
     },
     {
-      "bytes": 2594,
+      "bytes": 2798,
       "path": "tests/test_readme_visuals.py",
-      "sha256": "1b015daf8b55e2b4e9e618eaecc671e80a5be261fe7de9b189709eecd284f712"
+      "sha256": "7bd010ff21186f9bd1fe21d39433613c4b98c0f05bb98ba2106bc41fce26dd98"
     },
     {
       "bytes": 2268,
