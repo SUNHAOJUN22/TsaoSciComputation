@@ -6,18 +6,41 @@ on:
       issue:
         description: Audit tracking issue number
         required: false
-        default: '24'
+        default: '25'
+      audit_generation:
+        description: Machine-readable audit generation
+        required: false
+        default: 'ultimate-main-audit-v5'
+      audit_label:
+        description: Human-readable audit label
+        required: false
+        default: 'V5'
+      visual_count:
+        description: Expected scientific SVG count
+        required: false
+        default: '30'
+      visual_atlas_version:
+        description: Visual atlas schema version
+        required: false
+        default: '5'
+      report_path:
+        description: Repository-relative audit report path
+        required: false
+        default: 'reports/ULTIMATE_MAIN_AUDIT_V5.md'
   push:
     branches: [main]
     paths:
       - '.github/workflows/main-audit.yml'
       - 'scripts/update_main_audit_evidence.py'
+      - 'scripts/sync_readme_visual_atlas.py'
       - 'tests/test_update_main_audit_evidence.py'
+      - 'tests/test_sync_readme_visual_atlas.py'
       - 'assets/visuals/**'
       - 'README.md'
       - 'README.zh-CN.md'
       - 'CHANGELOG.md'
       - 'tests/test_readme_visuals.py'
+      - '.v5-audit-trigger'
 
 permissions:
   actions: write
@@ -30,11 +53,21 @@ concurrency:
 
 jobs:
   audit:
+    if: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[run-v5-audit]') }}
     runs-on: ubuntu-latest
     timeout-minutes: 240
     env:
       GH_TOKEN: ${{ github.token }}
-      ISSUE_NUMBER: ${{ inputs.issue || '24' }}
+      ISSUE_NUMBER: ${{ inputs.issue || '25' }}
+      AUDIT_GENERATION: ${{ inputs.audit_generation || 'ultimate-main-audit-v5' }}
+      AUDIT_LABEL: ${{ inputs.audit_label || 'V5' }}
+      VISUAL_COUNT: ${{ inputs.visual_count || '30' }}
+      VISUAL_ATLAS_VERSION: ${{ inputs.visual_atlas_version || '5' }}
+      REPORT_PATH: ${{ inputs.report_path || 'reports/ULTIMATE_MAIN_AUDIT_V5.md' }}
+      VISUAL_FAMILIES: >-
+        Periodic materials and phonons; catalysis and microkinetics;
+        polymerization moments and population balances; extrusion rheology;
+        digital-twin drift; FEM verification and convergence.
       TSAO_COVERAGE_JSON: /tmp/tsao-main-audit-coverage.json
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
@@ -51,17 +84,41 @@ jobs:
       - name: Install complete verification environment
         run: python -m pip install -e '.[validation,quality,security]'
 
-      - name: Synchronize the byte-level repository Manifest
+      - name: Normalize V5 Python sources with the repository formatter
         shell: bash
         run: |
           set -Eeuo pipefail
+          python -m ruff check --fix \
+            scripts/sync_readme_visual_atlas.py \
+            scripts/update_main_audit_evidence.py \
+            tests/test_sync_readme_visual_atlas.py \
+            tests/test_update_main_audit_evidence.py \
+            tests/test_readme_visuals.py
+          python -m ruff format \
+            scripts/sync_readme_visual_atlas.py \
+            scripts/update_main_audit_evidence.py \
+            tests/test_sync_readme_visual_atlas.py \
+            tests/test_update_main_audit_evidence.py \
+            tests/test_readme_visuals.py
+
+      - name: Synchronize the scientific atlas and byte-level Manifest
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          rm -f \
+            .v5-planning-marker .issue25-marker .v5-issue-placeholder \
+            .stop .really-stop .oops .last-oops .this-is-ridiculous \
+            .v5-audit-trigger
+          python scripts/sync_readme_visual_atlas.py
+          python scripts/sync_readme_visual_atlas.py --check
           python scripts/build_manifest.py
           python scripts/build_manifest.py --check
-          if ! git diff --quiet -- manifest.json; then
+          git diff --check
+          if ! git diff --quiet; then
             git config user.name 'github-actions[bot]'
             git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-            git add manifest.json
-            git commit -m 'Synchronize repository Manifest for main audit'
+            git add README.md README.zh-CN.md CHANGELOG.md assets/visuals manifest.json
+            git commit -m "Synchronize ${AUDIT_LABEL} scientific atlas and Manifest"
             git push origin HEAD:refs/heads/main
           fi
 
@@ -90,33 +147,41 @@ jobs:
           import json
           from pathlib import Path
 
-          dependency = json.loads(Path('/tmp/main-audit-dependency.json').read_text(encoding='utf-8'))
+          dependency = json.loads(
+              Path("/tmp/main-audit-dependency.json").read_text(encoding="utf-8")
+          )
           if isinstance(dependency, list):
               vulnerabilities = sum(
-                  len(item.get('vulns', []))
+                  len(item.get("vulns", []))
                   for item in dependency
                   if isinstance(item, dict)
               )
           else:
               vulnerabilities = sum(
-                  len(item.get('vulns', []))
-                  for item in dependency.get('dependencies', [])
+                  len(item.get("vulns", []))
+                  for item in dependency.get("dependencies", [])
                   if isinstance(item, dict)
               )
           if vulnerabilities:
-              raise SystemExit(f'dependency vulnerabilities found: {vulnerabilities}')
+              raise SystemExit(f"dependency vulnerabilities found: {vulnerabilities}")
 
-          security = json.loads(Path('/tmp/main-audit-security.json').read_text(encoding='utf-8'))
-          if security.get('findings', []):
-              raise SystemExit(f"repository security findings: {security['findings']}")
+          security = json.loads(
+              Path("/tmp/main-audit-security.json").read_text(encoding="utf-8")
+          )
+          if security.get("findings", []):
+              raise SystemExit(
+                  f"repository security findings: {security['findings']}"
+              )
 
           heads = [
               line.split()[1]
-              for line in Path('/tmp/main-audit-remote-heads.txt').read_text(encoding='utf-8').splitlines()
+              for line in Path("/tmp/main-audit-remote-heads.txt")
+              .read_text(encoding="utf-8")
+              .splitlines()
               if line.strip()
           ]
-          if heads != ['refs/heads/main']:
-              raise SystemExit(f'remote branch policy violated: {heads}')
+          if heads != ["refs/heads/main"]:
+              raise SystemExit(f"remote branch policy violated: {heads}")
           PY
 
       - name: Refresh current-main evidence and bilingual verification blocks
@@ -131,7 +196,13 @@ jobs:
             --dependency-json /tmp/main-audit-dependency.json \
             --security-json /tmp/main-audit-security.json \
             --remote-heads /tmp/main-audit-remote-heads.txt \
-            --parent-commit "$(git rev-parse HEAD)"
+            --parent-commit "$(git rev-parse HEAD)" \
+            --audit-generation "$AUDIT_GENERATION" \
+            --audit-label "$AUDIT_LABEL" \
+            --visual-count "$VISUAL_COUNT" \
+            --visual-atlas-version "$VISUAL_ATLAS_VERSION" \
+            --report-path "$REPORT_PATH" \
+            --visual-families "$VISUAL_FAMILIES"
           python scripts/build_manifest.py
           python scripts/build_manifest.py --check
           git diff --check
@@ -142,6 +213,7 @@ jobs:
           set -Eeuo pipefail
           python scripts/verify_all.py --profile all | tee /tmp/main-audit-all-2.log
           python -m pytest -q | tee /tmp/main-audit-pytest-2.log
+          python scripts/sync_readme_visual_atlas.py --check
           python scripts/build_manifest.py
           python scripts/build_manifest.py --check
           python scripts/validate_repository.py
@@ -156,7 +228,7 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -A
           if ! git diff --cached --quiet; then
-            git commit -m 'Finalize ultimate main audit V4 evidence'
+            git commit -m "Finalize ultimate main audit ${AUDIT_LABEL} evidence"
             git push origin HEAD:refs/heads/main
           fi
           if test -n "$(git status --porcelain)"; then
@@ -182,7 +254,7 @@ jobs:
           )"
           echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
           gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body \
-            "Canonical CI dispatched for V4 final commit \`$final_sha\`. Run ID: \`$run_id\`."
+            "Canonical CI dispatched for ${AUDIT_LABEL} final commit \`$final_sha\`. Run ID: \`$run_id\`."
           gh run watch "$run_id" --repo "$GITHUB_REPOSITORY" --exit-status
 
       - name: Report success and close audit issue
@@ -192,7 +264,7 @@ jobs:
           final_sha='${{ steps.final_commit.outputs.final_sha }}'
           run_id='${{ steps.canonical_ci.outputs.run_id }}'
           gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body \
-            "Ultimate main audit V4 passed. Final commit: \`$final_sha\`. Canonical CI Run ID: \`$run_id\`. All Ubuntu/Windows/macOS × Python 3.10/3.13 core jobs plus quality, package and benchmark succeeded. The repository has 24 self-contained scientific SVGs, no new branch or PR, and only remote branch \`main\`."
+            "Ultimate main audit ${AUDIT_LABEL} passed. Final commit: \`$final_sha\`. Canonical CI Run ID: \`$run_id\`. All Ubuntu/Windows/macOS × Python 3.10/3.13 core jobs plus quality, package and benchmark succeeded. The repository has ${VISUAL_COUNT} self-contained scientific SVGs, no new branch or PR, and only remote branch \`main\`."
           gh issue close "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --reason completed
 
       - name: Report failure
@@ -200,4 +272,4 @@ jobs:
         shell: bash
         run: |
           gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body \
-            "Ultimate main audit V4 failed in workflow run \`$GITHUB_RUN_ID\`. No completion is claimed; inspect the failing step before retrying."
+            "Ultimate main audit ${AUDIT_LABEL} failed in workflow run \`$GITHUB_RUN_ID\`. No completion is claimed; inspect the failing step before retrying."
