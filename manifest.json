@@ -51,6 +51,11 @@
       "sha256": "15d510e1f5228c7de316c385f6ae91044ce9fa30cbced49a30a85f6a21e9a1bb"
     },
     {
+      "bytes": 1938,
+      "path": ".github/workflows/format-main-audit-v4.yml",
+      "sha256": "849c0ef103dd63bf43e53d2268e322622af91cc4c8c1b93a3b28a90c2396b88c"
+    },
+    {
       "bytes": 8026,
       "path": ".github/workflows/main-audit.yml",
       "sha256": "2f8ffe953b1629bdabad866534a1d4bb1726d59162aad03ccc60175d588c162b"
@@ -1871,9 +1876,9 @@
       "sha256": "c9f78b23c520b894602f832e7c922a759af8b1b24004f54d501aa099b89acf3c"
     },
     {
-      "bytes": 10340,
+      "bytes": 10345,
       "path": "scripts/update_main_audit_evidence.py",
-      "sha256": "c56e3c9ae51f6db93aa64fbbed22209919dfde13f9f9aab14ad927883fb7e541"
+      "sha256": "408837add193ef9139afce365aaa0ece6a655ecca4411980946e2adf0a43ba83"
     },
     {
       "bytes": 4436,
@@ -2143,7 +2148,7 @@
     {
       "bytes": 2559,
       "path": "tests/test_update_main_audit_evidence.py",
-      "sha256": "5adb6896340a41e2eba4d7daa610668234dfd0f8f81f5d1e63813b365939763c"
+      "sha256": "b053d315a417dd918f12aca594695d08230905c6bd0782ede64144dda9f151ca"
     },
     {
       "bytes": 2645,

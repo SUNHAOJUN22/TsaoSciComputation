@@ -5,9 +5,10 @@ import json
 import re
 import subprocess
 import textwrap
+from collections.abc import Sequence
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Sequence, cast
+from typing import Any, cast
 
 
 def _read_json(path: Path) -> Any:
@@ -28,9 +29,7 @@ def _vulnerability_count(payload: Any) -> int:
         dependencies = payload.get("dependencies", [])
         if isinstance(dependencies, list):
             return sum(
-                len(item.get("vulns", []))
-                for item in dependencies
-                if isinstance(item, dict)
+                len(item.get("vulns", [])) for item in dependencies if isinstance(item, dict)
             )
     raise ValueError("unsupported pip-audit JSON shape")
 
@@ -131,7 +130,7 @@ def update_evidence(
 
         | Current-main item | Result |
         |---|---:|
-        | Version | {evidence['version']} |
+        | Version | {evidence["version"]} |
         | Capabilities / adapters / workflows | 164 / 27 / 20 |
         | Tests | {passed} passed, 0 failed |
         | Statement / branch coverage | {statement:.2f}% / {branch:.2f}% |
@@ -155,7 +154,7 @@ def update_evidence(
 
         | 当前主线项目 | 结果 |
         |---|---:|
-        | 版本 | {evidence['version']} |
+        | 版本 | {evidence["version"]} |
         | 能力 / 适配器 / 工作流 | 164 / 27 / 20 |
         | 自动测试 | {passed} 通过，0 失败 |
         | 语句 / 分支覆盖率 | {statement:.2f}% / {branch:.2f}% |
@@ -182,7 +181,7 @@ def update_evidence(
         - Repository: `SUNHAOJUN22/TsaoSciComputation`
         - Issue: `#{issue_number}`
         - Branch policy: `main` only; no branch or pull request created
-        - Version: `{evidence['version']}`
+        - Version: `{evidence["version"]}`
         - Deterministic finalization run: `{run_id}`
         - Tests: `{passed} passed, 0 failed`
         - Coverage: `{statement:.2f}%` statement / `{branch:.2f}%` branch
@@ -232,9 +231,10 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: Sequence[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     root = args.root.resolve()
-    parent_commit = args.parent_commit or subprocess.check_output(
-        ["git", "rev-parse", "HEAD"], cwd=root, text=True
-    ).strip()
+    parent_commit = (
+        args.parent_commit
+        or subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip()
+    )
     verified_at = args.verified_at or datetime.now(timezone.utc).isoformat()
     update_evidence(
         root=root,

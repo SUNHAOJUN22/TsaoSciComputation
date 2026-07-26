@@ -71,6 +71,6 @@ def test_update_evidence_synchronizes_bilingual_main_records(tmp_path: Path) -> 
     assert evidence["audit_generation"] == "ultimate-main-audit-v4"
     assert "560 passed, 0 failed" in (root / "README.md").read_text(encoding="utf-8")
     assert "560 通过，0 失败" in (root / "README.zh-CN.md").read_text(encoding="utf-8")
-    assert "Scientific visuals: `24`" in (
-        root / "reports" / "ULTIMATE_MAIN_AUDIT_V4.md"
-    ).read_text(encoding="utf-8")
+    assert "Scientific visuals: `24`" in (root / "reports" / "ULTIMATE_MAIN_AUDIT_V4.md").read_text(
+        encoding="utf-8"
+    )
