@@ -18,6 +18,11 @@ LOWER_IS_BETTER = (
 HIGHER_IS_BETTER = ("parser_5mib_throughput_mib_s",)
 CORE_HOT_PATHS = {"route_decision_median_ms", "parser_5mib_throughput_mib_s"}
 ENGLISH_MARKERS = ("<!-- PERFORMANCE_V8:START -->", "<!-- PERFORMANCE_V8:END -->")
+CHANGELOG_BULLET = (
+    "- Added measured V8 performance engineering for registry loading, adapter lookup, "
+    "routing, solver-output parsing, deterministic repository traversal and repository "
+    "security scanning."
+)
 
 
 def _read(path: Path) -> dict[str, Any]:
@@ -78,7 +83,10 @@ def compare_performance(
             "maximum_hot_path_regression": "10%",
             "hard_gate_metrics": sorted(CORE_HOT_PATHS),
             "telemetry_only_metrics": sorted(set(speedups) - CORE_HOT_PATHS),
-            "requirement": "At least one measured parser or routing hot path improves by 10% or more, and neither may regress by more than 10%.",
+            "requirement": (
+                "At least one measured parser or routing hot path improves by 10% or more, "
+                "and neither may regress by more than 10%."
+            ),
         },
         "applied_optimizations": [
             "Unbounded single-purpose registry caching with bytes-based JSON decoding.",
@@ -102,9 +110,15 @@ def _replace_or_insert(text: str, block: str, heading: str) -> str:
     return text.replace(heading, block + "\n\n" + heading, 1)
 
 
+def _performance_values(report: dict[str, Any]) -> tuple[dict[str, float], dict[str, Any]]:
+    return (
+        cast(dict[str, float], report["speedups"]),
+        cast(dict[str, Any], report["candidate"]),
+    )
+
+
 def update_readmes(root: Path, report: dict[str, Any], *, issue: int, run_id: int) -> None:
-    speedups = cast(dict[str, float], report["speedups"])
-    candidate = cast(dict[str, Any], report["candidate"])
+    speedups, candidate = _performance_values(report)
     parser_speedup = speedups["parser_5mib_throughput_mib_s"]
     route_speedup = speedups["route_decision_median_ms"]
     walk = float(candidate["repository_walk_median_ms"])
@@ -152,8 +166,39 @@ def update_readmes(root: Path, report: dict[str, Any], *, issue: int, run_id: in
     chinese_text = _replace_or_insert(
         chinese_path.read_text(encoding="utf-8"), chinese, "## 验证"
     )
-    english_path.write_text(english_text, encoding="utf-8", newline="\n")
-    chinese_path.write_text(chinese_text, encoding="utf-8", newline="\n")
+    english_path.write_text(english_text.rstrip() + "\n", encoding="utf-8", newline="\n")
+    chinese_path.write_text(chinese_text.rstrip() + "\n", encoding="utf-8", newline="\n")
+
+
+def update_supporting_documents(root: Path, report: dict[str, Any], *, run_id: int) -> None:
+    speedups, candidate = _performance_values(report)
+    markdown = textwrap.dedent(
+        f"""\
+        # Performance engineering V8
+
+        - Baseline commit: `f3f533160cc64766fec862b96822db89b468e53c`
+        - Audit run: `{run_id}`
+        - Status: `{report["status"]}`
+        - Parser throughput: `{candidate["parser_5mib_throughput_mib_s"]} MiB/s` (`{speedups["parser_5mib_throughput_mib_s"]:.2f}x` baseline)
+        - Route decision: `{candidate["route_decision_median_ms"]} ms` (`{speedups["route_decision_median_ms"]:.2f}x` baseline)
+        - Cached adapter lookup: `{candidate["adapter_lookup_cached_median_us"]} us`
+        - Repository walk: `{candidate["repository_walk_median_ms"]} ms`
+        - Mandatory runtime dependencies added: `0`
+
+        Timings are same-host orchestration telemetry, not solver-performance or production-HPC claims. Correctness, fail-closed semantics, deterministic ordering, cache invalidation, packaging reproducibility and cross-platform CI remain mandatory.
+        """
+    ).strip()
+    report_path = root / "reports" / "PERFORMANCE_ENGINEERING_V8.md"
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    report_path.write_text(markdown + "\n", encoding="utf-8", newline="\n")
+
+    changelog_path = root / "CHANGELOG.md"
+    changelog = changelog_path.read_text(encoding="utf-8")
+    if CHANGELOG_BULLET not in changelog:
+        changelog = changelog.replace(
+            "## Unreleased\n", f"## Unreleased\n\n{CHANGELOG_BULLET}\n", 1
+        )
+    changelog_path.write_text(changelog, encoding="utf-8", newline="\n")
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -182,7 +227,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         newline="\n",
     )
     if args.update_readme:
-        update_readmes(args.root.resolve(), report, issue=args.issue, run_id=args.run_id)
+        root = args.root.resolve()
+        update_readmes(root, report, issue=args.issue, run_id=args.run_id)
+        update_supporting_documents(root, report, run_id=args.run_id)
     print(json.dumps(report, sort_keys=True))
     return 0 if report["status"] == "PASS" else 1
 
