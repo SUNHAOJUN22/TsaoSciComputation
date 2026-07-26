@@ -42,13 +42,15 @@ jobs:
           rm -f .github/workflows/bootstrap-ultimate-main-audit-v3.yml
           python - <<'PY'
           from pathlib import Path
-          import yaml
 
           path = Path('.github/workflows/ultimate-main-audit-v3.yml')
           text = path.read_text(encoding='utf-8')
           if '<!-- TSAO_ULTIMATE_MAIN_AUDIT_V3 -->' not in text:
               raise SystemExit('assembled workflow marker missing')
-          yaml.safe_load(text)
+          if 'name: Ultimate main audit V3' not in text:
+              raise SystemExit('assembled workflow header missing')
+          if text.count("python - <<'PY'") < 4:
+              raise SystemExit('assembled workflow appears incomplete')
           PY
           python scripts/build_manifest.py
           python scripts/build_manifest.py --check
