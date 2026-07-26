@@ -107,6 +107,37 @@ TsaoSciComputation 将科学问题转化为可追溯的计算程序：显式定�
 
 这六类高价值能力由专属图示明确呈现，但不宣称仓库打包了外部求解器或已经完成生产级真实运行。每幅图均将数值输出与收敛性、物理有效性、不确定度、适用域和人工授权分开。
 
+## 系统、观测与治理图谱
+
+<table>
+<tr>
+<td width="50%"><img src="assets/visuals/electrochemical-interface.svg" alt="电化学界面 电荷转移与输运工作流" width="100%"></td>
+<td width="50%"><img src="assets/visuals/spectroscopy-observables.svg" alt="光谱模拟 峰归属与证据工作流" width="100%"></td>
+</tr>
+<tr>
+<td align="center"><b>电化学界面</b><br>表面状态、双电层、电荷转移、输运和可测量证据。</td>
+<td align="center"><b>光谱观测量</b><br>状态模型、跃迁规则、仪器响应、峰归属和可信度。</td>
+</tr>
+<tr>
+<td width="50%"><img src="assets/visuals/transport-degradation.svg" alt="耦合输运 老化与寿命工作流" width="100%"></td>
+<td width="50%"><img src="assets/visuals/inverse-design-loop.svg" alt="逆向设计与多目标优化闭环" width="100%"></td>
+</tr>
+<tr>
+<td align="center"><b>输运与老化</b><br>电荷、热和物质输运耦合，损伤动力学与有界寿命证据。</td>
+<td align="center"><b>逆向设计</b><br>可追溯目标、受约束生成、多保真 Pareto 验证与人工选择。</td>
+</tr>
+<tr>
+<td width="50%"><img src="assets/visuals/data-model-governance.svg" alt="科学数据与模型治理工作流" width="100%"></td>
+<td width="50%"><img src="assets/visuals/reactor-safety-control.svg" alt="反应器安全 控制与数字孪生工作流" width="100%"></td>
+</tr>
+<tr>
+<td align="center"><b>数据与模型治理</b><br>数据血缘、转换、版本化模型、访问控制和发布门禁。</td>
+<td align="center"><b>反应器安全与控制</b><br>物料能量衡算、状态估计、独立保护层与合格人员授权。</td>
+</tr>
+</table>
+
+这六幅图将图谱从计算方法扩展到测量、全寿命周期、治理和安全，明确科学结果进入设计、运行或工程决策前必须具备的证据。
+
 ## 求解器感知型生态
 
 <img src="assets/visuals/engine-ecosystem.svg" alt="科学计算求解器与适配器生态" width="100%">
@@ -176,10 +207,10 @@ python scripts/verify_all.py --profile benchmark
 | 仓库 / 依赖安全发现 | 0 / 0 |
 | 源码包 / Wheel | 可重复 / 可重复并通过隔离安装 |
 | 生成文本 / Manifest | 统一 LF / 跨平台稳定 |
-| 科研视觉资产 | 18 幅自包含 SVG |
+| 科研视觉资产 | 24 幅自包含 SVG |
 | 远程分支 | 仅 `main` |
 
-最终提交只有在 [Issue #23](../../issues/23) 记录 Ubuntu/Windows/macOS × Python 3.10/3.13 正式 CI 成功后才被接受。机器可读证据：[`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json)。
+V4 最终提交只有在 [Issue #24](../../issues/24) 记录 Ubuntu/Windows/macOS × Python 3.10/3.13 正式 CI 成功后才被接受。机器可读证据：[`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json)。
 <!-- CURRENT_MAIN_VERIFICATION:END -->
 
 ### v3.0.2 已验证发布基线
@@ -223,7 +254,7 @@ completed ≠ parsed ≠ converged ≠ validated ≠ accepted
 
 内部基准通过不代表第三方求解器已经真实运行。缺少收敛、物理检查、不确定度、适用域、溯源、证据或必要人工审批中的任一项，均不得进入科学接受状态。反应器、控制、数字孪生、安全、失控反应和商业决策等高风险结论必须由合格的领域专家审核。
 
-`assets/visuals/` 中的 18 幅图片是为本仓库生成的原创解释性矢量图，不是求解器截图、性能曲线或真实外部引擎运行证据。图片完整性、可访问性、源码分发收录以及中英文 README 引用均由自动测试检查。
+`assets/visuals/` 中的 24 幅图片是为本仓库生成的原创解释性矢量图，不是求解器截图、性能曲线或真实外部引擎运行证据。图片完整性、可访问性、源码分发收录以及中英文 README 引用均由自动测试检查。
 
 ## 仓库策略
 
