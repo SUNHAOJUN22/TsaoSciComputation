@@ -51,11 +51,14 @@ def test_adapter_and_routing_indexes_are_cached_and_invalidated() -> None:
     assert route_question("OpenFOAM non-Newtonian polymer extrusion") == first_decision
 
 
-def test_scandir_repository_walk_is_deterministic_and_excludes_caches(tmp_path: Path) -> None:
+def test_scandir_repository_walk_is_globally_sorted_and_excludes_caches(
+    tmp_path: Path,
+) -> None:
     (tmp_path / "z").mkdir()
     (tmp_path / "z" / "b.txt").write_text("b", encoding="utf-8")
     (tmp_path / "a").mkdir()
     (tmp_path / "a" / "c.txt").write_text("c", encoding="utf-8")
+    (tmp_path / "a.txt").write_text("prefix", encoding="utf-8")
     (tmp_path / "m.txt").write_text("m", encoding="utf-8")
     (tmp_path / "__pycache__").mkdir()
     (tmp_path / "__pycache__" / "ignored.pyc").write_bytes(b"x")
@@ -63,7 +66,7 @@ def test_scandir_repository_walk_is_deterministic_and_excludes_caches(tmp_path: 
     paths = [
         path.relative_to(tmp_path).as_posix() for path in iter_repository_entries(tmp_path)
     ]
-    assert paths == ["a/c.txt", "m.txt", "z/b.txt"]
+    assert paths == ["a.txt", "a/c.txt", "m.txt", "z/b.txt"]
     assert [record["path"] for record in file_manifest(tmp_path)] == paths
 
 
