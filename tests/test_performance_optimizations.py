@@ -1,0 +1,119 @@
+from __future__ import annotations
+
+from pathlib import Path
+
+import pytest
+
+from scripts.benchmark import median_seconds
+from scripts.compare_performance import compare_performance
+from scripts.security_scan import scan
+from tsao_computation.adapters import get_adapter
+from tsao_computation.adapters.registry import list_adapters
+from tsao_computation.provenance.manifest import file_manifest, iter_repository_entries
+from tsao_computation.registries import clear_registry_caches
+from tsao_computation.routing import route_question
+from tsao_computation.routing.router import _routing_index
+
+
+@pytest.mark.parametrize(
+    ("output", "completed", "converged"),
+    [
+        ("Normal termination; converged", True, True),
+        ("RUN COMPLETED SUCCESSFULLY; convergence achieved", True, True),
+        ("completed with errors; converged", False, False),
+        ("calculation completed; failed to converge", True, False),
+        ("calculation did not converge; completed", True, False),
+        ("not completed; convergence reached", False, False),
+        ("unrelated text", False, False),
+    ],
+)
+def test_parser_status_semantics_are_preserved(
+    output: str, completed: bool, converged: bool
+) -> None:
+    parsed = get_adapter("orca").parse(output)
+    assert parsed["completed"] is completed
+    assert parsed["converged"] is converged
+    assert parsed["raw_length"] == len(output)
+
+
+def test_adapter_and_routing_indexes_are_cached_and_invalidated() -> None:
+    clear_registry_caches()
+    first_adapters = list_adapters()
+    first_index = _routing_index()
+    assert list_adapters() is first_adapters
+    assert _routing_index() is first_index
+    assert get_adapter("orca") is get_adapter("orca")
+    first_decision = route_question("OpenFOAM non-Newtonian polymer extrusion")
+
+    clear_registry_caches()
+    assert list_adapters() is not first_adapters
+    assert _routing_index() is not first_index
+    assert route_question("OpenFOAM non-Newtonian polymer extrusion") == first_decision
+
+
+def test_scandir_repository_walk_is_deterministic_and_excludes_caches(tmp_path: Path) -> None:
+    (tmp_path / "z").mkdir()
+    (tmp_path / "z" / "b.txt").write_text("b", encoding="utf-8")
+    (tmp_path / "a").mkdir()
+    (tmp_path / "a" / "c.txt").write_text("c", encoding="utf-8")
+    (tmp_path / "m.txt").write_text("m", encoding="utf-8")
+    (tmp_path / "__pycache__").mkdir()
+    (tmp_path / "__pycache__" / "ignored.pyc").write_bytes(b"x")
+
+    paths = [
+        path.relative_to(tmp_path).as_posix() for path in iter_repository_entries(tmp_path)
+    ]
+    assert paths == ["a/c.txt", "m.txt", "z/b.txt"]
+    assert [record["path"] for record in file_manifest(tmp_path)] == paths
+
+
+def test_security_scan_combines_rules_without_losing_offsets(tmp_path: Path) -> None:
+    payload = (
+        "prefix\n"
+        "ghp_ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890\n"
+        "AKIAABCDEFGHIJKLMNOP\n"
+        "eval(value)\n"
+        "shell = True\n"
+    )
+    path = tmp_path / "sample.txt"
+    path.write_text(payload, encoding="utf-8")
+    report = scan(tmp_path)
+    findings = report["findings"]
+    assert isinstance(findings, list)
+    rules = {finding["rule"] for finding in findings}
+    assert rules == {"github_token", "aws_key", "dangerous_eval", "shell_true"}
+    assert all(finding["path"] == "sample.txt" for finding in findings)
+
+
+def test_benchmark_helper_validates_controls() -> None:
+    with pytest.raises(ValueError):
+        median_seconds(lambda: None, repeats=0)
+    with pytest.raises(ValueError):
+        median_seconds(lambda: None, loops=0)
+    assert median_seconds(lambda: None, repeats=1, loops=2, warmups=0) >= 0
+
+
+def test_performance_comparison_requires_improvement_without_regression() -> None:
+    baseline = {
+        "cli_import_median_ms": 40.0,
+        "capability_registry_cold_median_ms": 3.2,
+        "adapter_registry_cold_median_ms": 0.3,
+        "workflow_registry_cold_median_ms": 0.3,
+        "route_decision_median_ms": 0.12,
+        "parser_5mib_throughput_mib_s": 15.0,
+    }
+    candidate = {
+        "cli_import_median_ms": 39.0,
+        "capability_registry_cold_median_ms": 3.0,
+        "adapter_registry_cold_median_ms": 0.25,
+        "workflow_registry_cold_median_ms": 0.25,
+        "route_decision_median_ms": 0.06,
+        "parser_5mib_throughput_mib_s": 25.0,
+    }
+    report = compare_performance(baseline, candidate)
+    assert report["status"] == "PASS"
+    assert report["speedups"]["route_decision_median_ms"] == 2.0
+
+    candidate["route_decision_median_ms"] = 0.2
+    candidate["parser_5mib_throughput_mib_s"] = 14.0
+    assert compare_performance(baseline, candidate)["status"] == "FAIL"
