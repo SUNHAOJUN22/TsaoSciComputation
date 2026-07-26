@@ -24,7 +24,7 @@ def test_readme_visuals_are_self_contained_accessible_and_referenced() -> None:
     assert "recursive-include assets *.md *.svg" in manifest_in
 
     names = _inventory_names()
-    assert len(names) >= 24
+    assert len(names) >= 36
     visual_root = ROOT / "assets" / "visuals"
     assert {path.name for path in visual_root.glob("*.svg")} == set(names)
 
