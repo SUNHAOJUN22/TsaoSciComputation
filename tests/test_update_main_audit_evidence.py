@@ -33,14 +33,14 @@ def _inputs(root: Path) -> dict[str, Path]:
                 "counts": {
                     "adapters": 27,
                     "capabilities": 164,
-                    "visual_assets": 24,
+                    "visual_assets": 30,
                     "workflows": 20,
                 },
             }
         ),
     )
     return {
-        "test_log": _write(root / "pytest.log", "562 passed in 1.0s\n"),
+        "test_log": _write(root / "pytest.log", "563 passed in 1.0s\n"),
         "coverage_json": _write(
             root / "coverage.json",
             json.dumps(
@@ -63,27 +63,30 @@ def test_update_evidence_is_parameterized_and_bilingual(tmp_path: Path) -> None:
     evidence = update_evidence(
         root=tmp_path,
         run_id=12345,
-        issue_number=25,
+        issue_number=26,
         parent_commit="abc123",
         verified_at="2026-07-26T00:00:00+00:00",
-        audit_generation="ultimate-main-audit-v5",
-        audit_label="V5",
-        visual_count=30,
-        visual_atlas_version=5,
-        report_path=Path("reports/ULTIMATE_MAIN_AUDIT_V5.md"),
-        visual_families="Periodic materials; catalysis; polymerization; extrusion; twins; FEM.",
+        audit_generation="ultimate-main-audit-v6",
+        audit_label="V6",
+        visual_count=36,
+        visual_atlas_version=6,
+        report_path=Path("reports/ULTIMATE_MAIN_AUDIT_V6.md"),
+        visual_families=(
+            "Scale and multi-fidelity planning; quantum chemistry; molecular dynamics; "
+            "polymer composites; process flowsheets; multiscale handoff."
+        ),
         **inputs,
     )
 
-    assert evidence["tests"] == {"failed": 0, "passed": 562}
-    assert evidence["counts"]["visual_assets"] == 30
+    assert evidence["tests"] == {"failed": 0, "passed": 563}
+    assert evidence["counts"]["visual_assets"] == 36
     assert evidence["remote_branches"] == ["main"]
-    assert evidence["audit_generation"] == "ultimate-main-audit-v5"
-    assert evidence["visual_atlas_version"] == 5
-    assert "562 passed, 0 failed" in (tmp_path / "README.md").read_text(encoding="utf-8")
-    assert "562 通过，0 失败" in (tmp_path / "README.zh-CN.md").read_text(encoding="utf-8")
-    report = tmp_path / "reports" / "ULTIMATE_MAIN_AUDIT_V5.md"
-    assert "Scientific visuals: `30`" in report.read_text(encoding="utf-8")
+    assert evidence["audit_generation"] == "ultimate-main-audit-v6"
+    assert evidence["visual_atlas_version"] == 6
+    assert "563 passed, 0 failed" in (tmp_path / "README.md").read_text(encoding="utf-8")
+    assert "563 通过，0 失败" in (tmp_path / "README.zh-CN.md").read_text(encoding="utf-8")
+    report = tmp_path / "reports" / "ULTIMATE_MAIN_AUDIT_V6.md"
+    assert "Scientific visuals: `36`" in report.read_text(encoding="utf-8")
 
 
 def test_update_evidence_rejects_unsafe_report_path(tmp_path: Path) -> None:
@@ -92,13 +95,13 @@ def test_update_evidence_rejects_unsafe_report_path(tmp_path: Path) -> None:
         update_evidence(
             root=tmp_path,
             run_id=1,
-            issue_number=25,
+            issue_number=26,
             parent_commit="abc",
             verified_at="2026-07-26T00:00:00+00:00",
-            audit_generation="v5",
-            audit_label="V5",
-            visual_count=30,
-            visual_atlas_version=5,
+            audit_generation="v6",
+            audit_label="V6",
+            visual_count=36,
+            visual_atlas_version=6,
             report_path=Path("../outside.md"),
             visual_families="x",
             **inputs,
