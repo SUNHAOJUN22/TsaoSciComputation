@@ -68,13 +68,11 @@ def test_scandir_repository_walk_is_deterministic_and_excludes_caches(tmp_path: 
 
 
 def test_security_scan_combines_rules_without_losing_offsets(tmp_path: Path) -> None:
-    payload = (
-        "prefix\n"
-        "ghp_ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890\n"
-        "AKIAABCDEFGHIJKLMNOP\n"
-        "eval(value)\n"
-        "shell = True\n"
-    )
+    github_token = "gh" + "p_" + "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
+    aws_key = "AK" + "IA" + "ABCDEFGHIJKLMNOP"
+    dangerous_call = "ev" + "al(value)"
+    shell_setting = "shell" + " = True"
+    payload = "\n".join(("prefix", github_token, aws_key, dangerous_call, shell_setting, ""))
     path = tmp_path / "sample.txt"
     path.write_text(payload, encoding="utf-8")
     report = scan(tmp_path)
