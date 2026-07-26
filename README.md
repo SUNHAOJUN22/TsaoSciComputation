@@ -107,6 +107,37 @@ The process layer separates flowsheet construction, model calibration, uncertain
 
 These views make six high-impact capability families explicit without claiming bundled solvers or live production execution. Each diagram separates numerical output from convergence, physical validity, uncertainty, applicability and human authorization.
 
+## Systems, observables and governance atlas
+
+<table>
+<tr>
+<td width="50%"><img src="assets/visuals/electrochemical-interface.svg" alt="Electrochemical interface charge transfer and transport workflow" width="100%"></td>
+<td width="50%"><img src="assets/visuals/spectroscopy-observables.svg" alt="Spectroscopy simulation assignment and evidence workflow" width="100%"></td>
+</tr>
+<tr>
+<td align="center"><b>Electrochemical interfaces</b><br>Surface state, double layer, charge transfer, transport and measurable evidence.</td>
+<td align="center"><b>Spectroscopy observables</b><br>State models, transition rules, instrument response, assignment and confidence.</td>
+</tr>
+<tr>
+<td width="50%"><img src="assets/visuals/transport-degradation.svg" alt="Coupled transport degradation and lifetime workflow" width="100%"></td>
+<td width="50%"><img src="assets/visuals/inverse-design-loop.svg" alt="Inverse design and multi objective optimization loop" width="100%"></td>
+</tr>
+<tr>
+<td align="center"><b>Transport &amp; degradation</b><br>Charge, heat and species coupling, damage kinetics and bounded lifetime evidence.</td>
+<td align="center"><b>Inverse design</b><br>Traceable targets, constrained generation, multi-fidelity Pareto validation and human choice.</td>
+</tr>
+<tr>
+<td width="50%"><img src="assets/visuals/data-model-governance.svg" alt="Scientific data and model governance workflow" width="100%"></td>
+<td width="50%"><img src="assets/visuals/reactor-safety-control.svg" alt="Reactor safety control and digital twin workflow" width="100%"></td>
+</tr>
+<tr>
+<td align="center"><b>Data &amp; model governance</b><br>Lineage, transformations, versioned artifacts, access controls and release gates.</td>
+<td align="center"><b>Reactor safety &amp; control</b><br>Balances, state estimation, independent protection layers and qualified authority.</td>
+</tr>
+</table>
+
+These six views extend the atlas from computational methods into measurement, lifecycle, governance and safety. They explain what evidence must exist before a scientific result can support a design, operational or engineering decision.
+
 ## Solver-aware ecosystem
 
 <img src="assets/visuals/engine-ecosystem.svg" alt="Scientific solver and adapter ecosystem" width="100%">
@@ -176,10 +207,10 @@ Validated on `2026-07-26T04:51:52.410824+00:00` by deterministic finalization ru
 | Repository / dependency findings | 0 / 0 |
 | Source archives / Wheel | reproducible / reproducible + isolated install |
 | Generated text / Manifest | canonical LF / cross-platform stable |
-| Scientific visual assets | 18 self-contained SVGs |
+| Scientific visual assets | 24 self-contained SVGs |
 | Remote branches | `main` only |
 
-The final commit is accepted only after canonical Ubuntu/Windows/macOS × Python 3.10/3.13 CI is recorded in [Issue #23](../../issues/23). Machine-readable evidence: [`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json).
+The final V4 commit is accepted only after canonical Ubuntu/Windows/macOS × Python 3.10/3.13 CI is recorded in [Issue #24](../../issues/24). Machine-readable evidence: [`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json).
 <!-- CURRENT_MAIN_VERIFICATION:END -->
 
 ### v3.0.2 verified release baseline
@@ -223,7 +254,7 @@ completed ≠ parsed ≠ converged ≠ validated ≠ accepted
 
 Benchmark success does not prove live third-party solver execution. Missing convergence, physical checks, uncertainty, applicability, provenance, evidence or required human approval prevents scientific acceptance. Reactor, control, digital-twin, safety, runaway and commercial decisions require qualified domain review.
 
-The 18 illustrations in `assets/visuals/` are original explanatory diagrams generated for this repository. They are not screenshots, benchmark plots, or evidence of live external-engine execution. Their integrity, accessibility, source-distribution inclusion and bilingual README references are automatically tested.
+The 24 illustrations in `assets/visuals/` are original explanatory diagrams generated for this repository. They are not screenshots, benchmark plots, or evidence of live external-engine execution. Their integrity, accessibility, source-distribution inclusion and bilingual README references are automatically tested.
 
 ## Repository policy
 
