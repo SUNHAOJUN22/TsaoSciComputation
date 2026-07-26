@@ -164,7 +164,7 @@ def update_readmes(root: Path, report: dict[str, Any], *, issue: int, run_id: in
         english_path.read_text(encoding="utf-8"), english, "## Verification"
     )
     chinese_text = _replace_or_insert(
-        chinese_path.read_text(encoding="utf-8"), chinese, "## 验证"
+        chinese_path.read_text(encoding="utf-8"), chinese, "## 统一验证"
     )
     english_path.write_text(english_text.rstrip() + "\n", encoding="utf-8", newline="\n")
     chinese_path.write_text(chinese_text.rstrip() + "\n", encoding="utf-8", newline="\n")
