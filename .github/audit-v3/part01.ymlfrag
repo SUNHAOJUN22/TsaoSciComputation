@@ -1,0 +1,170 @@
+              "`assets/visuals/` 中的 18 幅图片",
+          )
+          chinese_path.write_text(chinese, encoding="utf-8", newline="\n")
+
+          inventory_lines = [
+              "# README visual assets",
+              "",
+              "This directory contains original, repository-local SVG illustrations created for the TsaoSciComputation documentation.",
+              "",
+              "## Design and trust policy",
+              "",
+              "- Every asset is self-contained SVG with an accessible `<title>` and `<desc>`.",
+              "- Assets use no external fonts, scripts, raster images, network resources, event handlers, or tracking elements.",
+              "- Diagrams explain architecture and scientific boundaries; they are not solver screenshots or claims of live third-party execution.",
+              "- Text labels are intentionally concise and must remain consistent with the registries, workflows, and machine-readable verification evidence.",
+              "- README references use relative paths so visuals remain available in repository clones and source archives.",
+              "",
+              "## Asset set",
+              "",
+              "- `hero-multiscale.svg` — electron-to-process architecture",
+              "- `agent-orchestration.svg` — governed AI scientific agent",
+              "- `capability-landscape.svg` — capability, workflow, validation, and governance layers",
+              "- `quantum-to-md.svg` — electronic-structure to molecular-dynamics handoff",
+              "- `electronic-structure-landscape.svg` — DFT density, self-consistency, energy and observable gates",
+              "- `free-energy-sampling.svg` — enhanced sampling, overlap, reconstruction and uncertainty",
+              "- `reaction-kinetics-network.svg` — reaction pathways, rate evidence and reactor handoff",
+              "- `ml-potential-active-learning.svg` — reference data, uncertainty and active learning",
+              "- `polymer-process.svg` — polymer-to-process multiscale transfer",
+              "- `mesoscale-phase-field.svg` — coarse-graining, phase evolution and morphology evidence",
+              "- `continuum-multiphysics.svg` — CFD, FEM, heat, mechanics and field coupling",
+              "- `process-optimization-uq.svg` — flowsheet optimization, sensitivity, UQ and reviewed decisions",
+              "- `uncertainty-sensitivity.svg` — uncertainty propagation, sensitivity ranking and decision limits",
+              "- `hpc-execution-provenance.svg` — bounded execution, scheduler boundaries and provenance",
+              "- `engine-ecosystem.svg` — external solver adapter ecosystem",
+              "- `evidence-loop.svg` — fail-closed scientific acceptance loop",
+              "- `confidence-ladder.svg` — C0–C5 confidence model",
+              "- `digital-thread.svg` — reproducibility and supply-chain evidence",
+              "",
+              "Run `python -m pytest tests/test_readme_visuals.py -q` to validate the asset inventory and bilingual README references.",
+              "",
+          ]
+          (visual_root / "README.md").write_text(
+              "\n".join(inventory_lines), encoding="utf-8", newline="\n"
+          )
+
+          test_content = '''from __future__ import annotations
+
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+
+          ROOT = Path(__file__).resolve().parents[1]
+          VISUALS = (
+              "hero-multiscale.svg",
+              "agent-orchestration.svg",
+              "capability-landscape.svg",
+              "quantum-to-md.svg",
+              "electronic-structure-landscape.svg",
+              "free-energy-sampling.svg",
+              "reaction-kinetics-network.svg",
+              "ml-potential-active-learning.svg",
+              "polymer-process.svg",
+              "mesoscale-phase-field.svg",
+              "continuum-multiphysics.svg",
+              "process-optimization-uq.svg",
+              "uncertainty-sensitivity.svg",
+              "hpc-execution-provenance.svg",
+              "engine-ecosystem.svg",
+              "evidence-loop.svg",
+              "confidence-ladder.svg",
+              "digital-thread.svg",
+          )
+
+
+          def test_readme_visuals_are_self_contained_accessible_and_referenced() -> None:
+              readmes = [
+                  (ROOT / "README.md").read_text(encoding="utf-8"),
+                  (ROOT / "README.zh-CN.md").read_text(encoding="utf-8"),
+              ]
+              manifest_in = (ROOT / "MANIFEST.in").read_text(encoding="utf-8")
+              inventory = (ROOT / "assets" / "visuals" / "README.md").read_text(
+                  encoding="utf-8"
+              )
+              assert "recursive-include assets *.md *.svg" in manifest_in
+
+              visual_root = ROOT / "assets" / "visuals"
+              assert {path.name for path in visual_root.glob("*.svg")} == set(VISUALS)
+
+              titles: set[str] = set()
+              descriptions: set[str] = set()
+              namespace = {"svg": "http://www.w3.org/2000/svg"}
+              for name in VISUALS:
+                  relative = f"assets/visuals/{name}"
+                  text = (visual_root / name).read_text(encoding="utf-8")
+                  assert text.startswith('<svg xmlns="http://www.w3.org/2000/svg"')
+                  assert " viewBox=" in text
+                  assert "<script" not in text.lower()
+                  assert "<image" not in text.lower()
+                  assert "<foreignobject" not in text.lower()
+                  assert "onload=" not in text.lower()
+                  assert "onclick=" not in text.lower()
+                  assert 'href="http' not in text.lower()
+                  assert 1_000 <= len(text.encode("utf-8")) <= 30_000
+
+                  root = ET.fromstring(text)
+                  title = root.find("svg:title", namespace)
+                  description = root.find("svg:desc", namespace)
+                  assert title is not None and title.text and title.text.strip()
+                  assert (
+                      description is not None
+                      and description.text
+                      and description.text.strip()
+                  )
+                  assert title.text.strip() not in titles
+                  assert description.text.strip() not in descriptions
+                  titles.add(title.text.strip())
+                  descriptions.add(description.text.strip())
+
+                  assert name in inventory
+                  assert all(relative in readme for readme in readmes)
+          '''
+          Path("tests/test_readme_visuals.py").write_text(
+              textwrap.dedent(test_content), encoding="utf-8", newline="\n"
+          )
+
+          changelog_path = Path("CHANGELOG.md")
+          changelog = changelog_path.read_text(encoding="utf-8")
+          old = "- Expanded the bilingual project homepage to twelve repository-local scientific SVG diagrams covering multiscale architecture, AI orchestration, DFT, molecular dynamics, polymers, continuum multiphysics, process optimization, evidence, confidence and reproducibility."
+          new = "- Expanded the bilingual project homepage to eighteen repository-local scientific SVG diagrams, adding dedicated enhanced-sampling, reaction-kinetics, ML-potential, mesoscale-morphology, HPC-provenance and UQ/sensitivity views to the existing multiscale atlas."
+          if old in changelog:
+              changelog = changelog.replace(old, new, 1)
+          elif new not in changelog:
+              raise SystemExit("Changelog visual-atlas entry missing")
+          changelog_path.write_text(changelog, encoding="utf-8", newline="\n")
+
+          evidence_path = Path("reports/CURRENT_MAIN_VERIFICATION.json")
+          evidence = json.loads(evidence_path.read_text(encoding="utf-8"))
+          evidence["counts"]["visual_assets"] = len(visual_names)
+          evidence_path.write_text(
+              json.dumps(evidence, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+              newline="\n",
+          )
+          PY
+          python -m ruff check --fix tests/test_readme_visuals.py
+          python -m ruff format tests/test_readme_visuals.py
+          python scripts/build_manifest.py
+          python scripts/validate_repository.py
+          python -m pytest tests/test_readme_visuals.py -q
+          git diff --check
+
+      - name: Run deterministic release gates pass 1
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python scripts/verify_all.py --profile all | tee "$RUNNER_TEMP/ultimate-all-pass1.log"
+          python scripts/verify_all.py --profile benchmark | tee "$RUNNER_TEMP/ultimate-benchmark.log"
+          python scripts/run_tests.py --coverage | tee "$RUNNER_TEMP/ultimate-tests.log"
+
+      - name: Run dependency, security and single-main audits
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python -m pip_audit --local --skip-editable --progress-spinner=off \
+            --format=json --output "$RUNNER_TEMP/ultimate-dependency-audit.json"
+          python scripts/security_scan.py > "$RUNNER_TEMP/ultimate-security.json"
+          git ls-remote --heads origin | tee "$RUNNER_TEMP/ultimate-remote-heads.txt"
+          python - <<'PY'
+          import os
+          from pathlib import Path
+
