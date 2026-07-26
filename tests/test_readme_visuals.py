@@ -1,35 +1,20 @@
 from __future__ import annotations
 
+import re
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-VISUALS = (
-    "hero-multiscale.svg",
-    "agent-orchestration.svg",
-    "capability-landscape.svg",
-    "quantum-to-md.svg",
-    "electronic-structure-landscape.svg",
-    "free-energy-sampling.svg",
-    "reaction-kinetics-network.svg",
-    "ml-potential-active-learning.svg",
-    "polymer-process.svg",
-    "mesoscale-phase-field.svg",
-    "continuum-multiphysics.svg",
-    "process-optimization-uq.svg",
-    "uncertainty-sensitivity.svg",
-    "electrochemical-interface.svg",
-    "spectroscopy-observables.svg",
-    "transport-degradation.svg",
-    "inverse-design-loop.svg",
-    "data-model-governance.svg",
-    "reactor-safety-control.svg",
-    "hpc-execution-provenance.svg",
-    "engine-ecosystem.svg",
-    "evidence-loop.svg",
-    "confidence-ladder.svg",
-    "digital-thread.svg",
-)
+ENTRY = re.compile(r"^- `([^`]+\.svg)` — ", re.MULTILINE)
+
+
+def _inventory_names() -> tuple[str, ...]:
+    inventory = (ROOT / "assets" / "visuals" / "README.md").read_text(
+        encoding="utf-8"
+    )
+    names = tuple(ENTRY.findall(inventory))
+    assert len(names) == len(set(names))
+    return names
 
 
 def test_readme_visuals_are_self_contained_accessible_and_referenced() -> None:
@@ -38,16 +23,17 @@ def test_readme_visuals_are_self_contained_accessible_and_referenced() -> None:
         (ROOT / "README.zh-CN.md").read_text(encoding="utf-8"),
     ]
     manifest_in = (ROOT / "MANIFEST.in").read_text(encoding="utf-8")
-    inventory = (ROOT / "assets" / "visuals" / "README.md").read_text(encoding="utf-8")
     assert "recursive-include assets *.md *.svg" in manifest_in
 
+    names = _inventory_names()
+    assert len(names) >= 24
     visual_root = ROOT / "assets" / "visuals"
-    assert {path.name for path in visual_root.glob("*.svg")} == set(VISUALS)
+    assert {path.name for path in visual_root.glob("*.svg")} == set(names)
 
     titles: set[str] = set()
     descriptions: set[str] = set()
     namespace = {"svg": "http://www.w3.org/2000/svg"}
-    for name in VISUALS:
+    for name in names:
         relative = f"assets/visuals/{name}"
         text = (visual_root / name).read_text(encoding="utf-8")
         assert text.startswith('<svg xmlns="http://www.w3.org/2000/svg"')
@@ -70,5 +56,4 @@ def test_readme_visuals_are_self_contained_accessible_and_referenced() -> None:
         titles.add(title.text.strip())
         descriptions.add(description.text.strip())
 
-        assert name in inventory
         assert all(relative in readme for readme in readmes)
