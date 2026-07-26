@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 620" role="img" aria-labelledby="title desc">
+<title id="title">Scientific data and model governance workflow</title>
+<desc id="desc">A governance diagram linking source data, transformations, models, validation, lineage, versioning, access controls, and evidence-based release.</desc>
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#0b1024"/><stop offset="1" stop-color="#24324d"/></linearGradient><marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0 0L0 6L9 3z" fill="#93c5fd"/></marker></defs>
+<rect width="1200" height="620" rx="30" fill="url(#bg)"/>
+<text x="58" y="62" fill="#f8fafc" font-family="Arial" font-size="34" font-weight="700">Scientific Data &amp; Model Governance</text>
+<text x="58" y="96" fill="#c7d2fe" font-family="Arial" font-size="18">source → transform → model → validate → version → release with lineage and access boundaries</text>
+<g font-family="Arial">
+<rect x="55" y="145" width="230" height="330" rx="22" fill="#172554" stroke="#818cf8"/><text x="80" y="185" fill="#eef2ff" font-size="24" font-weight="700">Source data</text>
+<ellipse cx="170" cy="245" rx="68" ry="24" fill="#60a5fa"/><rect x="102" y="245" width="136" height="85" fill="#1d4ed8"/><ellipse cx="170" cy="330" rx="68" ry="24" fill="#2563eb"/>
+<text x="80" y="390" fill="#dbeafe" font-size="17">units • schema • consent</text><text x="80" y="418" fill="#dbeafe" font-size="17">hash • origin • license</text>
+<rect x="345" y="145" width="230" height="330" rx="22" fill="#15324a" stroke="#22d3ee"/><text x="370" y="185" fill="#ecfeff" font-size="24" font-weight="700">Transformation</text>
+<rect x="390" y="230" width="140" height="48" rx="12" fill="#0e7490"/><text x="460" y="260" text-anchor="middle" fill="#ecfeff" font-size="17">normalize</text><rect x="390" y="305" width="140" height="48" rx="12" fill="#0f766e"/><text x="460" y="335" text-anchor="middle" fill="#ecfdf5" font-size="17">feature map</text><rect x="390" y="380" width="140" height="48" rx="12" fill="#475569"/><text x="460" y="410" text-anchor="middle" fill="#f8fafc" font-size="17">quality gate</text>
+<rect x="635" y="145" width="230" height="330" rx="22" fill="#2e2145" stroke="#c084fc"/><text x="660" y="185" fill="#faf5ff" font-size="24" font-weight="700">Model artifact</text>
+<circle cx="750" cy="270" r="54" fill="#7e22ce"/><circle cx="700" cy="360" r="20" fill="#a78bfa"/><circle cx="750" cy="385" r="20" fill="#a78bfa"/><circle cx="805" cy="350" r="20" fill="#a78bfa"/><line x1="725" y1="320" x2="705" y2="340" stroke="#e9d5ff" stroke-width="4"/><line x1="750" y1="324" x2="750" y2="365" stroke="#e9d5ff" stroke-width="4"/><line x1="785" y1="310" x2="800" y2="330" stroke="#e9d5ff" stroke-width="4"/>
+<text x="660" y="440" fill="#e9d5ff" font-size="17">version • parameters • card</text>
+<rect x="925" y="145" width="220" height="330" rx="22" fill="#183b2c" stroke="#34d399"/><text x="950" y="185" fill="#ecfdf5" font-size="24" font-weight="700">Release gate</text>
+<circle cx="1035" cy="270" r="62" fill="#166534"/><path d="M1005 270l22 22 42-50" fill="none" stroke="#dcfce7" stroke-width="10"/><text x="950" y="380" fill="#d1fae5" font-size="17">validation • access</text><text x="950" y="408" fill="#d1fae5" font-size="17">reproducibility • review</text>
+<path d="M285 300H345" stroke="#93c5fd" stroke-width="5" marker-end="url(#a)"/><path d="M575 300H635" stroke="#93c5fd" stroke-width="5" marker-end="url(#a)"/><path d="M865 300H925" stroke="#93c5fd" stroke-width="5" marker-end="url(#a)"/>
+</g>
+<g font-family="Arial" font-size="17" text-anchor="middle"><rect x="80" y="520" width="245" height="58" rx="18" fill="#312e81" stroke="#c4b5fd"/><text x="202" y="555" fill="#f5f3ff">Lineage complete</text><rect x="365" y="520" width="245" height="58" rx="18" fill="#155e75" stroke="#67e8f9"/><text x="487" y="555" fill="#ecfeff">Transform reproducible</text><rect x="650" y="520" width="245" height="58" rx="18" fill="#581c87" stroke="#e9d5ff"/><text x="772" y="555" fill="#faf5ff">Model validated</text><rect x="935" y="520" width="210" height="58" rx="18" fill="#14532d" stroke="#86efac"/><text x="1040" y="555" fill="#f0fdf4">Release approved</text></g>
+</svg>
