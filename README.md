@@ -193,13 +193,13 @@ python scripts/verify_all.py --profile benchmark
 ### Current `main` verification
 
 <!-- CURRENT_MAIN_VERIFICATION:START -->
-Validated on `2026-07-26T06:47:25.486329+00:00` by deterministic finalization run `30191628888`.
+Validated on `2026-07-26T07:18:22.620815+00:00` by deterministic finalization run `30192543070`.
 
 | Current-main item | Result |
 |---|---:|
 | Version | 3.0.2 |
 | Capabilities / adapters / workflows | 164 / 27 / 20 |
-| Tests | 559 passed, 0 failed |
+| Tests | 560 passed, 0 failed |
 | Statement / branch coverage | 97.32% / 93.67% |
 | Windows core | Python 3.10 and 3.13; final result recorded in Issue #24 |
 | Controlled mutation probes | 64/64 killed |
