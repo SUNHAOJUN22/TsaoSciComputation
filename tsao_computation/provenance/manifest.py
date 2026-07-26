@@ -36,27 +36,23 @@ def is_excluded_path(relative: Path) -> bool:
 
 def iter_repository_entries(root: Path) -> Iterator[Path]:
     root = root.resolve()
-    entries: list[Path] = []
-    for current, directory_names, file_names in os.walk(root, topdown=True, followlinks=False):
-        current_path = Path(current)
-        relative_current = current_path.relative_to(root)
-        retained_directories: list[str] = []
-        for name in sorted(directory_names):
-            path = current_path / name
-            relative = relative_current / name
+
+    def walk(directory: Path, relative_directory: Path) -> Iterator[Path]:
+        with os.scandir(directory) as scan:
+            entries = sorted(scan, key=lambda entry: entry.name)
+        for entry in entries:
+            relative = relative_directory / entry.name
             if is_excluded_path(relative):
                 continue
-            if path.is_symlink():
-                entries.append(path)
-                continue
-            retained_directories.append(name)
-        directory_names[:] = retained_directories
-        for name in sorted(file_names):
-            relative = relative_current / name
-            if not is_excluded_path(relative):
-                entries.append(current_path / name)
+            path = Path(entry.path)
+            if entry.is_symlink():
+                yield path
+            elif entry.is_dir(follow_symlinks=False):
+                yield from walk(path, relative)
+            else:
+                yield path
 
-    yield from sorted(entries, key=lambda path: path.relative_to(root).as_posix())
+    yield from walk(root, Path())
 
 
 def file_manifest(root: Path) -> list[dict[str, str | int]]:
