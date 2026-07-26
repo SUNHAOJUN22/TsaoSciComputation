@@ -96,6 +96,35 @@ jobs:
           python scripts/verify_all.py --profile benchmark | tee /tmp/performance-benchmark.log
           python -m pytest -q | tee /tmp/performance-pytest.log
 
+      - name: Collect dependency security and branch evidence
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python -m pip_audit --local --skip-editable --progress-spinner=off \
+            --format=json --output /tmp/performance-dependency.json
+          python scripts/security_scan.py > /tmp/performance-security.json
+          git ls-remote --heads origin > /tmp/performance-remote-heads.txt
+
+      - name: Refresh current-main verification evidence for V8
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python scripts/update_main_audit_evidence.py \
+            --run-id "$GITHUB_RUN_ID" \
+            --issue "$ISSUE_NUMBER" \
+            --test-log /tmp/performance-pytest.log \
+            --coverage-json "$TSAO_COVERAGE_JSON" \
+            --dependency-json /tmp/performance-dependency.json \
+            --security-json /tmp/performance-security.json \
+            --remote-heads /tmp/performance-remote-heads.txt \
+            --parent-commit "$(git rev-parse HEAD)" \
+            --audit-generation ultimate-main-audit-v8 \
+            --audit-label V8 \
+            --visual-count 42 \
+            --visual-atlas-version 7 \
+            --report-path reports/ULTIMATE_MAIN_AUDIT_V8.md \
+            --visual-families 'Measured orchestration performance engineering with no visual-atlas expansion.'
+
       - name: Refresh measured performance evidence and bilingual README
         shell: bash
         run: |
