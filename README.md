@@ -279,6 +279,21 @@ python -m tsao_computation probe
 
 External solvers are optional and must be installed, licensed and validated separately. Missing executables, malformed contracts, unsafe paths, illegal state transitions or incomplete evidence are rejected rather than silently accepted.
 
+<!-- PERFORMANCE_V8:START -->
+## Performance engineering
+
+V8 profiles orchestration hot paths before changing them. On deterministic audit run `30212227899`, the same-host comparison against the accepted V7 commit measured:
+
+| Measured path | V8 result |
+|---|---:|
+| Solver-output parser throughput | 19.54 MiB/s (1.33× baseline) |
+| Workflow routing | 0.03383 ms (3.75× baseline) |
+| Cached adapter lookup | 0.1077 µs |
+| Deterministic repository traversal | 8.607 ms |
+
+The optimization preserves zero mandatory runtime dependencies, deterministic ordering, fail-closed parsing, registry invalidation, cross-platform Manifest stability and scientific acceptance boundaries. Parser and routing are hard performance gates; startup and cold-load timings remain environment-sensitive telemetry. Full evidence: [`reports/PERFORMANCE_ENGINEERING_V8.json`](reports/PERFORMANCE_ENGINEERING_V8.json) and [Issue #28](../../issues/28).
+<!-- PERFORMANCE_V8:END -->
+
 ## Verification
 
 ```bash
@@ -292,15 +307,15 @@ python scripts/verify_all.py --profile benchmark
 ### Current `main` verification
 
 <!-- CURRENT_MAIN_VERIFICATION:START -->
-Validated on `2026-07-26T16:16:06.932696+00:00` by deterministic finalization run `30210001708`.
+Validated on `2026-07-26T17:17:25.107915+00:00` by deterministic finalization run `30212227899`.
 
 | Current-main item | Result |
 |---|---:|
 | Version | 3.0.2 |
 | Capabilities / adapters / workflows | 164 / 27 / 20 |
-| Tests | 565 passed, 0 failed |
-| Statement / branch coverage | 97.32% / 93.67% |
-| Windows core | Python 3.10 and 3.13; final result recorded in Issue #27 |
+| Tests | 577 passed, 0 failed |
+| Statement / branch coverage | 97.40% / 93.49% |
+| Windows core | Python 3.10 and 3.13; final result recorded in Issue #28 |
 | Controlled mutation probes | 64/64 killed |
 | Scientific reference benchmarks | 8/8 passed |
 | Repository / dependency findings | 0 / 0 |
@@ -309,7 +324,7 @@ Validated on `2026-07-26T16:16:06.932696+00:00` by deterministic finalization ru
 | Scientific visual assets | 42 self-contained SVGs |
 | Remote branches | `main` only |
 
-The final V7 commit is accepted only after canonical Ubuntu/Windows/macOS × Python 3.10/3.13 CI is recorded in [Issue #27](../../issues/27). Machine-readable evidence: [`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json).
+The final V8 commit is accepted only after canonical Ubuntu/Windows/macOS × Python 3.10/3.13 CI is recorded in [Issue #28](../../issues/28). Machine-readable evidence: [`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json).
 <!-- CURRENT_MAIN_VERIFICATION:END -->
 
 ### v3.0.2 verified release baseline

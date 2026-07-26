@@ -179,9 +179,7 @@ class Adapter:
 
         completed = not completion_failed and _COMPLETION_SUCCESS.search(folded) is not None
         converged = (
-            completed
-            and not convergence_failed
-            and _CONVERGENCE_SUCCESS.search(folded) is not None
+            completed and not convergence_failed and _CONVERGENCE_SUCCESS.search(folded) is not None
         )
         return {
             "completed": completed,

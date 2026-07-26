@@ -63,9 +63,7 @@ def test_scandir_repository_walk_is_globally_sorted_and_excludes_caches(
     (tmp_path / "__pycache__").mkdir()
     (tmp_path / "__pycache__" / "ignored.pyc").write_bytes(b"x")
 
-    paths = [
-        path.relative_to(tmp_path).as_posix() for path in iter_repository_entries(tmp_path)
-    ]
+    paths = [path.relative_to(tmp_path).as_posix() for path in iter_repository_entries(tmp_path)]
     assert paths == ["a.txt", "a/c.txt", "m.txt", "z/b.txt"]
     assert [record["path"] for record in file_manifest(tmp_path)] == paths
 

@@ -279,6 +279,21 @@ python -m tsao_computation probe
 
 外部求解器均为可选能力，必须另行合法安装、授权并验证。缺少可执行程序、计算合同格式错误、路径越界、状态跳级或证据不完整时，系统会拒绝继续，而不是静默放行。
 
+<!-- PERFORMANCE_V8:START -->
+## 性能工程
+
+V8 坚持先测量再修改。在确定性审计运行 `30212227899` 中，相对于已验收的 V7 提交，同一运行环境测得：
+
+| 测量路径 | V8 结果 |
+|---|---:|
+| 求解器输出解析吞吐率 | 19.54 MiB/s（基线的 1.33 倍） |
+| 工作流路由 | 0.03383 ms（基线的 3.75 倍） |
+| 缓存适配器查找 | 0.1077 µs |
+| 确定性仓库遍历 | 8.607 ms |
+
+优化继续保持零强制运行时依赖、确定性排序、失败关闭式解析、缓存失效语义、跨平台 Manifest 稳定和科学验收边界。解析与路由属于硬性能门禁；启动与冷加载时间保留为受环境影响的遥测。完整证据：[`reports/PERFORMANCE_ENGINEERING_V8.json`](reports/PERFORMANCE_ENGINEERING_V8.json) 与 [Issue #28](../../issues/28)。
+<!-- PERFORMANCE_V8:END -->
+
 ## 统一验证
 
 ```bash
@@ -292,15 +307,15 @@ python scripts/verify_all.py --profile benchmark
 ### 当前 `main` 验证状态
 
 <!-- CURRENT_MAIN_VERIFICATION:START -->
-已于 `2026-07-26T16:16:06.932696+00:00` 由确定性终验运行 `30210001708` 完成验证。
+已于 `2026-07-26T17:17:25.107915+00:00` 由确定性终验运行 `30212227899` 完成验证。
 
 | 当前主线项目 | 结果 |
 |---|---:|
 | 版本 | 3.0.2 |
 | 能力 / 适配器 / 工作流 | 164 / 27 / 20 |
-| 自动测试 | 565 通过，0 失败 |
-| 语句 / 分支覆盖率 | 97.32% / 93.67% |
-| Windows core | Python 3.10 与 3.13；最终结果记录于 Issue #27 |
+| 自动测试 | 577 通过，0 失败 |
+| 语句 / 分支覆盖率 | 97.40% / 93.49% |
+| Windows core | Python 3.10 与 3.13；最终结果记录于 Issue #28 |
 | 受控变异探针 | 64/64 被识别 |
 | 科学参考基准 | 8/8 通过 |
 | 仓库 / 依赖安全发现 | 0 / 0 |
@@ -309,7 +324,7 @@ python scripts/verify_all.py --profile benchmark
 | 科研视觉资产 | 42 幅自包含 SVG |
 | 远程分支 | 仅 `main` |
 
-V7 最终提交只有在 [Issue #27](../../issues/27) 记录 Ubuntu/Windows/macOS × Python 3.10/3.13 正式 CI 成功后才被接受。机器可读证据：[`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json)。
+V8 最终提交只有在 [Issue #28](../../issues/28) 记录 Ubuntu/Windows/macOS × Python 3.10/3.13 正式 CI 成功后才被接受。机器可读证据：[`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json)。
 <!-- CURRENT_MAIN_VERIFICATION:END -->
 
 ### v3.0.2 已验证发布基线

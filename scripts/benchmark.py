@@ -28,7 +28,9 @@ def median_seconds(
     warmups: int = 2,
 ) -> float:
     if repeats < 1 or loops < 1 or warmups < 0:
-        raise ValueError("benchmark repeats and loops must be positive; warmups must be non-negative")
+        raise ValueError(
+            "benchmark repeats and loops must be positive; warmups must be non-negative"
+        )
     for _ in range(warmups):
         operation()
     samples: list[float] = []
@@ -94,9 +96,7 @@ def build_result() -> dict[str, object]:
         "schema_version": "1.1",
         "python": sys.version,
         "cli_import_median_ms": round(import_seconds() * 1000, 3),
-        "capability_registry_cold_median_ms": round(
-            cold_registry_seconds(capabilities) * 1000, 3
-        ),
+        "capability_registry_cold_median_ms": round(cold_registry_seconds(capabilities) * 1000, 3),
         "capability_registry_cached_median_ms": round(
             median_seconds(capabilities, loops=2_000) * 1000, 5
         ),

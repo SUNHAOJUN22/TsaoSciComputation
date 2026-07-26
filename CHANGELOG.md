@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Added measured V8 performance engineering for registry loading, adapter lookup, routing, solver-output parsing, deterministic repository traversal and repository security scanning.
+
 - Expanded the bilingual scientific atlas from thirty-six to forty-two repository-local SVG diagrams, adding molecular-state/environment, surface/defect migration, CFD closure, reactor scale-up, dynamic-control and HPC-recovery views.
 
 - Expanded the bilingual scientific atlas from thirty to thirty-six repository-local SVG diagrams, adding scale/multi-fidelity planning, quantum-chemistry thermochemistry, MD transport/convergence, polymer-composite topology, flowsheet convergence and multiscale handoff/UQ views.

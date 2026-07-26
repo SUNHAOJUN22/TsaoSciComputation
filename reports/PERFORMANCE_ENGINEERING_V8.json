@@ -1,0 +1,75 @@
+{
+  "acceptance": {
+    "hard_gate_metrics": [
+      "parser_5mib_throughput_mib_s",
+      "route_decision_median_ms"
+    ],
+    "maximum_hot_path_regression": "10%",
+    "minimum_hot_path_speedup": 1.1,
+    "requirement": "At least one measured parser or routing hot path improves by 10% or more, and neither may regress by more than 10%.",
+    "telemetry_only_metrics": [
+      "adapter_registry_cold_median_ms",
+      "capability_registry_cold_median_ms",
+      "cli_import_median_ms",
+      "workflow_registry_cold_median_ms"
+    ]
+  },
+  "applied_optimizations": [
+    "Unbounded single-purpose registry caching with bytes-based JSON decoding.",
+    "Cached adapter objects and O(1) adapter lookup by slug.",
+    "Pre-normalized routing keywords and slug token sets.",
+    "Single-pass combined failure-status parsing on case-folded solver output.",
+    "Deterministic incremental os.scandir repository traversal.",
+    "Single-pass combined repository security regex scan.",
+    "Warmup-aware batched microbenchmarks with explicit methodology."
+  ],
+  "baseline": {
+    "adapter_registry_cold_median_ms": 0.248,
+    "capability_registry_cached_median_ms": 0.0005,
+    "capability_registry_cold_median_ms": 3.081,
+    "claim_boundary": "Local orchestration microbenchmarks; no solver execution measured.",
+    "cli_import_median_ms": 40.881,
+    "parser_5mib_throughput_mib_s": 14.66,
+    "python": "3.13.14 (main, Jun 11 2026, 03:02:07) [GCC 13.3.0]",
+    "route_decision_median_ms": 0.1267,
+    "schema_version": "1.0",
+    "workflow_registry_cold_median_ms": 0.227
+  },
+  "candidate": {
+    "adapter_lookup_cached_median_us": 0.1077,
+    "adapter_registry_cold_median_ms": 0.223,
+    "capability_registry_cached_median_ms": 0.00046,
+    "capability_registry_cold_median_ms": 1.849,
+    "claim_boundary": "Local orchestration microbenchmarks; no solver execution measured.",
+    "cli_import_median_ms": 40.413,
+    "methodology": {
+      "claim_boundary": "Same-host local orchestration microbenchmarks; no solver execution measured.",
+      "clock": "time.perf_counter",
+      "statistic": "median",
+      "warmups": 2
+    },
+    "parser_5mib_throughput_mib_s": 19.54,
+    "python": "3.13.14 (main, Jun 11 2026, 03:02:07) [GCC 13.3.0]",
+    "repository_walk_median_ms": 8.607,
+    "route_decision_cold_median_ms": 0.374,
+    "route_decision_median_ms": 0.03383,
+    "schema_version": "1.1",
+    "workflow_registry_cold_median_ms": 0.164
+  },
+  "meaningful_improvements": {
+    "parser_5mib_throughput_mib_s": 1.3329,
+    "route_decision_median_ms": 3.7452
+  },
+  "regressions": {},
+  "schema_version": "1.0",
+  "speedups": {
+    "adapter_registry_cold_median_ms": 1.1121,
+    "capability_registry_cold_median_ms": 1.6663,
+    "cli_import_median_ms": 1.0116,
+    "parser_5mib_throughput_mib_s": 1.3329,
+    "route_decision_median_ms": 3.7452,
+    "workflow_registry_cold_median_ms": 1.3841
+  },
+  "status": "PASS",
+  "telemetry_regressions": {}
+}
