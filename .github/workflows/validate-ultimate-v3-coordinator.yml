@@ -1,0 +1,55 @@
+name: Validate ultimate V3 coordinator
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/validate-ultimate-v3-coordinator.yml'
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+      - run: python -m pip install pyyaml
+      - name: Parse coordinator YAML
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python - <<'PY' > "$RUNNER_TEMP/validator.txt" 2>&1
+          from pathlib import Path
+          import yaml
+
+          path = Path('.github/workflows/bootstrap-ultimate-main-audit-v3.yml')
+          payload = yaml.safe_load(path.read_text(encoding='utf-8'))
+          print(type(payload).__name__)
+          print(sorted(str(key) for key in payload))
+          print('VALID')
+          PY
+          gh issue comment 23 --repo "$GITHUB_REPOSITORY" --body \
+            "Ultimate V3 coordinator YAML is valid. Validator run: \`$GITHUB_RUN_ID\`."
+      - name: Report parser failure
+        if: ${{ failure() }}
+        shell: bash
+        run: |
+          {
+            echo "Ultimate V3 coordinator YAML validation failed. Run: \`$GITHUB_RUN_ID\`."
+            echo
+            echo '```text'
+            cat "$RUNNER_TEMP/validator.txt" 2>/dev/null || true
+            echo '```'
+          } > "$RUNNER_TEMP/validator-comment.md"
+          gh issue comment 23 --repo "$GITHUB_REPOSITORY" \
+            --body-file "$RUNNER_TEMP/validator-comment.md"
