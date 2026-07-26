@@ -36,6 +36,31 @@
       "sha256": "3df770971d50d2df680f50b254caebfb9c4088fa9b3c5813fe869640bafc22d1"
     },
     {
+      "bytes": 8559,
+      "path": ".github/audit-v3/part00.ymlfrag",
+      "sha256": "409e493897a4fd505be72d5bb2648f66fdc43c9150917623e76a4e9c0454a745"
+    },
+    {
+      "bytes": 9347,
+      "path": ".github/audit-v3/part01.ymlfrag",
+      "sha256": "5a028fa2875196046d46f551d45ca162601f69e907669632bf760d10b8f6283d"
+    },
+    {
+      "bytes": 7781,
+      "path": ".github/audit-v3/part02.ymlfrag",
+      "sha256": "371246f0c8002aa1ad27df50c9c1bc5d4ba029c15ef9bcab806e86be0ab49331"
+    },
+    {
+      "bytes": 7198,
+      "path": ".github/audit-v3/part03.ymlfrag",
+      "sha256": "c7debda75457828f231e812a67df9e1e44a11236332f1bcc4160f93f92d1615b"
+    },
+    {
+      "bytes": 1362,
+      "path": ".github/workflows/bootstrap-ultimate-main-audit-v3.yml",
+      "sha256": "d1a4ab7c535c44c4f2511c205a61d5c94b2a8105f61a10ae7267c5e43fb835f4"
+    },
+    {
       "bytes": 2528,
       "path": ".github/workflows/ci.yml",
       "sha256": "0ace1dacfe9e2058d47f3e7ca21b0a7edc8d5b853e1c9a93c65d7dda55ff4a79"
@@ -56,6 +81,11 @@
       "sha256": "32761bc3509a1f5e0837e3d66501891632ebbd978a4351a886163b2f98f744d0"
     },
     {
+      "bytes": 2188,
+      "path": ".github/workflows/validate-ultimate-v3-coordinator.yml",
+      "sha256": "52cbde34cef7787950f9a6f3fe6975a8aafb1141903dda8e3868659194b6d100"
+    },
+    {
       "bytes": 193,
       "path": ".gitignore",
       "sha256": "41921195cf7559c3e08c29f18ce376c2b2a5cbbd7c69176e3f43f1db376d2e97"
@@ -71,9 +101,9 @@
       "sha256": "f417b371a3e3868b0449e82ca36d4b25c7926eda0bbeea829170ea0d5295138d"
     },
     {
-      "bytes": 5149,
+      "bytes": 5142,
       "path": "CHANGELOG.md",
-      "sha256": "e55875d5f378ca685db7b19e747942fcfb8596fe1b2744a1edef9bf4fc2c5d92"
+      "sha256": "702714c41f76aa5cf801785f6486485ba4e6e75d0808561496a3f91cb1777b72"
     },
     {
       "bytes": 307,
@@ -101,14 +131,14 @@
       "sha256": "62d6fdd9d587504092fe8417670b55895ea4db4fc845790f6270e8f50612b6e2"
     },
     {
-      "bytes": 11665,
+      "bytes": 13816,
       "path": "README.md",
-      "sha256": "64eb1386fc64cd50038bc6831ac01d470806dbf72f191d1d02f3f57d3eb37279"
+      "sha256": "2fe6eabf4033ebf759e297b7fcaeb7e3670714e2e91c0cd48242dfc5da0e3db1"
     },
     {
-      "bytes": 10852,
+      "bytes": 12815,
       "path": "README.zh-CN.md",
-      "sha256": "d5280efe91eebac74e487d7926f4beb35afe5657781d83dd505393625f996884"
+      "sha256": "c37fdd467128bd0b4462e438fc439db281d82ce34c93b25abbedac85cf8f342e"
     },
     {
       "bytes": 3578,
@@ -411,9 +441,9 @@
       "sha256": "f3e18e1a303411566df5f3ff5c451863c5de064f812bc2bd8dfde5feed700977"
     },
     {
-      "bytes": 1746,
+      "bytes": 2310,
       "path": "assets/visuals/README.md",
-      "sha256": "92153f3b74123025a1969721efbc66ae7b9cdee13e26bbe61a1ffd675853ca98"
+      "sha256": "b4cdca2b5396147d9524a306f41bd066c046b47f7198bfc579114e519cbc816f"
     },
     {
       "bytes": 4455,
@@ -456,9 +486,29 @@
       "sha256": "56bfd1a7eaf6cf84a5fdfa01d41f54f93c48220d6ce6e7b10382276d515d36f8"
     },
     {
+      "bytes": 5004,
+      "path": "assets/visuals/free-energy-sampling.svg",
+      "sha256": "d34d6b84f055d0f940677f89df949c31139f527aa94d47320b5a9a5b3183b4cc"
+    },
+    {
       "bytes": 5003,
       "path": "assets/visuals/hero-multiscale.svg",
       "sha256": "33957606dfc4cf2025aa07933665804bec6fa6f64017a4241157c3757bbf4195"
+    },
+    {
+      "bytes": 6964,
+      "path": "assets/visuals/hpc-execution-provenance.svg",
+      "sha256": "ef6d90f44d31081410bea1e21bde4217136ea8f30816e96c22b4881349014c39"
+    },
+    {
+      "bytes": 6021,
+      "path": "assets/visuals/mesoscale-phase-field.svg",
+      "sha256": "3eb423395c85cc14ed9a284c84979f71a0bfd8757a9e5a0bf12ffe89e77a255c"
+    },
+    {
+      "bytes": 5267,
+      "path": "assets/visuals/ml-potential-active-learning.svg",
+      "sha256": "41508b8843cf91a1372ef278a83a26b442595dd9342c79ae39d46f2e3e2508cc"
     },
     {
       "bytes": 4264,
@@ -474,6 +524,16 @@
       "bytes": 3853,
       "path": "assets/visuals/quantum-to-md.svg",
       "sha256": "89aa71bd70d4a41496ffe092f60a5737c736b878f0bd40df1a5aa095ace14a72"
+    },
+    {
+      "bytes": 6085,
+      "path": "assets/visuals/reaction-kinetics-network.svg",
+      "sha256": "8a685589c24e16e69a7414a3e244a88c60d96e81b623c64d9504483690cddb6f"
+    },
+    {
+      "bytes": 5752,
+      "path": "assets/visuals/uncertainty-sensitivity.svg",
+      "sha256": "7c56884dd86a5dda486959b1384d24748acb972f279e6a87490a2c7c5c76ff49"
     },
     {
       "bytes": 484,
@@ -1581,9 +1641,9 @@
       "sha256": "4b1ea5595c760a27cc64a959eee5de1ae0574967d01a86e740ab0d56cf2412b3"
     },
     {
-      "bytes": 1392,
+      "bytes": 1421,
       "path": "reports/CURRENT_MAIN_VERIFICATION.json",
-      "sha256": "9197f310f6b762c666117adfa9c0642523cf8695dea7f43fd33b1ed85f325097"
+      "sha256": "adad2b91ffc02d4afbf2c24237ff3698c772def89fc7a03c0279a97b27ceb434"
     },
     {
       "bytes": 3115,
@@ -1794,6 +1854,16 @@
       "bytes": 4895,
       "path": "scripts/sync_version_metadata.py",
       "sha256": "c9f78b23c520b894602f832e7c922a759af8b1b24004f54d501aa099b89acf3c"
+    },
+    {
+      "bytes": 13584,
+      "path": "scripts/ultimate_audit_v3_coordinator.sh",
+      "sha256": "b59119413afb53491590633f1b3eac50fb25060dd6402cf99455c70914ea4620"
+    },
+    {
+      "bytes": 13378,
+      "path": "scripts/ultimate_audit_v3_prepare.py",
+      "sha256": "ccda7e262b7a7440499adb566694b41d7562665e818e34ddd5e66506e9c3e5b5"
     },
     {
       "bytes": 4436,
@@ -2021,9 +2091,9 @@
       "sha256": "f46c1d35f8e9611e6c3d29de68819198d33e31913d4b58a2bf44c52ab00e4ded"
     },
     {
-      "bytes": 1572,
+      "bytes": 2594,
       "path": "tests/test_readme_visuals.py",
-      "sha256": "ae6057451ad2b8f347a9e0128b0030c16e8a0df3214c8ba43c47a34645a8de57"
+      "sha256": "1b015daf8b55e2b4e9e618eaecc671e80a5be261fe7de9b189709eecd284f712"
     },
     {
       "bytes": 2268,

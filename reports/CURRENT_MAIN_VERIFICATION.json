@@ -9,7 +9,7 @@
   "counts": {
     "adapters": 27,
     "capabilities": 164,
-    "visual_assets": 12,
+    "visual_assets": 18,
     "workflows": 20
   },
   "coverage": {
@@ -34,6 +34,7 @@
   },
   "verified_at_utc": "2026-07-25T19:58:34.499806+00:00",
   "version": "3.0.2",
+  "visual_atlas_version": 3,
   "wheel_reproducible_and_isolated_install": true,
   "windows_python_310_core": "PASS",
   "windows_python_313_core": "PASS"

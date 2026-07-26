@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Expanded the bilingual project homepage to twelve repository-local scientific SVG diagrams covering multiscale architecture, AI orchestration, DFT, molecular dynamics, polymers, continuum multiphysics, process optimization, evidence, confidence and reproducibility.
+- Expanded the bilingual project homepage to eighteen repository-local scientific SVG diagrams, adding dedicated enhanced-sampling, reaction-kinetics, ML-potential, mesoscale-morphology, HPC-provenance and UQ/sensitivity views to the existing multiscale atlas.
 - Preserved the minimum secure Windows subprocess bootstrap environment while continuing to block arbitrary host-variable and secret leakage.
 - Normalized coverage paths across operating systems so critical-file policies remain fail-closed on Windows and POSIX runners.
 - Enforced LF checkout and runtime text generation, added AST governance for every production `Path.write_text`, and made the byte-level Manifest stable across Ubuntu, Windows and macOS.

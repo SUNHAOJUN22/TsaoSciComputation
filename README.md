@@ -76,6 +76,37 @@ Representative scope includes electronic structure, quantum chemistry, atomistic
 
 The process layer separates flowsheet construction, model calibration, uncertainty propagation, sensitivity, constrained search and human authorization. A numerical optimum is rejected when feasibility, uncertainty, safety, applicability or review evidence is incomplete.
 
+## Specialized simulation and AI capability atlas
+
+<table>
+<tr>
+<td width="50%"><img src="assets/visuals/free-energy-sampling.svg" alt="Enhanced sampling and free-energy reconstruction workflow" width="100%"></td>
+<td width="50%"><img src="assets/visuals/reaction-kinetics-network.svg" alt="Reaction pathways kinetic networks and reactor evidence" width="100%"></td>
+</tr>
+<tr>
+<td align="center"><b>Enhanced sampling &amp; free energy</b><br>Collective variables, biased ensembles, overlap, reconstruction and uncertainty.</td>
+<td align="center"><b>Reaction pathways &amp; kinetics</b><br>Stationary points, transition states, rates, networks and reactor-balance handoff.</td>
+</tr>
+<tr>
+<td width="50%"><img src="assets/visuals/ml-potential-active-learning.svg" alt="Machine learned potential and active learning loop" width="100%"></td>
+<td width="50%"><img src="assets/visuals/mesoscale-phase-field.svg" alt="Mesoscale phase field and morphology workflow" width="100%"></td>
+</tr>
+<tr>
+<td align="center"><b>ML potentials &amp; active learning</b><br>Reference labels, model committees, uncertainty alarms and validated dynamics.</td>
+<td align="center"><b>Mesoscale morphology</b><br>Coarse-graining, phase evolution, topology metrics and continuum transfer.</td>
+</tr>
+<tr>
+<td width="50%"><img src="assets/visuals/hpc-execution-provenance.svg" alt="Bounded HPC execution and provenance workflow" width="100%"></td>
+<td width="50%"><img src="assets/visuals/uncertainty-sensitivity.svg" alt="Uncertainty quantification sensitivity and decision boundary" width="100%"></td>
+</tr>
+<tr>
+<td align="center"><b>HPC execution provenance</b><br>Preflight, scheduler boundaries, isolated execution, hashes and reviewed evidence.</td>
+<td align="center"><b>UQ &amp; sensitivity</b><br>Input distributions, propagation, global ranking, prediction intervals and robust decisions.</td>
+</tr>
+</table>
+
+These views make six high-impact capability families explicit without claiming bundled solvers or live production execution. Each diagram separates numerical output from convergence, physical validity, uncertainty, applicability and human authorization.
+
 ## Solver-aware ecosystem
 
 <img src="assets/visuals/engine-ecosystem.svg" alt="Scientific solver and adapter ecosystem" width="100%">
@@ -192,7 +223,7 @@ completed ≠ parsed ≠ converged ≠ validated ≠ accepted
 
 Benchmark success does not prove live third-party solver execution. Missing convergence, physical checks, uncertainty, applicability, provenance, evidence or required human approval prevents scientific acceptance. Reactor, control, digital-twin, safety, runaway and commercial decisions require qualified domain review.
 
-The 12 illustrations in `assets/visuals/` are original explanatory diagrams generated for this repository. They are not screenshots, benchmark plots, or evidence of live external-engine execution. Their integrity, accessibility, source-distribution inclusion and bilingual README references are automatically tested.
+The 18 illustrations in `assets/visuals/` are original explanatory diagrams generated for this repository. They are not screenshots, benchmark plots, or evidence of live external-engine execution. Their integrity, accessibility, source-distribution inclusion and bilingual README references are automatically tested.
 
 ## Repository policy
 

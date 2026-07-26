@@ -76,6 +76,37 @@ TsaoSciComputation 将科学问题转化为可追溯的计算程序：显式定�
 
 流程层将流程图构建、模型校准、不确定度传播、敏感性分析、约束搜索和人工授权明确分离。可行性、不确定度、安全性、适用域或审核证据不完整时，数值最优解不得进入工程接受状态。
 
+## 专项模拟与 AI 能力图谱
+
+<table>
+<tr>
+<td width="50%"><img src="assets/visuals/free-energy-sampling.svg" alt="增强采样与自由能重构工作流" width="100%"></td>
+<td width="50%"><img src="assets/visuals/reaction-kinetics-network.svg" alt="反应路径 动力学网络与反应器证据" width="100%"></td>
+</tr>
+<tr>
+<td align="center"><b>增强采样与自由能</b><br>集体变量、偏置系综、重叠检查、自由能重构与不确定度。</td>
+<td align="center"><b>反应路径与动力学</b><br>驻点、过渡态、速率、反应网络及反应器衡算交接。</td>
+</tr>
+<tr>
+<td width="50%"><img src="assets/visuals/ml-potential-active-learning.svg" alt="机器学习势与主动学习闭环" width="100%"></td>
+<td width="50%"><img src="assets/visuals/mesoscale-phase-field.svg" alt="介观相场与形貌演化工作流" width="100%"></td>
+</tr>
+<tr>
+<td align="center"><b>机器学习势与主动学习</b><br>参考标注、模型委员会、不确定度报警与受验证动力学。</td>
+<td align="center"><b>介观形貌模拟</b><br>粗粒化、相演化、拓扑指标与连续介质参数交接。</td>
+</tr>
+<tr>
+<td width="50%"><img src="assets/visuals/hpc-execution-provenance.svg" alt="有界 HPC 执行与溯源工作流" width="100%"></td>
+<td width="50%"><img src="assets/visuals/uncertainty-sensitivity.svg" alt="不确定度量化 敏感性与决策边界" width="100%"></td>
+</tr>
+<tr>
+<td align="center"><b>HPC 执行溯源</b><br>环境前检、调度边界、隔离执行、哈希与人工证据审核。</td>
+<td align="center"><b>不确定度与敏感性</b><br>输入分布、传播、全局排序、预测区间与稳健决策。</td>
+</tr>
+</table>
+
+这六类高价值能力由专属图示明确呈现，但不宣称仓库打包了外部求解器或已经完成生产级真实运行。每幅图均将数值输出与收敛性、物理有效性、不确定度、适用域和人工授权分开。
+
 ## 求解器感知型生态
 
 <img src="assets/visuals/engine-ecosystem.svg" alt="科学计算求解器与适配器生态" width="100%">
@@ -192,7 +223,7 @@ completed ≠ parsed ≠ converged ≠ validated ≠ accepted
 
 内部基准通过不代表第三方求解器已经真实运行。缺少收敛、物理检查、不确定度、适用域、溯源、证据或必要人工审批中的任一项，均不得进入科学接受状态。反应器、控制、数字孪生、安全、失控反应和商业决策等高风险结论必须由合格的领域专家审核。
 
-`assets/visuals/` 中的 12 幅图片是为本仓库生成的原创解释性矢量图，不是求解器截图、性能曲线或真实外部引擎运行证据。图片完整性、可访问性、源码分发收录以及中英文 README 引用均由自动测试检查。
+`assets/visuals/` 中的 18 幅图片是为本仓库生成的原创解释性矢量图，不是求解器截图、性能曲线或真实外部引擎运行证据。图片完整性、可访问性、源码分发收录以及中英文 README 引用均由自动测试检查。
 
 ## 仓库策略
 
