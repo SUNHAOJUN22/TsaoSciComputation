@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 620" role="img" aria-labelledby="title desc">
+<title id="title">Reactor safety control and digital-twin workflow</title>
+<desc id="desc">A safety-focused reactor workflow connecting kinetic and thermal models, sensors, state estimation, control, protection layers, uncertainty, and qualified human authorization.</desc>
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#19111f"/><stop offset="1" stop-color="#183449"/></linearGradient><marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0 0L0 6L9 3z" fill="#7dd3fc"/></marker></defs>
+<rect width="1200" height="620" rx="30" fill="url(#bg)"/>
+<text x="58" y="62" fill="#f8fafc" font-family="Arial" font-size="34" font-weight="700">Reactor Safety, Control &amp; Digital Twin</text>
+<text x="58" y="96" fill="#fed7aa" font-family="Arial" font-size="18">kinetics + heat → state estimation → control → protection layers → qualified authorization</text>
+<g font-family="Arial">
+<rect x="55" y="145" width="280" height="335" rx="22" fill="#3b1d2b" stroke="#fb7185"/><text x="85" y="185" fill="#fff1f2" font-size="24" font-weight="700">Physical reactor</text>
+<path d="M130 230h130v35c0 60-20 118-65 150-45-32-65-90-65-150z" fill="#7f1d1d" stroke="#fda4af" stroke-width="4"/><path d="M145 330 C175 300 210 365 245 320" fill="none" stroke="#fbbf24" stroke-width="7"/><circle cx="195" cy="265" r="16" fill="#fb7185"/><text x="85" y="440" fill="#fecdd3" font-size="17">mass • energy • pressure</text>
+<rect x="380" y="145" width="300" height="335" rx="22" fill="#142d43" stroke="#38bdf8"/><text x="410" y="185" fill="#e0f2fe" font-size="24" font-weight="700">Digital twin</text>
+<path d="M425 400 C455 370 470 260 505 245 S555 355 595 310 S635 220 650 250" fill="none" stroke="#60a5fa" stroke-width="6"/><path d="M425 365 C470 350 510 330 555 340 S610 360 650 330" fill="none" stroke="#34d399" stroke-width="4"/>
+<text x="410" y="438" fill="#bae6fd" font-size="17">state estimate • residuals • uncertainty</text>
+<rect x="725" y="145" width="420" height="335" rx="22" fill="#203226" stroke="#34d399"/><text x="755" y="185" fill="#ecfdf5" font-size="24" font-weight="700">Control and protection</text>
+<rect x="770" y="225" width="140" height="54" rx="14" fill="#166534"/><text x="840" y="259" text-anchor="middle" fill="#dcfce7" font-size="17">regulatory control</text><rect x="955" y="225" width="140" height="54" rx="14" fill="#854d0e"/><text x="1025" y="259" text-anchor="middle" fill="#fef3c7" font-size="17">alarm layer</text>
+<rect x="770" y="320" width="140" height="54" rx="14" fill="#9f1239"/><text x="840" y="354" text-anchor="middle" fill="#fff1f2" font-size="17">trip / shutdown</text><rect x="955" y="320" width="140" height="54" rx="14" fill="#475569"/><text x="1025" y="354" text-anchor="middle" fill="#f8fafc" font-size="17">human review</text>
+<text x="755" y="438" fill="#d1fae5" font-size="17">independent layers • safe-state evidence</text>
+<path d="M335 300H380" stroke="#7dd3fc" stroke-width="5" marker-end="url(#a)"/><path d="M680 300H725" stroke="#7dd3fc" stroke-width="5" marker-end="url(#a)"/><path d="M725 410 C620 520 300 520 200 475" fill="none" stroke="#fbbf24" stroke-width="4" marker-end="url(#a)"/>
+</g>
+<g font-family="Arial" font-size="17" text-anchor="middle"><rect x="75" y="520" width="235" height="58" rx="18" fill="#7f1d1d" stroke="#fda4af"/><text x="192" y="555" fill="#fff1f2">Balances close</text><rect x="365" y="520" width="235" height="58" rx="18" fill="#0c4a6e" stroke="#7dd3fc"/><text x="482" y="555" fill="#f0f9ff">Twin residuals bounded</text><rect x="655" y="520" width="235" height="58" rx="18" fill="#713f12" stroke="#fde68a"/><text x="772" y="555" fill="#fffbeb">Protection independent</text><rect x="945" y="520" width="200" height="58" rx="18" fill="#14532d" stroke="#86efac"/><text x="1045" y="555" fill="#f0fdf4">Expert authority</text></g>
+</svg>
