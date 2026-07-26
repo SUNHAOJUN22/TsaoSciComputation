@@ -51,9 +51,9 @@
       "sha256": "15d510e1f5228c7de316c385f6ae91044ce9fa30cbced49a30a85f6a21e9a1bb"
     },
     {
-      "bytes": 8080,
+      "bytes": 11187,
       "path": ".github/workflows/main-audit.yml",
-      "sha256": "f9c05b6c439c4f5021fd18b0521acd96708bdddadc55609826363abab45dcc94"
+      "sha256": "186bbe29b924ae0f6d8446bb86b40f57b57f23c2650aab5e213b5e09199bc0b7"
     },
     {
       "bytes": 5027,
@@ -76,9 +76,9 @@
       "sha256": "f417b371a3e3868b0449e82ca36d4b25c7926eda0bbeea829170ea0d5295138d"
     },
     {
-      "bytes": 5722,
+      "bytes": 5676,
       "path": "CHANGELOG.md",
-      "sha256": "4e6b17a6cc8803d3f677734f345a6c12db15f03bf8d8f79a4f44129b2adbe0e7"
+      "sha256": "2ac6879d275898c5ddffe5201695d243bcce95fc4debef1cb7a37b9c9d2040d3"
     },
     {
       "bytes": 307,
@@ -106,14 +106,14 @@
       "sha256": "62d6fdd9d587504092fe8417670b55895ea4db4fc845790f6270e8f50612b6e2"
     },
     {
-      "bytes": 15948,
+      "bytes": 18056,
       "path": "README.md",
-      "sha256": "28a2a656aaf087155a4703027b82af23ff5409b4785251d222507b461e52d6a5"
+      "sha256": "6f2f4e4df1cb20e780697ac668a40383581d61412d6136ecd5da4fc7677140b5"
     },
     {
-      "bytes": 14703,
+      "bytes": 16656,
       "path": "README.zh-CN.md",
-      "sha256": "653565d9670695ad1027024beddddf769503060914bd5c6b50f6d4fc3642e4f6"
+      "sha256": "f7253c03d2ad5c8beebe5914cee47bb4482230c01256833934b100aee195a699"
     },
     {
       "bytes": 3578,
@@ -416,9 +416,9 @@
       "sha256": "f3e18e1a303411566df5f3ff5c451863c5de064f812bc2bd8dfde5feed700977"
     },
     {
-      "bytes": 2887,
+      "bytes": 3461,
       "path": "assets/visuals/README.md",
-      "sha256": "09c02ac610b7a574ebcb05a3648f4eef95b88710949c86c5e20fafd9e54c7e8a"
+      "sha256": "00f48b2fb087b92073b5ed35f540fc5342369b1056bc9cb59d7931e703d31c61"
     },
     {
       "bytes": 4455,
@@ -429,6 +429,11 @@
       "bytes": 3398,
       "path": "assets/visuals/capability-landscape.svg",
       "sha256": "d755f8044b519c0c6075d7dc231b4fb5449b8815548bfbd7deb568472ec0ec10"
+    },
+    {
+      "bytes": 3458,
+      "path": "assets/visuals/catalysis-microkinetics.svg",
+      "sha256": "b0ef694511e155f9c25275dd63c06d6c44d771c90e5ac81f450d4ceaf324ff02"
     },
     {
       "bytes": 2954,
@@ -451,6 +456,11 @@
       "sha256": "c3e2538f6a5f898d644e3b99437d684a01ae53b30c7c55826ec86293fc830928"
     },
     {
+      "bytes": 3462,
+      "path": "assets/visuals/digital-twin-drift.svg",
+      "sha256": "2b96062e6f5a8265a711568e40d1c3140712339397dae7cbdd20880e94d2588c"
+    },
+    {
       "bytes": 4322,
       "path": "assets/visuals/electrochemical-interface.svg",
       "sha256": "9c4be7de98ff6d5b90b2e00e45521ebfdee30f660367cfb9629248a2e48027a8"
@@ -469,6 +479,16 @@
       "bytes": 3502,
       "path": "assets/visuals/evidence-loop.svg",
       "sha256": "56bfd1a7eaf6cf84a5fdfa01d41f54f93c48220d6ce6e7b10382276d515d36f8"
+    },
+    {
+      "bytes": 3463,
+      "path": "assets/visuals/extrusion-rheology-window.svg",
+      "sha256": "1906b9b6bb98bc0111a4fdd44277851fe735a83516544f1dd4bce772d644916c"
+    },
+    {
+      "bytes": 3445,
+      "path": "assets/visuals/fem-verification-convergence.svg",
+      "sha256": "f3a3c2fa9735055cf1d4137368fb31e5394053adec45662e9ceae0db6bb428e1"
     },
     {
       "bytes": 5004,
@@ -501,9 +521,19 @@
       "sha256": "41508b8843cf91a1372ef278a83a26b442595dd9342c79ae39d46f2e3e2508cc"
     },
     {
+      "bytes": 3447,
+      "path": "assets/visuals/periodic-materials-stability.svg",
+      "sha256": "9daecaf05e442cb7a0d38b62d689f7f85c4898b694b42bdedbe2232c43396576"
+    },
+    {
       "bytes": 4264,
       "path": "assets/visuals/polymer-process.svg",
       "sha256": "b4c3d6f9664733f297d600c784423bc63d1d90896a1e16bdb05d0367ba3be9fa"
+    },
+    {
+      "bytes": 3431,
+      "path": "assets/visuals/polymerization-population-balance.svg",
+      "sha256": "9add51c2c81970add296e5be41609c4d1e7b23b67f95d43b35efd33a423c49c9"
     },
     {
       "bytes": 4575,
@@ -1866,14 +1896,19 @@
       "sha256": "4d5750ed973436350642c7c95ef10f9574cc39f7d8e94d30b0cd1f1e6c37bd2b"
     },
     {
+      "bytes": 16746,
+      "path": "scripts/sync_readme_visual_atlas.py",
+      "sha256": "a02d188e7530270a5536b2c72928694fa9120d8fc0677f273e6d7fbbe8de4083"
+    },
+    {
       "bytes": 4895,
       "path": "scripts/sync_version_metadata.py",
       "sha256": "c9f78b23c520b894602f832e7c922a759af8b1b24004f54d501aa099b89acf3c"
     },
     {
-      "bytes": 10198,
+      "bytes": 11664,
       "path": "scripts/update_main_audit_evidence.py",
-      "sha256": "16245922ee56959f799df2dbdf1d40322effe4755fd84a9e7512a8011cf23a75"
+      "sha256": "6366aa53e9f5628d2862cb39d0b3810b093e5d2da1f7848ee8a057e98fcc3869"
     },
     {
       "bytes": 4436,
@@ -2101,9 +2136,9 @@
       "sha256": "f46c1d35f8e9611e6c3d29de68819198d33e31913d4b58a2bf44c52ab00e4ded"
     },
     {
-      "bytes": 2798,
+      "bytes": 2245,
       "path": "tests/test_readme_visuals.py",
-      "sha256": "7bd010ff21186f9bd1fe21d39433613c4b98c0f05bb98ba2106bc41fce26dd98"
+      "sha256": "5892f39a3ed8df237c7e96869b58d738e90e09b627725629c0f9afbad9282fe5"
     },
     {
       "bytes": 2268,
@@ -2141,9 +2176,14 @@
       "sha256": "2847156cbc64616e7e30595d0382f211f5f4b7cbf29378266db13c9ec419ae26"
     },
     {
-      "bytes": 2559,
+      "bytes": 2112,
+      "path": "tests/test_sync_readme_visual_atlas.py",
+      "sha256": "69e0c604859344426e286f098dc8ec88562ac98c6da3356268bbc306a6789223"
+    },
+    {
+      "bytes": 3576,
       "path": "tests/test_update_main_audit_evidence.py",
-      "sha256": "b053d315a417dd918f12aca594695d08230905c6bd0782ede64144dda9f151ca"
+      "sha256": "cb238292cb23ee5005880e3e90fdf5cc15dccaf69ca437b87f1aab7fea012fc0"
     },
     {
       "bytes": 2645,

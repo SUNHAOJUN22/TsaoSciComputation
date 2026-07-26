@@ -138,6 +138,39 @@ TsaoSciComputation 将科学问题转化为可追溯的计算程序：显式定�
 
 这六幅图将图谱从计算方法扩展到测量、全寿命周期、治理和安全，明确科学结果进入设计、运行或工程决策前必须具备的证据。
 
+<!-- V5_VISUAL_ATLAS:START -->
+## 材料、制造与模型生命周期图谱
+
+<table>
+<tr>
+<td width="50%"><img src="assets/visuals/periodic-materials-stability.svg" alt="周期材料稳定性 缺陷与声子工作流" width="100%"></td>
+<td width="50%"><img src="assets/visuals/catalysis-microkinetics.svg" alt="催化活性位与微观动力学证据工作流" width="100%"></td>
+</tr>
+<tr>
+<td align="center"><b>周期材料</b><br>结构弛豫、数值收敛、缺陷、声子与观测量级验收。</td>
+<td align="center"><b>催化与微观动力学</b><br>活性位、基元步骤、覆盖度、速率和有边界的催化剂排序。</td>
+</tr>
+<tr>
+<td width="50%"><img src="assets/visuals/polymerization-population-balance.svg" alt="聚合动力学矩模型与群体平衡工作流" width="100%"></td>
+<td width="50%"><img src="assets/visuals/extrusion-rheology-window.svg" alt="挤出流变 流动历史与加工窗口" width="100%"></td>
+</tr>
+<tr>
+<td align="center"><b>聚合动力学与 PBE</b><br>基元事件、矩模型、分子分布、可辨识性和跨尺度交接。</td>
+<td align="center"><b>挤出流变</b><br>本构关系、螺杆/口模流动、停留时间、热历史和制品质量。</td>
+</tr>
+<tr>
+<td width="50%"><img src="assets/visuals/digital-twin-drift.svg" alt="数字孪生状态估计与漂移控制" width="100%"></td>
+<td width="50%"><img src="assets/visuals/fem-verification-convergence.svg" alt="有限元方程与收敛验证工作流" width="100%"></td>
+</tr>
+<tr>
+<td align="center"><b>数字孪生生命周期</b><br>范围合同、状态估计、在线更新、漂移、适用域和人工授权。</td>
+<td align="center"><b>FEM 验证</b><br>控制方程、弱形式、网格/时间步收敛和守恒证据。</td>
+</tr>
+</table>
+
+这六类能力在注册表中均已实现，但此前缺少独立图示。所有图均将数值计算完成与科学验收明确分离。
+<!-- V5_VISUAL_ATLAS:END -->
+
 ## 求解器感知型生态
 
 <img src="assets/visuals/engine-ecosystem.svg" alt="科学计算求解器与适配器生态" width="100%">
@@ -254,7 +287,7 @@ completed ≠ parsed ≠ converged ≠ validated ≠ accepted
 
 内部基准通过不代表第三方求解器已经真实运行。缺少收敛、物理检查、不确定度、适用域、溯源、证据或必要人工审批中的任一项，均不得进入科学接受状态。反应器、控制、数字孪生、安全、失控反应和商业决策等高风险结论必须由合格的领域专家审核。
 
-`assets/visuals/` 中的 24 幅图片是为本仓库生成的原创解释性矢量图，不是求解器截图、性能曲线或真实外部引擎运行证据。图片完整性、可访问性、源码分发收录以及中英文 README 引用均由自动测试检查。
+`assets/visuals/` 中的 30 幅图片是为本仓库生成的原创解释性矢量图，不是求解器截图、性能曲线或真实外部引擎运行证据。图片完整性、可访问性、源码分发收录以及中英文 README 引用均由自动测试检查。
 
 ## 仓库策略
 

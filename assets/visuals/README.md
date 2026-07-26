@@ -36,5 +36,11 @@ This directory contains original, repository-local SVG illustrations created for
 - `evidence-loop.svg` — fail-closed scientific acceptance loop
 - `confidence-ladder.svg` — C0–C5 confidence model
 - `digital-thread.svg` — reproducibility and supply-chain evidence
+- `periodic-materials-stability.svg` — periodic relaxation, defects, phonons and stability
+- `catalysis-microkinetics.svg` — active sites, elementary steps and microkinetic evidence
+- `polymerization-population-balance.svg` — chain events, moments, PBEs and molecular distributions
+- `extrusion-rheology-window.svg` — constitutive rheology, flow history and processing windows
+- `digital-twin-drift.svg` — state estimation, online updates and drift-aware decisions
+- `fem-verification-convergence.svg` — weak forms, discretization convergence and balance checks
 
 Run `python -m pytest tests/test_readme_visuals.py -q` to validate the asset inventory and bilingual README references.

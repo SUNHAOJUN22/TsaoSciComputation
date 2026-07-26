@@ -138,6 +138,39 @@ These views make six high-impact capability families explicit without claiming b
 
 These six views extend the atlas from computational methods into measurement, lifecycle, governance and safety. They explain what evidence must exist before a scientific result can support a design, operational or engineering decision.
 
+<!-- V5_VISUAL_ATLAS:START -->
+## Materials, manufacturing and model-lifecycle atlas
+
+<table>
+<tr>
+<td width="50%"><img src="assets/visuals/periodic-materials-stability.svg" alt="Periodic materials stability defects and phonons" width="100%"></td>
+<td width="50%"><img src="assets/visuals/catalysis-microkinetics.svg" alt="Catalysis active sites and microkinetic evidence" width="100%"></td>
+</tr>
+<tr>
+<td align="center"><b>Periodic materials</b><br>Relaxation, convergence, defects, phonons and observable-level acceptance.</td>
+<td align="center"><b>Catalysis &amp; microkinetics</b><br>Sites, elementary steps, coverage, rates and bounded catalyst ranking.</td>
+</tr>
+<tr>
+<td width="50%"><img src="assets/visuals/polymerization-population-balance.svg" alt="Polymerization moments and population balance workflow" width="100%"></td>
+<td width="50%"><img src="assets/visuals/extrusion-rheology-window.svg" alt="Extrusion rheology flow history and processing window" width="100%"></td>
+</tr>
+<tr>
+<td align="center"><b>Polymerization &amp; PBE</b><br>Elementary events, moments, molecular distributions, identifiability and scale handoff.</td>
+<td align="center"><b>Extrusion rheology</b><br>Constitutive laws, screw/die flow, RTD, thermal history and product quality.</td>
+</tr>
+<tr>
+<td width="50%"><img src="assets/visuals/digital-twin-drift.svg" alt="Digital twin state estimation and drift control" width="100%"></td>
+<td width="50%"><img src="assets/visuals/fem-verification-convergence.svg" alt="Finite element formulation and convergence verification" width="100%"></td>
+</tr>
+<tr>
+<td align="center"><b>Digital twin lifecycle</b><br>Scope, estimation, online updates, drift, applicability and human authority.</td>
+<td align="center"><b>FEM verification</b><br>Governing equations, weak forms, mesh/time-step convergence and balance evidence.</td>
+</tr>
+</table>
+
+These views expose six implemented capability families that were previously present in the registry but not independently visualized. Each keeps numerical completion separate from scientific acceptance.
+<!-- V5_VISUAL_ATLAS:END -->
+
 ## Solver-aware ecosystem
 
 <img src="assets/visuals/engine-ecosystem.svg" alt="Scientific solver and adapter ecosystem" width="100%">
@@ -254,7 +287,7 @@ completed ≠ parsed ≠ converged ≠ validated ≠ accepted
 
 Benchmark success does not prove live third-party solver execution. Missing convergence, physical checks, uncertainty, applicability, provenance, evidence or required human approval prevents scientific acceptance. Reactor, control, digital-twin, safety, runaway and commercial decisions require qualified domain review.
 
-The 24 illustrations in `assets/visuals/` are original explanatory diagrams generated for this repository. They are not screenshots, benchmark plots, or evidence of live external-engine execution. Their integrity, accessibility, source-distribution inclusion and bilingual README references are automatically tested.
+The 30 illustrations in `assets/visuals/` are original explanatory diagrams generated for this repository. They are not screenshots, benchmark plots, or evidence of live external-engine execution. Their integrity, accessibility, source-distribution inclusion and bilingual README references are automatically tested.
 
 ## Repository policy
 
