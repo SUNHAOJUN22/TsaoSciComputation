@@ -177,7 +177,8 @@ jobs:
             git commit -m 'Finalize measured performance engineering V8'
             git push origin HEAD:refs/heads/main
           fi
-          test -z "$(git status --porcelain)"
+          git diff --quiet
+          git diff --cached --quiet
           echo "final_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: Dispatch and wait for canonical cross-platform CI
