@@ -3,7 +3,6 @@ from __future__ import annotations
 import argparse
 import json
 import re
-import subprocess
 import textwrap
 from collections.abc import Sequence
 from datetime import datetime, timezone
@@ -223,7 +222,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--dependency-json", type=Path, required=True)
     parser.add_argument("--security-json", type=Path, required=True)
     parser.add_argument("--remote-heads", type=Path, required=True)
-    parser.add_argument("--parent-commit")
+    parser.add_argument("--parent-commit", required=True)
     parser.add_argument("--verified-at")
     return parser
 
@@ -231,10 +230,6 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: Sequence[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     root = args.root.resolve()
-    parent_commit = (
-        args.parent_commit
-        or subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip()
-    )
     verified_at = args.verified_at or datetime.now(timezone.utc).isoformat()
     update_evidence(
         root=root,
@@ -245,7 +240,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         dependency_json=args.dependency_json,
         security_json=args.security_json,
         remote_heads=args.remote_heads,
-        parent_commit=parent_commit,
+        parent_commit=args.parent_commit,
         verified_at=verified_at,
     )
     return 0
