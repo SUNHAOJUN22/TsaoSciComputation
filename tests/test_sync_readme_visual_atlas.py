@@ -20,8 +20,7 @@ def _fixture(root: Path) -> None:
     )
     _write(
         root / "README.zh-CN.md",
-        "# 演示\n\n## 求解器感知型生态\n\n"
-        "`assets/visuals/` 中的 24 幅图片用于说明。\n",
+        "# 演示\n\n## 求解器感知型生态\n\n`assets/visuals/` 中的 24 幅图片用于说明。\n",
     )
     _write(
         root / "assets" / "visuals" / "README.md",
@@ -46,9 +45,7 @@ def test_synchronize_generates_idempotent_bilingual_atlas(tmp_path: Path) -> Non
 
     english = (tmp_path / "README.md").read_text(encoding="utf-8")
     chinese = (tmp_path / "README.zh-CN.md").read_text(encoding="utf-8")
-    inventory = (tmp_path / "assets" / "visuals" / "README.md").read_text(
-        encoding="utf-8"
-    )
+    inventory = (tmp_path / "assets" / "visuals" / "README.md").read_text(encoding="utf-8")
     assert "The 30 illustrations" in english
     assert "30 幅图片" in chinese
     for spec in NEW_VISUALS:

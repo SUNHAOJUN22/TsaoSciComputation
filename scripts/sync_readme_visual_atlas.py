@@ -216,8 +216,7 @@ def _svg(spec: VisualSpec) -> str:
     for index, (label, detail) in enumerate(spec.stages):
         x = left + index * (width + gap)
         boxes.append(
-            f'<rect x="{x:.1f}" y="215" width="{width:.1f}" height="180" rx="18" '
-            'class="box"/>'
+            f'<rect x="{x:.1f}" y="215" width="{width:.1f}" height="180" rx="18" class="box"/>'
         )
         boxes.append(f'<text x="{x + 20:.1f}" y="258" class="label">{label}</text>')
         boxes.append(f'<text x="{x + 20:.1f}" y="291" class="small">{detail}</text>')
@@ -256,8 +255,8 @@ def _svg(spec: VisualSpec) -> str:
 <rect x="28" y="28" width="1144" height="624" rx="24" fill="none" stroke="#1e3a5f"/>
 <text x="68" y="92" class="title">{spec.heading}</text>
 <text x="68" y="126" class="sub">{spec.subtitle}</text>
-{''.join(boxes)}
-{''.join(arrows)}
+{"".join(boxes)}
+{"".join(arrows)}
 <rect x="68" y="455" width="1064" height="125" rx="18" fill="#0b1d34" stroke="#334155"/>
 <text x="96" y="505" class="label">Evidence boundary</text>
 <text x="96" y="542" class="sub">{spec.footer}</text>
@@ -309,9 +308,7 @@ def _desired_documents(root: Path) -> dict[Path, str]:
     insert_at = inventory.find("\nRun `python")
     if insert_at < 0:
         raise ValueError("visual inventory insertion point missing")
-    additions = "".join(
-        f"- `{name}` — {description}\n" for name, description in INVENTORY_LINES
-    )
+    additions = "".join(f"- `{name}` — {description}\n" for name, description in INVENTORY_LINES)
     before = inventory[:insert_at].rstrip() + "\n"
     after = inventory[insert_at:]
     for name, _ in INVENTORY_LINES:

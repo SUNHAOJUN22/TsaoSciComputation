@@ -28,9 +28,7 @@ def _vulnerability_count(payload: Any) -> int:
         dependencies = payload.get("dependencies", [])
         if isinstance(dependencies, list):
             return sum(
-                len(item.get("vulns", []))
-                for item in dependencies
-                if isinstance(item, dict)
+                len(item.get("vulns", [])) for item in dependencies if isinstance(item, dict)
             )
     raise ValueError("unsupported pip-audit JSON shape")
 

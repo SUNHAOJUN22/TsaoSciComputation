@@ -9,9 +9,7 @@ ENTRY = re.compile(r"^- `([^`]+\.svg)` — ", re.MULTILINE)
 
 
 def _inventory_names() -> tuple[str, ...]:
-    inventory = (ROOT / "assets" / "visuals" / "README.md").read_text(
-        encoding="utf-8"
-    )
+    inventory = (ROOT / "assets" / "visuals" / "README.md").read_text(encoding="utf-8")
     names = tuple(ENTRY.findall(inventory))
     assert len(names) == len(set(names))
     return names

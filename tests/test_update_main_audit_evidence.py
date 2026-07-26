@@ -80,12 +80,8 @@ def test_update_evidence_is_parameterized_and_bilingual(tmp_path: Path) -> None:
     assert evidence["remote_branches"] == ["main"]
     assert evidence["audit_generation"] == "ultimate-main-audit-v5"
     assert evidence["visual_atlas_version"] == 5
-    assert "562 passed, 0 failed" in (tmp_path / "README.md").read_text(
-        encoding="utf-8"
-    )
-    assert "562 通过，0 失败" in (tmp_path / "README.zh-CN.md").read_text(
-        encoding="utf-8"
-    )
+    assert "562 passed, 0 failed" in (tmp_path / "README.md").read_text(encoding="utf-8")
+    assert "562 通过，0 失败" in (tmp_path / "README.zh-CN.md").read_text(encoding="utf-8")
     report = tmp_path / "reports" / "ULTIMATE_MAIN_AUDIT_V5.md"
     assert "Scientific visuals: `30`" in report.read_text(encoding="utf-8")
 
