@@ -1,18 +1,20 @@
 from __future__ import annotations
 
 import json
-from functools import lru_cache
+from functools import cache
 from typing import Any, cast
 
 from ..paths import REGISTRY_ROOT
 
+_RESOLVED_REGISTRY_ROOT = REGISTRY_ROOT.resolve()
 
-@lru_cache(maxsize=8)
+
+@cache
 def _load(name: str) -> tuple[Any, ...] | dict[str, Any]:
-    path = (REGISTRY_ROOT / name).resolve()
-    if path.parent != REGISTRY_ROOT.resolve():
+    path = (_RESOLVED_REGISTRY_ROOT / name).resolve()
+    if path.parent != _RESOLVED_REGISTRY_ROOT:
         raise ValueError("registry path escaped root")
-    data = json.loads(path.read_text(encoding="utf-8"))
+    data = json.loads(path.read_bytes())
     return tuple(data) if isinstance(data, list) else data
 
 
@@ -33,4 +35,9 @@ def units() -> dict[str, Any]:
 
 
 def clear_registry_caches() -> None:
+    from ..adapters.registry import clear_adapter_caches
+    from ..routing.router import clear_routing_caches
+
+    clear_adapter_caches()
+    clear_routing_caches()
     _load.cache_clear()
