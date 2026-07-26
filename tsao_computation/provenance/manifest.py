@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import heapq
 import os
 from collections.abc import Iterator
 from pathlib import Path
@@ -36,23 +37,34 @@ def is_excluded_path(relative: Path) -> bool:
 
 def iter_repository_entries(root: Path) -> Iterator[Path]:
     root = root.resolve()
+    pending: list[tuple[str, Path, Path, bool, bool]] = []
 
-    def walk(directory: Path, relative_directory: Path) -> Iterator[Path]:
+    def enqueue(directory: Path, relative_directory: Path) -> None:
         with os.scandir(directory) as scan:
-            entries = sorted(scan, key=lambda entry: entry.name)
-        for entry in entries:
-            relative = relative_directory / entry.name
-            if is_excluded_path(relative):
-                continue
-            path = Path(entry.path)
-            if entry.is_symlink():
-                yield path
-            elif entry.is_dir(follow_symlinks=False):
-                yield from walk(path, relative)
-            else:
-                yield path
+            for entry in scan:
+                relative = relative_directory / entry.name
+                if is_excluded_path(relative):
+                    continue
+                heapq.heappush(
+                    pending,
+                    (
+                        relative.as_posix(),
+                        relative,
+                        Path(entry.path),
+                        entry.is_symlink(),
+                        entry.is_dir(follow_symlinks=False),
+                    ),
+                )
 
-    yield from walk(root, Path())
+    enqueue(root, Path())
+    while pending:
+        _, relative, path, is_symlink, is_directory = heapq.heappop(pending)
+        if is_symlink:
+            yield path
+        elif is_directory:
+            enqueue(path, relative)
+        else:
+            yield path
 
 
 def file_manifest(root: Path) -> list[dict[str, str | int]]:
