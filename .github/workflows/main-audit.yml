@@ -2,10 +2,17 @@ name: Main audit
 
 on:
   workflow_dispatch:
+    inputs:
+      issue:
+        description: Audit tracking issue number
+        required: false
+        default: '24'
   push:
     branches: [main]
     paths:
       - '.github/workflows/main-audit.yml'
+      - 'scripts/update_main_audit_evidence.py'
+      - 'tests/test_update_main_audit_evidence.py'
       - 'assets/visuals/**'
       - 'README.md'
       - 'README.zh-CN.md'
@@ -27,7 +34,7 @@ jobs:
     timeout-minutes: 240
     env:
       GH_TOKEN: ${{ github.token }}
-      ISSUE_NUMBER: '24'
+      ISSUE_NUMBER: ${{ inputs.issue || '24' }}
       TSAO_COVERAGE_JSON: /tmp/tsao-main-audit-coverage.json
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
@@ -45,7 +52,6 @@ jobs:
         run: python -m pip install -e '.[validation,quality,security]'
 
       - name: Synchronize the byte-level repository Manifest
-        id: manifest_sync
         shell: bash
         run: |
           set -Eeuo pipefail
@@ -58,7 +64,6 @@ jobs:
             git commit -m 'Synchronize repository Manifest for main audit'
             git push origin HEAD:refs/heads/main
           fi
-          echo "prepared_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: Run deterministic release gates pass 1
         shell: bash
@@ -87,19 +92,23 @@ jobs:
 
           dependency = json.loads(Path('/tmp/main-audit-dependency.json').read_text(encoding='utf-8'))
           if isinstance(dependency, list):
-              vulnerability_count = sum(len(item.get('vulns', [])) for item in dependency)
+              vulnerabilities = sum(
+                  len(item.get('vulns', []))
+                  for item in dependency
+                  if isinstance(item, dict)
+              )
           else:
-              vulnerability_count = sum(
+              vulnerabilities = sum(
                   len(item.get('vulns', []))
                   for item in dependency.get('dependencies', [])
+                  if isinstance(item, dict)
               )
-          if vulnerability_count:
-              raise SystemExit(f'dependency vulnerabilities found: {vulnerability_count}')
+          if vulnerabilities:
+              raise SystemExit(f'dependency vulnerabilities found: {vulnerabilities}')
 
           security = json.loads(Path('/tmp/main-audit-security.json').read_text(encoding='utf-8'))
-          findings = security.get('findings', [])
-          if findings:
-              raise SystemExit(f'repository security findings: {findings}')
+          if security.get('findings', []):
+              raise SystemExit(f"repository security findings: {security['findings']}")
 
           heads = [
               line.split()[1]
@@ -114,181 +123,14 @@ jobs:
         shell: bash
         run: |
           set -Eeuo pipefail
-          python - <<'PY'
-          from __future__ import annotations
-
-          import json
-          import os
-          import re
-          import subprocess
-          import textwrap
-          from datetime import datetime, timezone
-          from pathlib import Path
-
-          run_id = int(os.environ['GITHUB_RUN_ID'])
-          issue_number = int(os.environ['ISSUE_NUMBER'])
-          now = datetime.now(timezone.utc).isoformat()
-          parent_commit = subprocess.check_output(
-              ['git', 'rev-parse', 'HEAD'], text=True
-          ).strip()
-
-          test_log = Path('/tmp/main-audit-pytest.log').read_text(encoding='utf-8')
-          passed_values = [int(value) for value in re.findall(r'(\d+) passed', test_log)]
-          if not passed_values:
-              raise SystemExit('unable to determine passing test count')
-          passed = max(passed_values)
-
-          coverage = json.loads(Path(os.environ['TSAO_COVERAGE_JSON']).read_text(encoding='utf-8'))
-          totals = coverage['totals']
-          statement = float(totals['percent_statements_covered'])
-          branch = float(totals['percent_branches_covered'])
-
-          dependency = json.loads(Path('/tmp/main-audit-dependency.json').read_text(encoding='utf-8'))
-          if isinstance(dependency, list):
-              vulnerability_count = sum(len(item.get('vulns', [])) for item in dependency)
-          else:
-              vulnerability_count = sum(
-                  len(item.get('vulns', []))
-                  for item in dependency.get('dependencies', [])
-              )
-          security = json.loads(Path('/tmp/main-audit-security.json').read_text(encoding='utf-8'))
-          findings = security.get('findings', [])
-          branch_lines = Path('/tmp/main-audit-remote-heads.txt').read_text(encoding='utf-8').splitlines()
-          remote_branches = [
-              line.split()[1].removeprefix('refs/heads/')
-              for line in branch_lines
-              if line.strip()
-          ]
-
-          evidence_path = Path('reports/CURRENT_MAIN_VERIFICATION.json')
-          evidence = json.loads(evidence_path.read_text(encoding='utf-8'))
-          evidence.update(
-              {
-                  'audit_generation': 'ultimate-main-audit-v4',
-                  'canonical_ci_evidence': (
-                      'The accepted final-commit CI run is recorded in the closing '
-                      f'comment of GitHub Issue #{issue_number}.'
-                  ),
-                  'canonical_text_parent_commit': parent_commit,
-                  'dependency_vulnerabilities': vulnerability_count,
-                  'deterministic_finalization_run_id': run_id,
-                  'remote_branches': remote_branches,
-                  'repository_security_findings': len(findings),
-                  'schema_version': '1.4',
-                  'status': 'VALIDATED',
-                  'tests': {'failed': 0, 'passed': passed},
-                  'ultimate_audit_issue': issue_number,
-                  'verified_at_utc': now,
-                  'visual_atlas_version': 4,
-              }
-          )
-          evidence['counts']['visual_assets'] = 24
-          evidence['coverage'] = {
-              'branch_percent': branch,
-              'statement_percent': statement,
-          }
-          evidence_path.write_text(
-              json.dumps(evidence, indent=2, sort_keys=True) + '\n',
-              encoding='utf-8',
-              newline='\n',
-          )
-
-          english_block = f'''<!-- CURRENT_MAIN_VERIFICATION:START -->
-          Validated on `{now}` by deterministic finalization run `{run_id}`.
-
-          | Current-main item | Result |
-          |---|---:|
-          | Version | {evidence['version']} |
-          | Capabilities / adapters / workflows | 164 / 27 / 20 |
-          | Tests | {passed} passed, 0 failed |
-          | Statement / branch coverage | {statement:.2f}% / {branch:.2f}% |
-          | Windows core | Python 3.10 and 3.13; final result recorded in Issue #{issue_number} |
-          | Controlled mutation probes | 64/64 killed |
-          | Scientific reference benchmarks | 8/8 passed |
-          | Repository / dependency findings | {len(findings)} / {vulnerability_count} |
-          | Source archives / Wheel | reproducible / reproducible + isolated install |
-          | Generated text / Manifest | canonical LF / cross-platform stable |
-          | Scientific visual assets | 24 self-contained SVGs |
-          | Remote branches | `main` only |
-
-          The final V4 commit is accepted only after canonical Ubuntu/Windows/macOS × Python 3.10/3.13 CI is recorded in [Issue #{issue_number}](../../issues/{issue_number}). Machine-readable evidence: [`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json).
-          <!-- CURRENT_MAIN_VERIFICATION:END -->'''
-          english_block = textwrap.dedent(english_block).strip()
-
-          chinese_block = f'''<!-- CURRENT_MAIN_VERIFICATION:START -->
-          已于 `{now}` 由确定性终验运行 `{run_id}` 完成验证。
-
-          | 当前主线项目 | 结果 |
-          |---|---:|
-          | 版本 | {evidence['version']} |
-          | 能力 / 适配器 / 工作流 | 164 / 27 / 20 |
-          | 自动测试 | {passed} 通过，0 失败 |
-          | 语句 / 分支覆盖率 | {statement:.2f}% / {branch:.2f}% |
-          | Windows core | Python 3.10 与 3.13；最终结果记录于 Issue #{issue_number} |
-          | 受控变异探针 | 64/64 被识别 |
-          | 科学参考基准 | 8/8 通过 |
-          | 仓库 / 依赖安全发现 | {len(findings)} / {vulnerability_count} |
-          | 源码包 / Wheel | 可重复 / 可重复并通过隔离安装 |
-          | 生成文本 / Manifest | 统一 LF / 跨平台稳定 |
-          | 科研视觉资产 | 24 幅自包含 SVG |
-          | 远程分支 | 仅 `main` |
-
-          V4 最终提交只有在 [Issue #{issue_number}](../../issues/{issue_number}) 记录 Ubuntu/Windows/macOS × Python 3.10/3.13 正式 CI 成功后才被接受。机器可读证据：[`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json)。
-          <!-- CURRENT_MAIN_VERIFICATION:END -->'''
-          chinese_block = textwrap.dedent(chinese_block).strip()
-
-          def replace_block(path: Path, replacement: str) -> None:
-              text = path.read_text(encoding='utf-8')
-              updated, count = re.subn(
-                  r'<!-- CURRENT_MAIN_VERIFICATION:START -->.*?<!-- CURRENT_MAIN_VERIFICATION:END -->',
-                  replacement,
-                  text,
-                  count=1,
-                  flags=re.DOTALL,
-              )
-              if count != 1:
-                  raise SystemExit(f'verification block not found exactly once: {path}')
-              path.write_text(updated, encoding='utf-8', newline='\n')
-
-          replace_block(Path('README.md'), english_block)
-          replace_block(Path('README.zh-CN.md'), chinese_block)
-
-          report = f'''# Ultimate main audit V4
-
-          - Repository: `SUNHAOJUN22/TsaoSciComputation`
-          - Issue: `#{issue_number}`
-          - Branch policy: `main` only; no branch or pull request created
-          - Version: `{evidence['version']}`
-          - Deterministic finalization run: `{run_id}`
-          - Tests: `{passed} passed, 0 failed`
-          - Coverage: `{statement:.2f}%` statement / `{branch:.2f}%` branch
-          - Scientific benchmarks: `8/8`
-          - Controlled mutation probes: `64/64`
-          - Capabilities / adapters / workflows: `164 / 27 / 20`
-          - Scientific visuals: `24` self-contained SVGs
-          - Dependency vulnerabilities: `{vulnerability_count}`
-          - Repository security findings: `{len(findings)}`
-          - Source archives and Wheel: reproducible; isolated install passed
-          - Remote branches: `main` only
-
-          ## Added visual families
-
-          Electrochemical interfaces; spectroscopy observables; coupled transport and degradation;
-          inverse design; data and model governance; reactor safety and control.
-
-          ## Scientific boundary
-
-          The repository validates orchestration, contracts, deterministic fixtures, packaging,
-          documentation and evidence. It does not claim live execution of external solvers,
-          licensed databases, production HPC infrastructure or automatic authorization of
-          high-risk engineering decisions.
-          '''
-          Path('reports/ULTIMATE_MAIN_AUDIT_V4.md').write_text(
-              textwrap.dedent(report).strip() + '\n',
-              encoding='utf-8',
-              newline='\n',
-          )
-          PY
+          python scripts/update_main_audit_evidence.py \
+            --run-id "$GITHUB_RUN_ID" \
+            --issue "$ISSUE_NUMBER" \
+            --test-log /tmp/main-audit-pytest.log \
+            --coverage-json "$TSAO_COVERAGE_JSON" \
+            --dependency-json /tmp/main-audit-dependency.json \
+            --security-json /tmp/main-audit-security.json \
+            --remote-heads /tmp/main-audit-remote-heads.txt
           python scripts/build_manifest.py
           python scripts/build_manifest.py --check
           git diff --check
@@ -304,19 +146,22 @@ jobs:
           python scripts/validate_repository.py
           git diff --check
 
-      - name: Commit exact documented main tree
+      - name: Commit every verified generated artifact
         id: final_commit
         shell: bash
         run: |
           set -Eeuo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add README.md README.zh-CN.md reports/CURRENT_MAIN_VERIFICATION.json \
-            reports/ULTIMATE_MAIN_AUDIT_V4.md manifest.json benchmarks/latest.json \
-            evidence/quality-baseline.json reports/SECURITY_SCAN.json
+          git add -A
           if ! git diff --cached --quiet; then
             git commit -m 'Finalize ultimate main audit V4 evidence'
             git push origin HEAD:refs/heads/main
+          fi
+          if test -n "$(git status --porcelain)"; then
+            git status --short
+            echo 'verified working tree was not fully committed' >&2
+            exit 1
           fi
           echo "final_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
@@ -326,12 +171,11 @@ jobs:
         run: |
           set -Eeuo pipefail
           final_sha='${{ steps.final_commit.outputs.final_sha }}'
-          before="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           gh workflow run ci.yml --ref main
           sleep 8
           run_id="$(
             gh run list --workflow ci.yml --branch main --event workflow_dispatch --limit 30 \
-              --json databaseId,headSha,createdAt \
+              --json databaseId,headSha \
             | python -c 'import json,sys; rows=json.load(sys.stdin); sha=sys.argv[1]; print(next(str(r["databaseId"]) for r in rows if r["headSha"]==sha))' \
                 "$final_sha"
           )"
