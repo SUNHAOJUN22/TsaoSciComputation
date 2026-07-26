@@ -162,7 +162,7 @@ python scripts/verify_all.py --profile benchmark
 ### Current `main` verification
 
 <!-- CURRENT_MAIN_VERIFICATION:START -->
-Validated on `2026-07-25T19:58:34.499806+00:00` by deterministic finalization run `30172593367`.
+Validated on `2026-07-26T04:51:52.410824+00:00` by deterministic finalization run `30188350754`.
 
 | Current-main item | Result |
 |---|---:|
@@ -170,16 +170,16 @@ Validated on `2026-07-25T19:58:34.499806+00:00` by deterministic finalization ru
 | Capabilities / adapters / workflows | 164 / 27 / 20 |
 | Tests | 559 passed, 0 failed |
 | Statement / branch coverage | 97.32% / 93.67% |
-| Windows core | Python 3.10 and 3.13 passed |
+| Windows core | Python 3.10 and 3.13; final result recorded in Issue #23 |
 | Controlled mutation probes | 64/64 killed |
 | Scientific reference benchmarks | 8/8 passed |
 | Repository / dependency findings | 0 / 0 |
 | Source archives / Wheel | reproducible / reproducible + isolated install |
 | Generated text / Manifest | canonical LF / cross-platform stable |
-| Scientific visual assets | 12 self-contained SVGs |
+| Scientific visual assets | 18 self-contained SVGs |
 | Remote branches | `main` only |
 
-The final commit is accepted only after the canonical Ubuntu/Windows/macOS × Python 3.10/3.13 CI result is recorded in [Issue #22](../../issues/22). Machine-readable evidence: [`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json).
+The final commit is accepted only after canonical Ubuntu/Windows/macOS × Python 3.10/3.13 CI is recorded in [Issue #23](../../issues/23). Machine-readable evidence: [`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json).
 <!-- CURRENT_MAIN_VERIFICATION:END -->
 
 ### v3.0.2 verified release baseline
