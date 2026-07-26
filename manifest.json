@@ -51,9 +51,9 @@
       "sha256": "15d510e1f5228c7de316c385f6ae91044ce9fa30cbced49a30a85f6a21e9a1bb"
     },
     {
-      "bytes": 16082,
+      "bytes": 8026,
       "path": ".github/workflows/main-audit.yml",
-      "sha256": "17aed5c9c05631a341cc54d3abc5362eb9a462d50dccfeb1b055d63f00776b70"
+      "sha256": "2f8ffe953b1629bdabad866534a1d4bb1726d59162aad03ccc60175d588c162b"
     },
     {
       "bytes": 5027,
@@ -1493,7 +1493,7 @@
     {
       "bytes": 72,
       "path": "evidence/security-scan.json",
-      "sha256": "e13ab2136282af6f029277b77927a56824ad3174dc89f28f3c88f83059aa8a2b"
+      "sha256": "dfd608003e6b192ae45e1c1e5929427ff87c7a5ae0d0778f386246eb0f441fa2"
     },
     {
       "bytes": 573,
@@ -1871,6 +1871,11 @@
       "sha256": "c9f78b23c520b894602f832e7c922a759af8b1b24004f54d501aa099b89acf3c"
     },
     {
+      "bytes": 10340,
+      "path": "scripts/update_main_audit_evidence.py",
+      "sha256": "c56e3c9ae51f6db93aa64fbbed22209919dfde13f9f9aab14ad927883fb7e541"
+    },
+    {
       "bytes": 4436,
       "path": "scripts/validate_adapter_metadata.py",
       "sha256": "85cab5cc1d7eca12804cce4212b2590b26748fea965e29064cc02677b26e7728"
@@ -2134,6 +2139,11 @@
       "bytes": 2872,
       "path": "tests/test_supply_chain.py",
       "sha256": "2847156cbc64616e7e30595d0382f211f5f4b7cbf29378266db13c9ec419ae26"
+    },
+    {
+      "bytes": 2559,
+      "path": "tests/test_update_main_audit_evidence.py",
+      "sha256": "5adb6896340a41e2eba4d7daa610668234dfd0f8f81f5d1e63813b365939763c"
     },
     {
       "bytes": 2645,
