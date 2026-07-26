@@ -28,7 +28,9 @@ def _vulnerability_count(payload: Any) -> int:
         dependencies = payload.get("dependencies", [])
         if isinstance(dependencies, list):
             return sum(
-                len(item.get("vulns", [])) for item in dependencies if isinstance(item, dict)
+                len(item.get("vulns", []))
+                for item in dependencies
+                if isinstance(item, dict)
             )
     raise ValueError("unsupported pip-audit JSON shape")
 
@@ -55,6 +57,16 @@ def _replace_verification_block(path: Path, replacement: str) -> None:
     path.write_text(updated, encoding="utf-8", newline="\n")
 
 
+def _safe_report_path(root: Path, report_path: Path) -> Path:
+    if report_path.is_absolute() or ".." in report_path.parts:
+        raise ValueError("audit report path must be repository-relative")
+    resolved = (root / report_path).resolve()
+    reports_root = (root / "reports").resolve()
+    if resolved.parent != reports_root:
+        raise ValueError("audit report must be written directly under reports/")
+    return resolved
+
+
 def update_evidence(
     *,
     root: Path,
@@ -67,7 +79,18 @@ def update_evidence(
     remote_heads: Path,
     parent_commit: str,
     verified_at: str,
+    audit_generation: str,
+    audit_label: str,
+    visual_count: int,
+    visual_atlas_version: int,
+    report_path: Path,
+    visual_families: str,
 ) -> dict[str, Any]:
+    if visual_count < 1 or visual_atlas_version < 1:
+        raise ValueError("visual count and atlas version must be positive")
+    if not re.fullmatch(r"[A-Za-z0-9._-]+", audit_label):
+        raise ValueError("audit label contains unsupported characters")
+
     passed = _passed_tests(test_log)
     coverage = cast(dict[str, Any], _read_json(coverage_json))
     totals = cast(dict[str, Any], coverage["totals"])
@@ -92,7 +115,7 @@ def update_evidence(
     evidence = cast(dict[str, Any], _read_json(evidence_path))
     evidence.update(
         {
-            "audit_generation": "ultimate-main-audit-v4",
+            "audit_generation": audit_generation,
             "canonical_ci_evidence": (
                 "The accepted final-commit CI run is recorded in the closing "
                 f"comment of GitHub Issue #{issue_number}."
@@ -102,16 +125,16 @@ def update_evidence(
             "deterministic_finalization_run_id": run_id,
             "remote_branches": remote_branches,
             "repository_security_findings": len(findings),
-            "schema_version": "1.4",
+            "schema_version": f"1.{visual_atlas_version}",
             "status": "VALIDATED",
             "tests": {"failed": 0, "passed": passed},
             "ultimate_audit_issue": issue_number,
             "verified_at_utc": verified_at,
-            "visual_atlas_version": 4,
+            "visual_atlas_version": visual_atlas_version,
         }
     )
     counts = cast(dict[str, Any], evidence["counts"])
-    counts["visual_assets"] = 24
+    counts["visual_assets"] = visual_count
     evidence["coverage"] = {
         "branch_percent": branch,
         "statement_percent": statement,
@@ -139,10 +162,10 @@ def update_evidence(
         | Repository / dependency findings | {len(findings)} / {vulnerability_count} |
         | Source archives / Wheel | reproducible / reproducible + isolated install |
         | Generated text / Manifest | canonical LF / cross-platform stable |
-        | Scientific visual assets | 24 self-contained SVGs |
+        | Scientific visual assets | {visual_count} self-contained SVGs |
         | Remote branches | `main` only |
 
-        The final V4 commit is accepted only after canonical Ubuntu/Windows/macOS × Python 3.10/3.13 CI is recorded in [Issue #{issue_number}](../../issues/{issue_number}). Machine-readable evidence: [`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json).
+        The final {audit_label} commit is accepted only after canonical Ubuntu/Windows/macOS × Python 3.10/3.13 CI is recorded in [Issue #{issue_number}](../../issues/{issue_number}). Machine-readable evidence: [`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json).
         <!-- CURRENT_MAIN_VERIFICATION:END -->
         """
     ).strip()
@@ -163,10 +186,10 @@ def update_evidence(
         | 仓库 / 依赖安全发现 | {len(findings)} / {vulnerability_count} |
         | 源码包 / Wheel | 可重复 / 可重复并通过隔离安装 |
         | 生成文本 / Manifest | 统一 LF / 跨平台稳定 |
-        | 科研视觉资产 | 24 幅自包含 SVG |
+        | 科研视觉资产 | {visual_count} 幅自包含 SVG |
         | 远程分支 | 仅 `main` |
 
-        V4 最终提交只有在 [Issue #{issue_number}](../../issues/{issue_number}) 记录 Ubuntu/Windows/macOS × Python 3.10/3.13 正式 CI 成功后才被接受。机器可读证据：[`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json)。
+        {audit_label} 最终提交只有在 [Issue #{issue_number}](../../issues/{issue_number}) 记录 Ubuntu/Windows/macOS × Python 3.10/3.13 正式 CI 成功后才被接受。机器可读证据：[`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json)。
         <!-- CURRENT_MAIN_VERIFICATION:END -->
         """
     ).strip()
@@ -175,7 +198,7 @@ def update_evidence(
 
     report = textwrap.dedent(
         f"""\
-        # Ultimate main audit V4
+        # Ultimate main audit {audit_label}
 
         - Repository: `SUNHAOJUN22/TsaoSciComputation`
         - Issue: `#{issue_number}`
@@ -187,7 +210,7 @@ def update_evidence(
         - Scientific benchmarks: `8/8`
         - Controlled mutation probes: `64/64`
         - Capabilities / adapters / workflows: `164 / 27 / 20`
-        - Scientific visuals: `24` self-contained SVGs
+        - Scientific visuals: `{visual_count}` self-contained SVGs
         - Dependency vulnerabilities: `{vulnerability_count}`
         - Repository security findings: `{len(findings)}`
         - Source archives and Wheel: reproducible; isolated install passed
@@ -195,8 +218,7 @@ def update_evidence(
 
         ## Added visual families
 
-        Electrochemical interfaces; spectroscopy observables; coupled transport and degradation;
-        inverse design; data and model governance; reactor safety and control.
+        {visual_families}
 
         ## Scientific boundary
 
@@ -206,9 +228,8 @@ def update_evidence(
         high-risk engineering decisions.
         """
     ).strip()
-    (root / "reports" / "ULTIMATE_MAIN_AUDIT_V4.md").write_text(
-        report + "\n", encoding="utf-8", newline="\n"
-    )
+    destination = _safe_report_path(root, report_path)
+    destination.write_text(report + "\n", encoding="utf-8", newline="\n")
     return evidence
 
 
@@ -224,6 +245,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--remote-heads", type=Path, required=True)
     parser.add_argument("--parent-commit", required=True)
     parser.add_argument("--verified-at")
+    parser.add_argument("--audit-generation", required=True)
+    parser.add_argument("--audit-label", required=True)
+    parser.add_argument("--visual-count", type=int, required=True)
+    parser.add_argument("--visual-atlas-version", type=int, required=True)
+    parser.add_argument("--report-path", type=Path, required=True)
+    parser.add_argument("--visual-families", required=True)
     return parser
 
 
@@ -242,6 +269,12 @@ def main(argv: Sequence[str] | None = None) -> int:
         remote_heads=args.remote_heads,
         parent_commit=args.parent_commit,
         verified_at=verified_at,
+        audit_generation=args.audit_generation,
+        audit_label=args.audit_label,
+        visual_count=args.visual_count,
+        visual_atlas_version=args.visual_atlas_version,
+        report_path=args.report_path,
+        visual_families=args.visual_families,
     )
     return 0
 
