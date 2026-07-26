@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 620" role="img" aria-labelledby="title desc">
+<title id="title">Coupled transport and degradation workflow</title>
+<desc id="desc">A multiscale workflow linking morphology, electrical thermal and mass transport, defect accumulation, lifetime indicators, uncertainty, and reviewed engineering acceptance.</desc>
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#081b2a"/><stop offset="1" stop-color="#3f1d2e"/></linearGradient><marker id="arr" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0 0L0 6L9 3z" fill="#7dd3fc"/></marker></defs>
+<rect width="1200" height="620" rx="30" fill="url(#bg)"/>
+<text x="58" y="62" fill="#f8fafc" font-family="Arial" font-size="34" font-weight="700">Coupled Transport &amp; Degradation</text>
+<text x="58" y="96" fill="#bae6fd" font-family="Arial" font-size="18">morphology → field / heat / species → damage kinetics → lifetime evidence → reviewed use</text>
+<g font-family="Arial">
+<rect x="55" y="140" width="250" height="340" rx="22" fill="#0f3042" stroke="#38bdf8"/><text x="80" y="180" fill="#e0f2fe" font-size="24" font-weight="700">Structure</text>
+<path d="M90 235 C140 195 190 275 245 225 M85 320 C145 275 205 360 265 310 M105 395 C155 350 205 430 250 380" fill="none" stroke="#67e8f9" stroke-width="9"/><text x="80" y="445" fill="#bae6fd" font-size="17">phases • interfaces • traps</text>
+<rect x="345" y="140" width="330" height="340" rx="22" fill="#10273a" stroke="#fbbf24"/><text x="375" y="180" fill="#fef3c7" font-size="24" font-weight="700">Coupled transport</text>
+<path d="M385 245 H630" stroke="#60a5fa" stroke-width="6" marker-end="url(#arr)"/><path d="M385 315 H630" stroke="#fb7185" stroke-width="6" marker-end="url(#arr)"/><path d="M385 385 H630" stroke="#34d399" stroke-width="6" marker-end="url(#arr)"/>
+<text x="390" y="230" fill="#dbeafe" font-size="17">charge / field</text><text x="390" y="300" fill="#ffe4e6" font-size="17">heat / hot spots</text><text x="390" y="370" fill="#d1fae5" font-size="17">species / diffusion</text>
+<rect x="715" y="140" width="430" height="340" rx="22" fill="#351827" stroke="#f472b6"/><text x="745" y="180" fill="#fce7f3" font-size="24" font-weight="700">Damage and lifetime</text>
+<path d="M755 405 C800 400 835 385 870 350 S930 285 970 265 S1040 250 1100 190" fill="none" stroke="#fb7185" stroke-width="6"/>
+<line x1="755" y1="420" x2="1100" y2="420" stroke="#64748b"/><line x1="755" y1="215" x2="755" y2="420" stroke="#64748b"/>
+<circle cx="870" cy="350" r="10" fill="#fde68a"/><circle cx="970" cy="265" r="10" fill="#fde68a"/><text x="755" y="452" fill="#fbcfe8" font-size="17">defects • oxidation • breakdown • uncertainty</text>
+</g>
+<g font-family="Arial" font-size="17" text-anchor="middle"><rect x="75" y="520" width="235" height="58" rx="18" fill="#164e63" stroke="#67e8f9"/><text x="192" y="555" fill="#ecfeff">Conservation closes</text><rect x="365" y="520" width="235" height="58" rx="18" fill="#713f12" stroke="#fcd34d"/><text x="482" y="555" fill="#fef3c7">Coupling converges</text><rect x="655" y="520" width="235" height="58" rx="18" fill="#831843" stroke="#f9a8d4"/><text x="772" y="555" fill="#fdf2f8">Lifetime bounded</text><rect x="945" y="520" width="200" height="58" rx="18" fill="#14532d" stroke="#86efac"/><text x="1045" y="555" fill="#f0fdf4">Expert review</text></g>
+</svg>
