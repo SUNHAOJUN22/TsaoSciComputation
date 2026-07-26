@@ -24,51 +24,51 @@
     "Warmup-aware batched microbenchmarks with explicit methodology."
   ],
   "baseline": {
-    "adapter_registry_cold_median_ms": 0.248,
-    "capability_registry_cached_median_ms": 0.0005,
-    "capability_registry_cold_median_ms": 3.081,
+    "adapter_registry_cold_median_ms": 0.245,
+    "capability_registry_cached_median_ms": 0.0006,
+    "capability_registry_cold_median_ms": 3.378,
     "claim_boundary": "Local orchestration microbenchmarks; no solver execution measured.",
-    "cli_import_median_ms": 40.881,
-    "parser_5mib_throughput_mib_s": 14.66,
+    "cli_import_median_ms": 38.7,
+    "parser_5mib_throughput_mib_s": 15.26,
     "python": "3.13.14 (main, Jun 11 2026, 03:02:07) [GCC 13.3.0]",
-    "route_decision_median_ms": 0.1267,
+    "route_decision_median_ms": 0.1292,
     "schema_version": "1.0",
-    "workflow_registry_cold_median_ms": 0.227
+    "workflow_registry_cold_median_ms": 0.224
   },
   "candidate": {
-    "adapter_lookup_cached_median_us": 0.1077,
-    "adapter_registry_cold_median_ms": 0.223,
+    "adapter_lookup_cached_median_us": 0.1082,
+    "adapter_registry_cold_median_ms": 0.215,
     "capability_registry_cached_median_ms": 0.00046,
-    "capability_registry_cold_median_ms": 1.849,
+    "capability_registry_cold_median_ms": 1.818,
     "claim_boundary": "Local orchestration microbenchmarks; no solver execution measured.",
-    "cli_import_median_ms": 40.413,
+    "cli_import_median_ms": 38.003,
     "methodology": {
       "claim_boundary": "Same-host local orchestration microbenchmarks; no solver execution measured.",
       "clock": "time.perf_counter",
       "statistic": "median",
       "warmups": 2
     },
-    "parser_5mib_throughput_mib_s": 19.54,
+    "parser_5mib_throughput_mib_s": 18.85,
     "python": "3.13.14 (main, Jun 11 2026, 03:02:07) [GCC 13.3.0]",
-    "repository_walk_median_ms": 8.607,
-    "route_decision_cold_median_ms": 0.374,
-    "route_decision_median_ms": 0.03383,
+    "repository_walk_median_ms": 8.286,
+    "route_decision_cold_median_ms": 0.362,
+    "route_decision_median_ms": 0.03347,
     "schema_version": "1.1",
-    "workflow_registry_cold_median_ms": 0.164
+    "workflow_registry_cold_median_ms": 0.163
   },
   "meaningful_improvements": {
-    "parser_5mib_throughput_mib_s": 1.3329,
-    "route_decision_median_ms": 3.7452
+    "parser_5mib_throughput_mib_s": 1.2353,
+    "route_decision_median_ms": 3.8602
   },
   "regressions": {},
   "schema_version": "1.0",
   "speedups": {
-    "adapter_registry_cold_median_ms": 1.1121,
-    "capability_registry_cold_median_ms": 1.6663,
-    "cli_import_median_ms": 1.0116,
-    "parser_5mib_throughput_mib_s": 1.3329,
-    "route_decision_median_ms": 3.7452,
-    "workflow_registry_cold_median_ms": 1.3841
+    "adapter_registry_cold_median_ms": 1.1395,
+    "capability_registry_cold_median_ms": 1.8581,
+    "cli_import_median_ms": 1.0183,
+    "parser_5mib_throughput_mib_s": 1.2353,
+    "route_decision_median_ms": 3.8602,
+    "workflow_registry_cold_median_ms": 1.3742
   },
   "status": "PASS",
   "telemetry_regressions": {}

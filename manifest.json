@@ -61,9 +61,9 @@
       "sha256": "0f40aa89b1e00e1188962689eaf568638ebd57ba24715aedfe547bd15c970d4b"
     },
     {
-      "bytes": 9922,
+      "bytes": 9939,
       "path": ".github/workflows/performance-audit-v8.yml",
-      "sha256": "8d3ac2411f4ce58e5e79db1f6782e5e6ecfd648632d348a03426faddce7f611d"
+      "sha256": "d4c40b4c927e636a38c5dce049ecc505161deffa221eb745c08023ac93d34a1d"
     },
     {
       "bytes": 5027,
@@ -118,12 +118,12 @@
     {
       "bytes": 23569,
       "path": "README.md",
-      "sha256": "74772c599e1cd07f2c7d9bc704b6bebf6615f2a9518099ad3d0ca45c11f80ae8"
+      "sha256": "ec8d35ef07be6bd0f8701c8f6b54b3664b48aa67989ecca0cef48dceb3fddf91"
     },
     {
       "bytes": 21551,
       "path": "README.zh-CN.md",
-      "sha256": "992f341ba7412e7affe519d62478ab2e6a006927d5cad37e6689ec0270d25642"
+      "sha256": "52da509f4d20e4911e68c7a9542e8f0bbc93904c482182e56c1822d1ee28da9b"
     },
     {
       "bytes": 3578,
@@ -643,7 +643,7 @@
     {
       "bytes": 816,
       "path": "benchmarks/latest.json",
-      "sha256": "1e15823df32e1a825d5bb1e39934392f5b599aad48f5bdfa8891fb6024dbd0fc"
+      "sha256": "008a5b73e5a437838a4ca73061ba4ae41aea3aa12ca6b81449ac89a034891e86"
     },
     {
       "bytes": 14680,
@@ -1748,7 +1748,7 @@
     {
       "bytes": 1508,
       "path": "reports/CURRENT_MAIN_VERIFICATION.json",
-      "sha256": "93ae09e8cd87bead7166936c88449cc9ff4c423e1190a84a4de6114b0927900e"
+      "sha256": "ee7703faab76ea2eb2c51fb4a287300e53f8a50374117f1936f64e956a566a9e"
     },
     {
       "bytes": 3115,
@@ -1771,14 +1771,14 @@
       "sha256": "52f7f5c3360f7b6b49bc754f55be0581dabbf1b0d05851b87ba01e6cad9c9461"
     },
     {
-      "bytes": 2954,
+      "bytes": 2952,
       "path": "reports/PERFORMANCE_ENGINEERING_V8.json",
-      "sha256": "d7f65daf1b8ddfccdbbfb87a62fae184fa6bbb34f61f20736da7a5cbd3a04cfe"
+      "sha256": "d7bf39b760c3a55e8e4e5d24115455ea828ac80f0e11234f280ac5de26f7741e"
     },
     {
       "bytes": 594,
       "path": "reports/PERFORMANCE_ENGINEERING_V8.md",
-      "sha256": "ca56325e7b7556922e1499c5dbad9edcdc0a711e4eb85ef0d8f0e7a3113d017a"
+      "sha256": "80b9a31407f1cbd520631f06f2e843ace1b85e045054b38f89c9dc3363bc8494"
     },
     {
       "bytes": 503,
@@ -1838,7 +1838,7 @@
     {
       "bytes": 1051,
       "path": "reports/ULTIMATE_MAIN_AUDIT_V8.md",
-      "sha256": "e4c623839936372c2aab61e811cb4a05b807fb46e7d44ae37730309fedc6c5a6"
+      "sha256": "b80f9f8bc01d3b37036ece88fe61fabd121f2052473ac9162d7b67f7742afa54"
     },
     {
       "bytes": 4766,

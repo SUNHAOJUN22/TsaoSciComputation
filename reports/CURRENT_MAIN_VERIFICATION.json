@@ -4,7 +4,7 @@
   "canonical_checkout_lf": true,
   "canonical_ci_evidence": "The accepted final-commit CI run is recorded in the closing comment of GitHub Issue #28.",
   "canonical_generated_text_lf": true,
-  "canonical_text_parent_commit": "c1d6a3e01daadab52fa1dc5c2de6deda6ccba843",
+  "canonical_text_parent_commit": "ec2f4862ecab545ed57952148761cf4520d65e93",
   "claim_boundary": "Validated for repository orchestration, contracts, routing, deterministic fixtures, packaging, documentation and cross-platform CI. No live third-party solver or production HPC execution is claimed.",
   "controlled_mutants": "64/64",
   "counts": {
@@ -19,7 +19,7 @@
   },
   "cross_platform_manifest_stability": "PASS",
   "dependency_vulnerabilities": 0,
-  "deterministic_finalization_run_id": 30212227899,
+  "deterministic_finalization_run_id": 30212422333,
   "remote_branches": [
     "main"
   ],
@@ -34,7 +34,7 @@
     "passed": 577
   },
   "ultimate_audit_issue": 28,
-  "verified_at_utc": "2026-07-26T17:17:25.107915+00:00",
+  "verified_at_utc": "2026-07-26T17:22:52.896979+00:00",
   "version": "3.0.2",
   "visual_atlas_version": 7,
   "wheel_reproducible_and_isolated_install": true,

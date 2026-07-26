@@ -282,14 +282,14 @@ External solvers are optional and must be installed, licensed and validated sepa
 <!-- PERFORMANCE_V8:START -->
 ## Performance engineering
 
-V8 profiles orchestration hot paths before changing them. On deterministic audit run `30212227899`, the same-host comparison against the accepted V7 commit measured:
+V8 profiles orchestration hot paths before changing them. On deterministic audit run `30212422333`, the same-host comparison against the accepted V7 commit measured:
 
 | Measured path | V8 result |
 |---|---:|
-| Solver-output parser throughput | 19.54 MiB/s (1.33× baseline) |
-| Workflow routing | 0.03383 ms (3.75× baseline) |
-| Cached adapter lookup | 0.1077 µs |
-| Deterministic repository traversal | 8.607 ms |
+| Solver-output parser throughput | 18.85 MiB/s (1.24× baseline) |
+| Workflow routing | 0.03347 ms (3.86× baseline) |
+| Cached adapter lookup | 0.1082 µs |
+| Deterministic repository traversal | 8.286 ms |
 
 The optimization preserves zero mandatory runtime dependencies, deterministic ordering, fail-closed parsing, registry invalidation, cross-platform Manifest stability and scientific acceptance boundaries. Parser and routing are hard performance gates; startup and cold-load timings remain environment-sensitive telemetry. Full evidence: [`reports/PERFORMANCE_ENGINEERING_V8.json`](reports/PERFORMANCE_ENGINEERING_V8.json) and [Issue #28](../../issues/28).
 <!-- PERFORMANCE_V8:END -->
@@ -307,7 +307,7 @@ python scripts/verify_all.py --profile benchmark
 ### Current `main` verification
 
 <!-- CURRENT_MAIN_VERIFICATION:START -->
-Validated on `2026-07-26T17:17:25.107915+00:00` by deterministic finalization run `30212227899`.
+Validated on `2026-07-26T17:22:52.896979+00:00` by deterministic finalization run `30212422333`.
 
 | Current-main item | Result |
 |---|---:|
