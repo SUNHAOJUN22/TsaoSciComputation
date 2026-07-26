@@ -194,12 +194,30 @@ CHINESE_BLOCK = """<!-- V6_VISUAL_ATLAS:START -->
 <!-- V6_VISUAL_ATLAS:END -->"""
 
 INVENTORY_LINES = (
-    ("scale-multifidelity-plan.svg", "problem decomposition, scale selection and multi-fidelity planning"),
-    ("quantum-chemistry-thermochemistry.svg", "molecular structures, frequencies, energies and thermochemical acceptance"),
-    ("molecular-dynamics-transport.svg", "equilibration, production sampling, transport and trajectory convergence"),
-    ("polymer-composite-topology.svg", "interfaces, localization, percolation and structure-property evidence"),
-    ("flowsheet-convergence-balances.svg", "property packages, recycle convergence and balance closure"),
-    ("multiscale-handoff-uncertainty.svg", "cross-scale contracts, uncertainty propagation and applicability"),
+    (
+        "scale-multifidelity-plan.svg",
+        "problem decomposition, scale selection and multi-fidelity planning",
+    ),
+    (
+        "quantum-chemistry-thermochemistry.svg",
+        "molecular structures, frequencies, energies and thermochemical acceptance",
+    ),
+    (
+        "molecular-dynamics-transport.svg",
+        "equilibration, production sampling, transport and trajectory convergence",
+    ),
+    (
+        "polymer-composite-topology.svg",
+        "interfaces, localization, percolation and structure-property evidence",
+    ),
+    (
+        "flowsheet-convergence-balances.svg",
+        "property packages, recycle convergence and balance closure",
+    ),
+    (
+        "multiscale-handoff-uncertainty.svg",
+        "cross-scale contracts, uncertainty propagation and applicability",
+    ),
 )
 
 

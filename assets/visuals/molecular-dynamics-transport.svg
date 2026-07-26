@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 680" role="img" aria-labelledby="title desc">
+<title id="title">Molecular dynamics equilibration transport and convergence workflow</title>
+<desc id="desc">System construction, force-field qualification, minimization, ensemble equilibration, production sampling, transport observables and trajectory convergence.</desc>
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#071426"/>
+    <stop offset="0.55" stop-color="#10233f"/>
+    <stop offset="1" stop-color="#071426"/>
+  </linearGradient>
+  <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#22d3ee"/>
+    <stop offset="1" stop-color="#34d399"/>
+  </linearGradient>
+  <style>
+    .title{font:700 34px ui-sans-serif,system-ui;fill:#f8fafc}
+    .sub{font:500 17px ui-sans-serif,system-ui;fill:#cbd5e1}
+    .label{font:700 17px ui-sans-serif,system-ui;fill:#f8fafc}
+    .small{font:500 14px ui-sans-serif,system-ui;fill:#cbd5e1}
+    .box{fill:#0f2745;stroke:#3b82f6;stroke-width:1.5}
+    .line{fill:none;stroke:url(#accent);stroke-width:4;stroke-linecap:round}
+  </style>
+</defs>
+<rect width="1200" height="680" rx="28" fill="url(#bg)"/>
+<rect x="28" y="28" width="1144" height="624" rx="24" fill="none" stroke="#1e3a5f"/>
+<text x="68" y="92" class="title">Molecular dynamics: build → equilibrate → observe</text>
+<text x="68" y="126" class="sub">A long trajectory is not evidence unless ensembles, sampling and uncertainty are qualified.</text>
+<rect x="68.0" y="215" width="196.8" height="180" rx="18" class="box"/><text x="88.0" y="258" class="label">Build</text><text x="88.0" y="291" class="small">topology · composition</text><circle cx="166.4" cy="342" r="24" fill="none" stroke="url(#accent)" stroke-width="4" opacity="0.95"/><rect x="284.8" y="215" width="196.8" height="180" rx="18" class="box"/><text x="304.8" y="258" class="label">Qualify</text><text x="304.8" y="291" class="small">force field · units</text><circle cx="383.2" cy="342" r="26" fill="none" stroke="url(#accent)" stroke-width="4" opacity="0.87"/><rect x="501.6" y="215" width="196.8" height="180" rx="18" class="box"/><text x="521.6" y="258" class="label">Equilibrate</text><text x="521.6" y="291" class="small">NVT · NPT</text><circle cx="600.0" cy="342" r="28" fill="none" stroke="url(#accent)" stroke-width="4" opacity="0.79"/><rect x="718.4" y="215" width="196.8" height="180" rx="18" class="box"/><text x="738.4" y="258" class="label">Sample</text><text x="738.4" y="291" class="small">production · replicas</text><circle cx="816.8" cy="342" r="30" fill="none" stroke="url(#accent)" stroke-width="4" opacity="0.71"/><rect x="935.2" y="215" width="196.8" height="180" rx="18" class="box"/><text x="955.2" y="258" class="label">Observe</text><text x="955.2" y="291" class="small">diffusion · RDF · UQ</text><circle cx="1033.6" cy="342" r="32" fill="none" stroke="url(#accent)" stroke-width="4" opacity="0.63"/>
+<path d="M264.8 305H284.8" class="line"/><path d="M481.6 305H501.6" class="line"/><path d="M698.4 305H718.4" class="line"/><path d="M915.2 305H935.2" class="line"/>
+<rect x="68" y="455" width="1064" height="125" rx="18" fill="#0b1d34" stroke="#334155"/>
+<text x="96" y="505" class="label">Evidence boundary</text>
+<text x="96" y="542" class="sub">Transport and structure observables require convergence across time origins, blocks and replicas.</text>
+<path d="M96 565H1100" stroke="url(#accent)" stroke-width="3" stroke-linecap="round"/>
+</svg>

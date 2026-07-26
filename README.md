@@ -171,6 +171,39 @@ These six views extend the atlas from computational methods into measurement, li
 These views expose six implemented capability families that were previously present in the registry but not independently visualized. Each keeps numerical completion separate from scientific acceptance.
 <!-- V5_VISUAL_ATLAS:END -->
 
+<!-- V6_VISUAL_ATLAS:START -->
+## Planning, molecular and cross-scale capability atlas
+
+<table>
+<tr>
+<td width="50%"><img src="assets/visuals/scale-multifidelity-plan.svg" alt="Scientific scale selection and multi fidelity planning" width="100%"></td>
+<td width="50%"><img src="assets/visuals/quantum-chemistry-thermochemistry.svg" alt="Molecular quantum chemistry thermochemistry and reaction path" width="100%"></td>
+</tr>
+<tr>
+<td align="center"><b>Scale and multi-fidelity planning</b><br>Claims, scale boundaries, method fitness, fidelity ladders and evidence budgets.</td>
+<td align="center"><b>Quantum chemistry and thermochemistry</b><br>Structures, frequencies, energies, solvation, thermal corrections and pathways.</td>
+</tr>
+<tr>
+<td width="50%"><img src="assets/visuals/molecular-dynamics-transport.svg" alt="Molecular dynamics equilibration transport and trajectory convergence" width="100%"></td>
+<td width="50%"><img src="assets/visuals/polymer-composite-topology.svg" alt="Polymer composite interface topology percolation and properties" width="100%"></td>
+</tr>
+<tr>
+<td align="center"><b>Molecular dynamics and transport</b><br>System qualification, ensembles, production sampling, observables and convergence.</td>
+<td align="center"><b>Polymer composite topology</b><br>Interfaces, localization, dispersion, percolation and bounded property maps.</td>
+</tr>
+<tr>
+<td width="50%"><img src="assets/visuals/flowsheet-convergence-balances.svg" alt="Process flowsheet recycle convergence mass and energy balances" width="100%"></td>
+<td width="50%"><img src="assets/visuals/multiscale-handoff-uncertainty.svg" alt="Multiscale handoff contracts uncertainty and applicability" width="100%"></td>
+</tr>
+<tr>
+<td align="center"><b>Flowsheet convergence and balances</b><br>Properties, units, recycle closure, balances, optimization and uncertainty.</td>
+<td align="center"><b>Multiscale handoff and uncertainty</b><br>Observable semantics, units, provenance, uncertainty and receiving-model acceptance.</td>
+</tr>
+</table>
+
+These six views expose implemented capability families that were previously distributed across the registry but lacked dedicated visual explanations. They do not claim bundled solvers or live production execution.
+<!-- V6_VISUAL_ATLAS:END -->
+
 ## Solver-aware ecosystem
 
 <img src="assets/visuals/engine-ecosystem.svg" alt="Scientific solver and adapter ecosystem" width="100%">
@@ -287,7 +320,7 @@ completed ≠ parsed ≠ converged ≠ validated ≠ accepted
 
 Benchmark success does not prove live third-party solver execution. Missing convergence, physical checks, uncertainty, applicability, provenance, evidence or required human approval prevents scientific acceptance. Reactor, control, digital-twin, safety, runaway and commercial decisions require qualified domain review.
 
-The 30 illustrations in `assets/visuals/` are original explanatory diagrams generated for this repository. They are not screenshots, benchmark plots, or evidence of live external-engine execution. Their integrity, accessibility, source-distribution inclusion and bilingual README references are automatically tested.
+The 36 illustrations in `assets/visuals/` are original explanatory diagrams generated for this repository. They are not screenshots, benchmark plots, or evidence of live external-engine execution. Their integrity, accessibility, source-distribution inclusion and bilingual README references are automatically tested.
 
 ## Repository policy
 

@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Expanded the bilingual scientific atlas from twenty-four to thirty repository-local SVG diagrams, adding periodic-material stability, catalysis/microkinetics, polymerization/PBE, extrusion rheology, digital-twin drift and FEM-verification views.
+- Expanded the bilingual scientific atlas from thirty to thirty-six repository-local SVG diagrams, adding scale/multi-fidelity planning, quantum-chemistry thermochemistry, MD transport/convergence, polymer-composite topology, flowsheet convergence and multiscale handoff/UQ views.
 - Added a reusable owner-triggered main-audit workflow that refreshes the byte-level Manifest, executes deterministic release gates, performs dependency and branch-policy checks, updates current-main evidence, commits every verified generated artifact, asserts a clean tree, and waits for canonical cross-platform CI without creating a branch or pull request.
 - Added a tested current-main evidence updater so test counts, coverage, audit issue, bilingual README records and machine-readable evidence are generated through one reviewable implementation.
 - Preserved the minimum secure Windows subprocess bootstrap environment while continuing to block arbitrary host-variable and secret leakage.

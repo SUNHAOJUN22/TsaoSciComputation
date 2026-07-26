@@ -171,6 +171,39 @@ TsaoSciComputation 将科学问题转化为可追溯的计算程序：显式定�
 这六类能力在注册表中均已实现，但此前缺少独立图示。所有图均将数值计算完成与科学验收明确分离。
 <!-- V5_VISUAL_ATLAS:END -->
 
+<!-- V6_VISUAL_ATLAS:START -->
+## 科学规划、分子模拟与跨尺度能力图谱
+
+<table>
+<tr>
+<td width="50%"><img src="assets/visuals/scale-multifidelity-plan.svg" alt="科学尺度选择与多保真计算规划" width="100%"></td>
+<td width="50%"><img src="assets/visuals/quantum-chemistry-thermochemistry.svg" alt="分子量子化学 热化学与反应路径" width="100%"></td>
+</tr>
+<tr>
+<td align="center"><b>尺度选择与多保真规划</b><br>结论、尺度边界、方法适配、保真度阶梯和证据预算。</td>
+<td align="center"><b>量子化学与热化学</b><br>结构、频率、能量、溶剂化、热修正和反应路径。</td>
+</tr>
+<tr>
+<td width="50%"><img src="assets/visuals/molecular-dynamics-transport.svg" alt="分子动力学平衡 输运与轨迹收敛" width="100%"></td>
+<td width="50%"><img src="assets/visuals/polymer-composite-topology.svg" alt="聚合物复合材料界面 拓扑 渗流与性能" width="100%"></td>
+</tr>
+<tr>
+<td align="center"><b>分子动力学与输运</b><br>体系资格、统计系综、生产采样、观测量和收敛性。</td>
+<td align="center"><b>聚合物复合材料拓扑</b><br>界面、选择性定位、分散、渗流和有边界的性能映射。</td>
+</tr>
+<tr>
+<td width="50%"><img src="assets/visuals/flowsheet-convergence-balances.svg" alt="流程模拟回路收敛 物料与能量衡算" width="100%"></td>
+<td width="50%"><img src="assets/visuals/multiscale-handoff-uncertainty.svg" alt="跨尺度交接合同 不确定度与适用域" width="100%"></td>
+</tr>
+<tr>
+<td align="center"><b>流程收敛与衡算</b><br>物性、单元、循环回路、物料/能量闭合、优化和不确定度。</td>
+<td align="center"><b>跨尺度交接与不确定度</b><br>观测量语义、单位、溯源、不确定度和接收模型验收。</td>
+</tr>
+</table>
+
+这六类能力均已存在于能力注册表中，但此前缺少独立视觉说明。图示不代表仓库打包了外部求解器，也不构成生产环境真实执行证据。
+<!-- V6_VISUAL_ATLAS:END -->
+
 ## 求解器感知型生态
 
 <img src="assets/visuals/engine-ecosystem.svg" alt="科学计算求解器与适配器生态" width="100%">
@@ -287,7 +320,7 @@ completed ≠ parsed ≠ converged ≠ validated ≠ accepted
 
 内部基准通过不代表第三方求解器已经真实运行。缺少收敛、物理检查、不确定度、适用域、溯源、证据或必要人工审批中的任一项，均不得进入科学接受状态。反应器、控制、数字孪生、安全、失控反应和商业决策等高风险结论必须由合格的领域专家审核。
 
-`assets/visuals/` 中的 30 幅图片是为本仓库生成的原创解释性矢量图，不是求解器截图、性能曲线或真实外部引擎运行证据。图片完整性、可访问性、源码分发收录以及中英文 README 引用均由自动测试检查。
+`assets/visuals/` 中的 36 幅图片是为本仓库生成的原创解释性矢量图，不是求解器截图、性能曲线或真实外部引擎运行证据。图片完整性、可访问性、源码分发收录以及中英文 README 引用均由自动测试检查。
 
 ## 仓库策略
 

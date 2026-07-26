@@ -42,5 +42,11 @@ This directory contains original, repository-local SVG illustrations created for
 - `extrusion-rheology-window.svg` — constitutive rheology, flow history and processing windows
 - `digital-twin-drift.svg` — state estimation, online updates and drift-aware decisions
 - `fem-verification-convergence.svg` — weak forms, discretization convergence and balance checks
+- `scale-multifidelity-plan.svg` — problem decomposition, scale selection and multi-fidelity planning
+- `quantum-chemistry-thermochemistry.svg` — molecular structures, frequencies, energies and thermochemical acceptance
+- `molecular-dynamics-transport.svg` — equilibration, production sampling, transport and trajectory convergence
+- `polymer-composite-topology.svg` — interfaces, localization, percolation and structure-property evidence
+- `flowsheet-convergence-balances.svg` — property packages, recycle convergence and balance closure
+- `multiscale-handoff-uncertainty.svg` — cross-scale contracts, uncertainty propagation and applicability
 
 Run `python -m pytest tests/test_readme_visuals.py -q` to validate the asset inventory and bilingual README references.
