@@ -2,11 +2,12 @@
 
 ## Unreleased
 
-- Expanded the bilingual project homepage to eighteen repository-local scientific SVG diagrams, adding dedicated enhanced-sampling, reaction-kinetics, ML-potential, mesoscale-morphology, HPC-provenance and UQ/sensitivity views to the existing multiscale atlas.
+- Expanded the bilingual project homepage to twenty-four repository-local scientific SVG diagrams, adding electrochemical-interface, spectroscopy-observable, coupled-transport/degradation, inverse-design, data/model-governance and reactor-safety/control views to the existing multiscale atlas.
+- Added a reusable owner-triggered main-audit workflow that refreshes the byte-level Manifest, executes deterministic release gates, performs dependency and branch-policy checks, updates current-main evidence, and waits for canonical cross-platform CI without creating a branch or pull request.
 - Preserved the minimum secure Windows subprocess bootstrap environment while continuing to block arbitrary host-variable and secret leakage.
 - Normalized coverage paths across operating systems so critical-file policies remain fail-closed on Windows and POSIX runners.
 - Enforced LF checkout and runtime text generation, added AST governance for every production `Path.write_text`, and made the byte-level Manifest stable across Ubuntu, Windows and macOS.
-- Separated immutable v3.0.2 release evidence from current-main verification and added a machine-readable second-pass audit record.
+- Separated immutable v3.0.2 release evidence from current-main verification and added machine-readable final-audit records.
 
 ## 3.0.2 — 2026-07-24
 
