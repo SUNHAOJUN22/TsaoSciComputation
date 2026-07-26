@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 620" role="img" aria-labelledby="title desc">
+<title id="title">Inverse design and multi-objective optimization loop</title>
+<desc id="desc">A governed inverse-design cycle connecting target properties, constrained candidate generation, multi-fidelity simulation, Pareto filtering, uncertainty, validation, and human decision gates.</desc>
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#10142d"/><stop offset="1" stop-color="#0d4a3f"/></linearGradient><marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0 0L0 6L9 3z" fill="#93c5fd"/></marker></defs>
+<rect width="1200" height="620" rx="30" fill="url(#bg)"/>
+<text x="58" y="62" fill="#f8fafc" font-family="Arial" font-size="34" font-weight="700">Inverse Design — Search Without Skipping Evidence</text>
+<text x="58" y="96" fill="#a7f3d0" font-family="Arial" font-size="18">targets → candidates → multi-fidelity simulation → Pareto set → validation → authorized choice</text>
+<g font-family="Arial">
+<circle cx="205" cy="295" r="118" fill="#1e3a8a" stroke="#93c5fd" stroke-width="3"/><text x="205" y="270" text-anchor="middle" fill="#eff6ff" font-size="25" font-weight="700">Target space</text><text x="205" y="310" text-anchor="middle" fill="#dbeafe" font-size="17">performance</text><text x="205" y="338" text-anchor="middle" fill="#dbeafe" font-size="17">cost • safety • process</text>
+<rect x="390" y="155" width="280" height="280" rx="30" fill="#13364b" stroke="#22d3ee"/><text x="530" y="200" text-anchor="middle" fill="#ecfeff" font-size="25" font-weight="700">Candidate engine</text>
+<circle cx="455" cy="270" r="24" fill="#f472b6"/><circle cx="530" cy="245" r="24" fill="#fbbf24"/><circle cx="600" cy="305" r="24" fill="#34d399"/><circle cx="475" cy="355" r="24" fill="#a78bfa"/>
+<text x="530" y="405" text-anchor="middle" fill="#cffafe" font-size="17">constraints • priors • diversity</text>
+<rect x="760" y="130" width="380" height="335" rx="28" fill="#1c2e3b" stroke="#34d399"/><text x="950" y="176" text-anchor="middle" fill="#ecfdf5" font-size="25" font-weight="700">Simulation &amp; Pareto evidence</text>
+<line x1="805" y1="405" x2="1095" y2="405" stroke="#64748b"/><line x1="805" y1="405" x2="805" y2="220" stroke="#64748b"/>
+<circle cx="850" cy="360" r="10" fill="#94a3b8"/><circle cx="890" cy="330" r="10" fill="#94a3b8"/><circle cx="930" cy="300" r="11" fill="#60a5fa"/><circle cx="975" cy="270" r="11" fill="#34d399"/><circle cx="1025" cy="245" r="11" fill="#fbbf24"/><circle cx="1070" cy="230" r="11" fill="#f472b6"/>
+<path d="M825 380 C880 340 930 305 980 272 S1050 240 1080 225" fill="none" stroke="#f8fafc" stroke-width="3" stroke-dasharray="8 6"/>
+<text x="950" y="438" text-anchor="middle" fill="#d1fae5" font-size="17">multi-fidelity • uncertainty • feasibility</text>
+<path d="M315 260 C345 210 360 205 390 205" fill="none" stroke="#93c5fd" stroke-width="5" marker-end="url(#a)"/><path d="M670 270 C710 245 720 240 760 240" fill="none" stroke="#93c5fd" stroke-width="5" marker-end="url(#a)"/><path d="M950 465 C850 545 380 545 245 415" fill="none" stroke="#a7f3d0" stroke-width="5" marker-end="url(#a)"/>
+</g>
+<g font-family="Arial" font-size="17" text-anchor="middle"><rect x="105" y="515" width="230" height="58" rx="18" fill="#312e81" stroke="#c4b5fd"/><text x="220" y="550" fill="#f5f3ff">Targets traceable</text><rect x="385" y="515" width="230" height="58" rx="18" fill="#155e75" stroke="#67e8f9"/><text x="500" y="550" fill="#ecfeff">Search constrained</text><rect x="665" y="515" width="230" height="58" rx="18" fill="#713f12" stroke="#fde68a"/><text x="780" y="550" fill="#fffbeb">Pareto set validated</text><rect x="945" y="515" width="200" height="58" rx="18" fill="#14532d" stroke="#86efac"/><text x="1045" y="550" fill="#f0fdf4">Human choice</text></g>
+</svg>
