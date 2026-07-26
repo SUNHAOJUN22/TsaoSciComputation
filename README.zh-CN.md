@@ -204,6 +204,39 @@ TsaoSciComputation 将科学问题转化为可追溯的计算程序：显式定�
 这六类能力均已存在于能力注册表中，但此前缺少独立视觉说明。图示不代表仓库打包了外部求解器，也不构成生产环境真实执行证据。
 <!-- V6_VISUAL_ATLAS:END -->
 
+<!-- V7_VISUAL_ATLAS:START -->
+## 分子状态、耦合输运与运行韧性图谱
+
+<table>
+<tr>
+<td width="50%"><img src="assets/visuals/conformer-solvation-excited-state.svg" alt="构象 溶剂化 激发态与热化学工作流" width="100%"></td>
+<td width="50%"><img src="assets/visuals/surface-adsorption-migration.svg" alt="表面 吸附 缺陷与迁移证据工作流" width="100%"></td>
+</tr>
+<tr>
+<td align="center"><b>分子状态与环境</b><br>构象、溶剂化、激发态、热校正及考虑布居的观测量。</td>
+<td align="center"><b>表面、缺陷与迁移</b><br>表面模型、吸附参照、带电缺陷、迁移路径和修正证据。</td>
+</tr>
+<tr>
+<td width="50%"><img src="assets/visuals/cfd-turbulence-multiphase.svg" alt="CFD 湍流 多相流 传热与组分输运" width="100%"></td>
+<td width="50%"><img src="assets/visuals/reactor-scaleup-thermal-risk.svg" alt="反应器停留时间 放大与热风险工作流" width="100%"></td>
+</tr>
+<tr>
+<td align="center"><b>CFD 闭合模型与输运</b><br>湍流、多相流型、热/组分耦合、网格证据和守恒。</td>
+<td align="center"><b>反应器放大与热风险</b><br>理想模型、RTD、移热、失控场景和合格的尺度迁移。</td>
+</tr>
+<tr>
+<td width="50%"><img src="assets/visuals/dynamic-control-estimation.svg" alt="动态控制 扰动 状态估计与安全边界" width="100%"></td>
+<td width="50%"><img src="assets/visuals/hpc-failure-recovery.svg" alt="HPC 检查点 失败分类与有界恢复" width="100%"></td>
+</tr>
+<tr>
+<td align="center"><b>动态控制与状态估计</b><br>库存、开停车序列、控制结构、扰动和安全权限。</td>
+<td align="center"><b>HPC 失败与恢复</b><br>环境前检、调度证据、检查点、失败分类和有界重试。</td>
+</tr>
+</table>
+
+这六幅图进一步显式呈现已有能力，并继续严格区分数值完成、科学有效性、运行安全与人工授权。
+<!-- V7_VISUAL_ATLAS:END -->
+
 ## 求解器感知型生态
 
 <img src="assets/visuals/engine-ecosystem.svg" alt="科学计算求解器与适配器生态" width="100%">
@@ -320,7 +353,7 @@ completed ≠ parsed ≠ converged ≠ validated ≠ accepted
 
 内部基准通过不代表第三方求解器已经真实运行。缺少收敛、物理检查、不确定度、适用域、溯源、证据或必要人工审批中的任一项，均不得进入科学接受状态。反应器、控制、数字孪生、安全、失控反应和商业决策等高风险结论必须由合格的领域专家审核。
 
-`assets/visuals/` 中的 36 幅图片是为本仓库生成的原创解释性矢量图，不是求解器截图、性能曲线或真实外部引擎运行证据。图片完整性、可访问性、源码分发收录以及中英文 README 引用均由自动测试检查。
+`assets/visuals/` 中的 42 幅图片是为本仓库生成的原创解释性矢量图，不是求解器截图、性能曲线或真实外部引擎运行证据。图片完整性、可访问性、源码分发收录以及中英文 README 引用均由自动测试检查。
 
 ## 仓库策略
 

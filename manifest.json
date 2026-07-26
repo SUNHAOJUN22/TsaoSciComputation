@@ -51,6 +51,11 @@
       "sha256": "15d510e1f5228c7de316c385f6ae91044ce9fa30cbced49a30a85f6a21e9a1bb"
     },
     {
+      "bytes": 9710,
+      "path": ".github/workflows/main-audit-v7.yml",
+      "sha256": "60c6f7054ace4ed05e47279b202fa63c35f8449e7553192b26e6e9bf651244ad"
+    },
+    {
       "bytes": 11508,
       "path": ".github/workflows/main-audit.yml",
       "sha256": "0f40aa89b1e00e1188962689eaf568638ebd57ba24715aedfe547bd15c970d4b"
@@ -76,9 +81,9 @@
       "sha256": "f417b371a3e3868b0449e82ca36d4b25c7926eda0bbeea829170ea0d5295138d"
     },
     {
-      "bytes": 5709,
+      "bytes": 5945,
       "path": "CHANGELOG.md",
-      "sha256": "78603d50f0e6f7f3af5b2deab018d43e6c6370bc1da581a64c4c09d39eff6c1b"
+      "sha256": "7b04bc649c8f8bf8b7730d259113529d1b3a96c4872d2d8f69ef453a46dbc9cf"
     },
     {
       "bytes": 307,
@@ -106,14 +111,14 @@
       "sha256": "62d6fdd9d587504092fe8417670b55895ea4db4fc845790f6270e8f50612b6e2"
     },
     {
-      "bytes": 20336,
+      "bytes": 22609,
       "path": "README.md",
-      "sha256": "b1d46d0f6204f0e126aaef661bb60c1ccd248cc472657bcfeb58175d45f56394"
+      "sha256": "ec76c9b917717abca82bfb69b01ec25e2808e4a0d37d3df04f56ef5a8070eea7"
     },
     {
-      "bytes": 18719,
+      "bytes": 20698,
       "path": "README.zh-CN.md",
-      "sha256": "33f68d8e857adfce243160950213202056ab2f7f10363aa729c8121491ab8e97"
+      "sha256": "ab01e17990323b9c3438171ef6b21d3a9018c32a9aa2f35181a6e9c0529ac875"
     },
     {
       "bytes": 3578,
@@ -416,9 +421,9 @@
       "sha256": "f3e18e1a303411566df5f3ff5c451863c5de064f812bc2bd8dfde5feed700977"
     },
     {
-      "bytes": 4118,
+      "bytes": 4727,
       "path": "assets/visuals/README.md",
-      "sha256": "3631f0463bb44b9181867a1f7298cc720c9178ad672d25344dc0d7810a7c27bd"
+      "sha256": "8cb57b720a745574daa005ab11ddf6d3be6b8aa44b075dd845bc2b93025bc4d6"
     },
     {
       "bytes": 4455,
@@ -436,9 +441,19 @@
       "sha256": "b0ef694511e155f9c25275dd63c06d6c44d771c90e5ac81f450d4ceaf324ff02"
     },
     {
+      "bytes": 3503,
+      "path": "assets/visuals/cfd-turbulence-multiphase.svg",
+      "sha256": "e81af1e64d06e4d670bb8d5a2bb74bfe741ed41cfe22bd75103171f777c02781"
+    },
+    {
       "bytes": 2954,
       "path": "assets/visuals/confidence-ladder.svg",
       "sha256": "5b8b1633becbc46fa880d2cff9eec7499be92cea1f6176c2bd9bc4fdbc1a0956"
+    },
+    {
+      "bytes": 3551,
+      "path": "assets/visuals/conformer-solvation-excited-state.svg",
+      "sha256": "bdc99ada25f77f3abff320fe66a3e3a5cf2cc5e5762d7e4e536cfff2250698bf"
     },
     {
       "bytes": 4378,
@@ -459,6 +474,11 @@
       "bytes": 3462,
       "path": "assets/visuals/digital-twin-drift.svg",
       "sha256": "2b96062e6f5a8265a711568e40d1c3140712339397dae7cbdd20880e94d2588c"
+    },
+    {
+      "bytes": 3554,
+      "path": "assets/visuals/dynamic-control-estimation.svg",
+      "sha256": "03bf4b1b1dca5a0a429d099dcf811addf90c051f53f592c1946fe63062baa86b"
     },
     {
       "bytes": 4322,
@@ -509,6 +529,11 @@
       "bytes": 6964,
       "path": "assets/visuals/hpc-execution-provenance.svg",
       "sha256": "ef6d90f44d31081410bea1e21bde4217136ea8f30816e96c22b4881349014c39"
+    },
+    {
+      "bytes": 3551,
+      "path": "assets/visuals/hpc-failure-recovery.svg",
+      "sha256": "af2df9161f7d8829d501ff4b3444ed30919c1eb56900ae0700da5bdfe2fa56f8"
     },
     {
       "bytes": 3903,
@@ -581,6 +606,11 @@
       "sha256": "7dd14057476b25c059191dcc0e43474f3688ba13c23226ae5cf645a1056da62a"
     },
     {
+      "bytes": 3504,
+      "path": "assets/visuals/reactor-scaleup-thermal-risk.svg",
+      "sha256": "7690c2562ad0e7d208f62f4d18544d102d48fb88935f8fe220ceca35e89fd819"
+    },
+    {
       "bytes": 3496,
       "path": "assets/visuals/scale-multifidelity-plan.svg",
       "sha256": "8b87cb8f2aa654d88046409a6eea3068d98e2eeaec38cb1e6390fb0588884591"
@@ -589,6 +619,11 @@
       "bytes": 3851,
       "path": "assets/visuals/spectroscopy-observables.svg",
       "sha256": "5198591a57ec3ab41af2323adcdb041fd5893cb2f0c515fcec916d8b53e7a57e"
+    },
+    {
+      "bytes": 3536,
+      "path": "assets/visuals/surface-adsorption-migration.svg",
+      "sha256": "0ffc26bac8228a1005ff34a6d6706db4049f63b3aaf92110062380858511221d"
     },
     {
       "bytes": 3425,
@@ -1941,6 +1976,11 @@
       "sha256": "186f6f9cefaae42fe2220e9977f32f05204e007be1e0403efbb1cbfcfef8625a"
     },
     {
+      "bytes": 17351,
+      "path": "scripts/sync_readme_visual_atlas_v7.py",
+      "sha256": "bc0f9a28e8c319bdf1f8f0134690ebdeeba53de1341e3fe1fe489dc5de48d5ae"
+    },
+    {
       "bytes": 4895,
       "path": "scripts/sync_version_metadata.py",
       "sha256": "c9f78b23c520b894602f832e7c922a759af8b1b24004f54d501aa099b89acf3c"
@@ -2219,6 +2259,11 @@
       "bytes": 2234,
       "path": "tests/test_sync_readme_visual_atlas.py",
       "sha256": "9f747f92ce7336f91648ff4f2cb2e66cd355fae2d523e4a354c4c20e8c544136"
+    },
+    {
+      "bytes": 2118,
+      "path": "tests/test_sync_readme_visual_atlas_v7.py",
+      "sha256": "2272cfeb3b5f968552862ec124ef6969e711ce0afa5f16bb3a5946b766640d60"
     },
     {
       "bytes": 3679,

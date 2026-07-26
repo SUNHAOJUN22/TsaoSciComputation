@@ -195,11 +195,26 @@ CHINESE_BLOCK = """<!-- V7_VISUAL_ATLAS:START -->
 <!-- V7_VISUAL_ATLAS:END -->"""
 
 INVENTORY_LINES = (
-    ("conformer-solvation-excited-state.svg", "conformers, solvation, excited states and thermal populations"),
-    ("surface-adsorption-migration.svg", "surfaces, adsorption, charged defects and migration pathways"),
-    ("cfd-turbulence-multiphase.svg", "turbulence, multiphase regimes and coupled transport evidence"),
-    ("reactor-scaleup-thermal-risk.svg", "reactor residence time, heat removal, runaway and scale-up"),
-    ("dynamic-control-estimation.svg", "dynamic control, disturbances, state estimation and safety boundaries"),
+    (
+        "conformer-solvation-excited-state.svg",
+        "conformers, solvation, excited states and thermal populations",
+    ),
+    (
+        "surface-adsorption-migration.svg",
+        "surfaces, adsorption, charged defects and migration pathways",
+    ),
+    (
+        "cfd-turbulence-multiphase.svg",
+        "turbulence, multiphase regimes and coupled transport evidence",
+    ),
+    (
+        "reactor-scaleup-thermal-risk.svg",
+        "reactor residence time, heat removal, runaway and scale-up",
+    ),
+    (
+        "dynamic-control-estimation.svg",
+        "dynamic control, disturbances, state estimation and safety boundaries",
+    ),
     ("hpc-failure-recovery.svg", "checkpoints, failure classification and bounded recovery"),
 )
 
@@ -221,9 +236,7 @@ def _svg(spec: VisualSpec) -> str:
             ]
         )
         if index < len(spec.stages) - 1:
-            arrows.append(
-                f'<path d="M{x + width:.1f} 305H{x + width + gap:.1f}" class="line"/>'
-            )
+            arrows.append(f'<path d="M{x + width:.1f} 305H{x + width + gap:.1f}" class="line"/>')
     return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 680" role="img" aria-labelledby="title desc">
 <title id="title">{html.escape(spec.title)}</title>
 <desc id="desc">{html.escape(spec.description)}</desc>

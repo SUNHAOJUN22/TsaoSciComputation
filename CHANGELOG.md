@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Expanded the bilingual scientific atlas from thirty-six to forty-two repository-local SVG diagrams, adding molecular-state/environment, surface/defect migration, CFD closure, reactor scale-up, dynamic-control and HPC-recovery views.
+
 - Expanded the bilingual scientific atlas from thirty to thirty-six repository-local SVG diagrams, adding scale/multi-fidelity planning, quantum-chemistry thermochemistry, MD transport/convergence, polymer-composite topology, flowsheet convergence and multiscale handoff/UQ views.
 - Added a reusable owner-triggered main-audit workflow that refreshes the byte-level Manifest, executes deterministic release gates, performs dependency and branch-policy checks, updates current-main evidence, commits every verified generated artifact, asserts a clean tree, and waits for canonical cross-platform CI without creating a branch or pull request.
 - Added a tested current-main evidence updater so test counts, coverage, audit issue, bilingual README records and machine-readable evidence are generated through one reviewable implementation.

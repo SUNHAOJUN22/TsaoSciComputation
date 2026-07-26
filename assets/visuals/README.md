@@ -48,5 +48,11 @@ This directory contains original, repository-local SVG illustrations created for
 - `polymer-composite-topology.svg` — interfaces, localization, percolation and structure-property evidence
 - `flowsheet-convergence-balances.svg` — property packages, recycle convergence and balance closure
 - `multiscale-handoff-uncertainty.svg` — cross-scale contracts, uncertainty propagation and applicability
+- `conformer-solvation-excited-state.svg` — conformers, solvation, excited states and thermal populations
+- `surface-adsorption-migration.svg` — surfaces, adsorption, charged defects and migration pathways
+- `cfd-turbulence-multiphase.svg` — turbulence, multiphase regimes and coupled transport evidence
+- `reactor-scaleup-thermal-risk.svg` — reactor residence time, heat removal, runaway and scale-up
+- `dynamic-control-estimation.svg` — dynamic control, disturbances, state estimation and safety boundaries
+- `hpc-failure-recovery.svg` — checkpoints, failure classification and bounded recovery
 
 Run `python -m pytest tests/test_readme_visuals.py -q` to validate the asset inventory and bilingual README references.

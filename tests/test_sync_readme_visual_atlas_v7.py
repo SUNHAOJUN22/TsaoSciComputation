@@ -20,8 +20,7 @@ def _fixture(root: Path) -> None:
     )
     _write(
         root / "README.zh-CN.md",
-        "# 演示\n\n## 求解器感知型生态\n\n"
-        "`assets/visuals/` 中的 36 幅图片用于说明。\n",
+        "# 演示\n\n## 求解器感知型生态\n\n`assets/visuals/` 中的 36 幅图片用于说明。\n",
     )
     _write(
         root / "assets" / "visuals" / "README.md",

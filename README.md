@@ -204,6 +204,39 @@ These views expose six implemented capability families that were previously pres
 These six views expose implemented capability families that were previously distributed across the registry but lacked dedicated visual explanations. They do not claim bundled solvers or live production execution.
 <!-- V6_VISUAL_ATLAS:END -->
 
+<!-- V7_VISUAL_ATLAS:START -->
+## Molecular states, transport and operational-resilience atlas
+
+<table>
+<tr>
+<td width="50%"><img src="assets/visuals/conformer-solvation-excited-state.svg" alt="Conformer solvation excited state and thermochemistry workflow" width="100%"></td>
+<td width="50%"><img src="assets/visuals/surface-adsorption-migration.svg" alt="Surface adsorption defect and migration evidence workflow" width="100%"></td>
+</tr>
+<tr>
+<td align="center"><b>Molecular states and environments</b><br>Conformers, solvation, excited states, thermal corrections and population-aware observables.</td>
+<td align="center"><b>Surfaces, defects and migration</b><br>Surface models, adsorption references, charged defects, pathways and correction evidence.</td>
+</tr>
+<tr>
+<td width="50%"><img src="assets/visuals/cfd-turbulence-multiphase.svg" alt="CFD turbulence multiphase heat and species transport" width="100%"></td>
+<td width="50%"><img src="assets/visuals/reactor-scaleup-thermal-risk.svg" alt="Reactor residence time scale up and thermal risk workflow" width="100%"></td>
+</tr>
+<tr>
+<td align="center"><b>CFD closures and transport</b><br>Turbulence, multiphase regimes, heat/species coupling, mesh evidence and conservation.</td>
+<td align="center"><b>Reactor scale-up and thermal risk</b><br>Ideal baselines, RTD, heat removal, runaway scenarios and qualified scale transfer.</td>
+</tr>
+<tr>
+<td width="50%"><img src="assets/visuals/dynamic-control-estimation.svg" alt="Dynamic control disturbance state estimation and safety boundaries" width="100%"></td>
+<td width="50%"><img src="assets/visuals/hpc-failure-recovery.svg" alt="HPC checkpoint failure classification and bounded recovery" width="100%"></td>
+</tr>
+<tr>
+<td align="center"><b>Dynamic control and estimation</b><br>Inventories, operating sequences, control structures, disturbances and safety authority.</td>
+<td align="center"><b>HPC failure and recovery</b><br>Preflight, scheduler evidence, checkpoints, failure classes and bounded retries.</td>
+</tr>
+</table>
+
+These six views make additional implemented capability families explicit while retaining strict boundaries between numerical completion, scientific validity, operational safety and human authorization.
+<!-- V7_VISUAL_ATLAS:END -->
+
 ## Solver-aware ecosystem
 
 <img src="assets/visuals/engine-ecosystem.svg" alt="Scientific solver and adapter ecosystem" width="100%">
@@ -320,7 +353,7 @@ completed ≠ parsed ≠ converged ≠ validated ≠ accepted
 
 Benchmark success does not prove live third-party solver execution. Missing convergence, physical checks, uncertainty, applicability, provenance, evidence or required human approval prevents scientific acceptance. Reactor, control, digital-twin, safety, runaway and commercial decisions require qualified domain review.
 
-The 36 illustrations in `assets/visuals/` are original explanatory diagrams generated for this repository. They are not screenshots, benchmark plots, or evidence of live external-engine execution. Their integrity, accessibility, source-distribution inclusion and bilingual README references are automatically tested.
+The 42 illustrations in `assets/visuals/` are original explanatory diagrams generated for this repository. They are not screenshots, benchmark plots, or evidence of live external-engine execution. Their integrity, accessibility, source-distribution inclusion and bilingual README references are automatically tested.
 
 ## Repository policy
 
