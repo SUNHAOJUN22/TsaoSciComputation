@@ -108,9 +108,17 @@ jobs:
             --issue "$ISSUE_NUMBER" \
             --run-id "$GITHUB_RUN_ID" \
             --update-readme
+
+      - name: Rebuild and verify repository Manifest after performance evidence
+        shell: bash
+        run: |
+          set -Eeuo pipefail
           python scripts/build_manifest.py
           python scripts/build_manifest.py --check
-          git diff --check
+
+      - name: Check generated performance documentation whitespace
+        shell: bash
+        run: git diff --check
 
       - name: Run deterministic release gates pass 2 on exact documented tree
         shell: bash
