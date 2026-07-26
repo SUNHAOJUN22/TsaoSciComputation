@@ -3,6 +3,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
 from scripts.update_main_audit_evidence import update_evidence
 
 
@@ -12,15 +14,16 @@ def _write(path: Path, text: str) -> Path:
     return path
 
 
-def test_update_evidence_synchronizes_bilingual_main_records(tmp_path: Path) -> None:
-    root = tmp_path
+def _inputs(root: Path) -> dict[str, Path]:
     _write(
         root / "README.md",
-        "before\n<!-- CURRENT_MAIN_VERIFICATION:START -->old<!-- CURRENT_MAIN_VERIFICATION:END -->\nafter\n",
+        "before\n<!-- CURRENT_MAIN_VERIFICATION:START -->old"
+        "<!-- CURRENT_MAIN_VERIFICATION:END -->\nafter\n",
     )
     _write(
         root / "README.zh-CN.md",
-        "之前\n<!-- CURRENT_MAIN_VERIFICATION:START -->旧<!-- CURRENT_MAIN_VERIFICATION:END -->\n之后\n",
+        "之前\n<!-- CURRENT_MAIN_VERIFICATION:START -->旧"
+        "<!-- CURRENT_MAIN_VERIFICATION:END -->\n之后\n",
     )
     _write(
         root / "reports" / "CURRENT_MAIN_VERIFICATION.json",
@@ -30,47 +33,77 @@ def test_update_evidence_synchronizes_bilingual_main_records(tmp_path: Path) -> 
                 "counts": {
                     "adapters": 27,
                     "capabilities": 164,
-                    "visual_assets": 18,
+                    "visual_assets": 24,
                     "workflows": 20,
                 },
             }
         ),
     )
-    test_log = _write(root / "pytest.log", "560 passed in 1.0s\n")
-    coverage = _write(
-        root / "coverage.json",
-        json.dumps(
-            {
-                "totals": {
-                    "percent_statements_covered": 97.5,
-                    "percent_branches_covered": 94.0,
+    return {
+        "test_log": _write(root / "pytest.log", "562 passed in 1.0s\n"),
+        "coverage_json": _write(
+            root / "coverage.json",
+            json.dumps(
+                {
+                    "totals": {
+                        "percent_statements_covered": 97.5,
+                        "percent_branches_covered": 94.0,
+                    }
                 }
-            }
+            ),
         ),
-    )
-    dependency = _write(root / "dependency.json", json.dumps([]))
-    security = _write(root / "security.json", json.dumps({"findings": []}))
-    remote_heads = _write(root / "heads.txt", "abc refs/heads/main\n")
+        "dependency_json": _write(root / "dependency.json", json.dumps([])),
+        "security_json": _write(root / "security.json", json.dumps({"findings": []})),
+        "remote_heads": _write(root / "heads.txt", "abc refs/heads/main\n"),
+    }
 
+
+def test_update_evidence_is_parameterized_and_bilingual(tmp_path: Path) -> None:
+    inputs = _inputs(tmp_path)
     evidence = update_evidence(
-        root=root,
+        root=tmp_path,
         run_id=12345,
-        issue_number=24,
-        test_log=test_log,
-        coverage_json=coverage,
-        dependency_json=dependency,
-        security_json=security,
-        remote_heads=remote_heads,
+        issue_number=25,
         parent_commit="abc123",
         verified_at="2026-07-26T00:00:00+00:00",
+        audit_generation="ultimate-main-audit-v5",
+        audit_label="V5",
+        visual_count=30,
+        visual_atlas_version=5,
+        report_path=Path("reports/ULTIMATE_MAIN_AUDIT_V5.md"),
+        visual_families="Periodic materials; catalysis; polymerization; extrusion; twins; FEM.",
+        **inputs,
     )
 
-    assert evidence["tests"] == {"failed": 0, "passed": 560}
-    assert evidence["counts"]["visual_assets"] == 24
+    assert evidence["tests"] == {"failed": 0, "passed": 562}
+    assert evidence["counts"]["visual_assets"] == 30
     assert evidence["remote_branches"] == ["main"]
-    assert evidence["audit_generation"] == "ultimate-main-audit-v4"
-    assert "560 passed, 0 failed" in (root / "README.md").read_text(encoding="utf-8")
-    assert "560 通过，0 失败" in (root / "README.zh-CN.md").read_text(encoding="utf-8")
-    assert "Scientific visuals: `24`" in (root / "reports" / "ULTIMATE_MAIN_AUDIT_V4.md").read_text(
+    assert evidence["audit_generation"] == "ultimate-main-audit-v5"
+    assert evidence["visual_atlas_version"] == 5
+    assert "562 passed, 0 failed" in (tmp_path / "README.md").read_text(
         encoding="utf-8"
     )
+    assert "562 通过，0 失败" in (tmp_path / "README.zh-CN.md").read_text(
+        encoding="utf-8"
+    )
+    report = tmp_path / "reports" / "ULTIMATE_MAIN_AUDIT_V5.md"
+    assert "Scientific visuals: `30`" in report.read_text(encoding="utf-8")
+
+
+def test_update_evidence_rejects_unsafe_report_path(tmp_path: Path) -> None:
+    inputs = _inputs(tmp_path)
+    with pytest.raises(ValueError, match="repository-relative"):
+        update_evidence(
+            root=tmp_path,
+            run_id=1,
+            issue_number=25,
+            parent_commit="abc",
+            verified_at="2026-07-26T00:00:00+00:00",
+            audit_generation="v5",
+            audit_label="V5",
+            visual_count=30,
+            visual_atlas_version=5,
+            report_path=Path("../outside.md"),
+            visual_families="x",
+            **inputs,
+        )
