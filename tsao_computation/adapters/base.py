@@ -17,28 +17,28 @@ _COMPLETION_SUCCESS = re.compile(
     r"\b(?:finished|completed)\s+successfully\b|"
     r"\b(?:finished|completed)\b|"
     r"\btotal\s+wall\s+time\b",
-    re.IGNORECASE,
 )
-_COMPLETION_FAILURE = re.compile(
+_COMPLETION_FAILURE_PATTERN = (
     r"\b(?:abnormal|error|fatal)\s+termination\b|"
     r"\b(?:run|job|calculation|simulation)\s+(?:failed|aborted)\b|"
     r"\b(?:not|never)\s+(?:finished|completed)\b|"
     r"\bcompleted\s+with\s+(?:errors?|failures?)\b|"
-    r"\bfatal\s+error\b",
-    re.IGNORECASE,
+    r"\bfatal\s+error\b"
 )
 _CONVERGENCE_SUCCESS = re.compile(
     r"\bconverged\b|\bconvergence\s+(?:achieved|reached)\b",
-    re.IGNORECASE,
 )
-_CONVERGENCE_FAILURE = re.compile(
+_CONVERGENCE_FAILURE_PATTERN = (
     r"\bnot(?:\s+fully)?\s+converged\b|"
     r"\bfailed\s+to\s+converge\b|"
     r"\bdid\s+not\s+converge\b|"
     r"\bconvergence\s+(?:not\s+achieved|failed|failure)\b|"
     r"\bnon[-\s]?converged\b|"
-    r"\bunconverged\b",
-    re.IGNORECASE,
+    r"\bunconverged\b"
+)
+_FAILURE_STATUS = re.compile(
+    rf"(?P<completion>{_COMPLETION_FAILURE_PATTERN})|"
+    rf"(?P<convergence>{_CONVERGENCE_FAILURE_PATTERN})"
 )
 
 
@@ -166,11 +166,22 @@ class Adapter:
         )
 
     def parse(self, output: str) -> dict[str, Any]:
-        completion_failed = _COMPLETION_FAILURE.search(output) is not None
-        completed = _COMPLETION_SUCCESS.search(output) is not None and not completion_failed
-        convergence_failed = _CONVERGENCE_FAILURE.search(output) is not None
+        folded = output.casefold()
+        completion_failed = False
+        convergence_failed = False
+        for match in _FAILURE_STATUS.finditer(folded):
+            if match.lastgroup == "completion":
+                completion_failed = True
+            elif match.lastgroup == "convergence":
+                convergence_failed = True
+            if completion_failed and convergence_failed:
+                break
+
+        completed = not completion_failed and _COMPLETION_SUCCESS.search(folded) is not None
         converged = (
-            completed and _CONVERGENCE_SUCCESS.search(output) is not None and not convergence_failed
+            completed
+            and not convergence_failed
+            and _CONVERGENCE_SUCCESS.search(folded) is not None
         )
         return {
             "completed": completed,
