@@ -108,40 +108,6 @@ jobs:
             --issue "$ISSUE_NUMBER" \
             --run-id "$GITHUB_RUN_ID" \
             --update-readme
-          python - <<'PY'
-          from __future__ import annotations
-
-          import json
-          from pathlib import Path
-
-          report = json.loads(Path('reports/PERFORMANCE_ENGINEERING_V8.json').read_text(encoding='utf-8'))
-          speedups = report['speedups']
-          candidate = report['candidate']
-          markdown = f'''# Performance engineering V8
-
-          - Baseline commit: `f3f533160cc64766fec862b96822db89b468e53c`
-          - Audit run: `{__import__('os').environ['GITHUB_RUN_ID']}`
-          - Status: `{report['status']}`
-          - Parser throughput: `{candidate['parser_5mib_throughput_mib_s']} MiB/s` (`{speedups['parser_5mib_throughput_mib_s']:.2f}x` baseline)
-          - Route decision: `{candidate['route_decision_median_ms']} ms` (`{speedups['route_decision_median_ms']:.2f}x` baseline)
-          - Cached adapter lookup: `{candidate['adapter_lookup_cached_median_us']} us`
-          - Repository walk: `{candidate['repository_walk_median_ms']} ms`
-          - Mandatory runtime dependencies added: `0`
-
-          Timings are same-host orchestration telemetry, not solver-performance or production-HPC claims. Correctness, fail-closed semantics, deterministic ordering, cache invalidation, packaging reproducibility and cross-platform CI remain mandatory.
-          '''
-          Path('reports/PERFORMANCE_ENGINEERING_V8.md').write_text(
-              '\n'.join(line.strip() for line in markdown.strip().splitlines()) + '\n',
-              encoding='utf-8',
-              newline='\n',
-          )
-          changelog = Path('CHANGELOG.md')
-          text = changelog.read_text(encoding='utf-8')
-          bullet = '- Added measured V8 performance engineering for registry loading, adapter lookup, routing, solver-output parsing, deterministic repository traversal and repository security scanning.'
-          if bullet not in text:
-              text = text.replace('## Unreleased\n', f'## Unreleased\n\n{bullet}\n', 1)
-          changelog.write_text(text, encoding='utf-8', newline='\n')
-          PY
           python scripts/build_manifest.py
           python scripts/build_manifest.py --check
           git diff --check
@@ -210,9 +176,34 @@ jobs:
             "Performance engineering V8 passed. Final commit: \`$final_sha\`. Canonical CI Run ID: \`$run_id\`. Same-host before/after performance gate, full deterministic release gates, and Ubuntu/Windows/macOS x Python 3.10/3.13 CI all succeeded. No branch or PR was created."
           gh issue close "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --reason completed
 
-      - name: Report V8 failure
+      - name: Report V8 failure with measured diagnostics
         if: ${{ failure() }}
         shell: bash
         run: |
+          details="$(
+            python - <<'PY'
+          import json
+          from pathlib import Path
+
+          paths = (
+              ('baseline', Path('/tmp/tsao-v7.json')),
+              ('preflight', Path('/tmp/tsao-performance-preflight.json')),
+              ('candidate', Path('benchmarks/latest.json')),
+              ('final', Path('reports/PERFORMANCE_ENGINEERING_V8.json')),
+          )
+          payload = {}
+          for name, path in paths:
+              if path.is_file():
+                  try:
+                      payload[name] = json.loads(path.read_text(encoding='utf-8'))
+                  except (OSError, json.JSONDecodeError) as exc:
+                      payload[name] = {'error': str(exc)}
+          print(json.dumps(payload, indent=2, sort_keys=True)[:12000])
+          PY
+          )"
           gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body \
-            "Performance engineering V8 failed in workflow run \`$GITHUB_RUN_ID\`. No performance or completion claim is made; inspect the failing step and measured evidence before retrying."
+            "Performance engineering V8 failed in workflow run \`$GITHUB_RUN_ID\`. No completion claim is made.
+
+          \`\`\`json
+          $details
+          \`\`\`"
