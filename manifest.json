@@ -51,11 +51,6 @@
       "sha256": "15d510e1f5228c7de316c385f6ae91044ce9fa30cbced49a30a85f6a21e9a1bb"
     },
     {
-      "bytes": 1938,
-      "path": ".github/workflows/format-main-audit-v4.yml",
-      "sha256": "849c0ef103dd63bf43e53d2268e322622af91cc4c8c1b93a3b28a90c2396b88c"
-    },
-    {
       "bytes": 8026,
       "path": ".github/workflows/main-audit.yml",
       "sha256": "2f8ffe953b1629bdabad866534a1d4bb1726d59162aad03ccc60175d588c162b"
@@ -81,9 +76,9 @@
       "sha256": "f417b371a3e3868b0449e82ca36d4b25c7926eda0bbeea829170ea0d5295138d"
     },
     {
-      "bytes": 5463,
+      "bytes": 5722,
       "path": "CHANGELOG.md",
-      "sha256": "bf713da0fa1ab65200434f60c3133671a8b046227486e6544bdfe0cf7c663d62"
+      "sha256": "4e6b17a6cc8803d3f677734f345a6c12db15f03bf8d8f79a4f44129b2adbe0e7"
     },
     {
       "bytes": 307,
