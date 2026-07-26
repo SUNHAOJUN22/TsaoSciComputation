@@ -7,6 +7,7 @@ on:
       - '.github/workflows/validate-ultimate-v3-coordinator.yml'
 
 permissions:
+  actions: read
   contents: read
   issues: write
 
@@ -24,32 +25,34 @@ jobs:
         with:
           python-version: '3.13'
       - run: python -m pip install pyyaml
-      - name: Parse coordinator YAML
+      - name: Parse coordinator YAML and report recent runs
         shell: bash
         run: |
           set -Eeuo pipefail
-          python - <<'PY' > "$RUNNER_TEMP/validator.txt" 2>&1
+          python - <<'PY'
           from pathlib import Path
           import yaml
 
           path = Path('.github/workflows/bootstrap-ultimate-main-audit-v3.yml')
           payload = yaml.safe_load(path.read_text(encoding='utf-8'))
-          print(type(payload).__name__)
-          print(sorted(str(key) for key in payload))
-          print('VALID')
+          if not isinstance(payload, dict):
+              raise SystemExit('coordinator YAML is not a mapping')
           PY
-          gh issue comment 23 --repo "$GITHUB_REPOSITORY" --body \
-            "Ultimate V3 coordinator YAML is valid. Validator run: \`$GITHUB_RUN_ID\`."
-      - name: Report parser failure
-        if: ${{ failure() }}
-        shell: bash
-        run: |
+          gh run list --workflow bootstrap-ultimate-main-audit-v3.yml --limit 10 \
+            --json databaseId,headSha,status,conclusion,event,createdAt,url \
+            > "$RUNNER_TEMP/coordinator-runs.json"
           {
-            echo "Ultimate V3 coordinator YAML validation failed. Run: \`$GITHUB_RUN_ID\`."
+            echo 'Ultimate V3 coordinator YAML is valid.'
             echo
-            echo '```text'
-            cat "$RUNNER_TEMP/validator.txt" 2>/dev/null || true
+            echo '```json'
+            cat "$RUNNER_TEMP/coordinator-runs.json"
             echo '```'
-          } > "$RUNNER_TEMP/validator-comment.md"
+            echo "Validator run: \`$GITHUB_RUN_ID\`."
+          } > "$RUNNER_TEMP/coordinator-status.md"
           gh issue comment 23 --repo "$GITHUB_REPOSITORY" \
-            --body-file "$RUNNER_TEMP/validator-comment.md"
+            --body-file "$RUNNER_TEMP/coordinator-status.md"
+      - name: Report validator failure
+        if: ${{ failure() }}
+        run: >-
+          gh issue comment 23 --repo "$GITHUB_REPOSITORY"
+          --body "Ultimate V3 coordinator validator failed. Run: \`$GITHUB_RUN_ID\`."
