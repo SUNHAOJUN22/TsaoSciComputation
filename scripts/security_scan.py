@@ -12,9 +12,12 @@ PATTERNS = {
     "private_key": re.compile("-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----"),
     "github_token": re.compile("gh[pousr]_[A-Za-z0-9]{30,}"),
     "aws_key": re.compile("AKIA[0-9A-Z]{16}"),
-    "dangerous_eval": re.compile("\\b(?:eval|exec)\\s*\\("),
-    "shell_true": re.compile("shell\\s*=\\s*True"),
+    "dangerous_eval": re.compile(r"\b(?:eval|exec)\s*\("),
+    "shell_true": re.compile(r"shell\s*=\s*True"),
 }
+MASTER_PATTERN = re.compile(
+    "|".join(f"(?P<{name}>{pattern.pattern})" for name, pattern in PATTERNS.items())
+)
 
 
 def scan(root: Path) -> dict[str, object]:
@@ -32,9 +35,11 @@ def scan(root: Path) -> dict[str, object]:
         except UnicodeDecodeError:
             continue
         scanned += 1
-        for name, pattern in PATTERNS.items():
-            for match in pattern.finditer(text):
-                findings.append({"path": relative, "rule": name, "offset": match.start()})
+        for match in MASTER_PATTERN.finditer(text):
+            rule = match.lastgroup
+            if rule is None:
+                continue
+            findings.append({"path": relative, "rule": rule, "offset": match.start()})
     return {"schema_version": "1.0", "files_scanned": scanned, "findings": findings}
 
 
