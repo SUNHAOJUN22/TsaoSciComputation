@@ -51,6 +51,11 @@
       "sha256": "15d510e1f5228c7de316c385f6ae91044ce9fa30cbced49a30a85f6a21e9a1bb"
     },
     {
+      "bytes": 964,
+      "path": ".github/workflows/diagnose-main-audit-v4.yml",
+      "sha256": "bae9a31c68bee96d7346e557687830205a20073e14433cf594872588f1de53bc"
+    },
+    {
       "bytes": 8026,
       "path": ".github/workflows/main-audit.yml",
       "sha256": "2f8ffe953b1629bdabad866534a1d4bb1726d59162aad03ccc60175d588c162b"
@@ -59,6 +64,11 @@
       "bytes": 5027,
       "path": ".github/workflows/release.yml",
       "sha256": "32761bc3509a1f5e0837e3d66501891632ebbd978a4351a886163b2f98f744d0"
+    },
+    {
+      "bytes": 955,
+      "path": ".github/workflows/status-main-audit-v4.yml",
+      "sha256": "e258998a7c4e2ba2193d5821adc62d7c7ed909ebb254806bb4604a6f00c74311"
     },
     {
       "bytes": 193,
@@ -1871,9 +1881,9 @@
       "sha256": "c9f78b23c520b894602f832e7c922a759af8b1b24004f54d501aa099b89acf3c"
     },
     {
-      "bytes": 10345,
+      "bytes": 10198,
       "path": "scripts/update_main_audit_evidence.py",
-      "sha256": "408837add193ef9139afce365aaa0ece6a655ecca4411980946e2adf0a43ba83"
+      "sha256": "16245922ee56959f799df2dbdf1d40322effe4755fd84a9e7512a8011cf23a75"
     },
     {
       "bytes": 4436,
