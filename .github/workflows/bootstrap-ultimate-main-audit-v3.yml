@@ -78,12 +78,30 @@ jobs:
           set -Eeuo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git status --short | tee "$RUNNER_TEMP/bootstrap-status.txt"
           git add -A
-          git commit -m 'Assemble ultimate main audit V3 workflow'
-          git push origin HEAD:refs/heads/main
+          git diff --cached --stat | tee "$RUNNER_TEMP/bootstrap-stat.txt"
+          git commit -m 'Assemble ultimate main audit V3 workflow' \
+            2>&1 | tee "$RUNNER_TEMP/bootstrap-commit.txt"
+          git push origin HEAD:refs/heads/main \
+            2>&1 | tee "$RUNNER_TEMP/bootstrap-push.txt"
 
       - name: Report bootstrap failure
         if: ${{ failure() }}
-        run: >-
-          gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY"
-          --body "Ultimate main audit V3 bootstrap failed. Workflow run: $GITHUB_RUN_ID. No completion is claimed."
+        shell: bash
+        run: |
+          {
+            echo "Ultimate main audit V3 bootstrap failed. Workflow run: $GITHUB_RUN_ID."
+            echo
+            echo '```text'
+            for file in "$RUNNER_TEMP"/bootstrap-*.txt; do
+              if test -f "$file"; then
+                echo "--- $(basename "$file") ---"
+                tail -n 40 "$file"
+              fi
+            done
+            echo '```'
+            echo 'No completion is claimed.'
+          } > "$RUNNER_TEMP/bootstrap-failure-comment.md"
+          gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" \
+            --body-file "$RUNNER_TEMP/bootstrap-failure-comment.md"
