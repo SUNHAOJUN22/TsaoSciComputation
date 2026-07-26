@@ -130,7 +130,8 @@ jobs:
             --coverage-json "$TSAO_COVERAGE_JSON" \
             --dependency-json /tmp/main-audit-dependency.json \
             --security-json /tmp/main-audit-security.json \
-            --remote-heads /tmp/main-audit-remote-heads.txt
+            --remote-heads /tmp/main-audit-remote-heads.txt \
+            --parent-commit "$(git rev-parse HEAD)"
           python scripts/build_manifest.py
           python scripts/build_manifest.py --check
           git diff --check
