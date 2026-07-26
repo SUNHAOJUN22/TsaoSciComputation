@@ -14,6 +14,7 @@ import _bootstrap  # noqa: F401
 from tsao_computation.adapters import get_adapter
 from tsao_computation.provenance.manifest import iter_repository_entries
 from tsao_computation.registries import adapters, capabilities, clear_registry_caches, workflows
+from tsao_computation.registries.loader import _load
 from tsao_computation.routing import route_question
 
 T = TypeVar("T")
@@ -41,7 +42,7 @@ def median_seconds(
 
 def cold_registry_seconds(loader: Callable[[], T], repeats: int = 9) -> float:
     def operation() -> T:
-        clear_registry_caches()
+        _load.cache_clear()
         return loader()
 
     return median_seconds(operation, repeats, warmups=1)
