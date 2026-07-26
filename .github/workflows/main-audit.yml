@@ -6,27 +6,27 @@ on:
       issue:
         description: Audit tracking issue number
         required: false
-        default: '25'
+        default: '26'
       audit_generation:
         description: Machine-readable audit generation
         required: false
-        default: 'ultimate-main-audit-v5'
+        default: 'ultimate-main-audit-v6'
       audit_label:
         description: Human-readable audit label
         required: false
-        default: 'V5'
+        default: 'V6'
       visual_count:
         description: Expected scientific SVG count
         required: false
-        default: '30'
+        default: '36'
       visual_atlas_version:
         description: Visual atlas schema version
         required: false
-        default: '5'
+        default: '6'
       report_path:
         description: Repository-relative audit report path
         required: false
-        default: 'reports/ULTIMATE_MAIN_AUDIT_V5.md'
+        default: 'reports/ULTIMATE_MAIN_AUDIT_V6.md'
   push:
     branches: [main]
     paths:
@@ -40,7 +40,7 @@ on:
       - 'README.zh-CN.md'
       - 'CHANGELOG.md'
       - 'tests/test_readme_visuals.py'
-      - '.v5-audit-trigger'
+      - '.v6-audit-trigger'
 
 permissions:
   actions: write
@@ -53,21 +53,21 @@ concurrency:
 
 jobs:
   audit:
-    if: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[run-v5-audit]') }}
+    if: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[run-v6-audit]') }}
     runs-on: ubuntu-latest
     timeout-minutes: 240
     env:
       GH_TOKEN: ${{ github.token }}
-      ISSUE_NUMBER: ${{ inputs.issue || '25' }}
-      AUDIT_GENERATION: ${{ inputs.audit_generation || 'ultimate-main-audit-v5' }}
-      AUDIT_LABEL: ${{ inputs.audit_label || 'V5' }}
-      VISUAL_COUNT: ${{ inputs.visual_count || '30' }}
-      VISUAL_ATLAS_VERSION: ${{ inputs.visual_atlas_version || '5' }}
-      REPORT_PATH: ${{ inputs.report_path || 'reports/ULTIMATE_MAIN_AUDIT_V5.md' }}
+      ISSUE_NUMBER: ${{ inputs.issue || '26' }}
+      AUDIT_GENERATION: ${{ inputs.audit_generation || 'ultimate-main-audit-v6' }}
+      AUDIT_LABEL: ${{ inputs.audit_label || 'V6' }}
+      VISUAL_COUNT: ${{ inputs.visual_count || '36' }}
+      VISUAL_ATLAS_VERSION: ${{ inputs.visual_atlas_version || '6' }}
+      REPORT_PATH: ${{ inputs.report_path || 'reports/ULTIMATE_MAIN_AUDIT_V6.md' }}
       VISUAL_FAMILIES: >-
-        Periodic materials and phonons; catalysis and microkinetics;
-        polymerization moments and population balances; extrusion rheology;
-        digital-twin drift; FEM verification and convergence.
+        Scale and multi-fidelity planning; quantum chemistry and thermochemistry;
+        molecular dynamics transport and convergence; polymer-composite topology;
+        flowsheet convergence and balances; multiscale handoff and uncertainty.
       TSAO_COVERAGE_JSON: /tmp/tsao-main-audit-coverage.json
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
@@ -84,7 +84,7 @@ jobs:
       - name: Install complete verification environment
         run: python -m pip install -e '.[validation,quality,security]'
 
-      - name: Normalize V5 Python sources with the repository formatter
+      - name: Normalize V6 Python sources with the repository formatter
         shell: bash
         run: |
           set -Eeuo pipefail
@@ -106,18 +106,17 @@ jobs:
         run: |
           set -Eeuo pipefail
           rm -f \
-            .v5-planning-marker .issue25-marker .v5-issue-placeholder \
-            .stop .really-stop .oops .last-oops .this-is-ridiculous \
-            .v5-audit-trigger
+            .v5-* .v6-* .issue25-marker .issue26-marker \
+            .stop .really-stop .oops .last-oops .this-is-ridiculous
           python scripts/sync_readme_visual_atlas.py
           python scripts/sync_readme_visual_atlas.py --check
           python scripts/build_manifest.py
           python scripts/build_manifest.py --check
           git diff --check
-          if ! git diff --quiet; then
+          if test -n "$(git status --porcelain)"; then
             git config user.name 'github-actions[bot]'
             git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-            git add README.md README.zh-CN.md CHANGELOG.md assets/visuals manifest.json
+            git add -A
             git commit -m "Synchronize ${AUDIT_LABEL} scientific atlas and Manifest"
             git push origin HEAD:refs/heads/main
           fi
@@ -245,13 +244,24 @@ jobs:
           set -Eeuo pipefail
           final_sha='${{ steps.final_commit.outputs.final_sha }}'
           gh workflow run ci.yml --ref main
-          sleep 8
-          run_id="$(
-            gh run list --workflow ci.yml --branch main --event workflow_dispatch --limit 30 \
-              --json databaseId,headSha \
-            | python -c 'import json,sys; rows=json.load(sys.stdin); sha=sys.argv[1]; print(next(str(r["databaseId"]) for r in rows if r["headSha"]==sha))' \
-                "$final_sha"
-          )"
+          run_id=''
+          for attempt in $(seq 1 30); do
+            run_id="$(
+              gh run list --workflow ci.yml --branch main --event workflow_dispatch --limit 50 \
+                --json databaseId,headSha \
+              | python -c 'import json,sys; rows=json.load(sys.stdin); sha=sys.argv[1]; print(next((str(r["databaseId"]) for r in rows if r["headSha"]==sha), ""))' \
+                  "$final_sha"
+            )"
+            if test -n "$run_id"; then
+              break
+            fi
+            echo "Waiting for canonical CI indexing: attempt $attempt"
+            sleep 4
+          done
+          if test -z "$run_id"; then
+            echo "Unable to locate canonical CI for $final_sha" >&2
+            exit 1
+          fi
           echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
           gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body \
             "Canonical CI dispatched for ${AUDIT_LABEL} final commit \`$final_sha\`. Run ID: \`$run_id\`."
