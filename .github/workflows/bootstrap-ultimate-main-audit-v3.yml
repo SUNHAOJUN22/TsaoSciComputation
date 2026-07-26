@@ -1,6 +1,11 @@
 name: Bootstrap ultimate main audit V3
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/bootstrap-ultimate-main-audit-v3.yml'
+      - '.github/audit-v3/**'
   issues:
     types: [edited]
 
@@ -15,8 +20,9 @@ concurrency:
 jobs:
   bootstrap:
     if: >-
-      github.event.issue.number == 23 &&
-      contains(github.event.issue.body, '<!-- TSAO_ULTIMATE_MAIN_AUDIT_V3 -->')
+      github.event_name == 'push' ||
+      (github.event.issue.number == 23 &&
+       contains(github.event.issue.body, '<!-- TSAO_ULTIMATE_MAIN_AUDIT_V3 -->'))
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
