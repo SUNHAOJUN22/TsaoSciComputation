@@ -193,7 +193,7 @@ python scripts/verify_all.py --profile benchmark
 ### 当前 `main` 验证状态
 
 <!-- CURRENT_MAIN_VERIFICATION:START -->
-已于 `2026-07-26T04:51:52.410824+00:00` 由确定性终验运行 `30188350754` 完成验证。
+已于 `2026-07-26T06:47:25.486329+00:00` 由确定性终验运行 `30191628888` 完成验证。
 
 | 当前主线项目 | 结果 |
 |---|---:|
@@ -201,7 +201,7 @@ python scripts/verify_all.py --profile benchmark
 | 能力 / 适配器 / 工作流 | 164 / 27 / 20 |
 | 自动测试 | 559 通过，0 失败 |
 | 语句 / 分支覆盖率 | 97.32% / 93.67% |
-| Windows core | Python 3.10 与 3.13；最终结果记录于 Issue #23 |
+| Windows core | Python 3.10 与 3.13；最终结果记录于 Issue #24 |
 | 受控变异探针 | 64/64 被识别 |
 | 科学参考基准 | 8/8 通过 |
 | 仓库 / 依赖安全发现 | 0 / 0 |
