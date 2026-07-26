@@ -16,11 +16,11 @@ def _fixture(root: Path) -> None:
     _write(
         root / "README.md",
         "# Demo\n\n## Solver-aware ecosystem\n\n"
-        "The 24 illustrations in `assets/visuals/` are explanatory.\n",
+        "The 30 illustrations in `assets/visuals/` are explanatory.\n",
     )
     _write(
         root / "README.zh-CN.md",
-        "# 演示\n\n## 求解器感知型生态\n\n`assets/visuals/` 中的 24 幅图片用于说明。\n",
+        "# 演示\n\n## 求解器感知型生态\n\n`assets/visuals/` 中的 30 幅图片用于说明。\n",
     )
     _write(
         root / "assets" / "visuals" / "README.md",
@@ -31,7 +31,7 @@ def _fixture(root: Path) -> None:
     _write(
         root / "CHANGELOG.md",
         "# Changelog\n\n## Unreleased\n\n"
-        "- Expanded the bilingual project homepage to twenty-four diagrams.\n",
+        "- Expanded the bilingual scientific atlas from twenty-four to thirty diagrams.\n",
     )
 
 
@@ -46,8 +46,10 @@ def test_synchronize_generates_idempotent_bilingual_atlas(tmp_path: Path) -> Non
     english = (tmp_path / "README.md").read_text(encoding="utf-8")
     chinese = (tmp_path / "README.zh-CN.md").read_text(encoding="utf-8")
     inventory = (tmp_path / "assets" / "visuals" / "README.md").read_text(encoding="utf-8")
-    assert "The 30 illustrations" in english
-    assert "30 幅图片" in chinese
+    assert "The 36 illustrations" in english
+    assert "36 幅图片" in chinese
+    assert "<!-- V6_VISUAL_ATLAS:START -->" in english
+    assert "<!-- V6_VISUAL_ATLAS:START -->" in chinese
     for spec in NEW_VISUALS:
         assert f"assets/visuals/{spec.filename}" in english
         assert f"assets/visuals/{spec.filename}" in chinese
