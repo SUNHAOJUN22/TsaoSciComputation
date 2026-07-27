@@ -3,7 +3,6 @@ from __future__ import annotations
 import argparse
 import html
 import re
-import textwrap
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -118,7 +117,18 @@ def parse_specs() -> tuple[VisualSpec, ...]:
         parts = line.split("|")
         if len(parts) != 10:
             raise ValueError(f"invalid visual spec: {line}")
-        filename, family, title, description, heading, subtitle, accent, icon, raw_stages, footer = parts
+        (
+            filename,
+            family,
+            title,
+            description,
+            heading,
+            subtitle,
+            accent,
+            icon,
+            raw_stages,
+            footer,
+        ) = parts
         stages: list[tuple[str, str]] = []
         for raw_stage in raw_stages.split(";"):
             label, detail = raw_stage.split("~", 1)
@@ -286,7 +296,14 @@ def render_svg(spec: VisualSpec) -> str:
             arrows.append(
                 f'<path d="M{arrow_x:.1f} {card_y + 135:.1f}H{arrow_x + gap - 8:.1f}" class="arrow"/>'
             )
-    evidence_labels = ("NUMERICAL", "CONVERGENCE", "PHYSICAL", "UNCERTAINTY", "APPLICABILITY", "REVIEW")
+    evidence_labels = (
+        "NUMERICAL",
+        "CONVERGENCE",
+        "PHYSICAL",
+        "UNCERTAINTY",
+        "APPLICABILITY",
+        "REVIEW",
+    )
     evidence: list[str] = []
     segment_width = 174.0
     for index, label in enumerate(evidence_labels):
@@ -297,7 +314,9 @@ def render_svg(spec: VisualSpec) -> str:
                 f'<text x="{x + 18:.1f}" y="543" class="gate">{label}</text>',
             ]
         )
-    subtitle_lines = text_lines(subtitle_x, 150.0 if hero else 142.0, spec.subtitle, "subtitle", 82 if hero else 72, 22)
+    subtitle_lines = text_lines(
+        subtitle_x, 150.0 if hero else 142.0, spec.subtitle, "subtitle", 82 if hero else 72, 22
+    )
     footer_lines = text_lines(56.0, 620.0, spec.footer, "footer", 132, 21)
     return f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 680" role="img" aria-labelledby="title desc" data-design-system="{SYSTEM_ID}" data-family="{html.escape(spec.family)}">
   <title id="title">{html.escape(spec.title)}</title>
@@ -307,31 +326,31 @@ def render_svg(spec: VisualSpec) -> str:
   </defs>
   <style>
     .eyebrow {{ fill: {accent}; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 1.8px; }}
-    .heading {{ fill: {TOKENS['text']}; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif; font-size: {heading_size}px; font-weight: 700; }}
-    .subtitle {{ fill: {TOKENS['secondary']}; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif; font-size: 16px; font-weight: 400; }}
-    .card {{ fill: {TOKENS['surface']}; stroke: {TOKENS['border']}; stroke-width: 2; }}
-    .index {{ fill: {TOKENS['text']}; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 13px; font-weight: 700; }}
-    .stage {{ fill: {TOKENS['text']}; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif; font-size: 19px; font-weight: 650; }}
-    .detail {{ fill: {TOKENS['secondary']}; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif; font-size: 14px; font-weight: 400; }}
-    .arrow {{ fill: none; stroke: {TOKENS['muted']}; stroke-width: 2; stroke-linecap: round; }}
-    .gate {{ fill: {TOKENS['secondary']}; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 13px; font-weight: 650; letter-spacing: 0.6px; }}
-    .footer {{ fill: {TOKENS['muted']}; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif; font-size: 14px; font-weight: 400; }}
-    .badge {{ fill: {TOKENS['secondary']}; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 13px; font-weight: 700; }}
+    .heading {{ fill: {TOKENS["text"]}; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif; font-size: {heading_size}px; font-weight: 700; }}
+    .subtitle {{ fill: {TOKENS["secondary"]}; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif; font-size: 16px; font-weight: 400; }}
+    .card {{ fill: {TOKENS["surface"]}; stroke: {TOKENS["border"]}; stroke-width: 2; }}
+    .index {{ fill: {TOKENS["text"]}; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 13px; font-weight: 700; }}
+    .stage {{ fill: {TOKENS["text"]}; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif; font-size: 19px; font-weight: 650; }}
+    .detail {{ fill: {TOKENS["secondary"]}; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif; font-size: 14px; font-weight: 400; }}
+    .arrow {{ fill: none; stroke: {TOKENS["muted"]}; stroke-width: 2; stroke-linecap: round; }}
+    .gate {{ fill: {TOKENS["secondary"]}; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 13px; font-weight: 650; letter-spacing: 0.6px; }}
+    .footer {{ fill: {TOKENS["muted"]}; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif; font-size: 14px; font-weight: 400; }}
+    .badge {{ fill: {TOKENS["secondary"]}; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 13px; font-weight: 700; }}
   </style>
-  <rect width="1200" height="680" rx="24" fill="{TOKENS['canvas']}"/>
+  <rect width="1200" height="680" rx="24" fill="{TOKENS["canvas"]}"/>
   <rect width="1200" height="680" rx="24" fill="url(#grid)"/>
-  <rect x="32" y="28" width="1136" height="624" rx="20" fill="none" stroke="{TOKENS['border']}" stroke-width="2"/>
+  <rect x="32" y="28" width="1136" height="624" rx="20" fill="none" stroke="{TOKENS["border"]}" stroke-width="2"/>
   <text x="{heading_x:.1f}" y="58" text-anchor="{heading_anchor}" class="eyebrow">{html.escape(eyebrow)}</text>
   <text x="{heading_x:.1f}" y="112" text-anchor="{heading_anchor}" class="heading">{html.escape(spec.heading)}</text>
   {subtitle_lines}
-  <rect x="1002" y="48" width="142" height="100" rx="16" fill="{TOKENS['raised']}" stroke="{TOKENS['border']}" stroke-width="2"/>
+  <rect x="1002" y="48" width="142" height="100" rx="16" fill="{TOKENS["raised"]}" stroke="{TOKENS["border"]}" stroke-width="2"/>
   {icon_svg(spec.icon, 1073.0, 98.0, accent)}
-  <rect x="926" y="158" width="218" height="28" rx="14" fill="{TOKENS['raised']}" stroke="{TOKENS['border']}"/>
+  <rect x="926" y="158" width="218" height="28" rx="14" fill="{TOKENS["raised"]}" stroke="{TOKENS["border"]}"/>
   <text x="1035" y="177" text-anchor="middle" class="badge">EVIDENCE-BOUND</text>
-  {''.join(cards)}
-  {''.join(arrows)}
-  <rect x="48" y="500" width="1104" height="70" rx="16" fill="{TOKENS['raised']}" stroke="{TOKENS['border']}" stroke-width="2"/>
-  {''.join(evidence)}
+  {"".join(cards)}
+  {"".join(arrows)}
+  <rect x="48" y="500" width="1104" height="70" rx="16" fill="{TOKENS["raised"]}" stroke="{TOKENS["border"]}" stroke-width="2"/>
+  {"".join(evidence)}
   {footer_lines}
 </svg>
 '''
@@ -348,9 +367,7 @@ def update_marker(text: str, block: str) -> str:
 
 def update_inventory(text: str) -> str:
     if "## UI/UX Pro Max design system" in text:
-        pattern = re.compile(
-            r"## UI/UX Pro Max design system\n.*?(?=\n## Asset set)", re.DOTALL
-        )
+        pattern = re.compile(r"## UI/UX Pro Max design system\n.*?(?=\n## Asset set)", re.DOTALL)
         return pattern.sub(VISUAL_POLICY_BLOCK.rstrip() + "\n", text, count=1)
     return text.replace("## Asset set", VISUAL_POLICY_BLOCK + "\n## Asset set", 1)
 

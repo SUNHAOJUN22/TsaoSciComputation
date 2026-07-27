@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Regenerated all 42 README SVG illustrations with the UI/UX Pro Max-derived Scientific Swiss Bento V10 system, preserving filenames, scientific boundaries and self-contained accessibility while removing decorative AI gradients and glow effects.
+
 - Added V9 end-to-end verification performance engineering with bounded deterministic subprocess parallelism, concurrent isolated reproducibility builds, bounded route-result caching, large-file streaming hashes and same-host wall-time/memory acceptance.
 
 - Added measured V8 performance engineering for registry loading, adapter lookup, routing, solver-output parsing, deterministic repository traversal and repository security scanning.

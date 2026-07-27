@@ -10,6 +10,10 @@ This directory contains original, repository-local SVG illustrations created for
 - Text labels are intentionally concise and must remain consistent with registries, workflows, and machine-readable evidence.
 - README references use relative paths so visuals remain available in repository clones and source archives.
 
+## UI/UX Pro Max design system
+
+The atlas follows [`DESIGN_SYSTEM.md`](DESIGN_SYSTEM.md): Scientific Swiss minimalism, Bento information hierarchy, an 8 px spacing rhythm, system typography, semantic non-purple accents, consistent 2 px strokes, and color-independent numbered stages. Decorative AI gradients, neon glow, emoji icons and external resources are prohibited.
+
 ## Asset set
 
 - `hero-multiscale.svg` — electron-to-process architecture

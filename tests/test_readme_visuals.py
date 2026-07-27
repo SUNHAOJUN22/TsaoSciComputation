@@ -41,9 +41,7 @@ def test_readme_visuals_are_self_contained_accessible_and_referenced() -> None:
         (ROOT / "README.zh-CN.md").read_text(encoding="utf-8"),
     ]
     manifest_in = (ROOT / "MANIFEST.in").read_text(encoding="utf-8")
-    design_system = (ROOT / "assets" / "visuals" / "DESIGN_SYSTEM.md").read_text(
-        encoding="utf-8"
-    )
+    design_system = (ROOT / "assets" / "visuals" / "DESIGN_SYSTEM.md").read_text(encoding="utf-8")
     assert "recursive-include assets *.md *.svg" in manifest_in
     assert "Scientific Swiss Bento" in design_system
     assert all("assets/visuals/DESIGN_SYSTEM.md" in readme for readme in readmes)

@@ -12,6 +12,10 @@
 
 </div>
 
+<!-- VISUAL_SYSTEM_V10:START -->
+> **视觉系统 V10。** 全部 42 幅仓库本地配图现已统一采用源自 UI/UX Pro Max 方法的 **Scientific Swiss Bento** 体系：高对比度、系统化间距、语义色、编号阶段、统一线条语言及明确的证据边界。所有 SVG 均为静态、自包含、可访问的解释图，不是求解器截图，也不伪造科研曲线。详见 [`assets/visuals/DESIGN_SYSTEM.md`](assets/visuals/DESIGN_SYSTEM.md)。
+<!-- VISUAL_SYSTEM_V10:END -->
+
 ## 项目是什么
 
 TsaoSciComputation 将科学问题转化为可追溯的计算程序：显式定义计算合同，完成方法与尺度路由、环境前检、有界执行、保守解析、数值与物理验证、不确定度和适用域分析、溯源记录以及证据验收。
