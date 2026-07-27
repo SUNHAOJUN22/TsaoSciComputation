@@ -73,7 +73,9 @@ def _run_json(root: Path, code: str, *args: str) -> dict[str, Any]:
     return cast(dict[str, Any], payload)
 
 
-def _measure_subprocess(root: Path, argv: Sequence[str], *, warmups: int, repeats: int) -> dict[str, Any]:
+def _measure_subprocess(
+    root: Path, argv: Sequence[str], *, warmups: int, repeats: int
+) -> dict[str, Any]:
     if warmups < 0 or repeats < 1:
         raise ValueError("warmups must be non-negative and repeats must be positive")
     env = _python_env(root)
@@ -128,7 +130,7 @@ def startup_profile(root: Path) -> dict[str, Any]:
 def registry_and_routing_profile(root: Path) -> dict[str, Any]:
     return _run_json(
         root,
-        r'''
+        r"""
         import json
         import statistics
         import time
@@ -202,14 +204,14 @@ def registry_and_routing_profile(root: Path) -> dict[str, Any]:
             'route_cache':{'maxsize':cache_info.maxsize,'currsize':cache_info.currsize},
         }
         print(json.dumps(result,sort_keys=True))
-        ''',
+        """,
     )
 
 
 def adapter_profile(root: Path) -> dict[str, Any]:
     return _run_json(
         root,
-        r'''
+        r"""
         import json, statistics, time, tracemalloc
         from tsao_computation.adapters import get_adapter, list_adapters, probe_all
         def p90(values):
@@ -225,14 +227,14 @@ def adapter_profile(root: Path) -> dict[str, Any]:
         result={'list_adapters':measure(list_adapters),'get_adapter':measure(lambda:get_adapter('orca'),repeats=9,warmups=2),'single_probe':measure(lambda:get_adapter('orca').probe(),repeats=5,warmups=1)}
         for workers in (1,2,4,8): result[f'probe_all_{workers}']=measure(lambda w=workers:probe_all(w),repeats=3,warmups=1)
         print(json.dumps(result,sort_keys=True))
-        ''',
+        """,
     )
 
 
 def parser_profile(root: Path) -> dict[str, Any]:
     return _run_json(
         root,
-        r'''
+        r"""
         import json, statistics, sys, time, tracemalloc
         from tsao_computation.adapters import get_adapter
         adapter=get_adapter('orca')
@@ -266,14 +268,14 @@ def parser_profile(root: Path) -> dict[str, Any]:
                 payload=template.format(fill=fill,half=half)
                 cases[f'{size_name}_{case}']=measure(payload,repeats)
         print(json.dumps(cases,sort_keys=True))
-        ''',
+        """,
     )
 
 
 def repository_profile(root: Path) -> dict[str, Any]:
     return _run_json(
         root,
-        r'''
+        r"""
         import json, statistics, time, tracemalloc
         from pathlib import Path
         from scripts.security_scan import scan
@@ -299,7 +301,7 @@ def repository_profile(root: Path) -> dict[str, Any]:
             'repository_audit':measure(lambda:audit_repository(root),repeats=3),
         }
         print(json.dumps(result,sort_keys=True))
-        ''',
+        """,
     )
 
 
@@ -326,14 +328,14 @@ def profile_hot_functions(root: Path) -> dict[str, Any]:
             )
             profiles[name] = _run_json(
                 root,
-                r'''
+                r"""
                 import json,pstats,sys
                 stats=pstats.Stats(sys.argv[1])
                 rows=[]
                 for (filename,line,function),(cc,nc,tt,ct,callers) in sorted(stats.stats.items(),key=lambda item:item[1][3],reverse=True)[:20]:
                     rows.append({'file':filename,'line':line,'function':function,'primitive_calls':cc,'calls':nc,'total_seconds':tt,'cumulative_seconds':ct})
                 print(json.dumps({'total_calls':stats.total_calls,'primitive_calls':stats.prim_calls,'total_seconds':stats.total_tt,'top_cumulative':rows},sort_keys=True))
-                ''',
+                """,
                 str(profile_path),
             )
     return profiles
@@ -357,7 +359,9 @@ def end_to_end_profile(root: Path, *, repeats: int) -> dict[str, Any]:
     return profiles
 
 
-def build_report(root: Path, *, baseline_sha: str, include_end_to_end: bool, repeats: int) -> dict[str, Any]:
+def build_report(
+    root: Path, *, baseline_sha: str, include_end_to_end: bool, repeats: int
+) -> dict[str, Any]:
     resolved = root.resolve()
     report: dict[str, Any] = {
         "schema_version": "2.0",
@@ -410,7 +414,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         encoding="utf-8",
         newline="\n",
     )
-    print(json.dumps({"output": str(args.output), "baseline_sha": args.baseline_sha}, sort_keys=True))
+    print(
+        json.dumps({"output": str(args.output), "baseline_sha": args.baseline_sha}, sort_keys=True)
+    )
     return 0
 
 
