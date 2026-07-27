@@ -9,8 +9,7 @@ on:
 
 permissions:
   actions: read
-  contents: read
-  issues: write
+  contents: write
 
 jobs:
   status:
@@ -18,52 +17,67 @@ jobs:
     timeout-minutes: 10
     env:
       GH_TOKEN: ${{ github.token }}
-      ISSUE_NUMBER: '29'
-      COMMENT_ID: '5086760276'
+      RUN_ID: '30232837889'
     steps:
-      - name: Extract concise V9 gate diagnosis
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: main
+          persist-credentials: true
+
+      - name: Persist concise gate diagnosis
         shell: bash
         run: |
           set -Eeuo pipefail
-          gh api "repos/$GITHUB_REPOSITORY/issues/comments/$COMMENT_ID" --jq .body > /tmp/v9-comment.txt
-          python - <<'PY' > /tmp/v9-summary.txt
+          gh run view "$RUN_ID" --repo "$GITHUB_REPOSITORY" --log > /tmp/v9-run.log
+          python - <<'PY'
           from __future__ import annotations
 
           import json
-          import re
           from pathlib import Path
 
-          body = Path('/tmp/v9-comment.txt').read_text(encoding='utf-8')
-          match = re.search(r'```json\s*(\{.*\})\s*```', body, re.DOTALL)
-          if match is None:
-              raise SystemExit('JSON evidence block not found')
-          payload = json.loads(match.group(1))
-          baseline = payload['baseline_end_to_end']['summary']
-          candidate = payload['candidate_end_to_end']['summary']
-          comparison = payload.get('comparison', {})
-          speedups = comparison.get('speedups', {})
-          acceptance = comparison.get('acceptance', {})
-          print(f"baseline_wall_median={baseline['wall_median_seconds']:.6f}")
-          print(f"baseline_wall_p90={baseline['wall_p90_seconds']:.6f}")
-          print(f"baseline_wall_cv={baseline['wall_cv']:.6f}")
-          print(f"baseline_cpu_median={baseline['cpu_median_seconds']:.6f}")
-          print(f"baseline_peak_rss_kib={baseline['peak_rss_max_kib']:.0f}")
-          print(f"candidate_wall_median={candidate['wall_median_seconds']:.6f}")
-          print(f"candidate_wall_p90={candidate['wall_p90_seconds']:.6f}")
-          print(f"candidate_wall_cv={candidate['wall_cv']:.6f}")
-          print(f"candidate_cpu_median={candidate['cpu_median_seconds']:.6f}")
-          print(f"candidate_peak_rss_kib={candidate['peak_rss_max_kib']:.0f}")
-          print(f"comparison_status={comparison.get('status', 'missing')}")
-          print(f"verify_all_speedup={speedups.get('verify_all_wall', float('nan')):.6f}")
-          print(f"route_speedup={speedups.get('route_decision', float('nan')):.6f}")
-          print(f"parser_speedup={speedups.get('parser_throughput', float('nan')):.6f}")
-          print(f"memory_ratio={comparison.get('memory_ratio', float('nan')):.6f}")
-          print('acceptance=' + json.dumps(acceptance, sort_keys=True))
-          PY
-          body="$(cat /tmp/v9-summary.txt)"
-          gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body \
-            "V9 run \`30232837889\` concise gate diagnosis:
+          parsed = []
+          for line in Path('/tmp/v9-run.log').read_text(encoding='utf-8', errors='replace').splitlines():
+              start = line.find('{')
+              if start < 0:
+                  continue
+              candidate = line[start:]
+              try:
+                  value = json.loads(candidate)
+              except json.JSONDecodeError:
+                  continue
+              if isinstance(value, dict):
+                  parsed.append(value)
 
-          \`\`\`text
-          $body
-          \`\`\`"
+          summaries = [
+              value
+              for value in parsed
+              if {'wall_median_seconds', 'wall_p90_seconds', 'wall_cv', 'cpu_median_seconds', 'peak_rss_max_kib'} <= value.keys()
+          ]
+          comparisons = [value for value in parsed if 'speedups' in value and 'status' in value]
+          micros = [value for value in parsed if 'route_decision_median_ms' in value]
+          if len(summaries) < 2 or not comparisons or len(micros) < 2:
+              raise SystemExit(
+                  f'incomplete diagnosis: summaries={len(summaries)} comparisons={len(comparisons)} micros={len(micros)}'
+              )
+          report = {
+              'schema_version': '1.0',
+              'run_id': 30232837889,
+              'baseline_end_to_end_summary': summaries[0],
+              'candidate_end_to_end_summary': summaries[1],
+              'baseline_micro': micros[0],
+              'candidate_micro': micros[1],
+              'comparison_output': comparisons[-1],
+              'source': 'GitHub Actions decoded log',
+          }
+          path = Path('reports/V9_LAST_GATE_DIAGNOSIS.json')
+          path.write_text(
+              json.dumps(report, indent=2, sort_keys=True) + '\n',
+              encoding='utf-8',
+              newline='\n',
+          )
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add reports/V9_LAST_GATE_DIAGNOSIS.json
+          git commit -m 'Record concise V9 gate diagnosis'
+          git push origin HEAD:refs/heads/main
