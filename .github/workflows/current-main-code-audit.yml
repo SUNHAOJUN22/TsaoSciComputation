@@ -1,0 +1,169 @@
+name: Current main code audit
+
+on:
+  push:
+    branches: [main]
+    paths: [.current-main-code-audit-trigger]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: current-main-code-audit
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+          cache: pip
+      - name: Install complete verification environment
+        run: python -m pip install -e '.[validation,quality,security]'
+      - name: Run independent audit gates and publish evidence
+        shell: bash
+        run: |
+          set -u
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          mkdir -p /tmp/tsao-code-audit reports
+          run_gate() {
+            local name="$1"
+            shift
+            local log="/tmp/tsao-code-audit/${name}.log"
+            set +e
+            "$@" >"$log" 2>&1
+            local rc=$?
+            set -e
+            printf '%s' "$rc" >"/tmp/tsao-code-audit/${name}.rc"
+          }
+          set -e
+          run_gate quality python scripts/verify_all.py --profile quality --timing-json /tmp/tsao-code-audit/quality-timing.json
+          run_gate core python scripts/verify_all.py --profile core --timing-json /tmp/tsao-code-audit/core-timing.json
+          run_gate package python scripts/verify_all.py --profile package --timing-json /tmp/tsao-code-audit/package-timing.json
+          run_gate benchmark python scripts/verify_all.py --profile benchmark --timing-json /tmp/tsao-code-audit/benchmark-timing.json
+          run_gate dependency_audit python -m pip_audit --local --skip-editable --progress-spinner=off --format=json --output /tmp/tsao-code-audit/dependency-audit.json
+          run_gate collect python -m pytest --collect-only -q
+          run_gate git_diff git diff --check
+          python - <<'PY'
+          from __future__ import annotations
+
+          import json
+          import re
+          import subprocess
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          root = Path('.')
+          audit_root = Path('/tmp/tsao-code-audit')
+          gate_names = ('quality', 'core', 'package', 'benchmark', 'dependency_audit', 'collect', 'git_diff')
+          gates = {}
+          for name in gate_names:
+              rc = int((audit_root / f'{name}.rc').read_text())
+              log_path = audit_root / f'{name}.log'
+              text = log_path.read_text(encoding='utf-8', errors='replace') if log_path.exists() else ''
+              timing_path = audit_root / f'{name}-timing.json'
+              timing = json.loads(timing_path.read_text()) if timing_path.exists() else None
+              gates[name] = {
+                  'status': 'PASS' if rc == 0 else 'FAIL',
+                  'returncode': rc,
+                  'log_tail': '\n'.join(text.splitlines()[-120:]),
+                  'timing': timing,
+              }
+
+          collect_text = (audit_root / 'collect.log').read_text(encoding='utf-8', errors='replace')
+          match = re.search(r'(\d+) tests? collected', collect_text)
+          tests_collected = int(match.group(1)) if match else None
+
+          manifest = json.loads((root / 'manifest.json').read_text(encoding='utf-8'))
+          paths = [entry['path'] for entry in manifest['files']]
+          obsolete_patterns = (
+              '.github/workflows/main-audit',
+              '.github/workflows/performance-audit',
+              '.github/workflows/performance-refresh',
+              '.github/workflows/readme-visual-redesign',
+              '.v9-',
+          )
+          obsolete = sorted(path for path in paths if path.startswith(obsolete_patterns))
+          production_ci = (root / '.github/workflows/ci.yml').read_text(encoding='utf-8')
+          issues = []
+          if 'V9 same-host performance A/B' in production_ci:
+              issues.append('ci.yml is a temporary V9 same-host A/B workflow rather than canonical CI')
+          verify_all = (root / 'scripts/verify_all.py').read_text(encoding='utf-8')
+          if re.search(r'returncode = subprocess\.run\([\s\S]+?\)\.returncode\n\s+_record_timing', verify_all):
+              issues.append('sequential timing record is unreachable after return')
+          if obsolete:
+              issues.append(f'{len(obsolete)} obsolete or one-shot workflow/status artifacts remain tracked')
+
+          dependency_payload = None
+          dependency_path = audit_root / 'dependency-audit.json'
+          if dependency_path.exists():
+              try:
+                  dependency_payload = json.loads(dependency_path.read_text(encoding='utf-8'))
+              except json.JSONDecodeError:
+                  dependency_payload = None
+
+          sha = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
+          status = 'PASS' if all(item['status'] == 'PASS' for item in gates.values()) and not issues else 'FAIL'
+          payload = {
+              'schema_version': '1.0',
+              'generated_at': datetime.now(timezone.utc).isoformat(),
+              'audited_sha': sha,
+              'status': status,
+              'tests_collected': tests_collected,
+              'gates': gates,
+              'static_issues': issues,
+              'obsolete_artifacts': obsolete,
+              'dependency_audit': dependency_payload,
+              'claim_boundary': 'This audit validates repository-local code, tests, packaging, metadata and known dependency advisories; it does not claim external solver execution.',
+          }
+          (root / 'reports/CURRENT_MAIN_CODE_AUDIT.json').write_text(
+              json.dumps(payload, indent=2, sort_keys=True) + '\n', encoding='utf-8', newline='\n'
+          )
+
+          lines = [
+              '# Current main code audit',
+              '',
+              f'- Audited SHA: `{sha}`',
+              f'- Overall status: **{status}**',
+              f'- Tests collected: `{tests_collected}`',
+              '',
+              '## Gate results',
+              '',
+              '| Gate | Status | Return code |',
+              '|---|---:|---:|',
+          ]
+          for name, result in gates.items():
+              lines.append(f"| `{name}` | {result['status']} | {result['returncode']} |")
+          lines.extend(['', '## Static issues', ''])
+          lines.extend(f'- {item}' for item in issues)
+          if not issues:
+              lines.append('- None detected.')
+          lines.extend(['', '## Obsolete or one-shot artifacts', ''])
+          lines.extend(f'- `{path}`' for path in obsolete)
+          if not obsolete:
+              lines.append('- None detected.')
+          lines.extend([
+              '',
+              '## Claim boundary',
+              '',
+              'This audit validates repository-local code, tests, packaging, metadata and known dependency advisories. It does not claim external solver execution.',
+          ])
+          (root / 'reports/CURRENT_MAIN_CODE_AUDIT.md').write_text(
+              '\n'.join(lines) + '\n', encoding='utf-8', newline='\n'
+          )
+          PY
+          rm -f .github/workflows/current-main-code-audit.yml .current-main-code-audit-trigger
+          python scripts/build_manifest.py
+          python scripts/build_manifest.py --check
+          git add -A
+          git commit -m 'Record current-main code audit and remove audit transport'
+          git push origin HEAD:refs/heads/main
