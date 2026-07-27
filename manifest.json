@@ -66,9 +66,9 @@
       "sha256": "d4c40b4c927e636a38c5dce049ecc505161deffa221eb745c08023ac93d34a1d"
     },
     {
-      "bytes": 12561,
+      "bytes": 12865,
       "path": ".github/workflows/performance-audit-v9.yml",
-      "sha256": "a5e5d1735f37548b7c12028b48324614318b06a8d1615ca26e4209fd3ec5d318"
+      "sha256": "1506ab0e2f17043575eb563f163969662072dfbfb4ca11c466a25c76267d4813"
     },
     {
       "bytes": 5027,
