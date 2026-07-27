@@ -6,11 +6,11 @@ from types import SimpleNamespace
 
 import pytest
 
+from scripts import verify_all, verify_wheel
 from scripts.benchmark import median_seconds
 from scripts.compare_performance import compare_performance
 from scripts.run_tests import _write_coverage_evidence
 from scripts.security_scan import scan
-from scripts import verify_wheel
 from tsao_computation.adapters import get_adapter
 from tsao_computation.adapters.registry import list_adapters
 from tsao_computation.provenance.manifest import file_manifest, iter_repository_entries
@@ -110,6 +110,23 @@ def test_benchmark_helper_validates_controls() -> None:
     with pytest.raises(ValueError):
         median_seconds(lambda: None, loops=0)
     assert median_seconds(lambda: None, repeats=1, loops=2, warmups=0) >= 0
+
+
+def test_sequential_verification_records_timing(monkeypatch: pytest.MonkeyPatch) -> None:
+    verify_all._TIMING_RECORDS.clear()
+
+    def fake_run(*args: object, **kwargs: object) -> SimpleNamespace:
+        return SimpleNamespace(returncode=0)
+
+    monkeypatch.setattr(verify_all.subprocess, "run", fake_run)
+    assert verify_all.run("timed command", (sys.executable, "-V")) == 0
+    assert len(verify_all._TIMING_RECORDS) == 1
+    record = verify_all._TIMING_RECORDS[0]
+    assert record["label"] == "timed command"
+    assert record["command"] == [sys.executable, "-V"]
+    assert record["mode"] == "sequential"
+    assert float(record["elapsed_seconds"]) >= 0.0
+    verify_all._TIMING_RECORDS.clear()
 
 
 def test_coverage_json_is_generated_once_with_the_hard_threshold(
