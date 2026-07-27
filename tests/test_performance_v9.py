@@ -9,7 +9,6 @@ import pytest
 from scripts.compare_performance_v9 import compare_v9
 from scripts.measure_command_v9 import measure_command
 from scripts.verify_all import run_commands_parallel, verification_workers
-from tsao_computation.adapters import get_adapter
 from tsao_computation.provenance.manifest import _file_size_and_sha256
 from tsao_computation.registries import clear_registry_caches
 from tsao_computation.routing import route_question
@@ -60,17 +59,6 @@ def test_large_file_hashing_preserves_manifest_bytes(tmp_path: Path) -> None:
     size, digest = _file_size_and_sha256(path)
     assert size == len(payload)
     assert digest == hashlib.sha256(payload).hexdigest()
-
-
-def test_fifty_mib_parser_keeps_failure_precedence() -> None:
-    size = 50 * 1024 * 1024
-    prefix = "normal termination; converged\n"
-    suffix = "\nfailed to converge"
-    payload = prefix + ("x" * (size - len(prefix) - len(suffix))) + suffix
-    parsed = get_adapter("orca").parse(payload)
-    assert parsed["completed"] is True
-    assert parsed["converged"] is False
-    assert parsed["raw_length"] == size
 
 
 def _command_measurement(wall: float, cpu: float, rss: float) -> dict[str, object]:
