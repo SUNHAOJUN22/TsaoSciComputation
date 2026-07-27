@@ -1,0 +1,56 @@
+name: V9 CI failure diagnostic
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/v9-ci-diagnose.yml'
+
+permissions:
+  actions: read
+  contents: read
+  issues: write
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RUN_ID: '30231978388'
+      ISSUE_NUMBER: '29'
+    steps:
+      - name: Extract failed CI log tail
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          gh run view "$RUN_ID" --repo "$GITHUB_REPOSITORY" --log-failed > /tmp/v9-ci-failed.log
+          python - <<'PY' > /tmp/v9-ci-diagnosis.txt
+          from pathlib import Path
+
+          lines = Path('/tmp/v9-ci-failed.log').read_text(encoding='utf-8', errors='replace').splitlines()
+          important = []
+          terms = ('FAILED', 'FAILURES', 'Error', 'error', 'Traceback', 'manifest', 'not synchronized', 'exit code')
+          for index, line in enumerate(lines):
+              if any(term in line for term in terms):
+                  start = max(0, index - 4)
+                  end = min(len(lines), index + 10)
+                  important.extend(lines[start:end])
+          if not important:
+              important = lines[-180:]
+          deduplicated = []
+          previous = None
+          for line in important:
+              if line != previous:
+                  deduplicated.append(line)
+              previous = line
+          print('\n'.join(deduplicated[-220:]))
+          PY
+          body="$(cat /tmp/v9-ci-diagnosis.txt)"
+          gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body \
+            "V9 canonical CI Run \`$RUN_ID\` macOS failure diagnosis:
+
+          \`\`\`text
+          $body
+          \`\`\`"
