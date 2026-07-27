@@ -47,7 +47,8 @@ jobs:
           outcome,stage,log_path=sys.argv[1:4]
           payload={'schema_version':'1.0','outcome':outcome,'stage':stage}
           if log_path and Path(log_path).is_file():
-              payload['log_tail']=Path(log_path).read_text(encoding='utf-8',errors='replace')[-12000:]
+              lines=Path(log_path).read_text(encoding='utf-8',errors='replace').splitlines()
+              payload['log_tail']='\n'.join(lines[-40:])
           Path('.v9-ci-status.json').write_text(
               json.dumps(payload,indent=2,sort_keys=True)+'\n',encoding='utf-8',newline='\n'
           )
@@ -129,6 +130,16 @@ jobs:
             --output /tmp/PERFORMANCE_CANDIDATE_V9.json >>/tmp/v9-ab.log 2>&1
           (cd "$candidate" && python scripts/benchmark.py --output /tmp/v9-candidate-micro.json) >>/tmp/v9-ab.log 2>&1
 
+          STAGE=publish-raw-measurements
+          cp /tmp/PERFORMANCE_BASELINE_V9.json reports/PERFORMANCE_BASELINE_V9.json
+          cp /tmp/PERFORMANCE_CANDIDATE_V9.json reports/PERFORMANCE_CANDIDATE_V9.json
+          cp /tmp/v9-baseline-micro.json reports/PERFORMANCE_BASELINE_MICRO_V9.json
+          cp /tmp/v9-candidate-micro.json reports/PERFORMANCE_CANDIDATE_MICRO_V9.json
+          git add reports/PERFORMANCE_BASELINE_V9.json reports/PERFORMANCE_CANDIDATE_V9.json \
+            reports/PERFORMANCE_BASELINE_MICRO_V9.json reports/PERFORMANCE_CANDIDATE_MICRO_V9.json
+          git commit -m 'Record raw same-host current-main V9 measurements'
+          git push origin HEAD:refs/heads/main
+
           STAGE=compare
           set +e
           python scripts/finalize_performance_v9.py \
@@ -139,8 +150,9 @@ jobs:
             --baseline-sha "$BASELINE_SHA" \
             --candidate-sha "$CANDIDATE_SOURCE_SHA" \
             --run-id "$GITHUB_RUN_ID" \
-            --root "$candidate" >>/tmp/v9-ab.log 2>&1
+            --root "$candidate" >/tmp/v9-finalizer.log 2>&1
           compare_rc=$?
+          cat /tmp/v9-finalizer.log >>/tmp/v9-ab.log
           set -e
           if [ "$compare_rc" -ne 0 ]; then
             for path in reports/PERFORMANCE_BASELINE_V9.json reports/PERFORMANCE_CANDIDATE_V9.json \
@@ -152,7 +164,7 @@ jobs:
             done
             git commit -m 'Record non-accepted current-main V9 performance comparison' || true
             git push origin HEAD:refs/heads/main || true
-            record_status failure acceptance /tmp/v9-ab.log
+            record_status failure acceptance /tmp/v9-finalizer.log
             exit "$compare_rc"
           fi
 
