@@ -40,6 +40,7 @@ def build_once(source_root: Path, output: Path, epoch: str) -> Path:
     env = dict(os.environ)
     env["SOURCE_DATE_EPOCH"] = epoch
     env["PIP_DISABLE_PIP_VERSION_CHECK"] = "1"
+    env["PYTHONDONTWRITEBYTECODE"] = "1"
     subprocess.run(  # nosec B603
         [
             sys.executable,
@@ -65,9 +66,12 @@ def build_once(source_root: Path, output: Path, epoch: str) -> Path:
 def build_reproducible_pair(root: Path, temporary_root: Path, epoch: str) -> tuple[Path, Path]:
     source_first = temporary_root / "source-first"
     source_second = temporary_root / "source-second"
-    prepare_source_snapshot(root, source_first)
-    prepare_source_snapshot(root, source_second)
     with ThreadPoolExecutor(max_workers=2, thread_name_prefix="tsao-wheel") as pool:
+        first_snapshot = pool.submit(prepare_source_snapshot, root, source_first)
+        second_snapshot = pool.submit(prepare_source_snapshot, root, source_second)
+        first_snapshot.result()
+        second_snapshot.result()
+
         first_future = pool.submit(build_once, source_first, temporary_root / "first", epoch)
         second_future = pool.submit(build_once, source_second, temporary_root / "second", epoch)
         return first_future.result(), second_future.result()
@@ -77,6 +81,7 @@ def verify_target_install(wheel: Path, temporary_root: Path, expected: str) -> s
     target = temporary_root / "target-install"
     env = dict(os.environ)
     env["PIP_DISABLE_PIP_VERSION_CHECK"] = "1"
+    env["PYTHONDONTWRITEBYTECODE"] = "1"
     subprocess.run(  # nosec B603
         [
             sys.executable,
@@ -85,6 +90,7 @@ def verify_target_install(wheel: Path, temporary_root: Path, expected: str) -> s
             "install",
             "--no-index",
             "--no-deps",
+            "--no-compile",
             "--target",
             str(target),
             str(wheel),
@@ -138,8 +144,9 @@ def main() -> int:
         "bytes": destination.stat().st_size,
         "byte_identical_rebuild": True,
         "parallel_isolated_rebuilds": True,
+        "parallel_source_snapshots": True,
         "isolated_install": True,
-        "installation_mode": "pip-target",
+        "installation_mode": "pip-target-no-compile",
         "verification": expected,
     }
     (dist / "WHEEL_VERIFICATION.json").write_text(
