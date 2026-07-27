@@ -20,9 +20,6 @@ from scripts.regenerate_readme_visuals_v10 import (  # noqa: E402
     wrap_words,
 )
 from scripts.regenerate_readme_visuals_v11 import (  # noqa: E402
-    BENTO_FILES,
-    LOOP_FILES,
-    RISK_FILES,
     layout_for,
 )
 
@@ -236,8 +233,7 @@ def text_lines(
         for index, line in enumerate(wrapped)
     )
     return (
-        f'<text x="{x:.1f}" y="{y:.1f}" text-anchor="{anchor}" '
-        f'class="{css_class}">{tspans}</text>'
+        f'<text x="{x:.1f}" y="{y:.1f}" text-anchor="{anchor}" class="{css_class}">{tspans}</text>'
     )
 
 
@@ -267,28 +263,28 @@ def frame(spec: VisualSpec, layout: str, body: str, *, height: int = 600) -> str
   <desc id="desc">{html.escape(spec.description)}</desc>
   <style>
     .eyebrow {{ fill: {accent}; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif; font-size: 16px; font-weight: 700; letter-spacing: 1.4px; }}
-    .heading {{ fill: {TOKENS['text']}; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif; font-size: 38px; font-weight: 700; }}
-    .subtitle {{ fill: {TOKENS['secondary']}; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif; font-size: 18px; font-weight: 400; }}
-    .card {{ fill: {TOKENS['surface']}; stroke: {TOKENS['border']}; stroke-width: 2; }}
-    .raised {{ fill: {TOKENS['raised']}; stroke: {TOKENS['border']}; stroke-width: 2; }}
-    .index {{ fill: {TOKENS['text']}; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 16px; font-weight: 700; }}
-    .stage {{ fill: {TOKENS['text']}; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif; font-size: 21px; font-weight: 650; }}
-    .detail {{ fill: {TOKENS['secondary']}; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif; font-size: 16px; font-weight: 400; }}
-    .mono {{ fill: {TOKENS['secondary']}; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 16px; font-weight: 650; }}
-    .gate {{ fill: {TOKENS['secondary']}; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 16px; font-weight: 650; }}
-    .footer {{ fill: {TOKENS['muted']}; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif; font-size: 16px; font-weight: 400; }}
-    .line {{ fill: none; stroke: {TOKENS['muted']}; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }}
+    .heading {{ fill: {TOKENS["text"]}; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif; font-size: 38px; font-weight: 700; }}
+    .subtitle {{ fill: {TOKENS["secondary"]}; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif; font-size: 18px; font-weight: 400; }}
+    .card {{ fill: {TOKENS["surface"]}; stroke: {TOKENS["border"]}; stroke-width: 2; }}
+    .raised {{ fill: {TOKENS["raised"]}; stroke: {TOKENS["border"]}; stroke-width: 2; }}
+    .index {{ fill: {TOKENS["text"]}; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 16px; font-weight: 700; }}
+    .stage {{ fill: {TOKENS["text"]}; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif; font-size: 21px; font-weight: 650; }}
+    .detail {{ fill: {TOKENS["secondary"]}; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif; font-size: 16px; font-weight: 400; }}
+    .mono {{ fill: {TOKENS["secondary"]}; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 16px; font-weight: 650; }}
+    .gate {{ fill: {TOKENS["secondary"]}; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 16px; font-weight: 650; }}
+    .footer {{ fill: {TOKENS["muted"]}; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif; font-size: 16px; font-weight: 400; }}
+    .line {{ fill: none; stroke: {TOKENS["muted"]}; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }}
   </style>
-  <rect width="1200" height="{height}" rx="24" fill="{TOKENS['canvas']}"/>
-  <rect x="24" y="24" width="1152" height="{height - 48}" rx="20" fill="none" stroke="{TOKENS['border']}" stroke-width="2"/>
+  <rect width="1200" height="{height}" rx="24" fill="{TOKENS["canvas"]}"/>
+  <rect x="24" y="24" width="1152" height="{height - 48}" rx="20" fill="none" stroke="{TOKENS["border"]}" stroke-width="2"/>
   <text x="56" y="58" class="eyebrow">{html.escape(spec.family.upper())} · {layout.upper()}</text>
   <text x="56" y="108" class="heading">{html.escape(spec.heading)}</text>
-  {text_lines(56, 142, spec.subtitle, 'subtitle', 88, maximum=1)}
-  <rect x="970" y="42" width="174" height="34" rx="17" fill="{TOKENS['raised']}" stroke="{TOKENS['border']}"/>
+  {text_lines(56, 142, spec.subtitle, "subtitle", 88, maximum=1)}
+  <rect x="970" y="42" width="174" height="34" rx="17" fill="{TOKENS["raised"]}" stroke="{TOKENS["border"]}"/>
   <text x="1057" y="65" text-anchor="middle" class="mono">EVIDENCE-BOUND</text>
   {body}
   {evidence_strip(accent, height - 78)}
-  {text_lines(56, height - 30, spec.footer, 'footer', 120, maximum=1)}
+  {text_lines(56, height - 30, spec.footer, "footer", 120, maximum=1)}
 </svg>
 '''
 
@@ -311,9 +307,17 @@ def render_hero(spec: VisualSpec) -> str:
 
 def render_bento(spec: VisualSpec) -> str:
     accent = TOKENS[spec.accent]
-    positions = ((48, 178, 426, 132), (490, 178, 662, 132), (48, 326, 340, 126), (404, 326, 340, 126), (760, 326, 392, 126))
+    positions = (
+        (48, 178, 426, 132),
+        (490, 178, 662, 132),
+        (48, 326, 340, 126),
+        (404, 326, 340, 126),
+        (760, 326, 392, 126),
+    )
     cards: list[str] = []
-    for index, ((label, detail), (x, y, width, height)) in enumerate(zip(spec.stages, positions, strict=True)):
+    for index, ((label, detail), (x, y, width, height)) in enumerate(
+        zip(spec.stages, positions, strict=True)
+    ):
         cards.append(
             f'<rect x="{x}" y="{y}" width="{width}" height="{height}" rx="18" class="card"/>'
             f'<rect x="{x}" y="{y}" width="5" height="{height}" rx="2" fill="{accent}"/>'
@@ -414,8 +418,7 @@ def render_svg(spec: VisualSpec) -> str:
 
 def image(spec: VisualSpec) -> str:
     return (
-        f'<img src="assets/visuals/{spec.filename}" alt="{html.escape(spec.title)}" '
-        'width="100%">'
+        f'<img src="assets/visuals/{spec.filename}" alt="{html.escape(spec.title)}" width="100%">'
     )
 
 
@@ -430,8 +433,8 @@ def detail_group(
     open_attr = " open" if opened else ""
     images = "\n\n".join(image(specs[name]) for name in filenames)
     return (
-        f'<details{open_attr}>\n<summary><strong>{title}</strong> — {description}</summary>\n\n'
-        f'{images}\n\n</details>'
+        f"<details{open_attr}>\n<summary><strong>{title}</strong> — {description}</summary>\n\n"
+        f"{images}\n\n</details>"
     )
 
 
@@ -470,10 +473,22 @@ def build_atlas(specs: tuple[VisualSpec, ...], *, chinese: bool) -> str:
         labels = {
             "agent": "Governed scientific agent",
             "capability": "Contract-based capability system",
-            "electronic": ("Electronic structure, molecular simulation and reactions", "quantum, sampling, kinetics, spectroscopy and cross-scale parameterization"),
-            "materials": ("Materials, interfaces and manufacturing", "morphology, transport, polymerization, composites and processing windows"),
-            "process": ("Continuum, process and operations", "CFD, FEM, flowsheets, reactors, control and digital twins"),
-            "governance": ("Evidence, governance and computing infrastructure", "uncertainty, adapters, HPC, confidence and reproducibility"),
+            "electronic": (
+                "Electronic structure, molecular simulation and reactions",
+                "quantum, sampling, kinetics, spectroscopy and cross-scale parameterization",
+            ),
+            "materials": (
+                "Materials, interfaces and manufacturing",
+                "morphology, transport, polymerization, composites and processing windows",
+            ),
+            "process": (
+                "Continuum, process and operations",
+                "CFD, FEM, flowsheets, reactors, control and digital twins",
+            ),
+            "governance": (
+                "Evidence, governance and computing infrastructure",
+                "uncertainty, adapters, HPC, confidence and reproducibility",
+            ),
         }
         fail_closed = (
             "The core design is fail-closed: declared capability is not environment availability; process completion "
@@ -485,7 +500,7 @@ def build_atlas(specs: tuple[VisualSpec, ...], *, chinese: bool) -> str:
             "parsed results, hashes and release evidence."
         )
 
-    overview = f'''{heading}
+    overview = f"""{heading}
 
 {intro}
 
@@ -495,19 +510,17 @@ def build_atlas(specs: tuple[VisualSpec, ...], *, chinese: bool) -> str:
 <td width="50%">{image(capability)}</td>
 </tr>
 <tr>
-<td align="center"><strong>{labels['agent']}</strong></td>
-<td align="center"><strong>{labels['capability']}</strong></td>
+<td align="center"><strong>{labels["agent"]}</strong></td>
+<td align="center"><strong>{labels["capability"]}</strong></td>
 </tr>
 </table>
 
 {fail_closed}
-'''
+"""
     groups = []
     for index, (key, filenames) in enumerate(GROUPS):
         title, description = labels[key]
-        groups.append(
-            detail_group(title, description, filenames, by_name, opened=index == 0)
-        )
+        groups.append(detail_group(title, description, filenames, by_name, opened=index == 0))
     return overview + "\n\n" + "\n\n".join(groups) + "\n\n" + final_note
 
 

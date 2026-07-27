@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Regenerated all 42 README visuals for GitHub-scale readability with 16 px minimum diagram text, full-width detailed workflows and progressive-disclosure domain groups.
+
 - Diversified all 42 UI/UX Pro Max README illustrations into Hero, Bento, Workflow, Loop and Risk layouts while preserving filenames, accessibility and scientific evidence boundaries.
 
 - Regenerated all 42 README SVG illustrations with the UI/UX Pro Max-derived Scientific Swiss Bento V10 system, preserving filenames, scientific boundaries and self-contained accessibility while removing decorative AI gradients and glow effects.
