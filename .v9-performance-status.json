@@ -1,5 +1,5 @@
 {
-  "outcome": "started",
+  "outcome": "failure",
   "schema_version": "1.0",
-  "stage": "initialization"
+  "stage": "normalize-profiler"
 }
