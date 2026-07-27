@@ -69,33 +69,23 @@ jobs:
           STAGE=repair-profiler
           python - <<'PY' >>/tmp/v9-ab.log 2>&1
           from pathlib import Path
-          path=Path('scripts/profile_performance_v9_refresh.py')
-          text=path.read_text(encoding='utf-8')
-          old='''            profile_path = temporary_root / f"{name}.prof"
-            subprocess.run(  # nosec B603
-                [sys.executable, "-m", "cProfile", "-o", str(profile_path), "-c", code],
-                cwd=root,
-                env=env,
-                check=True,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-            )'''
-          new='''            profile_path = temporary_root / f"{name}.prof"
-            workload_path = temporary_root / f"{name}.py"
-            workload_path.write_text(code + "\\n", encoding="utf-8", newline="\\n")
-            subprocess.run(  # nosec B603
-                [sys.executable, "-m", "cProfile", "-o", str(profile_path), str(workload_path)],
-                cwd=root,
-                env=env,
-                check=True,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-            )'''
-          if old in text:
-              text=text.replace(old,new,1)
-          if '"-c", code' in text or 'workload_path = temporary_root / f"{name}.py"' not in text:
-              raise SystemExit('profiler source repair did not converge')
-          path.write_text(text,encoding='utf-8',newline='\n')
+          path = Path("scripts/profile_performance_v9_refresh.py")
+          text = path.read_text(encoding="utf-8")
+          marker = '            profile_path = temporary_root / f"{name}.prof"\n'
+          insertion = marker + (
+              '            workload_path = temporary_root / f"{name}.py"\n'
+              '            workload_path.write_text(code + "\\n", encoding="utf-8", newline="\\n")\n'
+          )
+          if 'workload_path = temporary_root / f"{name}.py"' not in text:
+              if marker not in text:
+                  raise SystemExit("profiler profile_path anchor is missing")
+              text = text.replace(marker, insertion, 1)
+          old_argv = '[sys.executable, "-m", "cProfile", "-o", str(profile_path), "-c", code],'
+          new_argv = '[sys.executable, "-m", "cProfile", "-o", str(profile_path), str(workload_path)],'
+          text = text.replace(old_argv, new_argv, 1)
+          if old_argv in text or new_argv not in text:
+              raise SystemExit("profiler argv repair did not converge")
+          path.write_text(text, encoding="utf-8", newline="\n")
           PY
           python -m ruff check --fix scripts/profile_performance_v9_refresh.py scripts/finalize_performance_v9.py >>/tmp/v9-ab.log 2>&1
           python -m ruff format scripts/profile_performance_v9_refresh.py scripts/finalize_performance_v9.py >>/tmp/v9-ab.log 2>&1
