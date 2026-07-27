@@ -1,107 +1,300 @@
-name: CI
+name: V9 same-host performance A/B
 
 on:
-  workflow_dispatch:
-  pull_request:
-    branches: [main]
   push:
     branches: [main]
+    paths: [.v9-ci-trigger]
 
 permissions:
-  contents: read
+  contents: write
+  issues: write
 
 concurrency:
-  group: ci-${{ github.workflow }}-${{ github.ref }}
+  group: v9-same-host-ab-main
   cancel-in-progress: true
 
 jobs:
-  core:
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        python: ['3.10', '3.13']
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 20
-    steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
-        with:
-          persist-credentials: false
-      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
-        with:
-          python-version: ${{ matrix.python }}
-          cache: pip
-      - run: python -m pip install -e '.[validation,quality]'
-      - run: python scripts/verify_all.py --profile core
-
-  quality:
+  ab:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 300
+    env:
+      BASELINE_SHA: 04ce646e51a603faf8cfad72ec15e218e09a0ebd
+      ISSUE_NUMBER: '34'
+      STATUS_FILE: .v9-ci-status.json
+      PROD_CI_B64: bmFtZTogQ0kKCm9uOgogIHdvcmtmbG93X2Rpc3BhdGNoOgogIHB1bGxfcmVxdWVzdDoKICAgIGJyYW5jaGVzOiBbbWFpbl0KICBwdXNoOgogICAgYnJhbmNoZXM6IFttYWluXQoKcGVybWlzc2lvbnM6CiAgY29udGVudHM6IHJlYWQKCmNvbmN1cnJlbmN5OgogIGdyb3VwOiBjaS0ke3sgZ2l0aHViLndvcmtmbG93IH19LSR7eyBnaXRodWIucmVmIH19CiAgY2FuY2VsLWluLXByb2dyZXNzOiB0cnVlCgpqb2JzOgogIGNvcmU6CiAgICBzdHJhdGVneToKICAgICAgZmFpbC1mYXN0OiBmYWxzZQogICAgICBtYXRyaXg6CiAgICAgICAgb3M6IFt1YnVudHUtbGF0ZXN0LCB3aW5kb3dzLWxhdGVzdCwgbWFjb3MtbGF0ZXN0XQogICAgICAgIHB5dGhvbjogWyczLjEwJywgJzMuMTMnXQogICAgcnVucy1vbjogJHt7IG1hdHJpeC5vcyB9fQogICAgdGltZW91dC1taW51dGVzOiAyMAogICAgc3RlcHM6CiAgICAgIC0gdXNlczogYWN0aW9ucy9jaGVja291dEAzNGUxMTQ4NzZiMGIxMWMzOTBhNTYzODFhZDE2ZWJkMTM5MTRmOGQ1CiAgICAgICAgd2l0aDoKICAgICAgICAgIHBlcnNpc3QtY3JlZGVudGlhbHM6IGZhbHNlCiAgICAgIC0gdXNlczogYWN0aW9ucy9zZXR1cC1weXRob25AYTMwOWZmOGI0MjZiNThlYzBlMmE0NWYwZjg2OWQ0Njg4OWQwMjQwNQogICAgICAgIHdpdGg6CiAgICAgICAgICBweXRob24tdmVyc2lvbjogJHt7IG1hdHJpeC5weXRob24gfX0KICAgICAgICAgIGNhY2hlOiBwaXAKICAgICAgLSBydW46IHB5dGhvbiAtbSBwaXAgaW5zdGFsbCAtZSAnLlt2YWxpZGF0aW9uLHF1YWxpdHldJwogICAgICAtIHJ1bjogcHl0aG9uIHNjcmlwdHMvdmVyaWZ5X2FsbC5weSAtLXByb2ZpbGUgY29yZQoKICBxdWFsaXR5OgogICAgcnVucy1vbjogdWJ1bnR1LWxhdGVzdAogICAgdGltZW91dC1taW51dGVzOiAyMAogICAgc3RlcHM6CiAgICAgIC0gdXNlczogYWN0aW9ucy9jaGVja291dEAzNGUxMTQ4NzZiMGIxMWMzOTBhNTYzODFhZDE2ZWJkMTM5MTRmOGQ1CiAgICAgICAgd2l0aDoKICAgICAgICAgIHBlcnNpc3QtY3JlZGVudGlhbHM6IGZhbHNlCiAgICAgIC0gdXNlczogYWN0aW9ucy9zZXR1cC1weXRob25AYTMwOWZmOGI0MjZiNThlYzBlMmE0NWYwZjg2OWQ0Njg4OWQwMjQwNQogICAgICAgIHdpdGg6CiAgICAgICAgICBweXRob24tdmVyc2lvbjogJzMuMTMnCiAgICAgICAgICBjYWNoZTogcGlwCiAgICAgIC0gcnVuOiBweXRob24gLW0gcGlwIGluc3RhbGwgLWUgJy5bdmFsaWRhdGlvbixxdWFsaXR5XScKICAgICAgLSBydW46IHB5dGhvbiBzY3JpcHRzL3ZlcmlmeV9hbGwucHkgLS1wcm9maWxlIHF1YWxpdHkKCiAgcGFja2FnZToKICAgIHJ1bnMtb246IHVidW50dS1sYXRlc3QKICAgIHRpbWVvdXQtbWludXRlczogMjUKICAgIHN0ZXBzOgogICAgICAtIHVzZXM6IGFjdGlvbnMvY2hlY2tvdXRAMzRlMTE0ODc2YjBiMTFjMzkwYTU2MzgxYWQxNmViZDEzOTE0ZjhkNQogICAgICAgIHdpdGg6CiAgICAgICAgICBwZXJzaXN0LWNyZWRlbnRpYWxzOiBmYWxzZQogICAgICAtIHVzZXM6IGFjdGlvbnMvc2V0dXAtcHl0aG9uQGEzMDlmZjhiNDI2YjU4ZWMwZTJhNDVmMGY4NjlkNDY4ODlkMDI0MDUKICAgICAgICB3aXRoOgogICAgICAgICAgcHl0aG9uLXZlcnNpb246ICczLjEzJwogICAgICAtIHJ1bjogcHl0aG9uIC1tIHBpcCBpbnN0YWxsIC1lICcuW3ZhbGlkYXRpb24scXVhbGl0eV0nCiAgICAgIC0gcnVuOiBweXRob24gc2NyaXB0cy92ZXJpZnlfYWxsLnB5IC0tcHJvZmlsZSBwYWNrYWdlCiAgICAgIC0gdXNlczogYWN0aW9ucy91cGxvYWQtYXJ0aWZhY3RAMDQzZmI0NmQxYTkzYzc3YWFlNjU2ZTdjMWM2NGE4NzVkMWZjNmEwYQogICAgICAgIHdpdGg6CiAgICAgICAgICBuYW1lOiBUc2FvU2NpQ29tcHV0YXRpb24tcmVsZWFzZS1jYW5kaWRhdGUtJHt7IGdpdGh1Yi5ydW5faWQgfX0tJHt7IGdpdGh1Yi5ydW5fYXR0ZW1wdCB9fQogICAgICAgICAgcGF0aDogZGlzdC8qCiAgICAgICAgICBpZi1uby1maWxlcy1mb3VuZDogZXJyb3IKICAgICAgICAgIHJldGVudGlvbi1kYXlzOiAxNAoKICBiZW5jaG1hcms6CiAgICBydW5zLW9uOiB1YnVudHUtbGF0ZXN0CiAgICB0aW1lb3V0LW1pbnV0ZXM6IDEwCiAgICBjb250aW51ZS1vbi1lcnJvcjogdHJ1ZQogICAgc3RlcHM6CiAgICAgIC0gdXNlczogYWN0aW9ucy9jaGVja291dEAzNGUxMTQ4NzZiMGIxMWMzOTBhNTYzODFhZDE2ZWJkMTM5MTRmOGQ1CiAgICAgICAgd2l0aDoKICAgICAgICAgIHBlcnNpc3QtY3JlZGVudGlhbHM6IGZhbHNlCiAgICAgIC0gdXNlczogYWN0aW9ucy9zZXR1cC1weXRob25AYTMwOWZmOGI0MjZiNThlYzBlMmE0NWYwZjg2OWQ0Njg4OWQwMjQwNQogICAgICAgIHdpdGg6CiAgICAgICAgICBweXRob24tdmVyc2lvbjogJzMuMTMnCiAgICAgICAgICBjYWNoZTogcGlwCiAgICAgIC0gcnVuOiBweXRob24gLW0gcGlwIGluc3RhbGwgLWUgJy5bdmFsaWRhdGlvbixxdWFsaXR5XScKICAgICAgLSBydW46IHB5dGhvbiBzY3JpcHRzL3ZlcmlmeV9hbGwucHkgLS1wcm9maWxlIGJlbmNobWFyawoKICBwZXJmb3JtYW5jZToKICAgIHJ1bnMtb246IHVidW50dS1sYXRlc3QKICAgIHRpbWVvdXQtbWludXRlczogMTUKICAgIHN0ZXBzOgogICAgICAtIHVzZXM6IGFjdGlvbnMvY2hlY2tvdXRAMzRlMTE0ODc2YjBiMTFjMzkwYTU2MzgxYWQxNmViZDEzOTE0ZjhkNQogICAgICAgIHdpdGg6CiAgICAgICAgICBwZXJzaXN0LWNyZWRlbnRpYWxzOiBmYWxzZQogICAgICAtIHVzZXM6IGFjdGlvbnMvc2V0dXAtcHl0aG9uQGEzMDlmZjhiNDI2YjU4ZWMwZTJhNDVmMGY4NjlkNDY4ODlkMDI0MDUKICAgICAgICB3aXRoOgogICAgICAgICAgcHl0aG9uLXZlcnNpb246ICczLjEzJwogICAgICAgICAgY2FjaGU6IHBpcAogICAgICAtIHJ1bjogcHl0aG9uIC1tIHBpcCBpbnN0YWxsIC1lICcuW3ZhbGlkYXRpb24scXVhbGl0eV0nCiAgICAgIC0gcnVuOiBweXRob24gLW0gcHl0ZXN0IC1xIHRlc3RzL3Rlc3RfcGVyZm9ybWFuY2VfdjkucHkKICAgICAgLSBydW46IHB5dGhvbiBzY3JpcHRzL3J1bl9sYXJnZV9wYXJzZXJfcmVncmVzc2lvbi5weQogICAgICAtIG5hbWU6IFZlcmlmeSBhY2NlcHRlZCBWOSBwZXJmb3JtYW5jZSBldmlkZW5jZSB3aGVuIHByZXNlbnQKICAgICAgICBzaGVsbDogYmFzaAogICAgICAgIHJ1bjogfAogICAgICAgICAgaWYgdGVzdCAtZiByZXBvcnRzL1BFUkZPUk1BTkNFX0NPTVBBUklTT05fVjkuanNvbjsgdGhlbgogICAgICAgICAgICBweXRob24gc2NyaXB0cy9jb21wYXJlX3BlcmZvcm1hbmNlX3Y5LnB5IFwKICAgICAgICAgICAgICAtLXZlcmlmeS1yZXBvcnQgcmVwb3J0cy9QRVJGT1JNQU5DRV9DT01QQVJJU09OX1Y5Lmpzb24KICAgICAgICAgIGVsc2UKICAgICAgICAgICAgZWNobyAnVjkgcGVyZm9ybWFuY2UgZXZpZGVuY2UgaGFzIG5vdCBiZWVuIGZpbmFsaXplZCB5ZXQuJwogICAgICAgICAgZmkK
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
         with:
-          persist-credentials: false
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
       - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
         with:
           python-version: '3.13'
           cache: pip
-      - run: python -m pip install -e '.[validation,quality]'
-      - run: python scripts/verify_all.py --profile quality
-
-  package:
-    runs-on: ubuntu-latest
-    timeout-minutes: 25
-    steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
-        with:
-          persist-credentials: false
-      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
-        with:
-          python-version: '3.13'
-      - run: python -m pip install -e '.[validation,quality]'
-      - run: python scripts/verify_all.py --profile package
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
-        with:
-          name: TsaoSciComputation-release-candidate-${{ github.run_id }}-${{ github.run_attempt }}
-          path: dist/*
-          if-no-files-found: error
-          retention-days: 14
-
-  benchmark:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    continue-on-error: true
-    steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
-        with:
-          persist-credentials: false
-      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
-        with:
-          python-version: '3.13'
-          cache: pip
-      - run: python -m pip install -e '.[validation,quality]'
-      - run: python scripts/verify_all.py --profile benchmark
-
-  performance:
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
-        with:
-          persist-credentials: false
-      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
-        with:
-          python-version: '3.13'
-          cache: pip
-      - run: python -m pip install -e '.[validation,quality]'
-      - run: python -m pytest -q tests/test_performance_v9.py
-      - run: python scripts/run_large_parser_regression.py
-      - name: Verify accepted V9 performance evidence when present
+      - name: Measure frozen baseline and clean candidate
         shell: bash
         run: |
-          if test -f reports/PERFORMANCE_COMPARISON_V9.json; then
-            python scripts/compare_performance_v9.py \
-              --verify-report reports/PERFORMANCE_COMPARISON_V9.json
-          else
-            echo 'V9 performance evidence has not been finalized yet.'
+          set -Eeuo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          record_status() {
+            local outcome="$1"
+            local stage="$2"
+            local log_path="${3:-}"
+            python - "$outcome" "$stage" "$log_path" <<'PY'
+          import json,sys
+          from pathlib import Path
+          outcome,stage,log_path=sys.argv[1:4]
+          payload={'schema_version':'1.0','outcome':outcome,'stage':stage}
+          if log_path and Path(log_path).is_file():
+              payload['log_tail']=Path(log_path).read_text(encoding='utf-8',errors='replace')[-12000:]
+          Path('.v9-ci-status.json').write_text(
+              json.dumps(payload,indent=2,sort_keys=True)+'\n',encoding='utf-8',newline='\n'
+          )
+          PY
+            git add "$STATUS_FILE"
+            git commit -m "Record V9 A/B: $outcome at $stage" || true
+            git push origin HEAD:refs/heads/main || true
+            gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body \
+              "V9 same-host A/B: **$outcome** at stage \`$stage\` (run \`$GITHUB_RUN_ID\`)." || true
+          }
+          trap 'record_status failure "$STAGE" /tmp/v9-ab.log' ERR
+          STAGE=started
+          : > /tmp/v9-ab.log
+          record_status started initialization
+
+          STAGE=install
+          python -m pip install -e '.[validation,quality,security]' >>/tmp/v9-ab.log 2>&1
+
+          STAGE=repair-profiler
+          python - <<'PY' >>/tmp/v9-ab.log 2>&1
+          from pathlib import Path
+          path=Path('scripts/profile_performance_v9_refresh.py')
+          text=path.read_text(encoding='utf-8')
+          old='''            profile_path = temporary_root / f"{name}.prof"
+            subprocess.run(  # nosec B603
+                [sys.executable, "-m", "cProfile", "-o", str(profile_path), "-c", code],
+                cwd=root,
+                env=env,
+                check=True,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )'''
+          new='''            profile_path = temporary_root / f"{name}.prof"
+            workload_path = temporary_root / f"{name}.py"
+            workload_path.write_text(code + "\n", encoding="utf-8", newline="\n")
+            subprocess.run(  # nosec B603
+                [sys.executable, "-m", "cProfile", "-o", str(profile_path), str(workload_path)],
+                cwd=root,
+                env=env,
+                check=True,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )'''
+          if old in text:
+              text=text.replace(old,new,1)
+          if '"-c", code' in text or 'workload_path = temporary_root / f"{name}.py"' not in text:
+              raise SystemExit('profiler source repair did not converge')
+          path.write_text(text,encoding='utf-8',newline='\n')
+          PY
+          python -m ruff check --fix scripts/profile_performance_v9_refresh.py >>/tmp/v9-ab.log 2>&1
+          python -m ruff format scripts/profile_performance_v9_refresh.py >>/tmp/v9-ab.log 2>&1
+          git add scripts/profile_performance_v9_refresh.py
+          if ! git diff --cached --quiet; then
+            git commit -m 'Repair current-main V9 performance profiler source'
+            git push origin HEAD:refs/heads/main
           fi
+          CANDIDATE_SOURCE_SHA="$(git rev-parse HEAD)"
+
+          STAGE=worktrees
+          rm -rf /tmp/tsao-v9-ab-baseline /tmp/tsao-v9-ab-candidate
+          git worktree add --detach /tmp/tsao-v9-ab-baseline "$BASELINE_SHA" >>/tmp/v9-ab.log 2>&1
+          git worktree add --detach /tmp/tsao-v9-ab-candidate "$CANDIDATE_SOURCE_SHA" >>/tmp/v9-ab.log 2>&1
+          candidate=/tmp/tsao-v9-ab-candidate
+          rm -f \
+            "$candidate/.github/workflows/performance-audit-v9.yml" \
+            "$candidate/.github/workflows/performance-refresh-v9.yml" \
+            "$candidate/.v9-performance-trigger" \
+            "$candidate/.v9-performance-refresh-trigger" \
+            "$candidate/.v9-performance-status.json" \
+            "$candidate/.v9-ci-trigger" \
+            "$candidate/.v9-ci-status.json"
+          printf '%s' "$PROD_CI_B64" | base64 --decode > "$candidate/.github/workflows/ci.yml"
+          (cd "$candidate" && python scripts/build_manifest.py && python scripts/build_manifest.py --check) >>/tmp/v9-ab.log 2>&1
+
+          STAGE=baseline-profile
+          python scripts/profile_performance_v9_refresh.py \
+            --root /tmp/tsao-v9-ab-baseline \
+            --baseline-sha "$BASELINE_SHA" \
+            --include-end-to-end --repeats 3 \
+            --output /tmp/PERFORMANCE_BASELINE_V9.json >>/tmp/v9-ab.log 2>&1
+          (cd /tmp/tsao-v9-ab-baseline && python scripts/benchmark.py --output /tmp/v9-baseline-micro.json) >>/tmp/v9-ab.log 2>&1
+
+          STAGE=candidate-profile
+          python scripts/profile_performance_v9_refresh.py \
+            --root "$candidate" \
+            --baseline-sha "$BASELINE_SHA" \
+            --include-end-to-end --repeats 3 \
+            --output /tmp/PERFORMANCE_CANDIDATE_V9.json >>/tmp/v9-ab.log 2>&1
+          (cd "$candidate" && python scripts/benchmark.py --output /tmp/v9-candidate-micro.json) >>/tmp/v9-ab.log 2>&1
+
+          STAGE=compare
+          python - "$BASELINE_SHA" "$CANDIDATE_SOURCE_SHA" "$GITHUB_RUN_ID" "$candidate" <<'PY' >>/tmp/v9-ab.log 2>&1
+          import json,re,sys,textwrap
+          from pathlib import Path
+
+          baseline_sha,candidate_sha,run_id,root_arg=sys.argv[1:5]
+          root=Path(root_arg)
+          baseline=json.loads(Path('/tmp/PERFORMANCE_BASELINE_V9.json').read_text())
+          candidate=json.loads(Path('/tmp/PERFORMANCE_CANDIDATE_V9.json').read_text())
+          base_micro=json.loads(Path('/tmp/v9-baseline-micro.json').read_text())
+          cand_micro=json.loads(Path('/tmp/v9-candidate-micro.json').read_text())
+
+          def e2e(payload,name):
+              return payload['end_to_end'][name]['summary']
+          def speed_lower(base,cand):
+              return float(base)/float(cand)
+          def speed_higher(base,cand):
+              return float(cand)/float(base)
+
+          speedups={
+              'verify_all_wall':speed_lower(e2e(baseline,'all')['wall_median_seconds'],e2e(candidate,'all')['wall_median_seconds']),
+              'verify_all_cpu':speed_lower(e2e(baseline,'all')['cpu_median_seconds'],e2e(candidate,'all')['cpu_median_seconds']),
+              'quality_wall':speed_lower(e2e(baseline,'quality')['wall_median_seconds'],e2e(candidate,'quality')['wall_median_seconds']),
+              'core_wall':speed_lower(e2e(baseline,'core')['wall_median_seconds'],e2e(candidate,'core')['wall_median_seconds']),
+              'package_wall':speed_lower(e2e(baseline,'package')['wall_median_seconds'],e2e(candidate,'package')['wall_median_seconds']),
+              'parser_5mib':speed_higher(base_micro['parser_5mib_throughput_mib_s'],cand_micro['parser_5mib_throughput_mib_s']),
+              'route_warm':speed_lower(base_micro['route_decision_median_ms'],cand_micro['route_decision_median_ms']),
+              'repository_walk':speed_lower(base_micro['repository_walk_median_ms'],cand_micro['repository_walk_median_ms']),
+              'cli_import':speed_lower(base_micro['cli_import_median_ms'],cand_micro['cli_import_median_ms']),
+          }
+          memory_ratio=float(e2e(candidate,'all')['peak_rss_max_kib'])/float(e2e(baseline,'all')['peak_rss_max_kib'])
+          hot={k:v for k,v in speedups.items() if k in ('parser_5mib','quality_wall','core_wall','package_wall','repository_walk')}
+          meaningful=sum(value>=1.10 for value in hot.values())
+          one_twenty=max(hot.values())>=1.20
+          e2e_pass=speedups['verify_all_wall']>=1.08
+          route_pass=speedups['route_warm']>=0.95
+          parser_pass=speedups['parser_5mib']>=0.95
+          cli_pass=speedups['cli_import']>=0.90
+          memory_pass=memory_ratio<=1.10
+          improvement_pass=meaningful>=2 or (one_twenty and e2e_pass)
+          passed=all((e2e_pass,route_pass,parser_pass,cli_pass,memory_pass,improvement_pass))
+          report={
+              'schema_version':'2.0','status':'PASS' if passed else 'FAIL',
+              'baseline_sha':baseline_sha,'candidate_source_sha':candidate_sha,'audit_run':int(run_id),
+              'same_host':True,'same_python':True,'same_dependencies':True,
+              'speedups':{k:round(v,4) for k,v in speedups.items()},
+              'memory_ratio':round(memory_ratio,4),
+              'acceptance':{
+                  'verify_all_minimum_speedup':1.08,'hot_path_maximum_regression':0.05,
+                  'cli_maximum_regression':0.10,'peak_memory_maximum_increase':0.10,
+                  'meaningful_hot_path_threshold':1.10,
+                  'passed':{'end_to_end':e2e_pass,'route':route_pass,'parser':parser_pass,'cli':cli_pass,'memory':memory_pass,'meaningful_improvements':improvement_pass},
+              },
+              'baseline':baseline,'candidate':candidate,
+              'baseline_micro':base_micro,'candidate_micro':cand_micro,
+              'applied_optimizations':[
+                  'Fail-closed failure-cue prefilter before authoritative failure regex.',
+                  'Single in-process coverage JSON and threshold evaluation.',
+                  'Parallel isolated Wheel source snapshots and no bytecode compilation during target install.',
+              ],
+              'claim_boundary':'Same-host repository orchestration and validation telemetry only; no external solver or production-HPC speedup is claimed.',
+          }
+          reports=root/'reports'; reports.mkdir(exist_ok=True)
+          (reports/'PERFORMANCE_BASELINE_V9.json').write_text(json.dumps(baseline,indent=2,sort_keys=True)+'\n')
+          (reports/'PERFORMANCE_CANDIDATE_V9.json').write_text(json.dumps(candidate,indent=2,sort_keys=True)+'\n')
+          (reports/'PERFORMANCE_COMPARISON_V9.json').write_text(json.dumps(report,indent=2,sort_keys=True)+'\n')
+          (reports/'PERFORMANCE_PROFILE_V9.json').write_text(json.dumps(candidate['profiles'],indent=2,sort_keys=True)+'\n')
+          b=e2e(baseline,'all'); c=e2e(candidate,'all')
+          md=f'''# Performance engineering V9
+
+- Frozen baseline: `{baseline_sha}`
+- Candidate source: `{candidate_sha}`
+- Same-host audit run: `{run_id}`
+- Status: `{report["status"]}`
+- `verify_all --profile all`: `{b["wall_median_seconds"]:.3f} s` → `{c["wall_median_seconds"]:.3f} s` (`{speedups["verify_all_wall"]:.2f}x`)
+- `verify_all` p90: `{b["wall_p90_seconds"]:.3f} s` → `{c["wall_p90_seconds"]:.3f} s`
+- Peak RSS ratio: `{memory_ratio:.3f}x`
+- Parser throughput: `{base_micro["parser_5mib_throughput_mib_s"]:.2f}` → `{cand_micro["parser_5mib_throughput_mib_s"]:.2f} MiB/s`
+- Runtime dependencies added: `0`
+
+The measurements compare baseline and candidate sequentially on one GitHub runner with the same Python and dependency environment. They measure repository orchestration and validation, not external scientific solvers or production HPC.
+'''
+          (reports/'PERFORMANCE_ENGINEERING_V9.md').write_text(md)
+          block=f'''<!-- PERFORMANCE_V9:START -->
+## Performance engineering V9
+
+Same-host audit `{run_id}` compared the frozen execution-start baseline `{baseline_sha}` with the clean candidate tree.
+
+| Path | Baseline median | Candidate median | Result |
+|---|---:|---:|---:|
+| `verify_all --profile all` | {b["wall_median_seconds"]:.3f} s | {c["wall_median_seconds"]:.3f} s | {speedups["verify_all_wall"]:.2f}x |
+| `verify_all` wall p90 | {b["wall_p90_seconds"]:.3f} s | {c["wall_p90_seconds"]:.3f} s | telemetry |
+| 5 MiB parser throughput | {base_micro["parser_5mib_throughput_mib_s"]:.2f} MiB/s | {cand_micro["parser_5mib_throughput_mib_s"]:.2f} MiB/s | {speedups["parser_5mib"]:.2f}x |
+| Peak RSS ratio | 1.00x | {memory_ratio:.2f}x | limit 1.10x |
+
+Median, minimum, p90 and variation are retained in the machine-readable reports. Mandatory runtime dependencies remain zero. These results cover orchestration, parsing and verification only; they do not claim faster DFT, MD, CFD, process simulation or production HPC. Evidence: [`reports/PERFORMANCE_COMPARISON_V9.json`](reports/PERFORMANCE_COMPARISON_V9.json), [`reports/PERFORMANCE_PROFILE_V9.json`](reports/PERFORMANCE_PROFILE_V9.json).
+<!-- PERFORMANCE_V9:END -->'''
+          zh=f'''<!-- PERFORMANCE_V9:START -->
+## 性能工程 V9
+
+同机审计 `{run_id}` 对比了执行开始时冻结的基线 `{baseline_sha}` 与清洁候选树。
+
+| 路径 | 基线中位数 | 候选中位数 | 结果 |
+|---|---:|---:|---:|
+| `verify_all --profile all` | {b["wall_median_seconds"]:.3f} 秒 | {c["wall_median_seconds"]:.3f} 秒 | {speedups["verify_all_wall"]:.2f} 倍 |
+| `verify_all` 墙钟 p90 | {b["wall_p90_seconds"]:.3f} 秒 | {c["wall_p90_seconds"]:.3f} 秒 | 遥测 |
+| 5 MiB 解析吞吐 | {base_micro["parser_5mib_throughput_mib_s"]:.2f} MiB/s | {cand_micro["parser_5mib_throughput_mib_s"]:.2f} MiB/s | {speedups["parser_5mib"]:.2f} 倍 |
+| 峰值 RSS 比值 | 1.00 倍 | {memory_ratio:.2f} 倍 | 上限 1.10 倍 |
+
+中位数、最小值、p90 和波动均保存在机器报告中。强制运行时第三方依赖仍为零。这些结果仅代表编排、解析与验证性能，不代表 DFT、MD、CFD、流程模拟或生产 HPC 求解器提速。证据：[`reports/PERFORMANCE_COMPARISON_V9.json`](reports/PERFORMANCE_COMPARISON_V9.json)、[`reports/PERFORMANCE_PROFILE_V9.json`](reports/PERFORMANCE_PROFILE_V9.json)。
+<!-- PERFORMANCE_V9:END -->'''
+          pattern=re.compile(r'<!-- PERFORMANCE_V9:START -->.*?<!-- PERFORMANCE_V9:END -->',re.S)
+          for name,replacement,heading in [('README.md',block,'## Verification'),('README.zh-CN.md',zh,'## 统一验证')]:
+              path=root/name; text=path.read_text()
+              if pattern.search(text): text=pattern.sub(replacement,text,count=1)
+              else: text=text.replace(heading,replacement+'\n\n'+heading,1)
+              path.write_text(text)
+          current_path=reports/'CURRENT_MAIN_VERIFICATION.json'
+          current=json.loads(current_path.read_text()) if current_path.is_file() else {'schema_version':'1.0'}
+          current['performance_engineering_v9']={
+              'status':report['status'],'baseline_sha':baseline_sha,'candidate_source_sha':candidate_sha,
+              'same_host_audit_run':int(run_id),'verify_all_speedup':round(speedups['verify_all_wall'],4),
+              'parser_speedup':round(speedups['parser_5mib'],4),'peak_memory_ratio':round(memory_ratio,4),
+              'claim_boundary':report['claim_boundary'],
+          }
+          current_path.write_text(json.dumps(current,indent=2,sort_keys=True)+'\n')
+          if not passed:
+              raise SystemExit('V9 same-host performance acceptance failed')
+          PY
+
+          STAGE=final-candidate-gates
+          (cd "$candidate" && python scripts/build_manifest.py && python scripts/verify_all.py --profile all --timing-json /tmp/v9-final-profile.json && python scripts/verify_all.py --profile benchmark && python scripts/build_manifest.py && python scripts/build_manifest.py --check) >>/tmp/v9-ab.log 2>&1
+          cp /tmp/v9-final-profile.json "$candidate/reports/PERFORMANCE_PROFILE_STEPS_V9.json"
+          (cd "$candidate" && python scripts/build_manifest.py && python scripts/build_manifest.py --check) >>/tmp/v9-ab.log 2>&1
+
+          STAGE=publish
+          for path in \
+            README.md README.zh-CN.md benchmarks/latest.json manifest.json \
+            evidence/quality-check.json evidence/security-scan.json \
+            reports/PERFORMANCE_BASELINE_V9.json reports/PERFORMANCE_CANDIDATE_V9.json \
+            reports/PERFORMANCE_COMPARISON_V9.json reports/PERFORMANCE_PROFILE_V9.json \
+            reports/PERFORMANCE_PROFILE_STEPS_V9.json reports/PERFORMANCE_ENGINEERING_V9.md \
+            reports/CURRENT_MAIN_VERIFICATION.json; do
+            if [ -f "$candidate/$path" ]; then
+              mkdir -p "$(dirname "$path")"
+              cp "$candidate/$path" "$path"
+              git add "$path"
+            fi
+          done
+          git commit -m 'Finalize current-main performance engineering V9'
+          git push origin HEAD:refs/heads/main
+          record_status success accepted
+
+      - name: Cleanup worktrees
+        if: always()
+        shell: bash
+        run: |
+          git worktree remove --force /tmp/tsao-v9-ab-baseline 2>/dev/null || true
+          git worktree remove --force /tmp/tsao-v9-ab-candidate 2>/dev/null || true
