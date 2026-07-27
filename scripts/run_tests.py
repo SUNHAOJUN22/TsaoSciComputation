@@ -7,12 +7,33 @@ import sys
 import tempfile
 from pathlib import Path
 
+_COVERAGE_MINIMUM = 95.0
+
 
 def coverage_json_path() -> Path:
     configured = os.environ.get("TSAO_COVERAGE_JSON")
     if configured:
         return Path(configured).expanduser().resolve()
     return Path(tempfile.gettempdir()) / "tsao-current-coverage.json"
+
+
+def _write_coverage_evidence(output: Path) -> int:
+    # Coverage is an optional validation dependency and remains lazily imported so
+    # ordinary non-coverage test runs preserve the zero-runtime-dependency contract.
+    from coverage import Coverage
+
+    output.parent.mkdir(parents=True, exist_ok=True)
+    coverage = Coverage()
+    coverage.load()
+    total = float(coverage.json_report(outfile=str(output)))
+    print(f"Total coverage: {total:.2f}% (required: {_COVERAGE_MINIMUM:.2f}%)")
+    if total < _COVERAGE_MINIMUM:
+        print(
+            f"Coverage failure: total of {total:.2f}% is below {_COVERAGE_MINIMUM:.2f}%",
+            file=sys.stderr,
+        )
+        return 2
+    return 0
 
 
 def main() -> int:
@@ -35,16 +56,7 @@ def main() -> int:
     if result.returncode != 0:
         return result.returncode
 
-    output = coverage_json_path()
-    output.parent.mkdir(parents=True, exist_ok=True)
-    result = subprocess.run(  # nosec B603
-        [sys.executable, "-m", "coverage", "json", "-o", str(output)], check=False
-    )
-    if result.returncode != 0:
-        return result.returncode
-    return subprocess.run(  # nosec B603
-        [sys.executable, "-m", "coverage", "report", "--fail-under=95"], check=False
-    ).returncode
+    return _write_coverage_evidence(coverage_json_path())
 
 
 if __name__ == "__main__":
