@@ -10,6 +10,8 @@ ENTRY = re.compile(r"^- `([^`]+\.svg)` — ", re.MULTILINE)
 FONT_SIZE = re.compile(r"font-size:\s*([0-9]+)px")
 HEX_COLOR = re.compile(r"#[0-9A-Fa-f]{6}")
 LAYOUT = re.compile(r'data-layout="([a-z]+)"')
+DETAILS_TAG = re.compile(r"^<details(?: open)?>$", re.MULTILINE)
+SUMMARY_TAG = re.compile(r"^<summary>.*</summary>$", re.MULTILINE)
 DESIGN_SYSTEM = "uiux-pro-max-scientific-swiss-v3"
 EXPECTED_LAYOUTS = {
     "hero": 1,
@@ -55,8 +57,8 @@ def test_readme_uses_progressive_disclosure_at_github_scale() -> None:
         assert "V12" in readme
         assert "V11_VISUAL_SYSTEM" not in readme
         assert "VISUAL_SYSTEM_V10" not in readme
-        assert readme.count("<details") == 4
-        assert readme.count("<summary>") == 4
+        assert len(DETAILS_TAG.findall(readme)) == 4
+        assert len(SUMMARY_TAG.findall(readme)) == 4
         assert readme.count('<td width="50%"><img src="assets/visuals/') == 2
         assert "assets/visuals/DESIGN_SYSTEM.md" in readme
         for name in names:
@@ -72,7 +74,9 @@ def test_readme_visuals_are_readable_accessible_and_self_contained() -> None:
         (ROOT / "README.zh-CN.md").read_text(encoding="utf-8"),
     ]
     manifest_in = (ROOT / "MANIFEST.in").read_text(encoding="utf-8")
-    design_system = (ROOT / "assets" / "visuals" / "DESIGN_SYSTEM.md").read_text(encoding="utf-8")
+    design_system = (ROOT / "assets" / "visuals" / "DESIGN_SYSTEM.md").read_text(
+        encoding="utf-8"
+    )
     assert "recursive-include assets *.md *.svg" in manifest_in
     assert "Scientific Swiss Bento V12" in design_system
     assert "Minimum SVG text size: 16 px" in design_system
