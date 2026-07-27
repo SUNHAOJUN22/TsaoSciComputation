@@ -84,6 +84,29 @@ def _measure_once(cwd: Path, command: Sequence[str]) -> dict[str, Any]:
         log_path.unlink(missing_ok=True)
 
 
+def _failed_warmup_report(
+    cwd: Path,
+    command: Sequence[str],
+    warmups: int,
+    repeats: int,
+    warmup_samples: list[dict[str, Any]],
+) -> dict[str, Any]:
+    return {
+        "schema_version": "1.0",
+        "cwd": str(cwd),
+        "command": list(command),
+        "warmups": warmups,
+        "repeats": repeats,
+        "status": "FAIL",
+        "warmup_samples": warmup_samples,
+        "samples": [],
+        "summary": {},
+        "claim_boundary": (
+            "Same-host command telemetry; external scientific solver performance is not measured."
+        ),
+    }
+
+
 def measure_command(
     cwd: Path,
     command: Sequence[str],
@@ -95,10 +118,12 @@ def measure_command(
         raise ValueError("warmups must be non-negative and repeats must be positive")
     if not command:
         raise ValueError("command must be non-empty")
+    warmup_samples: list[dict[str, Any]] = []
     for _ in range(warmups):
         sample = _measure_once(cwd, command)
+        warmup_samples.append(sample)
         if sample["returncode"] != 0:
-            raise RuntimeError(f"warmup command failed: {sample.get('failure_log_tail', '')}")
+            return _failed_warmup_report(cwd, command, warmups, repeats, warmup_samples)
 
     samples = [_measure_once(cwd, command) for _ in range(repeats)]
     failures = [sample for sample in samples if sample["returncode"] != 0]
@@ -114,6 +139,7 @@ def measure_command(
         "cwd": str(cwd),
         "command": list(command),
         "warmups": warmups,
+        "warmup_samples": warmup_samples,
         "repeats": repeats,
         "status": "PASS" if not failures else "FAIL",
         "samples": samples,
@@ -157,7 +183,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         encoding="utf-8",
         newline="\n",
     )
-    print(json.dumps(report["summary"], sort_keys=True))
+    print(json.dumps(report.get("summary", {}), sort_keys=True))
     return 0 if report["status"] == "PASS" else 1
 
 
