@@ -1,0 +1,49 @@
+name: README visual V13 refresh
+
+on:
+  push:
+    branches: [main]
+    paths: [.readme-visual-v13-trigger]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: readme-visual-v13-main
+  cancel-in-progress: true
+
+jobs:
+  regenerate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+          cache: pip
+      - name: Regenerate and validate README illustrations
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          python -m pip install -e '.[validation,quality]'
+          python -m ruff check --fix scripts/regenerate_readme_visuals_v13.py tests/test_readme_visuals.py
+          python -m ruff format scripts/regenerate_readme_visuals_v13.py tests/test_readme_visuals.py
+          python scripts/regenerate_readme_visuals_v13.py
+          python scripts/regenerate_readme_visuals_v13.py --check
+          python -m pytest -q tests/test_readme_visuals.py
+          python -m ruff check scripts/regenerate_readme_visuals_v13.py tests/test_readme_visuals.py
+          python -m ruff format --check scripts/regenerate_readme_visuals_v13.py tests/test_readme_visuals.py
+          python scripts/quality_check.py
+          rm -f .github/workflows/readme-visual-v13-refresh.yml .readme-visual-v13-trigger
+          python scripts/build_manifest.py
+          python scripts/build_manifest.py --check
+          git add -A
+          git commit -m 'Regenerate README visuals with UI UX Pro Max V13'
+          git push origin HEAD:refs/heads/main
