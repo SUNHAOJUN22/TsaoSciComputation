@@ -46,6 +46,44 @@ jobs:
         run: |
           set -Eeuo pipefail
           rm -f .v10-readme-visual-trigger
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('scripts/regenerate_readme_visuals_v10.py')
+          text = path.read_text(encoding='utf-8')
+
+          migrations = (
+              (
+                  '''def text_lines(x: float, y: float, value: str, css_class: str, limit: int, step: int) -> str:\n''',
+                  '''def text_lines(\n    x: float,\n    y: float,\n    value: str,\n    css_class: str,\n    limit: int,\n    step: int,\n    *,\n    anchor: str = "start",\n) -> str:\n''',
+                  'def text_lines(\n',
+              ),
+              (
+                  '''    return f'<text x="{x:.1f}" y="{y:.1f}" class="{css_class}">{"".join(tspans)}</text>'\n''',
+                  '''    return f'<text x="{x:.1f}" y="{y:.1f}" text-anchor="{anchor}" class="{css_class}">{"".join(tspans)}</text>'\n''',
+                  'text-anchor="{anchor}"',
+              ),
+              (
+                  '''    common = f'fill="none" stroke="{accent}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"'\n''',
+                  '''    common = f'color="{accent}" fill="none" stroke="{accent}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"'\n''',
+                  'color="{accent}" fill="none"',
+              ),
+              (
+                  '''    subtitle_lines = text_lines(\n        subtitle_x, 150.0 if hero else 142.0, spec.subtitle, "subtitle", 82 if hero else 72, 22\n    )\n''',
+                  '''    subtitle_lines = text_lines(\n        subtitle_x,\n        150.0 if hero else 142.0,\n        spec.subtitle,\n        "subtitle",\n        82 if hero else 72,\n        22,\n        anchor="middle" if hero else "start",\n    )\n''',
+                  'anchor="middle" if hero else "start"',
+              ),
+          )
+          changed = False
+          for old, new, marker in migrations:
+              if old in text:
+                  text = text.replace(old, new, 1)
+                  changed = True
+              elif marker not in text:
+                  raise SystemExit(f'visual generator migration marker missing: {marker}')
+          if changed:
+              path.write_text(text, encoding='utf-8', newline='\n')
+          PY
           python -m ruff check --fix \
             scripts/regenerate_readme_visuals_v10.py \
             tests/test_readme_visuals.py
