@@ -172,17 +172,26 @@ def wrap_words(value: str, limit: int) -> tuple[str, ...]:
     return tuple(lines[:3])
 
 
-def text_lines(x: float, y: float, value: str, css_class: str, limit: int, step: int) -> str:
+def text_lines(
+    x: float,
+    y: float,
+    value: str,
+    css_class: str,
+    limit: int,
+    step: int,
+    *,
+    anchor: str = "start",
+) -> str:
     lines = wrap_words(value, limit)
     tspans = [
         f'<tspan x="{x:.1f}" dy="{0 if index == 0 else step}">{html.escape(line)}</tspan>'
         for index, line in enumerate(lines)
     ]
-    return f'<text x="{x:.1f}" y="{y:.1f}" class="{css_class}">{"".join(tspans)}</text>'
+    return f'<text x="{x:.1f}" y="{y:.1f}" text-anchor="{anchor}" class="{css_class}">{"".join(tspans)}</text>'
 
 
 def icon_svg(kind: str, x: float, y: float, accent: str) -> str:
-    common = f'fill="none" stroke="{accent}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"'
+    common = f'color="{accent}" fill="none" stroke="{accent}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"'
     if kind == "orbit":
         return (
             f'<g transform="translate({x:.1f} {y:.1f})" {common}>'
@@ -315,7 +324,13 @@ def render_svg(spec: VisualSpec) -> str:
             ]
         )
     subtitle_lines = text_lines(
-        subtitle_x, 150.0 if hero else 142.0, spec.subtitle, "subtitle", 82 if hero else 72, 22
+        subtitle_x,
+        150.0 if hero else 142.0,
+        spec.subtitle,
+        "subtitle",
+        82 if hero else 72,
+        22,
+        anchor="middle" if hero else "start",
     )
     footer_lines = text_lines(56.0, 620.0, spec.footer, "footer", 132, 21)
     return f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 680" role="img" aria-labelledby="title desc" data-design-system="{SYSTEM_ID}" data-family="{html.escape(spec.family)}">

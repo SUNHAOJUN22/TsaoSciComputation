@@ -71,9 +71,9 @@
       "sha256": "1506ab0e2f17043575eb563f163969662072dfbfb4ca11c466a25c76267d4813"
     },
     {
-      "bytes": 7525,
+      "bytes": 9766,
       "path": ".github/workflows/readme-visual-redesign-v10.yml",
-      "sha256": "3e05a1cc2451fbbf162755ab1cf6c34265ee51c95b4d80cb8f4ca2e2ed3f6f7a"
+      "sha256": "4b0747b23923d5e913a4b3c05a650da8f69c1b0ae59294b373a4a4ff7ccdb76c"
     },
     {
       "bytes": 5027,
@@ -446,214 +446,214 @@
       "sha256": "1416de86d39af4905ba7a9ba6943c0cdba1567cbd446bf65bd45a5dfceff4c0c"
     },
     {
-      "bytes": 8061,
+      "bytes": 8317,
       "path": "assets/visuals/agent-orchestration.svg",
-      "sha256": "abf2102eff16ad5cb3c1c3b141543bb8af6c830c458a456d00fb2fe4e8786a65"
+      "sha256": "cf822fc2555e9c3b7ec3fc5b5b4faf253bcb4624967a97becf4d451cbf70f7c2"
     },
     {
-      "bytes": 7939,
+      "bytes": 8195,
       "path": "assets/visuals/capability-landscape.svg",
-      "sha256": "7e340438e531ad9757e13ca24475472f8a3d01a47c3ac4bc173b7c608be076d2"
+      "sha256": "e7edd825499d85b7e54f2c477fcb835e378377e379292320aeae2e3435da7ccc"
     },
     {
-      "bytes": 8014,
+      "bytes": 8270,
       "path": "assets/visuals/catalysis-microkinetics.svg",
-      "sha256": "1b5fdeeebb8a5d89f54af1a27057fcae0a0fed8b70a10955fb989d9806e40174"
+      "sha256": "ced957b26a93df842cb56e449dfa8f7f6cf60e9a8ebd070ab4e853909a7478e0"
     },
     {
-      "bytes": 7910,
+      "bytes": 8166,
       "path": "assets/visuals/cfd-turbulence-multiphase.svg",
-      "sha256": "39dd0328c89d795f3230e8dd97fcbae2b01ff2807fa42f526aa730a45b78d24f"
+      "sha256": "1ccec1d8d557b3f46d1e1a6eb4e3cbc58234f0b747fd1d277ab5dc2e27bcae60"
     },
     {
-      "bytes": 7952,
+      "bytes": 8208,
       "path": "assets/visuals/confidence-ladder.svg",
-      "sha256": "0f5c0d1ae29728dd9d11ede16ac0405b5e8fba3587453033ed874ed8c9bcdd42"
+      "sha256": "7f2957561a2385471258f356b980d4460b4c0171091b2b5a4213d7a84800bcae"
     },
     {
-      "bytes": 8044,
+      "bytes": 8300,
       "path": "assets/visuals/conformer-solvation-excited-state.svg",
-      "sha256": "fb797ac9e14d02a5eaf2060e35f7c7eda64fd9349a9875e17adbec3ff88a23e9"
+      "sha256": "8df27b6b4caf65714475f729a4ad64e4905174a341525bb26400507a8d63ceef"
     },
     {
-      "bytes": 7909,
+      "bytes": 8165,
       "path": "assets/visuals/continuum-multiphysics.svg",
-      "sha256": "8ce6a08bc0588b5dad7757fe4000216d777e088f803c4773e8dcb9b97f8535db"
+      "sha256": "df8918fdefcfe34f24c89fd80e0b459a476887a7ba04b4f9ff5428b7125c41d9"
     },
     {
-      "bytes": 7910,
+      "bytes": 8166,
       "path": "assets/visuals/data-model-governance.svg",
-      "sha256": "b5634ff4c9ecb45eefcffd792b9ffe6f097a57d6b43c45f30c833977ec1063d2"
+      "sha256": "a992f789f4b05e18d507ea8b4d0f2d31e1fd773f5b68abcec1884b138bfb3bb9"
     },
     {
-      "bytes": 7920,
+      "bytes": 8176,
       "path": "assets/visuals/digital-thread.svg",
-      "sha256": "80a69df00d13ac2be3a89886317df1ed4af388f6f418cd2d167cb164c968dd3a"
+      "sha256": "d2226b54d6aba6c457fd28467703eeffd8de6d1adfd94b70bcf5fa866b299eaa"
     },
     {
-      "bytes": 8026,
+      "bytes": 8282,
       "path": "assets/visuals/digital-twin-drift.svg",
-      "sha256": "eb34f1f2575cfb2d57fdf58663f145a6d2eeba5a46592c3c6cc92c349944c73b"
+      "sha256": "651eddac241d103834ab539c24f33effee6c0051b5295cfe58cd50043a41aa67"
     },
     {
-      "bytes": 8063,
+      "bytes": 8319,
       "path": "assets/visuals/dynamic-control-estimation.svg",
-      "sha256": "7a293884061e0554196d02e11052277ba4d0923d820321a64ade1cdb49e00c19"
+      "sha256": "8203cd90e6c34b8021184eaf64277f0159c560d55d3fde31b5ea95c44c07f9a9"
     },
     {
-      "bytes": 7944,
+      "bytes": 8200,
       "path": "assets/visuals/electrochemical-interface.svg",
-      "sha256": "ae1af4e6063967bd38785db956f123baa0886b3cf85886752cee9f803f69ad71"
+      "sha256": "399908fe76fa653d014a04faf1f7e4af7c77f9ceb82ebde88772e8dda76a3169"
     },
     {
-      "bytes": 7952,
+      "bytes": 8208,
       "path": "assets/visuals/electronic-structure-landscape.svg",
-      "sha256": "63fec0ae84caad077b947b635450771b3645b6c719e1c6c3a3007418b816bdfc"
+      "sha256": "9aaf814bb38179d41c90867c5a7890f622f02bc4fd0bc0583486e040a601e63a"
     },
     {
-      "bytes": 8077,
+      "bytes": 8333,
       "path": "assets/visuals/engine-ecosystem.svg",
-      "sha256": "694154de2a48957ec6a3cfa8ed3d542baa016b8c7624359d5792f2cff9d970c6"
+      "sha256": "c5aca94c7f43c95f11a1ee921c293f84bf08a2f27a5dc6727efe98948167f078"
     },
     {
-      "bytes": 7881,
+      "bytes": 8137,
       "path": "assets/visuals/evidence-loop.svg",
-      "sha256": "fbbceabadc787b74902a30b73bdbedfb7f5239fc984f37910321826bfdf82e55"
+      "sha256": "8ea9b4c86a1f636699a78fea6e5c1210cf2249d72ce8c79517cc6a0a89eba9ca"
     },
     {
-      "bytes": 8002,
+      "bytes": 8258,
       "path": "assets/visuals/extrusion-rheology-window.svg",
-      "sha256": "a282a094acab833f5d0eee54f8736a3d41e05b9cb3fc142d28e38e07552062ea"
+      "sha256": "2224ef017750e9e6cef22c7eceec7a24b30569f70afef78d8165a19d0c09c775"
     },
     {
-      "bytes": 8025,
+      "bytes": 8281,
       "path": "assets/visuals/fem-verification-convergence.svg",
-      "sha256": "dd7af763911bb65a96fdb946305c320c0b86cfd15edaefcf6d1a3f8c80292d6d"
+      "sha256": "66a48ded064ecba655eef044d31575c20e84be6118178adb31ba0719543a2303"
     },
     {
-      "bytes": 8045,
+      "bytes": 8301,
       "path": "assets/visuals/flowsheet-convergence-balances.svg",
-      "sha256": "f3e7585dcb2e2286a973a3bd2d91a8319a231da994fbdffa8f033e548dec3ace"
+      "sha256": "99a9a153b6e210c1b91da5a852e6545423de009b2d38f942b1e1dec70b822dc5"
     },
     {
-      "bytes": 7976,
+      "bytes": 8232,
       "path": "assets/visuals/free-energy-sampling.svg",
-      "sha256": "6bb2beeda51015a810ab37e72dfd783dafdd98f86e008e04ff6520a337f4d586"
+      "sha256": "09a8eed126959eb6ee130c2694f5643fb3b37f31979197f33f77f2cc3ee5f3f4"
     },
     {
-      "bytes": 8266,
+      "bytes": 8523,
       "path": "assets/visuals/hero-multiscale.svg",
-      "sha256": "70d275bc4a43a1f558c88e8561cb23fd5b095b095e6a545bfbf1295fd2eacb88"
+      "sha256": "77d30ec89ea57338ec91229a467e1645f796056be622524e46fbfe9ddf133521"
     },
     {
-      "bytes": 8124,
+      "bytes": 8380,
       "path": "assets/visuals/hpc-execution-provenance.svg",
-      "sha256": "804a3006abf104edeffe9526088a98f564fea5fb5ccaa44d0c8f5bb58431ca22"
+      "sha256": "7175e49b2b55d8e0b04776563afaa71a7c851e095f570724eefb8fe3a3722733"
     },
     {
-      "bytes": 8229,
+      "bytes": 8485,
       "path": "assets/visuals/hpc-failure-recovery.svg",
-      "sha256": "8b4540c33d17db38dc9d9297d44287eccef32899edd2c06acc6fa690cbcf11f9"
+      "sha256": "5dbb2aebca62ed1ee18aac101712c56c4aaaeea552a660c99257016905ec4221"
     },
     {
-      "bytes": 7998,
+      "bytes": 8254,
       "path": "assets/visuals/inverse-design-loop.svg",
-      "sha256": "529b24bd8e5ef493b58d120a8880927f07a811421734605fbafcf37ca436824c"
+      "sha256": "e4ad9548845aeac3b4d314d9263de6366efcd0891b20032fa4d9a0e779312512"
     },
     {
-      "bytes": 7905,
+      "bytes": 8161,
       "path": "assets/visuals/mesoscale-phase-field.svg",
-      "sha256": "916a952cc0b76f61595f212ea958d7a134f978243af28d8a38ae6ae5811b1fdd"
+      "sha256": "7061c261db755d2d34a11b7d0285a59c2e4148c72ad650dd30dc873a146410d5"
     },
     {
-      "bytes": 8018,
+      "bytes": 8274,
       "path": "assets/visuals/ml-potential-active-learning.svg",
-      "sha256": "7a69bae6c4a2cd15eafa8a28b7acc66cb5d2ab9f5fb122de8e62592dcf89c34f"
+      "sha256": "3359a397843cc08f15a5ebddd128981db32d7f43bbe78419845b0f33899d3ed1"
     },
     {
-      "bytes": 8003,
+      "bytes": 8259,
       "path": "assets/visuals/molecular-dynamics-transport.svg",
-      "sha256": "ff58823b8ba3037c09384bd95427e74faaa52fff451fb5a6044530a262e5ead2"
+      "sha256": "a3fb6dc3874158dd73da8b9d0464d136a808f8e8be888f5e22630d6a1d7ff488"
     },
     {
-      "bytes": 7994,
+      "bytes": 8250,
       "path": "assets/visuals/multiscale-handoff-uncertainty.svg",
-      "sha256": "3fdb32125fc475fbadf2c50a375300bc540aa46266350ae24a7facff09023127"
+      "sha256": "c62cb9883483b5f93463d13283ce27099cbddfefaebd531ba10e0b82fa771e0e"
     },
     {
-      "bytes": 8104,
+      "bytes": 8360,
       "path": "assets/visuals/periodic-materials-stability.svg",
-      "sha256": "cdc2b4128e6422c17df3bf11f4ba8457cb0ec0e7a9706fa3c33292a335844f41"
+      "sha256": "29c284182d9ec082001753a7e127534fb55d55996d53f56303f7f89a6ccb0e28"
     },
     {
-      "bytes": 7982,
+      "bytes": 8238,
       "path": "assets/visuals/polymer-composite-topology.svg",
-      "sha256": "d1b59814d10c4ba8a3ae4c605a0809c9418be84dc9ee870ae9d3d2719a655764"
+      "sha256": "03eef55d1707785c3f6608eb62fd2fd05b6b48a6961c54a7d0f727d70ccc31d8"
     },
     {
-      "bytes": 7984,
+      "bytes": 8240,
       "path": "assets/visuals/polymer-process.svg",
-      "sha256": "1c710747dfdf496131e2e94c2bf25ea358cb66005e72e2e9f8a64ccd4e8a1938"
+      "sha256": "f6d6cf9a3b3e50e51a9026b46d3c79a7a5a52f68abbe7c4e9da8fc4ab4f5d446"
     },
     {
-      "bytes": 8024,
+      "bytes": 8280,
       "path": "assets/visuals/polymerization-population-balance.svg",
-      "sha256": "622a746c9593e39c12e9c019b171c4ecc1e45ba54314ecb2f54ec2aa89acf196"
+      "sha256": "184c9d89e114c9a3b9d580168752091370314304979a765f368a5eb68c6250b3"
     },
     {
-      "bytes": 7948,
+      "bytes": 8204,
       "path": "assets/visuals/process-optimization-uq.svg",
-      "sha256": "80957e299a743f6a2cc0245d7e58ee5c50112e5c2f252e0ca889b4eafe916f98"
+      "sha256": "0d5fe11c52e842ea42b1ced4242e7e1712c1258f7461c1fc839cf9e61ca5336e"
     },
     {
-      "bytes": 8044,
+      "bytes": 8300,
       "path": "assets/visuals/quantum-chemistry-thermochemistry.svg",
-      "sha256": "42ec6eacf3c0c84e3f6bd305b8ab7509243a21bcfc18681e84e730cdefcc686f"
+      "sha256": "62d5bd35bbd9930850bd1fbe94eeb64e664ccece32d8a84b9712ba1de8a5f189"
     },
     {
-      "bytes": 7987,
+      "bytes": 8243,
       "path": "assets/visuals/quantum-to-md.svg",
-      "sha256": "4e07e23158bf3ea91d77c4f517ef8895c59a6fe460ed03a102916fd9e219638a"
+      "sha256": "e0afe1a77297427cdd5a87bc43bc0bde7b62ec35005f50dd8a5f6cdd405cd610"
     },
     {
-      "bytes": 7982,
+      "bytes": 8238,
       "path": "assets/visuals/reaction-kinetics-network.svg",
-      "sha256": "8fb18c9ab780981c88d4607ff9b825a31fdc09af30e29ad8e85135a0ea31d4fe"
+      "sha256": "44e5f81c45ece8e852f36a3688edfec685d2248e698e272c480bc6d86a8b1435"
     },
     {
-      "bytes": 7859,
+      "bytes": 8115,
       "path": "assets/visuals/reactor-safety-control.svg",
-      "sha256": "708328704120bb058dec73571fd4a05c510c5a7909f1dd8e2dcd466ee95a6021"
+      "sha256": "eb537df27065898ea0de3388ec59befd24d0b103cb130467c7d366782da219c4"
     },
     {
-      "bytes": 8040,
+      "bytes": 8296,
       "path": "assets/visuals/reactor-scaleup-thermal-risk.svg",
-      "sha256": "4b2feede27ced985ba7dc155dbb5c8408f8f45087befa54a5da088b06adef334"
+      "sha256": "ae1f82c465f15d064b79c8cae3bca23aca5fe147600d856a076746cb182d3ff3"
     },
     {
-      "bytes": 7840,
+      "bytes": 8096,
       "path": "assets/visuals/scale-multifidelity-plan.svg",
-      "sha256": "3417f9a52eaf9f46d1492769439506374badd34c6dec2fdf48a9263977bd444d"
+      "sha256": "d00777f97941ebffaa2a22c87401fdf4a3f9a3fd6deeb6d0f7c8542f52ffe95e"
     },
     {
-      "bytes": 7966,
+      "bytes": 8222,
       "path": "assets/visuals/spectroscopy-observables.svg",
-      "sha256": "b4600cc830efc257872e76a582998f62111a538e5ef543143f853e109806a0f9"
+      "sha256": "452b6f406277ddefe0d54e3ade1bd29ccbfa6bc8021f242a9d8c2a441ab9a6d0"
     },
     {
-      "bytes": 8255,
+      "bytes": 8511,
       "path": "assets/visuals/surface-adsorption-migration.svg",
-      "sha256": "9898ab2e7747ce387346b7565ef7f10060cab8fe4591720004c0c34792ee7f3e"
+      "sha256": "89dfb7b75e2feeda554bc2d30edeb22341bc0b855cfe95960a309761011f36f1"
     },
     {
-      "bytes": 7874,
+      "bytes": 8130,
       "path": "assets/visuals/transport-degradation.svg",
-      "sha256": "f59e7ba6bb678d34ce0656d47a7acda68d646964411a6a3d5842bcad1928635f"
+      "sha256": "c315c6ffccbc6606090ab27a9181d96040567a9fc890e7b65d802813be613751"
     },
     {
-      "bytes": 7946,
+      "bytes": 8202,
       "path": "assets/visuals/uncertainty-sensitivity.svg",
-      "sha256": "20c3e019d12c0f686015e651d54b0afc4c83b8655d52d506442e001c99407caa"
+      "sha256": "4982c936e87a7f128f5cd4ddbe069f0104411ea7cbef7ee1208e7541c6e7a29c"
     },
     {
       "bytes": 813,
@@ -2031,9 +2031,9 @@
       "sha256": "c0790576136335c458269651f6676c06c95a98e6650f121d215a552fa54cf5bf"
     },
     {
-      "bytes": 41413,
+      "bytes": 41601,
       "path": "scripts/regenerate_readme_visuals_v10.py",
-      "sha256": "cc988a0a2141c5752d61b863637e06d7ac9097cffaa506086a2504f08fd454a2"
+      "sha256": "1982cd17e142d7657a24da289d966032d945d03190d7384b5cafe090285c5a63"
     },
     {
       "bytes": 1033,
