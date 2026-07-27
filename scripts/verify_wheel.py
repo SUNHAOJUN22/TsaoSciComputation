@@ -62,14 +62,20 @@ def build_once(source_root: Path, output: Path, epoch: str) -> Path:
     return wheels[0]
 
 
-def build_reproducible_pair(root: Path, temporary_root: Path, epoch: str) -> tuple[Path, Path]:
+def build_reproducible_pair(
+    root: Path, temporary_root: Path, epoch: str
+) -> tuple[Path, Path]:
     source_first = temporary_root / "source-first"
     source_second = temporary_root / "source-second"
     prepare_source_snapshot(root, source_first)
     prepare_source_snapshot(root, source_second)
     with ThreadPoolExecutor(max_workers=2, thread_name_prefix="tsao-wheel") as pool:
-        first_future = pool.submit(build_once, source_first, temporary_root / "first", epoch)
-        second_future = pool.submit(build_once, source_second, temporary_root / "second", epoch)
+        first_future = pool.submit(
+            build_once, source_first, temporary_root / "first", epoch
+        )
+        second_future = pool.submit(
+            build_once, source_second, temporary_root / "second", epoch
+        )
         return first_future.result(), second_future.result()
 
 
@@ -143,7 +149,9 @@ def main() -> int:
         "verification": expected,
     }
     (dist / "WHEEL_VERIFICATION.json").write_text(
-        json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8", newline="\n"
+        json.dumps(report, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+        newline="\n",
     )
     print(json.dumps(report, sort_keys=True))
     return 0
