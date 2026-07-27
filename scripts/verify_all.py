@@ -204,19 +204,20 @@ def verify_core() -> int:
 
 
 def verify_quality() -> int:
-    checks: tuple[tuple[str, tuple[str, ...]], ...] = (
-        ("repository quality rules", (PYTHON, "scripts/quality_check.py")),
-        ("Ruff lint", (PYTHON, "-m", "ruff", "check", *CODE_PATHS)),
-        ("Ruff formatting", (PYTHON, "-m", "ruff", "format", "--check", *CODE_PATHS)),
+    returncode = run_commands(
         (
-            "Mypy",
-            (PYTHON, "-m", "mypy", "--python-version", "3.13", "tsao_computation", "scripts"),
-        ),
-        ("Bandit", (PYTHON, "-m", "bandit", "-q", "-r", "tsao_computation", "scripts")),
-        ("repository security scan", (PYTHON, "scripts/security_scan.py")),
-        ("controlled mutation gate", (PYTHON, "scripts/run_mutation_gate.py")),
+            ("repository quality rules", (PYTHON, "scripts/quality_check.py")),
+            ("Ruff lint", (PYTHON, "-m", "ruff", "check", *CODE_PATHS)),
+            ("Ruff formatting", (PYTHON, "-m", "ruff", "format", "--check", *CODE_PATHS)),
+            (
+                "Mypy",
+                (PYTHON, "-m", "mypy", "--python-version", "3.13", "tsao_computation", "scripts"),
+            ),
+            ("Bandit", (PYTHON, "-m", "bandit", "-q", "-r", "tsao_computation", "scripts")),
+            ("repository security scan", (PYTHON, "scripts/security_scan.py")),
+            ("controlled mutation gate", (PYTHON, "scripts/run_mutation_gate.py")),
+        )
     )
-    returncode = run_commands_parallel(checks)
     if returncode:
         return returncode
     return run("refresh repository manifest", (PYTHON, "scripts/build_manifest.py"))
