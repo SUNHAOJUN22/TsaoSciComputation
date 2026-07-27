@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 
 from scripts.compare_performance_v9 import compare_v9
-from scripts.measure_command_v9 import measure_command
+from scripts.measure_command_v9 import _gnu_time_executable, measure_command
 from scripts.verify_all import run_commands_parallel, verification_workers
 from tsao_computation.provenance.manifest import _file_size_and_sha256
 from tsao_computation.registries import clear_registry_caches
@@ -59,6 +59,15 @@ def test_large_file_hashing_preserves_manifest_bytes(tmp_path: Path) -> None:
     size, digest = _file_size_and_sha256(path)
     assert size == len(payload)
     assert digest == hashlib.sha256(payload).hexdigest()
+
+
+def test_gnu_time_metrics_are_linux_only(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(Path, "is_file", lambda self: True)
+    executable = Path("/test/gnu-time")
+    assert _gnu_time_executable("linux", executable) == executable
+    assert _gnu_time_executable("linux-gnu", executable) == executable
+    assert _gnu_time_executable("darwin", executable) is None
+    assert _gnu_time_executable("win32", executable) is None
 
 
 def _command_measurement(wall: float, cpu: float, rss: float) -> dict[str, object]:
