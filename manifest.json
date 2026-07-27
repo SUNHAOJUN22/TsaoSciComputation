@@ -36,9 +36,9 @@
       "sha256": "3df770971d50d2df680f50b254caebfb9c4088fa9b3c5813fe869640bafc22d1"
     },
     {
-      "bytes": 3388,
+      "bytes": 3447,
       "path": ".github/workflows/ci.yml",
-      "sha256": "5445891100e811612053f4ee29fad6cd1f94000a19a47b467ba51d5b88867cc3"
+      "sha256": "dc90606b5cd4d55a3e848dcba622bc5553f1b92346b6e1448405d2235fced614"
     },
     {
       "bytes": 706,
@@ -1986,6 +1986,11 @@
       "sha256": "c0790576136335c458269651f6676c06c95a98e6650f121d215a552fa54cf5bf"
     },
     {
+      "bytes": 1033,
+      "path": "scripts/run_large_parser_regression.py",
+      "sha256": "27e908e86fb4a8f5fb034b147aee72bc8c18937b25b8134116a2d86efdf9af3d"
+    },
+    {
       "bytes": 8769,
       "path": "scripts/run_mutation_gate.py",
       "sha256": "0beee3eb3e6747941b50afbc0ef881d8abd3f0c30b10bc633f4a1177c9158721"
@@ -2056,9 +2061,9 @@
       "sha256": "1e0f7908f1f7dbcc179cc9c855d872d086711209002058f640b21ba84f0faa91"
     },
     {
-      "bytes": 12353,
+      "bytes": 12341,
       "path": "scripts/verify_all.py",
-      "sha256": "2ec2bc0bd35ef1ad3843521ef9ad4e76951f8f38c647dd5751d16c9ea3296586"
+      "sha256": "43fa4ea8f90f85c23485eaa460ef90ae6e641a3423174aca3ff2ecee9bda502e"
     },
     {
       "bytes": 3354,
@@ -2266,9 +2271,9 @@
       "sha256": "ca3c8f21b2c1f771c5b5bde10deea6787386c9389d2c1a01bcd33bd264ab87ac"
     },
     {
-      "bytes": 4617,
+      "bytes": 4150,
       "path": "tests/test_performance_v9.py",
-      "sha256": "f89a82bbe0c7ab85cb4718be2ed27f5987ec435a85fdef59366ccc379e3c5904"
+      "sha256": "2f6ba54c7483e1724bab8d5e7470ab84825997781ec7654ef32659ef86dff6e1"
     },
     {
       "bytes": 1612,
@@ -2336,9 +2341,9 @@
       "sha256": "d2bb4cdd39b9a18ae10a7d69dc451ed6837c4ee408e37ec2f64f18b2d6a8dd52"
     },
     {
-      "bytes": 2554,
+      "bytes": 2413,
       "path": "tests/test_verify_all.py",
-      "sha256": "0e87028db0ce86f3b64699a037cc30e9f3756fd6c5915631ee02339865f29a7b"
+      "sha256": "228b191253d6e15902c164f5890c5f68fcce8a6fa614116474800c7734aadadc"
     },
     {
       "bytes": 1031,
