@@ -2336,9 +2336,9 @@
       "sha256": "d2bb4cdd39b9a18ae10a7d69dc451ed6837c4ee408e37ec2f64f18b2d6a8dd52"
     },
     {
-      "bytes": 2052,
+      "bytes": 2554,
       "path": "tests/test_verify_all.py",
-      "sha256": "2d5ff6656ca647a21e9ed0f810d7c206bb8788460b98f9b6ff8050f4da116713"
+      "sha256": "0e87028db0ce86f3b64699a037cc30e9f3756fd6c5915631ee02339865f29a7b"
     },
     {
       "bytes": 1031,
