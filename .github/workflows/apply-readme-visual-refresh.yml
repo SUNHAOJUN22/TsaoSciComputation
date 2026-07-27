@@ -4,18 +4,21 @@ on:
   push:
     branches:
       - agent/refresh-readme-visuals-uiux-pro-max
+  pull_request:
+    types: [opened, synchronize, reopened]
 
 permissions:
   contents: write
 
 jobs:
   regenerate:
-    if: github.actor != 'github-actions[bot]'
+    if: github.actor != 'github-actions[bot]' && (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: ${{ github.head_ref || github.ref_name }}
 
       - name: Restore the validated generator
         shell: bash
@@ -32,6 +35,8 @@ jobs:
 
       - name: Commit the regenerated atlas
         shell: bash
+        env:
+          TARGET_BRANCH: ${{ github.head_ref || github.ref_name }}
         run: |
           rm -f tools/readme-visual-refresh.b64
           rm -f tools/readme-visual-refresh.trigger
@@ -44,4 +49,4 @@ jobs:
             exit 0
           fi
           git commit -m "Regenerate README visuals with UI UX Pro Max [skip ci]"
-          git push origin "HEAD:${GITHUB_REF_NAME}"
+          git push origin "HEAD:${TARGET_BRANCH}"
