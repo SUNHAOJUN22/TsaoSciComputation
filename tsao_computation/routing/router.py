@@ -2,11 +2,12 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
-from functools import cache
+from functools import cache, lru_cache
 
 from ..registries import workflows
 
 TOKEN_RE = re.compile("[a-z0-9]+|[一-鿿]+", re.IGNORECASE)
+_ROUTE_CACHE_SIZE = 256
 
 
 @dataclass(frozen=True, slots=True)
@@ -53,9 +54,8 @@ def _routing_index() -> tuple[_RouteWorkflow, ...]:
     return tuple(indexed)
 
 
-def route_question(question: str) -> RouteDecision:
-    if not question.strip():
-        raise ValueError("question must be non-empty")
+@lru_cache(maxsize=_ROUTE_CACHE_SIZE)
+def _route_cached(question: str) -> RouteDecision:
     text = question.casefold()
     tokens = _tokens_from_folded(text)
     scored: list[tuple[str, float, tuple[str, ...]]] = []
@@ -87,5 +87,12 @@ def route_question(question: str) -> RouteDecision:
     )
 
 
+def route_question(question: str) -> RouteDecision:
+    if not question.strip():
+        raise ValueError("question must be non-empty")
+    return _route_cached(question)
+
+
 def clear_routing_caches() -> None:
+    _route_cached.cache_clear()
     _routing_index.cache_clear()
