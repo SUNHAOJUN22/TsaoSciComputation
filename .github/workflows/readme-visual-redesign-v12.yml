@@ -152,12 +152,12 @@ jobs:
           gh workflow run ci.yml --ref main
           run_id=''
           for _ in $(seq 1 40); do
-            run_id="$({
+            run_id="$(
               gh run list --workflow ci.yml --branch main --event workflow_dispatch --limit 50 \
                 --json databaseId,headSha \
               | python -c 'import json,sys; rows=json.load(sys.stdin); sha=sys.argv[1]; print(next((str(row["databaseId"]) for row in rows if row["headSha"]==sha), ""))' \
                   "$final_sha"
-            })"
+            )"
             test -n "$run_id" && break
             sleep 4
           done
