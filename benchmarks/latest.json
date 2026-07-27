@@ -1,21 +1,21 @@
 {
-  "adapter_lookup_cached_median_us": 0.1071,
-  "adapter_registry_cold_median_ms": 0.222,
-  "capability_registry_cached_median_ms": 0.00046,
-  "capability_registry_cold_median_ms": 1.853,
+  "adapter_lookup_cached_median_us": 0.0764,
+  "adapter_registry_cold_median_ms": 0.139,
+  "capability_registry_cached_median_ms": 0.00041,
+  "capability_registry_cold_median_ms": 1.534,
   "claim_boundary": "Local orchestration microbenchmarks; no solver execution measured.",
-  "cli_import_median_ms": 39.37,
+  "cli_import_median_ms": 31.499,
   "methodology": {
     "claim_boundary": "Same-host local orchestration microbenchmarks; no solver execution measured.",
     "clock": "time.perf_counter",
     "statistic": "median",
     "warmups": 2
   },
-  "parser_5mib_throughput_mib_s": 18.15,
+  "parser_5mib_throughput_mib_s": 19.9,
   "python": "3.13.14 (main, Jun 11 2026, 03:02:07) [GCC 13.3.0]",
-  "repository_walk_median_ms": 8.419,
-  "route_decision_cold_median_ms": 0.366,
-  "route_decision_median_ms": 0.00013,
+  "repository_walk_median_ms": 5.855,
+  "route_decision_cold_median_ms": 0.251,
+  "route_decision_median_ms": 9e-05,
   "schema_version": "1.1",
-  "workflow_registry_cold_median_ms": 0.158
+  "workflow_registry_cold_median_ms": 0.097
 }
