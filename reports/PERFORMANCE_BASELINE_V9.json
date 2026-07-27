@@ -13,73 +13,78 @@
       {
         "filesystem_inputs": 0.0,
         "filesystem_outputs": 75880.0,
-        "peak_rss_kib": 74668.0,
+        "peak_rss_kib": 74628.0,
+        "resource_metrics": "gnu-time",
         "returncode": 0,
-        "system_seconds": 1.27,
-        "user_seconds": 8.29,
-        "wall_seconds": 9.507949666000002
+        "system_seconds": 1.44,
+        "user_seconds": 10.72,
+        "wall_seconds": 12.064624426000002
+      },
+      {
+        "filesystem_inputs": 0.0,
+        "filesystem_outputs": 75848.0,
+        "peak_rss_kib": 74760.0,
+        "resource_metrics": "gnu-time",
+        "returncode": 0,
+        "system_seconds": 1.45,
+        "user_seconds": 10.69,
+        "wall_seconds": 12.046246857
       },
       {
         "filesystem_inputs": 0.0,
         "filesystem_outputs": 75880.0,
-        "peak_rss_kib": 74832.0,
+        "peak_rss_kib": 74752.0,
+        "resource_metrics": "gnu-time",
         "returncode": 0,
-        "system_seconds": 1.28,
-        "user_seconds": 8.34,
-        "wall_seconds": 9.686630152999953
-      },
-      {
-        "filesystem_inputs": 0.0,
-        "filesystem_outputs": 75856.0,
-        "peak_rss_kib": 74776.0,
-        "returncode": 0,
-        "system_seconds": 1.3,
-        "user_seconds": 8.26,
-        "wall_seconds": 9.494712453000034
+        "system_seconds": 1.47,
+        "user_seconds": 10.7,
+        "wall_seconds": 12.077828264000004
       }
     ],
     "schema_version": "1.0",
     "status": "PASS",
     "summary": {
-      "cpu_median_seconds": 9.56,
-      "peak_rss_max_kib": 74832.0,
-      "wall_cv": 0.009151620196400097,
-      "wall_median_seconds": 9.507949666000002,
-      "wall_min_seconds": 9.494712453000034,
-      "wall_p90_seconds": 9.650894055599963
+      "cpu_median_seconds": 12.16,
+      "peak_rss_max_kib": 74760.0,
+      "resource_metrics": "gnu-time",
+      "wall_cv": 0.0010735890287991694,
+      "wall_median_seconds": 12.064624426000002,
+      "wall_min_seconds": 12.046246857,
+      "wall_p90_seconds": 12.075187496400005
     },
     "warmup_samples": [
       {
-        "filesystem_inputs": 114024.0,
+        "filesystem_inputs": 9736.0,
         "filesystem_outputs": 108968.0,
-        "peak_rss_kib": 123500.0,
+        "peak_rss_kib": 123252.0,
+        "resource_metrics": "gnu-time",
         "returncode": 0,
-        "system_seconds": 1.37,
-        "user_seconds": 10.28,
-        "wall_seconds": 12.745648102000018
+        "system_seconds": 1.55,
+        "user_seconds": 13.32,
+        "wall_seconds": 15.230103062000005
       }
     ],
     "warmups": 1
   },
   "micro": {
-    "adapter_lookup_cached_median_us": 0.0846,
-    "adapter_registry_cold_median_ms": 0.142,
-    "capability_registry_cached_median_ms": 0.00032,
-    "capability_registry_cold_median_ms": 1.382,
+    "adapter_lookup_cached_median_us": 0.1082,
+    "adapter_registry_cold_median_ms": 0.201,
+    "capability_registry_cached_median_ms": 0.00081,
+    "capability_registry_cold_median_ms": 1.874,
     "claim_boundary": "Local orchestration microbenchmarks; no solver execution measured.",
-    "cli_import_median_ms": 31.658,
+    "cli_import_median_ms": 40.185,
     "methodology": {
       "claim_boundary": "Same-host local orchestration microbenchmarks; no solver execution measured.",
       "clock": "time.perf_counter",
       "statistic": "median",
       "warmups": 2
     },
-    "parser_5mib_throughput_mib_s": 25.91,
+    "parser_5mib_throughput_mib_s": 18.9,
     "python": "3.13.14 (main, Jun 11 2026, 03:02:07) [GCC 13.3.0]",
-    "repository_walk_median_ms": 5.597,
-    "route_decision_cold_median_ms": 0.245,
-    "route_decision_median_ms": 0.02477,
+    "repository_walk_median_ms": 8.345,
+    "route_decision_cold_median_ms": 0.347,
+    "route_decision_median_ms": 0.03364,
     "schema_version": "1.1",
-    "workflow_registry_cold_median_ms": 0.102
+    "workflow_registry_cold_median_ms": 0.146
   }
 }

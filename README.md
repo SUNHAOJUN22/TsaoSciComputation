@@ -282,14 +282,14 @@ External solvers are optional and must be installed, licensed and validated sepa
 <!-- PERFORMANCE_V9:START -->
 ## Performance engineering
 
-V9 measures the accepted V8 baseline and the candidate on the same runner before accepting any efficiency claim. Deterministic audit run `30231886878` recorded:
+V9 measures the accepted V8 baseline and the candidate on the same runner before accepting any efficiency claim. Deterministic audit run `30232461778` recorded:
 
 | Measured path | V8 baseline | V9 candidate | Result |
 |---|---:|---:|---:|
-| `verify_all --profile all` median wall time | 9.508 s | 8.796 s | 1.08× |
-| `verify_all` wall p90 | 9.651 s | 8.850 s | telemetry |
-| Workflow routing | baseline | candidate | 247.70× |
-| 5 MiB solver-output parsing | baseline | candidate | 0.97× |
+| `verify_all --profile all` median wall time | 12.065 s | 11.109 s | 1.09× |
+| `verify_all` wall p90 | 12.075 s | 11.124 s | telemetry |
+| Workflow routing | baseline | candidate | 258.77× |
+| 5 MiB solver-output parsing | baseline | candidate | 1.02× |
 | Peak RSS ratio | 1.00× | 1.00× | limit 1.10× |
 
 The optimized verifier runs only independent subprocess gates concurrently, captures their output separately, and emits logs in the original declared order. Source reproducibility builds run concurrently only because their output directories are isolated. Zero mandatory runtime dependencies, fail-closed parsing, cache invalidation, deterministic Manifests and scientific acceptance boundaries remain unchanged. Evidence: [`reports/PERFORMANCE_COMPARISON_V9.json`](reports/PERFORMANCE_COMPARISON_V9.json), [`reports/PERFORMANCE_PROFILE_V9.json`](reports/PERFORMANCE_PROFILE_V9.json), and [Issue #29](../../issues/29).
@@ -308,13 +308,13 @@ python scripts/verify_all.py --profile benchmark
 ### Current `main` verification
 
 <!-- CURRENT_MAIN_VERIFICATION:START -->
-Validated on `2026-07-27T02:21:10.400486+00:00` by deterministic finalization run `30231886878`.
+Validated on `2026-07-27T02:36:01.634707+00:00` by deterministic finalization run `30232461778`.
 
 | Current-main item | Result |
 |---|---:|
 | Version | 3.0.2 |
 | Capabilities / adapters / workflows | 164 / 27 / 20 |
-| Tests | 583 passed, 0 failed |
+| Tests | 584 passed, 0 failed |
 | Statement / branch coverage | 97.44% / 93.57% |
 | Windows core | Python 3.10 and 3.13; final result recorded in Issue #29 |
 | Controlled mutation probes | 64/64 killed |
