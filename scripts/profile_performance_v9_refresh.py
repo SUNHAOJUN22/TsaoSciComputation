@@ -318,8 +318,10 @@ def profile_hot_functions(root: Path) -> dict[str, Any]:
         temporary_root = Path(temporary)
         for name, code in workloads.items():
             profile_path = temporary_root / f"{name}.prof"
+            workload_path = temporary_root / f"{name}.py"
+            workload_path.write_text(code + "\n", encoding="utf-8", newline="\n")
             subprocess.run(  # nosec B603
-                [sys.executable, "-m", "cProfile", "-o", str(profile_path), "-c", code],
+                [sys.executable, "-m", "cProfile", "-o", str(profile_path), str(workload_path)],
                 cwd=root,
                 env=env,
                 check=True,

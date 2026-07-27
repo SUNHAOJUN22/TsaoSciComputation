@@ -115,9 +115,7 @@ def compare(
     }
     meaningful_count = sum(value >= 1.10 for value in hot_paths.values())
     end_to_end_pass = speedups["verify_all_wall"] >= 1.08
-    meaningful_pass = meaningful_count >= 2 or (
-        max(hot_paths.values()) >= 1.20 and end_to_end_pass
-    )
+    meaningful_pass = meaningful_count >= 2 or (max(hot_paths.values()) >= 1.20 and end_to_end_pass)
     acceptance = {
         "end_to_end": end_to_end_pass,
         "meaningful_improvements": meaningful_pass,
@@ -196,32 +194,30 @@ def write_outputs(
     memory_ratio = float(report["memory_ratio"])
     markdown = f"""# Performance engineering V9
 
-- Frozen baseline: `{report['baseline_sha']}`
-- Candidate source: `{report['candidate_source_sha']}`
-- Same-host audit run: `{report['audit_run']}`
-- Status: `{report['status']}`
-- `verify_all --profile all`: `{float(baseline_all['wall_median_seconds']):.3f} s` to `{float(candidate_all['wall_median_seconds']):.3f} s` (`{speedups['verify_all_wall']:.2f}x`)
-- `verify_all` p90: `{float(baseline_all['wall_p90_seconds']):.3f} s` to `{float(candidate_all['wall_p90_seconds']):.3f} s`
+- Frozen baseline: `{report["baseline_sha"]}`
+- Candidate source: `{report["candidate_source_sha"]}`
+- Same-host audit run: `{report["audit_run"]}`
+- Status: `{report["status"]}`
+- `verify_all --profile all`: `{float(baseline_all["wall_median_seconds"]):.3f} s` to `{float(candidate_all["wall_median_seconds"]):.3f} s` (`{speedups["verify_all_wall"]:.2f}x`)
+- `verify_all` p90: `{float(baseline_all["wall_p90_seconds"]):.3f} s` to `{float(candidate_all["wall_p90_seconds"]):.3f} s`
 - Peak RSS ratio: `{memory_ratio:.3f}x`
-- Parser throughput: `{float(baseline_micro['parser_5mib_throughput_mib_s']):.2f}` to `{float(candidate_micro['parser_5mib_throughput_mib_s']):.2f} MiB/s`
+- Parser throughput: `{float(baseline_micro["parser_5mib_throughput_mib_s"]):.2f}` to `{float(candidate_micro["parser_5mib_throughput_mib_s"]):.2f} MiB/s`
 - Mandatory runtime dependencies added: `0`
 
 The measurements compare baseline and candidate sequentially on one GitHub runner with the same Python and dependency environment. They measure repository orchestration and validation, not external scientific solvers or production HPC.
 """
-    (reports / "PERFORMANCE_ENGINEERING_V9.md").write_text(
-        markdown, encoding="utf-8", newline="\n"
-    )
+    (reports / "PERFORMANCE_ENGINEERING_V9.md").write_text(markdown, encoding="utf-8", newline="\n")
 
     english = f"""<!-- PERFORMANCE_V9:START -->
 ## Performance engineering V9
 
-Same-host audit `{report['audit_run']}` compared the frozen execution-start baseline `{report['baseline_sha']}` with the clean candidate tree.
+Same-host audit `{report["audit_run"]}` compared the frozen execution-start baseline `{report["baseline_sha"]}` with the clean candidate tree.
 
 | Path | Baseline median | Candidate median | Result |
 |---|---:|---:|---:|
-| `verify_all --profile all` | {float(baseline_all['wall_median_seconds']):.3f} s | {float(candidate_all['wall_median_seconds']):.3f} s | {speedups['verify_all_wall']:.2f}x |
-| `verify_all` wall p90 | {float(baseline_all['wall_p90_seconds']):.3f} s | {float(candidate_all['wall_p90_seconds']):.3f} s | telemetry |
-| 5 MiB parser throughput | {float(baseline_micro['parser_5mib_throughput_mib_s']):.2f} MiB/s | {float(candidate_micro['parser_5mib_throughput_mib_s']):.2f} MiB/s | {speedups['parser_5mib']:.2f}x |
+| `verify_all --profile all` | {float(baseline_all["wall_median_seconds"]):.3f} s | {float(candidate_all["wall_median_seconds"]):.3f} s | {speedups["verify_all_wall"]:.2f}x |
+| `verify_all` wall p90 | {float(baseline_all["wall_p90_seconds"]):.3f} s | {float(candidate_all["wall_p90_seconds"]):.3f} s | telemetry |
+| 5 MiB parser throughput | {float(baseline_micro["parser_5mib_throughput_mib_s"]):.2f} MiB/s | {float(candidate_micro["parser_5mib_throughput_mib_s"]):.2f} MiB/s | {speedups["parser_5mib"]:.2f}x |
 | Peak RSS ratio | 1.00x | {memory_ratio:.2f}x | limit 1.10x |
 
 Median, minimum, p90 and variation are retained in the machine-readable reports. Mandatory runtime dependencies remain zero. These results cover orchestration, parsing and verification only; they do not claim faster DFT, MD, CFD, process simulation or production HPC. Evidence: [`reports/PERFORMANCE_COMPARISON_V9.json`](reports/PERFORMANCE_COMPARISON_V9.json), [`reports/PERFORMANCE_PROFILE_V9.json`](reports/PERFORMANCE_PROFILE_V9.json).
@@ -229,13 +225,13 @@ Median, minimum, p90 and variation are retained in the machine-readable reports.
     chinese = f"""<!-- PERFORMANCE_V9:START -->
 ## 性能工程 V9
 
-同机审计 `{report['audit_run']}` 对比了执行开始时冻结的基线 `{report['baseline_sha']}` 与清洁候选树。
+同机审计 `{report["audit_run"]}` 对比了执行开始时冻结的基线 `{report["baseline_sha"]}` 与清洁候选树。
 
 | 路径 | 基线中位数 | 候选中位数 | 结果 |
 |---|---:|---:|---:|
-| `verify_all --profile all` | {float(baseline_all['wall_median_seconds']):.3f} 秒 | {float(candidate_all['wall_median_seconds']):.3f} 秒 | {speedups['verify_all_wall']:.2f} 倍 |
-| `verify_all` 墙钟 p90 | {float(baseline_all['wall_p90_seconds']):.3f} 秒 | {float(candidate_all['wall_p90_seconds']):.3f} 秒 | 遥测 |
-| 5 MiB 解析吞吐 | {float(baseline_micro['parser_5mib_throughput_mib_s']):.2f} MiB/s | {float(candidate_micro['parser_5mib_throughput_mib_s']):.2f} MiB/s | {speedups['parser_5mib']:.2f} 倍 |
+| `verify_all --profile all` | {float(baseline_all["wall_median_seconds"]):.3f} 秒 | {float(candidate_all["wall_median_seconds"]):.3f} 秒 | {speedups["verify_all_wall"]:.2f} 倍 |
+| `verify_all` 墙钟 p90 | {float(baseline_all["wall_p90_seconds"]):.3f} 秒 | {float(candidate_all["wall_p90_seconds"]):.3f} 秒 | 遥测 |
+| 5 MiB 解析吞吐 | {float(baseline_micro["parser_5mib_throughput_mib_s"]):.2f} MiB/s | {float(candidate_micro["parser_5mib_throughput_mib_s"]):.2f} MiB/s | {speedups["parser_5mib"]:.2f} 倍 |
 | 峰值 RSS 比值 | 1.00 倍 | {memory_ratio:.2f} 倍 | 上限 1.10 倍 |
 
 中位数、最小值、p90 和波动均保存在机器报告中。强制运行时第三方依赖仍为零。这些结果仅代表编排、解析与验证性能，不代表 DFT、MD、CFD、流程模拟或生产 HPC 求解器提速。证据：[`reports/PERFORMANCE_COMPARISON_V9.json`](reports/PERFORMANCE_COMPARISON_V9.json)、[`reports/PERFORMANCE_PROFILE_V9.json`](reports/PERFORMANCE_PROFILE_V9.json)。
