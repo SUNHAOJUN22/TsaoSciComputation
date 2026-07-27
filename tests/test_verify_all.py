@@ -46,20 +46,40 @@ def test_run_commands_stops_after_first_failure(monkeypatch) -> None:
     assert labels == ["first", "second"]
 
 
-def test_quality_refreshes_manifest_after_generated_evidence(monkeypatch) -> None:
-    captured: list[tuple[str, Sequence[str]]] = []
+def test_quality_parallelizes_independent_gates_and_refreshes_manifest_last(monkeypatch) -> None:
+    parallel: list[tuple[str, Sequence[str]]] = []
+    sequential: list[tuple[str, Sequence[str]]] = []
 
-    def fake_run_commands(commands: Sequence[tuple[str, Sequence[str]]]) -> int:
-        captured.extend(commands)
+    def fake_parallel(
+        commands: Sequence[tuple[str, Sequence[str]]],
+        *,
+        env: dict[str, str] | None = None,
+        max_workers: int | None = None,
+    ) -> int:
+        del env, max_workers
+        parallel.extend(commands)
         return 0
 
-    monkeypatch.setattr(verify_all, "run_commands", fake_run_commands)
+    def fake_run(
+        label: str,
+        command: Sequence[str],
+        *,
+        env: dict[str, str] | None = None,
+    ) -> int:
+        del env
+        sequential.append((label, command))
+        return 0
+
+    monkeypatch.setattr(verify_all, "run_commands_parallel", fake_parallel)
+    monkeypatch.setattr(verify_all, "run", fake_run)
     assert verify_all.verify_quality() == 0
-    assert captured[-1] == (
-        "refresh repository manifest",
-        (verify_all.PYTHON, "scripts/build_manifest.py"),
-    )
-    assert captured[-2][0] == "controlled mutation gate"
+    assert parallel[-1][0] == "controlled mutation gate"
+    assert sequential == [
+        (
+            "refresh repository manifest",
+            (verify_all.PYTHON, "scripts/build_manifest.py"),
+        )
+    ]
 
 
 def test_sha256_reads_complete_file(tmp_path: Path) -> None:
