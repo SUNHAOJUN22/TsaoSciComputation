@@ -2096,9 +2096,9 @@
       "sha256": "620b9c5b447569ecc5d151922435909c89993f7e18d330f235022c11bdb1dd78"
     },
     {
-      "bytes": 5244,
+      "bytes": 5194,
       "path": "scripts/verify_wheel.py",
-      "sha256": "663b8ed2dbd56d8d26317790b29ee799e901f1d15092a77038c1824e9b6bf9a4"
+      "sha256": "e07c0a0690de373cea06cd759a98394f5f149076e0f2233e4f06811610aa1098"
     },
     {
       "bytes": 3163,
