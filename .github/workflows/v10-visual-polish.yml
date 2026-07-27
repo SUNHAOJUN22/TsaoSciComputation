@@ -97,3 +97,5 @@ jobs:
           git add -A
           git commit -m 'Polish V10 hero alignment and semantic icon colors'
           git push origin HEAD:refs/heads/main
+
+# indexed retry
