@@ -12,6 +12,22 @@
 
 </div>
 
+<!-- V11_VISUAL_SYSTEM:START -->
+## Visual design system
+
+The 42 repository-local SVGs use **Scientific Swiss Bento V11**, derived from the UI/UX Pro Max priority model. The atlas now uses five information-specific layouts instead of repeating one card template:
+
+| Layout | Communicates |
+|---|---|
+| Hero | Product scope and the primary evidence narrative |
+| Bento | Architecture, registries and governance responsibilities |
+| Workflow | Ordered calculations and cross-scale handoffs |
+| Loop | Iterative learning, updating and evidence feedback |
+| Risk | Initiating conditions, barriers, consequences and review authority |
+
+All layouts retain high contrast, system fonts, semantic colors, explicit labels and a shared evidence vocabulary. See [`assets/visuals/DESIGN_SYSTEM.md`](assets/visuals/DESIGN_SYSTEM.md).
+<!-- V11_VISUAL_SYSTEM:END -->
+
 <!-- VISUAL_SYSTEM_V10:START -->
 > **Visual system V10.** All 42 repository-local diagrams now follow a UI/UX Pro Max-derived **Scientific Swiss Bento** system: high contrast, systematic spacing, semantic accents, numbered stages, consistent line language and explicit evidence boundaries. The SVGs remain static, self-contained and accessible; they are explanatory architecture diagrams, not solver screenshots or fabricated scientific plots. See [`assets/visuals/DESIGN_SYSTEM.md`](assets/visuals/DESIGN_SYSTEM.md).
 <!-- VISUAL_SYSTEM_V10:END -->

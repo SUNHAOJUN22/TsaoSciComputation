@@ -12,6 +12,22 @@
 
 </div>
 
+<!-- V11_VISUAL_SYSTEM:START -->
+## 配图设计系统
+
+仓库内 42 幅 SVG 已采用源自 UI/UX Pro Max 优先级规则的 **Scientific Swiss Bento V11**。图谱不再重复同一种卡片模板，而是按信息模型使用五类版式：
+
+| 版式 | 表达内容 |
+|---|---|
+| Hero | 产品范围与核心证据主线 |
+| Bento | 架构、注册表及治理责任 |
+| Workflow | 有序计算与跨尺度交接 |
+| Loop | 迭代学习、在线更新及证据反馈 |
+| Risk | 起始条件、防护屏障、后果及复核权限 |
+
+所有版式继续采用高对比、系统字体、语义色、明确文字标签和统一证据词汇。详见 [`assets/visuals/DESIGN_SYSTEM.md`](assets/visuals/DESIGN_SYSTEM.md)。
+<!-- V11_VISUAL_SYSTEM:END -->
+
 <!-- VISUAL_SYSTEM_V10:START -->
 > **视觉系统 V10。** 全部 42 幅仓库本地配图现已统一采用源自 UI/UX Pro Max 方法的 **Scientific Swiss Bento** 体系：高对比度、系统化间距、语义色、编号阶段、统一线条语言及明确的证据边界。所有 SVG 均为静态、自包含、可访问的解释图，不是求解器截图，也不伪造科研曲线。详见 [`assets/visuals/DESIGN_SYSTEM.md`](assets/visuals/DESIGN_SYSTEM.md)。
 <!-- VISUAL_SYSTEM_V10:END -->

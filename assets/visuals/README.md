@@ -12,7 +12,13 @@ This directory contains original, repository-local SVG illustrations created for
 
 ## UI/UX Pro Max design system
 
-The atlas follows [`DESIGN_SYSTEM.md`](DESIGN_SYSTEM.md): Scientific Swiss minimalism, Bento information hierarchy, an 8 px spacing rhythm, system typography, semantic non-purple accents, consistent 2 px strokes, and color-independent numbered stages. Decorative AI gradients, neon glow, emoji icons and external resources are prohibited.
+All assets follow [`DESIGN_SYSTEM.md`](DESIGN_SYSTEM.md), the **Scientific Swiss Bento V11** system derived from UI/UX Pro Max.
+
+- The atlas uses five governed layouts: Hero, Bento, Workflow, Loop and Risk.
+- Layout selection follows the information model rather than decoration.
+- Shared tokens, typography, evidence labels and scientific trust boundaries remain consistent.
+- Every SVG is self-contained and includes unique accessible title and description metadata.
+- Purple/pink AI gradients, glow filters, raster screenshots, external fonts and fabricated plots are prohibited.
 
 ## Asset set
 
