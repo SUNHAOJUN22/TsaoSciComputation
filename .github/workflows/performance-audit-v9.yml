@@ -262,7 +262,25 @@ jobs:
         run: |
           final_sha='${{ steps.final_commit.outputs.final_sha }}'
           run_id='${{ steps.canonical_ci.outputs.run_id }}'
-          summary="$(python -c 'import json; data=json.load(open("reports/PERFORMANCE_COMPARISON_V9.json", encoding="utf-8")); s=data["speedups"]; print(f"verify_all={s[\"verify_all_wall\"]:.2f}x, route={s[\"route_decision\"]:.2f}x, parser={s[\"parser_throughput\"]:.2f}x, memory={data[\"memory_ratio\"]:.2f}x")')"
+          summary="$(
+            python - <<'PY'
+          import json
+          from pathlib import Path
+
+          data = json.loads(
+              Path('reports/PERFORMANCE_COMPARISON_V9.json').read_text(encoding='utf-8')
+          )
+          speedups = data['speedups']
+          print(
+              'verify_all={:.2f}x, route={:.2f}x, parser={:.2f}x, memory={:.2f}x'.format(
+                  speedups['verify_all_wall'],
+                  speedups['route_decision'],
+                  speedups['parser_throughput'],
+                  data['memory_ratio'],
+              )
+          )
+          PY
+          )"
           gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body \
             "Performance engineering V9 passed. Final commit: \`$final_sha\`. Canonical CI Run ID: \`$run_id\`. Same-host evidence: $summary. Full deterministic release gates and Ubuntu/Windows/macOS x Python 3.10/3.13 CI succeeded. No branch or PR was created."
           gh issue close "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --reason completed
