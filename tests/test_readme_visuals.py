@@ -6,6 +6,26 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 ENTRY = re.compile(r"^- `([^`]+\.svg)` — ", re.MULTILINE)
+FONT_SIZE = re.compile(r"font-size:\s*([0-9]+)px")
+HEX_COLOR = re.compile(r"#[0-9A-Fa-f]{6}")
+DESIGN_SYSTEM = "uiux-pro-max-scientific-swiss-v1"
+ALLOWED_COLORS = {
+    "#0B1220",
+    "#111827",
+    "#172033",
+    "#334155",
+    "#F8FAFC",
+    "#CBD5E1",
+    "#94A3B8",
+    "#3B82F6",
+    "#06B6D4",
+    "#14B8A6",
+    "#22C55E",
+    "#F59E0B",
+    "#F97316",
+    "#EF4444",
+}
+BANNED_DECORATIVE_COLORS = {"#8B5CF6", "#D946EF", "#FF7EC7", "#EC4899"}
 
 
 def _inventory_names() -> tuple[str, ...]:
@@ -21,10 +41,15 @@ def test_readme_visuals_are_self_contained_accessible_and_referenced() -> None:
         (ROOT / "README.zh-CN.md").read_text(encoding="utf-8"),
     ]
     manifest_in = (ROOT / "MANIFEST.in").read_text(encoding="utf-8")
+    design_system = (ROOT / "assets" / "visuals" / "DESIGN_SYSTEM.md").read_text(
+        encoding="utf-8"
+    )
     assert "recursive-include assets *.md *.svg" in manifest_in
+    assert "Scientific Swiss Bento" in design_system
+    assert all("assets/visuals/DESIGN_SYSTEM.md" in readme for readme in readmes)
 
     names = _inventory_names()
-    assert len(names) >= 36
+    assert len(names) == 42
     visual_root = ROOT / "assets" / "visuals"
     assert {path.name for path in visual_root.glob("*.svg")} == set(names)
 
@@ -34,15 +59,31 @@ def test_readme_visuals_are_self_contained_accessible_and_referenced() -> None:
     for name in names:
         relative = f"assets/visuals/{name}"
         text = (visual_root / name).read_text(encoding="utf-8")
+        lowered = text.lower()
         assert text.startswith('<svg xmlns="http://www.w3.org/2000/svg"')
         assert " viewBox=" in text
-        assert "<script" not in text.lower()
-        assert "<image" not in text.lower()
-        assert "<foreignobject" not in text.lower()
-        assert "onload=" not in text.lower()
-        assert "onclick=" not in text.lower()
-        assert 'href="http' not in text.lower()
-        assert 1_000 <= len(text.encode("utf-8")) <= 30_000
+        assert f'data-design-system="{DESIGN_SYSTEM}"' in text
+        assert " data-family=" in text
+        assert "<script" not in lowered
+        assert "<image" not in lowered
+        assert "<foreignobject" not in lowered
+        assert "onload=" not in lowered
+        assert "onclick=" not in lowered
+        assert 'href="http' not in lowered
+        assert "<lineargradient" not in lowered
+        assert "<radialgradient" not in lowered
+        assert "<filter" not in lowered
+        assert "EVIDENCE-BOUND" in text
+        assert "NUMERICAL" in text
+        assert "CONVERGENCE" in text
+        assert "APPLICABILITY" in text
+        assert 4_000 <= len(text.encode("utf-8")) <= 30_000
+
+        sizes = [int(value) for value in FONT_SIZE.findall(text)]
+        assert sizes and min(sizes) >= 13
+        colors = {value.upper() for value in HEX_COLOR.findall(text)}
+        assert colors <= ALLOWED_COLORS
+        assert not colors & BANNED_DECORATIVE_COLORS
 
         root = ET.fromstring(text)
         title = root.find("svg:title", namespace)
