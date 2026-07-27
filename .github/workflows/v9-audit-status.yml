@@ -19,16 +19,51 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
       ISSUE_NUMBER: '29'
+      COMMENT_ID: '5086760276'
     steps:
-      - name: Report recent V9 audit runs
+      - name: Extract concise V9 gate diagnosis
         shell: bash
         run: |
           set -Eeuo pipefail
-          runs="$(gh run list --repo "$GITHUB_REPOSITORY" --workflow performance-audit-v9.yml --limit 10 --json databaseId,status,conclusion,headSha,createdAt,updatedAt,url)"
-          body="$(python -c 'import json,sys; rows=json.load(sys.stdin); print(json.dumps(rows, indent=2, sort_keys=True))' <<< "$runs")"
-          gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body \
-            "V9 audit status diagnostic:
+          gh api "repos/$GITHUB_REPOSITORY/issues/comments/$COMMENT_ID" --jq .body > /tmp/v9-comment.txt
+          python - <<'PY' > /tmp/v9-summary.txt
+          from __future__ import annotations
 
-          \`\`\`json
+          import json
+          import re
+          from pathlib import Path
+
+          body = Path('/tmp/v9-comment.txt').read_text(encoding='utf-8')
+          match = re.search(r'```json\s*(\{.*\})\s*```', body, re.DOTALL)
+          if match is None:
+              raise SystemExit('JSON evidence block not found')
+          payload = json.loads(match.group(1))
+          baseline = payload['baseline_end_to_end']['summary']
+          candidate = payload['candidate_end_to_end']['summary']
+          comparison = payload.get('comparison', {})
+          speedups = comparison.get('speedups', {})
+          acceptance = comparison.get('acceptance', {})
+          print(f"baseline_wall_median={baseline['wall_median_seconds']:.6f}")
+          print(f"baseline_wall_p90={baseline['wall_p90_seconds']:.6f}")
+          print(f"baseline_wall_cv={baseline['wall_cv']:.6f}")
+          print(f"baseline_cpu_median={baseline['cpu_median_seconds']:.6f}")
+          print(f"baseline_peak_rss_kib={baseline['peak_rss_max_kib']:.0f}")
+          print(f"candidate_wall_median={candidate['wall_median_seconds']:.6f}")
+          print(f"candidate_wall_p90={candidate['wall_p90_seconds']:.6f}")
+          print(f"candidate_wall_cv={candidate['wall_cv']:.6f}")
+          print(f"candidate_cpu_median={candidate['cpu_median_seconds']:.6f}")
+          print(f"candidate_peak_rss_kib={candidate['peak_rss_max_kib']:.0f}")
+          print(f"comparison_status={comparison.get('status', 'missing')}")
+          print(f"verify_all_speedup={speedups.get('verify_all_wall', float('nan')):.6f}")
+          print(f"route_speedup={speedups.get('route_decision', float('nan')):.6f}")
+          print(f"parser_speedup={speedups.get('parser_throughput', float('nan')):.6f}")
+          print(f"memory_ratio={comparison.get('memory_ratio', float('nan')):.6f}")
+          print('acceptance=' + json.dumps(acceptance, sort_keys=True))
+          PY
+          body="$(cat /tmp/v9-summary.txt)"
+          gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body \
+            "V9 run \`30232837889\` concise gate diagnosis:
+
+          \`\`\`text
           $body
           \`\`\`"
