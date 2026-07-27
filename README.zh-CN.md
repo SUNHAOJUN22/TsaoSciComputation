@@ -12,18 +12,20 @@
 
 </div>
 
-<!-- V12_VISUAL_SYSTEM:START -->
+<!-- V13_VISUAL_SYSTEM:START -->
 ## 配图设计系统
 
-仓库内 42 幅 SVG 已采用源自 UI/UX Pro Max 优先级模型的 **Scientific Swiss Bento V12**。V12 不只关注源画布效果，而是针对 GitHub 实际缩放后的阅读体验进行优化：
+仓库内 42 幅 SVG 已升级为 **Scientific Research Console V13**，设计依据同时来自
+UI/UX Pro Max 上游优先级模型及其中文教程适配。
 
-- Hero 与详细科研工作流全部采用全宽展示；
-- 只有两幅紧凑架构总览图共享一行；
-- 完整图谱按语义明确、可访问的 `<details>` 分组渐进展开；
-- 图内正文字号不低于 16 px，每个阶段说明最多两行。
+- 无障碍与 GitHub 缩放后的可读性优先于装饰效果；
+- 全部图采用统一、克制的技术编辑色板和线性图标语法；
+- 信息同时通过文字、形状和位置表达，不依赖颜色单独传意；
+- 详细工作流继续在语义化 `<details>` 分组中全宽展示；
+- 图内文字不低于 16 px，且不使用外部字体、脚本、位图、渐变或滤镜。
 
 详见 [`assets/visuals/DESIGN_SYSTEM.md`](assets/visuals/DESIGN_SYSTEM.md)。
-<!-- V12_VISUAL_SYSTEM:END -->
+<!-- V13_VISUAL_SYSTEM:END -->
 
 ## 项目是什么
 

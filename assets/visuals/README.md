@@ -12,16 +12,18 @@ This directory contains original, repository-local SVG illustrations created for
 
 ## UI/UX Pro Max design system
 
-All 42 assets use **Scientific Swiss Bento V12** and declare `data-design-system="uiux-pro-max-scientific-swiss-v3"`.
+All 42 assets use **Scientific Research Console V13** and declare
+`data-design-system="uiux-pro-max-scientific-console-v4"`.
 
+- The design follows the upstream UI/UX Pro Max priority model and its Chinese tutorial adaptation.
 - Five information layouts remain: Hero, Bento, Workflow, Loop and Risk.
+- One line-icon system and explicit labels reinforce meaning beyond color.
 - SVG body text is at least 16 px and stage details are capped at two concise lines.
-- The bilingual README presents detailed diagrams full width under progressive-disclosure groups.
-- Only two compact Bento overview diagrams share a row.
-- No external fonts, scripts, raster images, gradients, filters, network resources, event handlers or tracking.
+- The bilingual README keeps detailed diagrams full width under progressive-disclosure groups.
+- No external fonts, scripts, raster images, gradients, filters, event handlers or tracking.
 - Diagrams are explanatory evidence maps, not solver screenshots or live-execution claims.
 
-See [`DESIGN_SYSTEM.md`](DESIGN_SYSTEM.md) for the complete V12 specification.
+See [`DESIGN_SYSTEM.md`](DESIGN_SYSTEM.md) for the complete V13 specification.
 
 ## Asset set
 

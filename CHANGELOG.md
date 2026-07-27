@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Regenerated all 42 README illustrations as Scientific Research Console V13 using the UI/UX Pro Max upstream and Chinese tutorial rules: accessible contrast, one line-icon grammar and GitHub-scale progressive disclosure.
+
 - Regenerated all 42 README visuals for GitHub-scale readability with 16 px minimum diagram text, full-width detailed workflows and progressive-disclosure domain groups.
 
 - Diversified all 42 UI/UX Pro Max README illustrations into Hero, Bento, Workflow, Loop and Risk layouts while preserving filenames, accessibility and scientific evidence boundaries.

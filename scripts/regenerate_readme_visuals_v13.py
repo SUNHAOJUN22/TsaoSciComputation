@@ -240,7 +240,9 @@ def write(path: Path, content: str, *, check: bool) -> None:
     current = path.read_text(encoding="utf-8") if path.exists() else ""
     if check:
         if current != normalized:
-            raise SystemExit(f"generated V13 visual artifact is stale: {path.relative_to(base.ROOT)}")
+            raise SystemExit(
+                f"generated V13 visual artifact is stale: {path.relative_to(base.ROOT)}"
+            )
         return
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(normalized, encoding="utf-8", newline="\n")

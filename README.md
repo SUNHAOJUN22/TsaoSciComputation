@@ -12,18 +12,20 @@
 
 </div>
 
-<!-- V12_VISUAL_SYSTEM:START -->
+<!-- V13_VISUAL_SYSTEM:START -->
 ## Visual design system
 
-The 42 repository-local SVGs use **Scientific Swiss Bento V12**, derived from the UI/UX Pro Max priority model. V12 optimizes for actual GitHub rendering rather than source-canvas appearance alone:
+The 42 repository-local SVGs now use **Scientific Research Console V13**, generated from the
+UI/UX Pro Max upstream priority model and its Chinese tutorial adaptation.
 
-- the hero and detailed scientific workflows are full width;
-- only two compact architecture overviews share a row;
-- the full atlas is organized through semantic, accessible `<details>` groups;
-- diagram body text is at least 16 px and stage copy is limited to two concise lines.
+- accessibility and GitHub-scale readability come before decoration;
+- all diagrams use one restrained technical-editorial palette and one line-icon grammar;
+- meaning is reinforced by labels, shapes and position rather than color alone;
+- detailed workflows remain full width inside semantic `<details>` groups;
+- diagram text is at least 16 px, with no external fonts, scripts, raster images, gradients or filters.
 
 See [`assets/visuals/DESIGN_SYSTEM.md`](assets/visuals/DESIGN_SYSTEM.md).
-<!-- V12_VISUAL_SYSTEM:END -->
+<!-- V13_VISUAL_SYSTEM:END -->
 
 ## What it is
 

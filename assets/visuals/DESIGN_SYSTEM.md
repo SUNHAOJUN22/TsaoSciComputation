@@ -1,79 +1,76 @@
-# Scientific Swiss Bento V12 visual system
+# Scientific Research Console V13 visual system
 
-This design system applies the current UI/UX Pro Max priority model to GitHub README illustrations for TsaoSciComputation.
+This repository-local system applies the current
+[UI/UX Pro Max](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill)
+priority model together with the
+[Chinese tutorial](https://github.com/bbylw/ui-ux-pro-max-skill-cn)
+to TsaoSciComputation README illustrations.
 
 ## Product and audience
 
-- Product type: scientific developer tool and evidence-bound orchestration platform.
+- Product type: scientific developer tool, workflow orchestrator and evidence-governance platform.
 - Audience: researchers, simulation engineers, software reviewers and technical decision makers.
-- Primary context: GitHub README at desktop, tablet and narrow browser widths.
-- Primary task: understand scope, execution order, evidence strength and failure boundaries without zooming the page.
+- Context: GitHub README at desktop, tablet and narrow browser widths.
+- Primary task: understand scope, sequence, evidence strength and failure boundaries without zooming.
 
 ## Design dials
 
-- Variance: 6/10 — five governed information layouts remain visually related.
-- Motion: 0/10 — static repository SVGs make no interaction claim.
-- Density: 5/10 — reduced from V11 so diagrams remain legible after GitHub scaling.
+- Variance: 5/10 — five information layouts share one visual grammar.
+- Motion: 0/10 — static SVGs make no interaction or live-execution claim.
+- Density: 4/10 — generous spacing protects legibility after GitHub scaling.
 
-## Responsive presentation tiers
+## Priority decisions
 
-| Tier | README treatment | Visual purpose |
-|---|---|---|
-| Hero | Full width above the project title | Product scope and primary evidence narrative |
-| Overview | At most two compact Bento diagrams in one row | Architecture and capability orientation |
-| Detail | Full-width diagrams inside semantic `<details>` groups | Workflows, loops, risk and scientific evidence |
-
-Detailed Workflow, Loop and Risk diagrams must never be placed in a 50% README column. Progressive disclosure keeps the first screen concise without removing any capability documentation.
+1. Accessibility: high contrast, unique titles/descriptions and no color-only meaning.
+2. Progressive disclosure: the README does not expand all 42 diagrams at once.
+3. Performance: self-contained SVG, with no network resources, filters, raster images or external fonts.
+4. Style: technical editorial + Swiss grid + restrained Bento hierarchy.
+5. Responsive layout: hero and detailed diagrams are full width; only two overviews share a row.
+6. Typography: minimum 16 px, concise two-line stage copy and system font stacks.
+7. Icons: one consistent line-icon family; no emoji or decorative pseudo-data.
 
 ## Layout families
 
 | Layout | Purpose |
 |---|---|
-| Hero | Establish product scope and the principal evidence narrative |
-| Bento | Compare architecture, registries and governance responsibilities |
-| Workflow | Explain ordered computation and cross-scale handoffs |
-| Loop | Show iterative learning, updating and evidence feedback |
+| Hero | Establish product scope and cross-scale handoffs |
+| Bento | Compare architecture, registries and decision responsibilities |
+| Workflow | Explain ordered computation and evidence transfer |
+| Loop | Show bounded iteration, updating and revalidation |
 | Risk | Separate initiating conditions, barriers, consequences and authority |
-
-## Typography and spacing
-
-- Minimum SVG text size: 16 px.
-- Stage labels: 20–22 px; headings: 34–46 px.
-- Detail copy is limited to two concise lines per stage.
-- Structural spacing follows an 8 px rhythm.
-- Full-width diagrams use a wide, shallow canvas to preserve readable type at GitHub scale.
 
 ## Tokens
 
 | Role | Token |
 |---|---|
-| Canvas | `#0B1220` |
-| Surface | `#111827` |
-| Raised surface | `#172033` |
-| Border | `#334155` |
+| Canvas | `#07111F` |
+| Surface | `#0F1B2D` |
+| Raised surface | `#162338` |
+| Border | `#334865` |
 | Primary text | `#F8FAFC` |
-| Secondary text | `#CBD5E1` |
-| Muted text | `#94A3B8` |
-| Blue | `#3B82F6` |
-| Cyan | `#06B6D4` |
-| Teal | `#14B8A6` |
-| Green | `#22C55E` |
-| Amber | `#F59E0B` |
-| Orange | `#F97316` |
-| Risk red | `#EF4444` |
+| Secondary text | `#D1D9E6` |
+| Muted text | `#93A4BB` |
+| Blue | `#60A5FA` |
+| Cyan | `#22D3EE` |
+| Teal | `#2DD4BF` |
+| Green | `#4ADE80` |
+| Amber | `#FBBF24` |
+| Orange | `#FB923C` |
+| Risk red | `#F87171` |
 
 ## Accessibility and trust rules
 
-- Information is never encoded by color alone.
+- Meaning is encoded by labels, shapes and position as well as color.
 - Every illustration has a unique accessible `<title>` and `<desc>`.
-- Every SVG declares its design system, scientific family and information layout.
-- No external fonts, scripts, raster images, network resources, event handlers or tracking.
-- Diagrams explain architecture and scientific boundaries; they are not solver screenshots, benchmark plots or live-execution evidence.
+- Every SVG declares its design system, icon system, family and layout.
+- SVGs contain no scripts, event handlers, external URLs, raster images, gradients or filters.
+- Diagrams explain architecture and scientific boundaries; they are not solver screenshots,
+  benchmark plots or evidence of live DFT, MD, CFD or HPC execution.
 
 ## Anti-patterns
 
-- Detailed diagrams placed in narrow two-column README cells.
-- Body labels below 16 px or more than two dense detail lines per stage.
-- Forty-two illustrations expanded at once with no progressive disclosure.
-- Purple/pink AI gradients, neon glow, glass decoration or simulated dashboards.
-- Fabricated curves, numerical values or external-engine screenshots.
+- Purple/pink AI gradients, neon glow, glass decoration and simulated dashboards.
+- Emoji as icons or mixed icon styles.
+- Detailed workflows in narrow half-width README cells.
+- Dense paragraphs inside diagrams or body labels below 16 px.
+- Fabricated curves, numerical values, badges or external-engine screenshots.
