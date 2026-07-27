@@ -25,6 +25,8 @@ EXCLUDED_DIRS = {
     "venv",
 }
 EXCLUDED_FILES = {".coverage"}
+_SMALL_FILE_LIMIT = 1024 * 1024
+_HASH_CHUNK_SIZE = 1024 * 1024
 
 
 def is_excluded_path(relative: Path) -> bool:
@@ -67,6 +69,17 @@ def iter_repository_entries(root: Path) -> Iterator[Path]:
             yield path
 
 
+def _file_size_and_sha256(path: Path) -> tuple[int, str]:
+    with path.open("rb") as handle:
+        size = os.fstat(handle.fileno()).st_size
+        if size <= _SMALL_FILE_LIMIT:
+            return size, hashlib.sha256(handle.read()).hexdigest()
+        digest = hashlib.sha256()
+        for chunk in iter(lambda: handle.read(_HASH_CHUNK_SIZE), b""):
+            digest.update(chunk)
+        return size, digest.hexdigest()
+
+
 def file_manifest(root: Path) -> list[dict[str, str | int]]:
     root = root.resolve()
     records: list[dict[str, str | int]] = []
@@ -76,12 +89,12 @@ def file_manifest(root: Path) -> list[dict[str, str | int]]:
             raise ValueError(f"repository manifest contains symlink: {relative.as_posix()}")
         if not path.is_file():
             continue
-        data = path.read_bytes()
+        size, digest = _file_size_and_sha256(path)
         records.append(
             {
                 "path": relative.as_posix(),
-                "bytes": len(data),
-                "sha256": hashlib.sha256(data).hexdigest(),
+                "bytes": size,
+                "sha256": digest,
             }
         )
     return records
