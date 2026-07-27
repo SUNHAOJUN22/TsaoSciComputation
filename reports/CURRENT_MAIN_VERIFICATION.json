@@ -14,8 +14,20 @@
     "workflows": 20
   },
   "coverage": {
-    "branch_percent": 93.5672514619883,
-    "statement_percent": 97.44027303754267
+    "covered_branches": 322,
+    "covered_lines": 1144,
+    "excluded_lines": 0,
+    "missing_branches": 22,
+    "missing_lines": 30,
+    "num_branches": 344,
+    "num_partial_branches": 22,
+    "num_statements": 1174,
+    "percent_branches_covered": 93.6046511627907,
+    "percent_branches_covered_display": "94",
+    "percent_covered": 96.57444005270092,
+    "percent_covered_display": "97",
+    "percent_statements_covered": 97.44463373083475,
+    "percent_statements_covered_display": "97"
   },
   "cross_platform_manifest_stability": "PASS",
   "dependency_vulnerabilities": 0,
@@ -24,16 +36,18 @@
     "main"
   ],
   "repository_security_findings": 0,
+  "runtime_dependencies": 0,
   "schema_version": "1.12",
   "scientific_reference_benchmarks": "8/8",
   "source_archives_reproducible": true,
-  "status": "VALIDATED",
+  "status": "FAILED",
   "temporary_branch_created": false,
   "tests": {
-    "failed": 0,
-    "passed": 586
+    "collected": 599,
+    "failures": null
   },
   "ultimate_audit_issue": 32,
+  "validated_source_sha": "2e513e55f0d602bbb447bc652326bd277c722eb2",
   "verified_at_utc": "2026-07-27T06:00:27.484071+00:00",
   "version": "3.0.2",
   "visual_atlas_version": 12,

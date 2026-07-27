@@ -1,6 +1,0 @@
-{
-  "log_tail": "Traceback (most recent call last):\n  File \"/home/runner/work/TsaoSciComputation/TsaoSciComputation/scripts/finalize_performance_v9.py\", line 300, in <module>\n    raise SystemExit(main())\n                     ~~~~^^\n  File \"/home/runner/work/TsaoSciComputation/TsaoSciComputation/scripts/finalize_performance_v9.py\", line 286, in main\n    report = compare(\n        baseline,\n    ...<5 lines>...\n        run_id=args.run_id,\n    )\n  File \"/home/runner/work/TsaoSciComputation/TsaoSciComputation/scripts/finalize_performance_v9.py\", line 69, in compare\n    candidate_all = _summary(candidate, \"all\")\n  File \"/home/runner/work/TsaoSciComputation/TsaoSciComputation/scripts/finalize_performance_v9.py\", line 32, in _summary\n    raise ValueError(f\"end-to-end profile did not pass: {profile}\")\nValueError: end-to-end profile did not pass: all",
-  "outcome": "failure",
-  "schema_version": "1.0",
-  "stage": "acceptance"
-}

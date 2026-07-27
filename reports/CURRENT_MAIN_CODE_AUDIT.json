@@ -1,6 +1,21 @@
 {
-  "audited_sha": "04e6aa5cf8a6b07bc598b60cc44fbc7c8a1fcf2f",
-  "claim_boundary": "This audit validates repository-local code, tests, packaging, metadata and known dependency advisories; it does not claim external solver execution.",
+  "claim_boundary": "Repository-local verification only; no external solver execution is claimed.",
+  "coverage": {
+    "covered_branches": 322,
+    "covered_lines": 1144,
+    "excluded_lines": 0,
+    "missing_branches": 22,
+    "missing_lines": 30,
+    "num_branches": 344,
+    "num_partial_branches": 22,
+    "num_statements": 1174,
+    "percent_branches_covered": 93.6046511627907,
+    "percent_branches_covered_display": "94",
+    "percent_covered": 96.57444005270092,
+    "percent_covered_display": "97",
+    "percent_statements_covered": 97.44463373083475,
+    "percent_statements_covered_display": "97"
+  },
   "dependency_audit": {
     "dependencies": [
       {
@@ -270,22 +285,32 @@
     ],
     "fixes": []
   },
+  "fixed_findings": [
+    "restored the canonical verification API required by the test suite",
+    "restored deterministic sequential and bounded-parallel timing evidence",
+    "restored Mypy, Bandit, repository security scan and mutation gates",
+    "restored canonical cross-platform CI on main",
+    "removed obsolete V6-V12 audit, performance and visual transport workflows",
+    "removed V9 trigger, status and encoded CI transport files"
+  ],
   "gates": {
     "benchmark": {
-      "log_tail": "\n==> scientific reference benchmarks\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/run_scientific_benchmarks.py\n{\"claim_boundary\": \"Deterministic analytical, conservation, and invariant benchmarks; no third-party solver execution is claimed.\", \"failed\": 0, \"passed\": 8, \"results\": [{\"absolute_error\": 1.7621459846850485e-12, \"benchmark_id\": \"steady-conduction-1d\", \"domain\": \"heat-transfer\", \"expected\": 0.0, \"invariant\": \"finite-difference profile matches the linear analytical solution\", \"observed\": 1.7621459846850485e-12, \"passed\": true, \"relative_error\": 1.7621459846850485e-12, \"tolerance\": 1e-11}, {\"absolute_error\": 2.454369162335074e-11, \"benchmark_id\": \"poiseuille-pipe-flow\", \"domain\": \"fluid-dynamics\", \"expected\": 0.00039269908169872416, \"invariant\": \"integrated parabolic profile matches Hagen-Poiseuille flow\", \"observed\": 0.00039269905715503254, \"passed\": true, \"relative_error\": 6.249999749727064e-08, \"tolerance\": 2e-07}, {\"absolute_error\": 5.551115123125783e-17, \"benchmark_id\": \"cstr-first-order-balance\", \"domain\": \"reaction-engineering\", \"expected\": 0.0, \"invariant\": \"steady inlet-outlet-generation mass balance closes\", \"observed\": -5.551115123125783e-17, \"passed\": true, \"relative_error\": 5.551115123125783e-17, \"tolerance\": 1e-14}, {\"absolute_error\": 1.0963452368173421e-14, \"benchmark_id\": \"pfr-first-order-rk4\", \"domain\": \"reaction-engineering\", \"expected\": 0.2465969639416065, \"invariant\": \"RK4 plug-flow integration matches analytical first-order decay\", \"observed\": 0.24659696394161745, \"passed\": true, \"relative_error\": 4.445899167992002e-14, \"tolerance\": 1e-11}, {\"absolute_error\": 9.999999982523988e-07, \"benchmark_id\": \"harmonic-oscillator-verlet\", \"domain\": \"molecular-dynamics\", \"expected\": 0.0, \"invariant\": \"velocity-Verlet bounds total-energy drift\", \"observed\": 9.999999982523988e-07, \"passed\": true, \"relative_error\": 9.999999982523988e-07, \"tolerance\": 1.1e-06}, {\"absolute_error\": 0.0, \"benchmark_id\": \"gaussian-chain-second-moment\", \"domain\": \"polymer-statistical-mechanics\", \"expected\": 2.84592, \"invariant\": \"isotropic covariance trace equals N b^2\", \"observed\": 2.84592, \"passed\": true, \"relative_error\": 0.0, \"tolerance\": 1e-14}, {\"absolute_error\": 0.0, \"benchmark_id\": \"parallel-plate-electric-field\", \"domain\": \"electrostatics\", \"expected\": 100000.0, \"invariant\": \"central-difference electric field matches V/d\", \"observed\": 100000.0, \"passed\": true, \"relative_error\": 0.0, \"tolerance\": 1e-14}, {\"absolute_error\": 0.0, \"benchmark_id\": \"electrothermal-steady-balance\", \"domain\": \"multiphysics\", \"expected\": 0.0, \"invariant\": \"electrical input, Joule heating, and steady heat removal close\", \"observed\": 0.0, \"passed\": true, \"relative_error\": 0.0, \"tolerance\": 1e-14}], \"schema_version\": \"1.0\", \"total\": 8}\n\n==> performance benchmark\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/benchmark.py\n{\"adapter_lookup_cached_median_us\": 0.1095, \"adapter_registry_cold_median_ms\": 0.199, \"capability_registry_cached_median_ms\": 0.00042, \"capability_registry_cold_median_ms\": 1.817, \"claim_boundary\": \"Local orchestration microbenchmarks; no solver execution measured.\", \"cli_import_median_ms\": 42.592, \"methodology\": {\"claim_boundary\": \"Same-host local orchestration microbenchmarks; no solver execution measured.\", \"clock\": \"time.perf_counter\", \"statistic\": \"median\", \"warmups\": 2}, \"parser_5mib_throughput_mib_s\": 298.5, \"python\": \"3.13.14 (main, Jun 11 2026, 03:02:07) [GCC 13.3.0]\", \"repository_walk_median_ms\": 7.799, \"route_decision_cold_median_ms\": 0.339, \"route_decision_median_ms\": 0.00013, \"schema_version\": \"1.1\", \"workflow_registry_cold_median_ms\": 0.141}\n\nValidation profile 'benchmark' passed.",
+      "log_tail": "\n==> scientific reference benchmarks\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/run_scientific_benchmarks.py\n{\"claim_boundary\": \"Deterministic analytical, conservation, and invariant benchmarks; no third-party solver execution is claimed.\", \"failed\": 0, \"passed\": 8, \"results\": [{\"absolute_error\": 1.7621459846850485e-12, \"benchmark_id\": \"steady-conduction-1d\", \"domain\": \"heat-transfer\", \"expected\": 0.0, \"invariant\": \"finite-difference profile matches the linear analytical solution\", \"observed\": 1.7621459846850485e-12, \"passed\": true, \"relative_error\": 1.7621459846850485e-12, \"tolerance\": 1e-11}, {\"absolute_error\": 2.454369162335074e-11, \"benchmark_id\": \"poiseuille-pipe-flow\", \"domain\": \"fluid-dynamics\", \"expected\": 0.00039269908169872416, \"invariant\": \"integrated parabolic profile matches Hagen-Poiseuille flow\", \"observed\": 0.00039269905715503254, \"passed\": true, \"relative_error\": 6.249999749727064e-08, \"tolerance\": 2e-07}, {\"absolute_error\": 5.551115123125783e-17, \"benchmark_id\": \"cstr-first-order-balance\", \"domain\": \"reaction-engineering\", \"expected\": 0.0, \"invariant\": \"steady inlet-outlet-generation mass balance closes\", \"observed\": -5.551115123125783e-17, \"passed\": true, \"relative_error\": 5.551115123125783e-17, \"tolerance\": 1e-14}, {\"absolute_error\": 1.0963452368173421e-14, \"benchmark_id\": \"pfr-first-order-rk4\", \"domain\": \"reaction-engineering\", \"expected\": 0.2465969639416065, \"invariant\": \"RK4 plug-flow integration matches analytical first-order decay\", \"observed\": 0.24659696394161745, \"passed\": true, \"relative_error\": 4.445899167992002e-14, \"tolerance\": 1e-11}, {\"absolute_error\": 9.999999982523988e-07, \"benchmark_id\": \"harmonic-oscillator-verlet\", \"domain\": \"molecular-dynamics\", \"expected\": 0.0, \"invariant\": \"velocity-Verlet bounds total-energy drift\", \"observed\": 9.999999982523988e-07, \"passed\": true, \"relative_error\": 9.999999982523988e-07, \"tolerance\": 1.1e-06}, {\"absolute_error\": 0.0, \"benchmark_id\": \"gaussian-chain-second-moment\", \"domain\": \"polymer-statistical-mechanics\", \"expected\": 2.84592, \"invariant\": \"isotropic covariance trace equals N b^2\", \"observed\": 2.84592, \"passed\": true, \"relative_error\": 0.0, \"tolerance\": 1e-14}, {\"absolute_error\": 0.0, \"benchmark_id\": \"parallel-plate-electric-field\", \"domain\": \"electrostatics\", \"expected\": 100000.0, \"invariant\": \"central-difference electric field matches V/d\", \"observed\": 100000.0, \"passed\": true, \"relative_error\": 0.0, \"tolerance\": 1e-14}, {\"absolute_error\": 0.0, \"benchmark_id\": \"electrothermal-steady-balance\", \"domain\": \"multiphysics\", \"expected\": 0.0, \"invariant\": \"electrical input, Joule heating, and steady heat removal close\", \"observed\": 0.0, \"passed\": true, \"relative_error\": 0.0, \"tolerance\": 1e-14}], \"schema_version\": \"1.0\", \"total\": 8}\n\n==> orchestration microbenchmark\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/benchmark.py\n{\"adapter_lookup_cached_median_us\": 0.0745, \"adapter_registry_cold_median_ms\": 0.137, \"capability_registry_cached_median_ms\": 0.00037, \"capability_registry_cold_median_ms\": 1.45, \"claim_boundary\": \"Local orchestration microbenchmarks; no solver execution measured.\", \"cli_import_median_ms\": 32.625, \"methodology\": {\"claim_boundary\": \"Same-host local orchestration microbenchmarks; no solver execution measured.\", \"clock\": \"time.perf_counter\", \"statistic\": \"median\", \"warmups\": 2}, \"parser_5mib_throughput_mib_s\": 301.85, \"python\": \"3.13.14 (main, Jun 11 2026, 03:02:07) [GCC 13.3.0]\", \"repository_walk_median_ms\": 5.588, \"route_decision_cold_median_ms\": 0.288, \"route_decision_median_ms\": 0.0001, \"schema_version\": \"1.1\", \"workflow_registry_cold_median_ms\": 0.113}\n\nPASS: verification profile 'benchmark' completed successfully.",
       "returncode": 0,
       "status": "PASS",
       "timing": {
         "claim_boundary": "This validates local orchestration, contracts, deterministic evidence and packaging. It does not claim external solver execution or production HPC performance.",
+        "default_parallel_workers": 3,
         "profile": "benchmark",
-        "schema_version": "1.0",
-        "stages": [
+        "schema_version": "1.1",
+        "status": "PASS",
+        "steps": [
           {
             "command": [
               "/opt/hostedtoolcache/Python/3.13.14/x64/bin/python",
               "scripts/run_scientific_benchmarks.py"
             ],
-            "elapsed_seconds": 0.08718,
+            "elapsed_seconds": 0.070013,
             "label": "scientific reference benchmarks",
             "mode": "sequential"
           },
@@ -294,43 +319,160 @@
               "/opt/hostedtoolcache/Python/3.13.14/x64/bin/python",
               "scripts/benchmark.py"
             ],
-            "elapsed_seconds": 1.081456,
-            "label": "performance benchmark",
+            "elapsed_seconds": 0.861134,
+            "label": "orchestration microbenchmark",
             "mode": "sequential"
           }
         ],
-        "status": "PASS",
-        "total_recorded_seconds": 1.168636
+        "total_recorded_seconds": 0.931147,
+        "total_seconds": 0.93122
       }
     },
     "collect": {
-      "log_tail": "tests/test_performance_optimizations.py::test_parser_status_semantics_are_preserved[not completed; convergence reached-False-False]\ntests/test_performance_optimizations.py::test_parser_status_semantics_are_preserved[abnormal termination; converged-False-False]\ntests/test_performance_optimizations.py::test_parser_status_semantics_are_preserved[job aborted; converged-False-False]\ntests/test_performance_optimizations.py::test_parser_status_semantics_are_preserved[never finished; convergence reached-False-False]\ntests/test_performance_optimizations.py::test_parser_status_semantics_are_preserved[convergence failure; completed-True-False]\ntests/test_performance_optimizations.py::test_parser_status_semantics_are_preserved[non-converged; completed-True-False]\ntests/test_performance_optimizations.py::test_parser_status_semantics_are_preserved[non converged; completed-True-False]\ntests/test_performance_optimizations.py::test_parser_status_semantics_are_preserved[unconverged; completed-True-False]\ntests/test_performance_optimizations.py::test_parser_status_semantics_are_preserved[completed\\r\\nconverged\\r\\nfatal error-False-False]\ntests/test_performance_optimizations.py::test_parser_status_semantics_are_preserved[unrelated text-False-False]\ntests/test_performance_optimizations.py::test_failure_after_early_success_remains_fail_closed\ntests/test_performance_optimizations.py::test_adapter_and_routing_indexes_are_cached_and_invalidated\ntests/test_performance_optimizations.py::test_scandir_repository_walk_is_globally_sorted_and_excludes_caches\ntests/test_performance_optimizations.py::test_security_scan_combines_rules_without_losing_offsets\ntests/test_performance_optimizations.py::test_benchmark_helper_validates_controls\ntests/test_performance_optimizations.py::test_sequential_verification_records_timing\ntests/test_performance_optimizations.py::test_coverage_json_is_generated_once_with_the_hard_threshold\ntests/test_performance_optimizations.py::test_coverage_threshold_remains_fail_closed\ntests/test_performance_optimizations.py::test_wheel_target_install_skips_only_bytecode_compilation\ntests/test_performance_optimizations.py::test_performance_comparison_requires_improvement_without_regression\ntests/test_python_compatibility.py::test_project_version_parser_uses_static_project_table\ntests/test_python_compatibility.py::test_project_version_parser_accepts_controlled_version_file\ntests/test_python_compatibility.py::test_project_version_parser_accepts_single_quotes_and_table_comment\ntests/test_python_compatibility.py::test_project_version_parser_rejects_invalid_values[]\ntests/test_python_compatibility.py::test_project_version_parser_rejects_invalid_values[[project]\\nname = 'demo'\\n]\ntests/test_python_compatibility.py::test_project_version_parser_rejects_invalid_values[[project]\\nversion = 3\\n]\ntests/test_python_compatibility.py::test_project_version_parser_rejects_invalid_values[[project]\\ndynamic = ['version']\\n]\ntests/test_python_compatibility.py::test_project_version_parser_rejects_invalid_values[[project]\\ndynamic = ['version']\\n[tool.setuptools.dynamic]\\nversion = {attr = 'x'}\\n]\ntests/test_python_compatibility.py::test_repository_audit_source_is_python310_compatible\ntests/test_readme_visuals.py::test_readme_uses_progressive_disclosure_at_github_scale\ntests/test_readme_visuals.py::test_readme_visuals_are_readable_accessible_and_self_contained\ntests/test_release_governance.py::test_release_workflow_is_attested_pinned_and_immutable\ntests/test_release_governance.py::test_security_policy_requires_private_reporting_and_supported_versions\ntests/test_release_governance.py::test_contribution_policy_preserves_single_main\ntests/test_release_governance.py::test_repository_line_endings_are_cross_platform_deterministic\ntests/test_scenario_examples.py::test_required_scenario_set_is_exact\ntests/test_scenario_examples.py::test_every_scenario_contract_is_preflight_ready\ntests/test_scenario_examples.py::test_every_scenario_explains_preparation_only_boundary\ntests/test_scientific_benchmarks.py::test_scientific_reference_suite_passes\ntests/test_scientific_benchmarks.py::test_scientific_report_is_deterministic\ntests/test_scientific_benchmarks.py::test_zero_reference_uses_absolute_tolerance\ntests/test_scientific_benchmarks.py::test_invalid_benchmark_values_fail_closed[nan-0.0-1.0]\ntests/test_scientific_benchmarks.py::test_invalid_benchmark_values_fail_closed[0.0-inf-1.0]\ntests/test_scientific_benchmarks.py::test_invalid_benchmark_values_fail_closed[0.0-0.0--1.0]\ntests/test_scientific_governance.py::test_critical_coverage_policy_is_strict\ntests/test_scientific_governance.py::test_repository_ruleset_policy_avoids_false_platform_claims\ntests/test_scientific_governance.py::test_compatibility_policy_defines_semver_and_identifier_rules\ntests/test_scientific_governance.py::test_pull_request_template_preserves_single_main_and_claim_boundaries\ntests/test_security_scan.py::test_security_scan_ignores_generated_directories_and_reports_findings\ntests/test_state_and_handoff.py::test_required_scientific_states_are_canonical\ntests/test_state_and_handoff.py::test_complete_state_path_requires_preflight_and_evidence\ntests/test_state_and_handoff.py::test_legacy_state_names_normalize_without_bypassing_gates\ntests/test_state_and_handoff.py::test_handoff_requires_conditions_and_both_uncertainties\ntests/test_state_and_handoff.py::test_handoff_template_is_nonempty_and_schema_shaped\ntests/test_supply_chain.py::test_sbom_documents_are_deterministic_and_describe_artifacts\ntests/test_supply_chain.py::test_release_manifest_and_checksums_cover_every_release_file\ntests/test_sync_readme_visual_atlas.py::test_synchronize_generates_idempotent_bilingual_atlas\ntests/test_sync_readme_visual_atlas.py::test_check_rejects_unsynchronized_documents\ntests/test_sync_readme_visual_atlas_v7.py::test_synchronize_generates_idempotent_bilingual_v7_atlas\ntests/test_sync_readme_visual_atlas_v7.py::test_check_rejects_unsynchronized_v7_documents\ntests/test_update_main_audit_evidence.py::test_update_evidence_is_parameterized_and_bilingual\ntests/test_update_main_audit_evidence.py::test_update_evidence_rejects_unsafe_report_path\ntests/test_validation_fail_closed.py::test_non_numeric_values_fail_finite_and_convergence_checks\ntests/test_validation_fail_closed.py::test_convergence_tolerances_must_be_finite_and_non_negative[-1.0-0.0]\ntests/test_validation_fail_closed.py::test_convergence_tolerances_must_be_finite_and_non_negative[0.1--1.0]\ntests/test_validation_fail_closed.py::test_convergence_tolerances_must_be_finite_and_non_negative[nan-0.0]\ntests/test_validation_fail_closed.py::test_convergence_tolerances_must_be_finite_and_non_negative[0.1-inf]\ntests/test_validation_fail_closed.py::test_balance_inputs_and_tolerance_are_guarded[inf-1.0-0.0-1e-08]\ntests/test_validation_fail_closed.py::test_balance_inputs_and_tolerance_are_guarded[1.0-nan-0.0-1e-08]\ntests/test_validation_fail_closed.py::test_balance_inputs_and_tolerance_are_guarded[1.0-1.0-0.0--1.0]\ntests/test_validation_fail_closed.py::test_unit_lookup_is_exact_after_whitespace_normalization\ntests/test_validation_fail_closed.py::test_human_approval_requires_a_nonempty_string_array[expert]\ntests/test_validation_fail_closed.py::test_human_approval_requires_a_nonempty_string_array[approvals1]\ntests/test_validation_fail_closed.py::test_human_approval_requires_a_nonempty_string_array[approvals2]\ntests/test_validation_fail_closed.py::test_human_approval_requires_a_nonempty_string_array[approvals3]\ntests/test_validation_fail_closed.py::test_structured_human_approval_can_pass_the_final_gate\ntests/test_validation_fail_closed.py::test_state_mutation_probes_use_the_actual_illegal_transition\ntests/test_verify_all.py::test_all_profile_contains_only_deterministic_release_gates\ntests/test_verify_all.py::test_run_commands_stops_after_first_failure\ntests/test_verify_all.py::test_quality_stages_static_checks_before_two_worker_group_and_manifest\ntests/test_verify_all.py::test_sha256_reads_complete_file\ntests/test_version_metadata.py::test_canonical_version_metadata_is_consistent\ntests/test_version_metadata.py::test_rendered_metadata_is_idempotent\ntests/test_version_metadata.py::test_invalid_version_is_rejected\ntests/test_workflows.py::test_workflow_record[scale-selection]\ntests/test_workflows.py::test_workflow_record[quantum-chemistry]\ntests/test_workflows.py::test_workflow_record[periodic-dft]\ntests/test_workflows.py::test_workflow_record[reaction-path]\ntests/test_workflows.py::test_workflow_record[molecular-dynamics]\ntests/test_workflows.py::test_workflow_record[enhanced-sampling]\ntests/test_workflows.py::test_workflow_record[machine-learning-potential]\ntests/test_workflows.py::test_workflow_record[catalysis]\ntests/test_workflows.py::test_workflow_record[polymerization]\ntests/test_workflows.py::test_workflow_record[polymer-composite]\ntests/test_workflows.py::test_workflow_record[finite-element]\ntests/test_workflows.py::test_workflow_record[multiphysics]\ntests/test_workflows.py::test_workflow_record[cfd]\ntests/test_workflows.py::test_workflow_record[extrusion]\ntests/test_workflows.py::test_workflow_record[process-simulation]\ntests/test_workflows.py::test_workflow_record[reactor-engineering]\ntests/test_workflows.py::test_workflow_record[dynamic-control]\ntests/test_workflows.py::test_workflow_record[digital-twin]\ntests/test_workflows.py::test_workflow_record[multiscale-coupling]\ntests/test_workflows.py::test_workflow_record[hpc-execution]\n\n==================================== ERRORS ====================================\n________________ ERROR collecting tests/test_performance_v9.py _________________\nImportError while importing test module '/home/runner/work/TsaoSciComputation/TsaoSciComputation/tests/test_performance_v9.py'.\nHint: make sure your test modules/packages have valid Python names.\nTraceback:\n/opt/hostedtoolcache/Python/3.13.14/x64/lib/python3.13/importlib/__init__.py:88: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\ntests/test_performance_v9.py:11: in <module>\n    from scripts.verify_all import run_commands_parallel, verification_workers\nE   ImportError: cannot import name 'run_commands_parallel' from 'scripts.verify_all' (/home/runner/work/TsaoSciComputation/TsaoSciComputation/scripts/verify_all.py)\n=========================== short test summary info ============================\nERROR tests/test_performance_v9.py\n!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\n591 tests collected, 1 error in 0.36s",
-      "returncode": 2,
-      "status": "FAIL",
+      "log_tail": "tests/test_extended.py::test_adapter_unknown_and_worker_floor\ntests/test_extended.py::test_contract_rejects_invalid_fields[kwargs0-question]\ntests/test_extended.py::test_contract_rejects_invalid_fields[kwargs1-system]\ntests/test_extended.py::test_contract_rejects_invalid_fields[kwargs2-observables]\ntests/test_extended.py::test_execution_plan_success_and_failure\ntests/test_extended.py::test_safe_run_rejects_invalid_argv[argv0]\ntests/test_extended.py::test_safe_run_rejects_invalid_argv[argv1]\ntests/test_extended.py::test_safe_run_rejects_invalid_argv[argv2]\ntests/test_extended.py::test_safe_run_validates_timeout_cwd_and_environment\ntests/test_extended.py::test_subprocess_environment_is_minimal_on_posix\ntests/test_extended.py::test_subprocess_environment_preserves_windows_bootstrap_state\ntests/test_extended.py::test_project_validation_errors\ntests/test_extended.py::test_manifest_and_registry_cache\ntests/test_extended.py::test_routing_empty_and_explanation\ntests/test_extended.py::test_state_invalid_initial_and_can_transition\ntests/test_extended.py::test_uncertainty_budget_and_invalid_components\ntests/test_extended.py::test_acceptance_requires_human_approval\ntests/test_extended.py::test_convergence_invalid_input\ntests/test_extended.py::test_workflow_explicit_unknown_and_initial_gates\ntests/test_extended.py::test_ledger_read_missing\ntests/test_extended.py::test_cli_route_and_lists\ntests/test_extended.py::test_cli_probe_init_and_contract\ntests/test_extended.py::test_cli_repository_and_error\ntests/test_extended.py::test_module_entrypoint_version\ntests/test_extended.py::test_repository_audit_detects_empty_tree\ntests/test_extended.py::test_repository_audit_detects_version_asset_and_symlink\ntests/test_extended.py::test_repository_audit_detects_registry_contract_faults\ntests/test_generated_path_policy.py::test_generated_directories_are_pruned_from_manifest_and_release\ntests/test_generated_path_policy.py::test_coverage_sidecars_are_excluded_but_source_files_remain_in_scope\ntests/test_install_skill.py::test_resolve_destination_for_user_and_project\ntests/test_install_skill.py::test_install_validate_and_uninstall_roundtrip\ntests/test_install_skill.py::test_validation_detects_tampering_and_unlisted_files\ntests/test_install_skill.py::test_uninstall_requires_valid_manifest_without_force\ntests/test_install_skill.py::test_validation_rejects_manifest_path_escape\ntests/test_install_skill.py::test_dry_run_does_not_modify_destination\ntests/test_install_skill.py::test_parser_exposes_required_flags\ntests/test_maintenance_governance.py::test_codeowners_protects_high_trust_paths\ntests/test_maintenance_governance.py::test_issue_forms_are_structured_and_security_safe\ntests/test_maintenance_governance.py::test_dependency_audit_is_branchless_read_only_and_pinned\ntests/test_maintenance_governance.py::test_single_main_policy_does_not_enable_branch_creating_dependabot\ntests/test_maintenance_governance.py::test_support_and_conduct_boundaries_are_present\ntests/test_performance_optimizations.py::test_parser_status_semantics_are_preserved[Normal termination; converged-True-True]\ntests/test_performance_optimizations.py::test_parser_status_semantics_are_preserved[RUN COMPLETED SUCCESSFULLY; convergence achieved-True-True]\ntests/test_performance_optimizations.py::test_parser_status_semantics_are_preserved[completed with errors; converged-False-False]\ntests/test_performance_optimizations.py::test_parser_status_semantics_are_preserved[calculation completed; failed to converge-True-False]\ntests/test_performance_optimizations.py::test_parser_status_semantics_are_preserved[calculation did not converge; completed-True-False]\ntests/test_performance_optimizations.py::test_parser_status_semantics_are_preserved[not completed; convergence reached-False-False]\ntests/test_performance_optimizations.py::test_parser_status_semantics_are_preserved[abnormal termination; converged-False-False]\ntests/test_performance_optimizations.py::test_parser_status_semantics_are_preserved[job aborted; converged-False-False]\ntests/test_performance_optimizations.py::test_parser_status_semantics_are_preserved[never finished; convergence reached-False-False]\ntests/test_performance_optimizations.py::test_parser_status_semantics_are_preserved[convergence failure; completed-True-False]\ntests/test_performance_optimizations.py::test_parser_status_semantics_are_preserved[non-converged; completed-True-False]\ntests/test_performance_optimizations.py::test_parser_status_semantics_are_preserved[non converged; completed-True-False]\ntests/test_performance_optimizations.py::test_parser_status_semantics_are_preserved[unconverged; completed-True-False]\ntests/test_performance_optimizations.py::test_parser_status_semantics_are_preserved[completed\\r\\nconverged\\r\\nfatal error-False-False]\ntests/test_performance_optimizations.py::test_parser_status_semantics_are_preserved[unrelated text-False-False]\ntests/test_performance_optimizations.py::test_failure_after_early_success_remains_fail_closed\ntests/test_performance_optimizations.py::test_adapter_and_routing_indexes_are_cached_and_invalidated\ntests/test_performance_optimizations.py::test_scandir_repository_walk_is_globally_sorted_and_excludes_caches\ntests/test_performance_optimizations.py::test_security_scan_combines_rules_without_losing_offsets\ntests/test_performance_optimizations.py::test_benchmark_helper_validates_controls\ntests/test_performance_optimizations.py::test_sequential_verification_records_timing\ntests/test_performance_optimizations.py::test_coverage_json_is_generated_once_with_the_hard_threshold\ntests/test_performance_optimizations.py::test_coverage_threshold_remains_fail_closed\ntests/test_performance_optimizations.py::test_wheel_target_install_skips_only_bytecode_compilation\ntests/test_performance_optimizations.py::test_performance_comparison_requires_improvement_without_regression\ntests/test_performance_v9.py::test_verification_worker_policy_is_bounded\ntests/test_performance_v9.py::test_parallel_gate_output_is_deterministic_and_failure_propagates\ntests/test_performance_v9.py::test_repeated_route_cache_is_bounded_and_explicitly_invalidated\ntests/test_performance_v9.py::test_large_file_hashing_preserves_manifest_bytes\ntests/test_performance_v9.py::test_wheel_source_snapshots_are_isolated_and_exclude_runtime_outputs\ntests/test_performance_v9.py::test_gnu_time_metrics_are_linux_only\ntests/test_performance_v9.py::test_v9_comparison_requires_end_to_end_gain_and_memory_bound\ntests/test_performance_v9.py::test_command_measurement_records_repeat_statistics\ntests/test_python_compatibility.py::test_project_version_parser_uses_static_project_table\ntests/test_python_compatibility.py::test_project_version_parser_accepts_controlled_version_file\ntests/test_python_compatibility.py::test_project_version_parser_accepts_single_quotes_and_table_comment\ntests/test_python_compatibility.py::test_project_version_parser_rejects_invalid_values[]\ntests/test_python_compatibility.py::test_project_version_parser_rejects_invalid_values[[project]\\nname = 'demo'\\n]\ntests/test_python_compatibility.py::test_project_version_parser_rejects_invalid_values[[project]\\nversion = 3\\n]\ntests/test_python_compatibility.py::test_project_version_parser_rejects_invalid_values[[project]\\ndynamic = ['version']\\n]\ntests/test_python_compatibility.py::test_project_version_parser_rejects_invalid_values[[project]\\ndynamic = ['version']\\n[tool.setuptools.dynamic]\\nversion = {attr = 'x'}\\n]\ntests/test_python_compatibility.py::test_repository_audit_source_is_python310_compatible\ntests/test_readme_visuals.py::test_readme_uses_progressive_disclosure_at_github_scale\ntests/test_readme_visuals.py::test_readme_visuals_are_readable_accessible_and_self_contained\ntests/test_release_governance.py::test_release_workflow_is_attested_pinned_and_immutable\ntests/test_release_governance.py::test_security_policy_requires_private_reporting_and_supported_versions\ntests/test_release_governance.py::test_contribution_policy_preserves_single_main\ntests/test_release_governance.py::test_repository_line_endings_are_cross_platform_deterministic\ntests/test_scenario_examples.py::test_required_scenario_set_is_exact\ntests/test_scenario_examples.py::test_every_scenario_contract_is_preflight_ready\ntests/test_scenario_examples.py::test_every_scenario_explains_preparation_only_boundary\ntests/test_scientific_benchmarks.py::test_scientific_reference_suite_passes\ntests/test_scientific_benchmarks.py::test_scientific_report_is_deterministic\ntests/test_scientific_benchmarks.py::test_zero_reference_uses_absolute_tolerance\ntests/test_scientific_benchmarks.py::test_invalid_benchmark_values_fail_closed[nan-0.0-1.0]\ntests/test_scientific_benchmarks.py::test_invalid_benchmark_values_fail_closed[0.0-inf-1.0]\ntests/test_scientific_benchmarks.py::test_invalid_benchmark_values_fail_closed[0.0-0.0--1.0]\ntests/test_scientific_governance.py::test_critical_coverage_policy_is_strict\ntests/test_scientific_governance.py::test_repository_ruleset_policy_avoids_false_platform_claims\ntests/test_scientific_governance.py::test_compatibility_policy_defines_semver_and_identifier_rules\ntests/test_scientific_governance.py::test_pull_request_template_preserves_single_main_and_claim_boundaries\ntests/test_security_scan.py::test_security_scan_ignores_generated_directories_and_reports_findings\ntests/test_state_and_handoff.py::test_required_scientific_states_are_canonical\ntests/test_state_and_handoff.py::test_complete_state_path_requires_preflight_and_evidence\ntests/test_state_and_handoff.py::test_legacy_state_names_normalize_without_bypassing_gates\ntests/test_state_and_handoff.py::test_handoff_requires_conditions_and_both_uncertainties\ntests/test_state_and_handoff.py::test_handoff_template_is_nonempty_and_schema_shaped\ntests/test_supply_chain.py::test_sbom_documents_are_deterministic_and_describe_artifacts\ntests/test_supply_chain.py::test_release_manifest_and_checksums_cover_every_release_file\ntests/test_sync_readme_visual_atlas.py::test_synchronize_generates_idempotent_bilingual_atlas\ntests/test_sync_readme_visual_atlas.py::test_check_rejects_unsynchronized_documents\ntests/test_sync_readme_visual_atlas_v7.py::test_synchronize_generates_idempotent_bilingual_v7_atlas\ntests/test_sync_readme_visual_atlas_v7.py::test_check_rejects_unsynchronized_v7_documents\ntests/test_update_main_audit_evidence.py::test_update_evidence_is_parameterized_and_bilingual\ntests/test_update_main_audit_evidence.py::test_update_evidence_rejects_unsafe_report_path\ntests/test_validation_fail_closed.py::test_non_numeric_values_fail_finite_and_convergence_checks\ntests/test_validation_fail_closed.py::test_convergence_tolerances_must_be_finite_and_non_negative[-1.0-0.0]\ntests/test_validation_fail_closed.py::test_convergence_tolerances_must_be_finite_and_non_negative[0.1--1.0]\ntests/test_validation_fail_closed.py::test_convergence_tolerances_must_be_finite_and_non_negative[nan-0.0]\ntests/test_validation_fail_closed.py::test_convergence_tolerances_must_be_finite_and_non_negative[0.1-inf]\ntests/test_validation_fail_closed.py::test_balance_inputs_and_tolerance_are_guarded[inf-1.0-0.0-1e-08]\ntests/test_validation_fail_closed.py::test_balance_inputs_and_tolerance_are_guarded[1.0-nan-0.0-1e-08]\ntests/test_validation_fail_closed.py::test_balance_inputs_and_tolerance_are_guarded[1.0-1.0-0.0--1.0]\ntests/test_validation_fail_closed.py::test_unit_lookup_is_exact_after_whitespace_normalization\ntests/test_validation_fail_closed.py::test_human_approval_requires_a_nonempty_string_array[expert]\ntests/test_validation_fail_closed.py::test_human_approval_requires_a_nonempty_string_array[approvals1]\ntests/test_validation_fail_closed.py::test_human_approval_requires_a_nonempty_string_array[approvals2]\ntests/test_validation_fail_closed.py::test_human_approval_requires_a_nonempty_string_array[approvals3]\ntests/test_validation_fail_closed.py::test_structured_human_approval_can_pass_the_final_gate\ntests/test_validation_fail_closed.py::test_state_mutation_probes_use_the_actual_illegal_transition\ntests/test_verify_all.py::test_all_profile_contains_only_deterministic_release_gates\ntests/test_verify_all.py::test_run_commands_stops_after_first_failure\ntests/test_verify_all.py::test_quality_stages_static_checks_before_two_worker_group_and_manifest\ntests/test_verify_all.py::test_sha256_reads_complete_file\ntests/test_version_metadata.py::test_canonical_version_metadata_is_consistent\ntests/test_version_metadata.py::test_rendered_metadata_is_idempotent\ntests/test_version_metadata.py::test_invalid_version_is_rejected\ntests/test_workflows.py::test_workflow_record[scale-selection]\ntests/test_workflows.py::test_workflow_record[quantum-chemistry]\ntests/test_workflows.py::test_workflow_record[periodic-dft]\ntests/test_workflows.py::test_workflow_record[reaction-path]\ntests/test_workflows.py::test_workflow_record[molecular-dynamics]\ntests/test_workflows.py::test_workflow_record[enhanced-sampling]\ntests/test_workflows.py::test_workflow_record[machine-learning-potential]\ntests/test_workflows.py::test_workflow_record[catalysis]\ntests/test_workflows.py::test_workflow_record[polymerization]\ntests/test_workflows.py::test_workflow_record[polymer-composite]\ntests/test_workflows.py::test_workflow_record[finite-element]\ntests/test_workflows.py::test_workflow_record[multiphysics]\ntests/test_workflows.py::test_workflow_record[cfd]\ntests/test_workflows.py::test_workflow_record[extrusion]\ntests/test_workflows.py::test_workflow_record[process-simulation]\ntests/test_workflows.py::test_workflow_record[reactor-engineering]\ntests/test_workflows.py::test_workflow_record[dynamic-control]\ntests/test_workflows.py::test_workflow_record[digital-twin]\ntests/test_workflows.py::test_workflow_record[multiscale-coupling]\ntests/test_workflows.py::test_workflow_record[hpc-execution]\n\n599 tests collected in 0.20s",
+      "returncode": 0,
+      "status": "PASS",
       "timing": null
     },
     "core": {
-      "log_tail": "\n==> tests and coverage\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/run_tests.py --coverage\n\n==================================== ERRORS ====================================\n________________ ERROR collecting tests/test_performance_v9.py _________________\nImportError while importing test module '/home/runner/work/TsaoSciComputation/TsaoSciComputation/tests/test_performance_v9.py'.\nHint: make sure your test modules/packages have valid Python names.\nTraceback:\n/opt/hostedtoolcache/Python/3.13.14/x64/lib/python3.13/importlib/__init__.py:88: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\ntests/test_performance_v9.py:11: in <module>\n    from scripts.verify_all import run_commands_parallel, verification_workers\nE   ImportError: cannot import name 'run_commands_parallel' from 'scripts.verify_all' (/home/runner/work/TsaoSciComputation/TsaoSciComputation/scripts/verify_all.py)\n=========================== short test summary info ============================\nERROR tests/test_performance_v9.py\n!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\n1 error in 1.33s\n\nValidation failed (exit 2).",
-      "returncode": 2,
-      "status": "FAIL",
+      "log_tail": "\n==> tests and coverage\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/run_tests.py --coverage\n........................................................................ [ 12%]\n........................................................................ [ 24%]\n........................................................................ [ 36%]\n........................................................................ [ 48%]\n........................................................................ [ 60%]\n........................................................................ [ 72%]\n........................................................................ [ 84%]\n........................................................................ [ 96%]\n.......................                                                  [100%]\n599 passed in 3.18s\nTotal coverage: 96.57% (required: 95.00%)\n\n==> bounded parallel verification (3 workers)\n\n==> scientific reference benchmarks [parallel]\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/run_scientific_benchmarks.py\n{\"claim_boundary\": \"Deterministic analytical, conservation, and invariant benchmarks; no third-party solver execution is claimed.\", \"failed\": 0, \"passed\": 8, \"results\": [{\"absolute_error\": 1.7621459846850485e-12, \"benchmark_id\": \"steady-conduction-1d\", \"domain\": \"heat-transfer\", \"expected\": 0.0, \"invariant\": \"finite-difference profile matches the linear analytical solution\", \"observed\": 1.7621459846850485e-12, \"passed\": true, \"relative_error\": 1.7621459846850485e-12, \"tolerance\": 1e-11}, {\"absolute_error\": 2.454369162335074e-11, \"benchmark_id\": \"poiseuille-pipe-flow\", \"domain\": \"fluid-dynamics\", \"expected\": 0.00039269908169872416, \"invariant\": \"integrated parabolic profile matches Hagen-Poiseuille flow\", \"observed\": 0.00039269905715503254, \"passed\": true, \"relative_error\": 6.249999749727064e-08, \"tolerance\": 2e-07}, {\"absolute_error\": 5.551115123125783e-17, \"benchmark_id\": \"cstr-first-order-balance\", \"domain\": \"reaction-engineering\", \"expected\": 0.0, \"invariant\": \"steady inlet-outlet-generation mass balance closes\", \"observed\": -5.551115123125783e-17, \"passed\": true, \"relative_error\": 5.551115123125783e-17, \"tolerance\": 1e-14}, {\"absolute_error\": 1.0963452368173421e-14, \"benchmark_id\": \"pfr-first-order-rk4\", \"domain\": \"reaction-engineering\", \"expected\": 0.2465969639416065, \"invariant\": \"RK4 plug-flow integration matches analytical first-order decay\", \"observed\": 0.24659696394161745, \"passed\": true, \"relative_error\": 4.445899167992002e-14, \"tolerance\": 1e-11}, {\"absolute_error\": 9.999999982523988e-07, \"benchmark_id\": \"harmonic-oscillator-verlet\", \"domain\": \"molecular-dynamics\", \"expected\": 0.0, \"invariant\": \"velocity-Verlet bounds total-energy drift\", \"observed\": 9.999999982523988e-07, \"passed\": true, \"relative_error\": 9.999999982523988e-07, \"tolerance\": 1.1e-06}, {\"absolute_error\": 0.0, \"benchmark_id\": \"gaussian-chain-second-moment\", \"domain\": \"polymer-statistical-mechanics\", \"expected\": 2.84592, \"invariant\": \"isotropic covariance trace equals N b^2\", \"observed\": 2.84592, \"passed\": true, \"relative_error\": 0.0, \"tolerance\": 1e-14}, {\"absolute_error\": 0.0, \"benchmark_id\": \"parallel-plate-electric-field\", \"domain\": \"electrostatics\", \"expected\": 100000.0, \"invariant\": \"central-difference electric field matches V/d\", \"observed\": 100000.0, \"passed\": true, \"relative_error\": 0.0, \"tolerance\": 1e-14}, {\"absolute_error\": 0.0, \"benchmark_id\": \"electrothermal-steady-balance\", \"domain\": \"multiphysics\", \"expected\": 0.0, \"invariant\": \"electrical input, Joule heating, and steady heat removal close\", \"observed\": 0.0, \"passed\": true, \"relative_error\": 0.0, \"tolerance\": 1e-14}], \"schema_version\": \"1.0\", \"total\": 8}\n    elapsed=0.098s\n\n==> critical coverage policy [parallel]\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/check_critical_coverage.py\n{\n  \"passed\": true,\n  \"problems\": []\n}\n    elapsed=0.034s\n\n==> version metadata [parallel]\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/sync_version_metadata.py --check\n{\"passed\": true, \"problems\": [], \"release_date\": \"2026-07-24\", \"schema_version\": \"1.0\", \"version\": \"3.0.2\"}\n    elapsed=0.046s\n\n==> repository audit [parallel]\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/validate_repository.py\n{\n  \"counts\": {\n    \"adapters\": 27,\n    \"capabilities\": 164,\n    \"capability_input_profiles\": 20,\n    \"capability_output_profiles\": 20,\n    \"workflows\": 20\n  },\n  \"passed\": true,\n  \"problems\": [],\n  \"schema_version\": \"1.0\"\n}\n    elapsed=0.147s\n\n==> schema validation [parallel]\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/validate_schemas.py\n{\n  \"passed\": true,\n  \"problems\": [],\n  \"schema_version\": \"1.0\"\n}\n    elapsed=0.249s\n\n==> packaged registry assets [parallel]\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/sync_package_assets.py --check\n    elapsed=0.041s\n\n==> adapter metadata [parallel]\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/validate_adapter_metadata.py\n{\n  \"passed\": true,\n  \"problems\": []\n}\n    elapsed=0.042s\n\n==> capability index [parallel]\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/build_capability_index.py --check\n    elapsed=0.094s\n\n==> adapter documentation [parallel]\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/build_adapter_docs.py --check\n    elapsed=0.039s\n\n==> workflow documentation [parallel]\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/build_workflow_docs.py --check\n    elapsed=0.036s\n\n==> scenario examples [parallel]\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/build_examples.py --check\n    elapsed=0.033s\n\n==> repository manifest\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/build_manifest.py --check\n\nPASS: verification profile 'core' completed successfully.",
+      "returncode": 0,
+      "status": "PASS",
       "timing": {
         "claim_boundary": "This validates local orchestration, contracts, deterministic evidence and packaging. It does not claim external solver execution or production HPC performance.",
+        "default_parallel_workers": 3,
         "profile": "core",
-        "schema_version": "1.0",
-        "stages": [
+        "schema_version": "1.1",
+        "status": "PASS",
+        "steps": [
           {
             "command": [
               "/opt/hostedtoolcache/Python/3.13.14/x64/bin/python",
               "scripts/run_tests.py",
               "--coverage"
             ],
-            "elapsed_seconds": 2.175785,
+            "elapsed_seconds": 4.921248,
             "label": "tests and coverage",
+            "mode": "sequential"
+          },
+          {
+            "command": [
+              "/opt/hostedtoolcache/Python/3.13.14/x64/bin/python",
+              "scripts/run_scientific_benchmarks.py"
+            ],
+            "elapsed_seconds": 0.097812,
+            "label": "scientific reference benchmarks",
+            "mode": "parallel"
+          },
+          {
+            "command": [
+              "/opt/hostedtoolcache/Python/3.13.14/x64/bin/python",
+              "scripts/check_critical_coverage.py"
+            ],
+            "elapsed_seconds": 0.033754,
+            "label": "critical coverage policy",
+            "mode": "parallel"
+          },
+          {
+            "command": [
+              "/opt/hostedtoolcache/Python/3.13.14/x64/bin/python",
+              "scripts/sync_version_metadata.py",
+              "--check"
+            ],
+            "elapsed_seconds": 0.045787,
+            "label": "version metadata",
+            "mode": "parallel"
+          },
+          {
+            "command": [
+              "/opt/hostedtoolcache/Python/3.13.14/x64/bin/python",
+              "scripts/validate_repository.py"
+            ],
+            "elapsed_seconds": 0.146724,
+            "label": "repository audit",
+            "mode": "parallel"
+          },
+          {
+            "command": [
+              "/opt/hostedtoolcache/Python/3.13.14/x64/bin/python",
+              "scripts/validate_schemas.py"
+            ],
+            "elapsed_seconds": 0.249066,
+            "label": "schema validation",
+            "mode": "parallel"
+          },
+          {
+            "command": [
+              "/opt/hostedtoolcache/Python/3.13.14/x64/bin/python",
+              "scripts/sync_package_assets.py",
+              "--check"
+            ],
+            "elapsed_seconds": 0.040736,
+            "label": "packaged registry assets",
+            "mode": "parallel"
+          },
+          {
+            "command": [
+              "/opt/hostedtoolcache/Python/3.13.14/x64/bin/python",
+              "scripts/validate_adapter_metadata.py"
+            ],
+            "elapsed_seconds": 0.042375,
+            "label": "adapter metadata",
+            "mode": "parallel"
+          },
+          {
+            "command": [
+              "/opt/hostedtoolcache/Python/3.13.14/x64/bin/python",
+              "scripts/build_capability_index.py",
+              "--check"
+            ],
+            "elapsed_seconds": 0.094072,
+            "label": "capability index",
+            "mode": "parallel"
+          },
+          {
+            "command": [
+              "/opt/hostedtoolcache/Python/3.13.14/x64/bin/python",
+              "scripts/build_adapter_docs.py",
+              "--check"
+            ],
+            "elapsed_seconds": 0.038927,
+            "label": "adapter documentation",
+            "mode": "parallel"
+          },
+          {
+            "command": [
+              "/opt/hostedtoolcache/Python/3.13.14/x64/bin/python",
+              "scripts/build_workflow_docs.py",
+              "--check"
+            ],
+            "elapsed_seconds": 0.035686,
+            "label": "workflow documentation",
+            "mode": "parallel"
+          },
+          {
+            "command": [
+              "/opt/hostedtoolcache/Python/3.13.14/x64/bin/python",
+              "scripts/build_examples.py",
+              "--check"
+            ],
+            "elapsed_seconds": 0.033234,
+            "label": "scenario examples",
+            "mode": "parallel"
+          },
+          {
+            "command": [
+              "/opt/hostedtoolcache/Python/3.13.14/x64/bin/python",
+              "scripts/build_manifest.py",
+              "--check"
+            ],
+            "elapsed_seconds": 0.088873,
+            "label": "repository manifest",
             "mode": "sequential"
           }
         ],
-        "status": "FAIL",
-        "total_recorded_seconds": 2.175785
+        "total_recorded_seconds": 5.868294,
+        "total_seconds": 5.306584
       }
     },
     "dependency_audit": {
@@ -339,41 +481,49 @@
       "status": "PASS",
       "timing": null
     },
-    "git_diff": {
+    "diff_check": {
       "log_tail": "",
       "returncode": 0,
       "status": "PASS",
       "timing": null
     },
-    "package": {
-      "log_tail": "\n==> deterministic source package builds (2 workers)\n\n==> source archive first build [parallel]\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/package_release.py --output /tmp/tsao-package-2apf4fb9/source-first\n{\"artifacts\": {\"TsaoSciComputation-3.0.2.tar.gz\": {\"bytes\": 363577, \"sha256\": \"fc3cc8857b6b15d83542d3d5c25265caa42745afc3efb6b5f6a4f9b3674e7536\"}, \"TsaoSciComputation-3.0.2.zip\": {\"bytes\": 800923, \"sha256\": \"bfc60f608e3cb5b96ce5c8c285f06e4f97621375848e4ff42bcda9e1056f0d49\"}}, \"file_count\": 547, \"schema_version\": \"1.0\", \"source_date_epoch\": 1700000000, \"version\": \"3.0.2\"}\n    elapsed=0.378s\n\n==> source archive second build [parallel]\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/package_release.py --output /tmp/tsao-package-2apf4fb9/source-second\n{\"artifacts\": {\"TsaoSciComputation-3.0.2.tar.gz\": {\"bytes\": 363577, \"sha256\": \"fc3cc8857b6b15d83542d3d5c25265caa42745afc3efb6b5f6a4f9b3674e7536\"}, \"TsaoSciComputation-3.0.2.zip\": {\"bytes\": 800923, \"sha256\": \"bfc60f608e3cb5b96ce5c8c285f06e4f97621375848e4ff42bcda9e1056f0d49\"}}, \"file_count\": 547, \"schema_version\": \"1.0\", \"source_date_epoch\": 1700000000, \"version\": \"3.0.2\"}\n    elapsed=0.377s\n\n==> deterministic wheel verification\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/verify_wheel.py\nProcessing ./.\nProcessing ./.\n  Preparing metadata (pyproject.toml): started\n  Preparing metadata (pyproject.toml): started\n  Preparing metadata (pyproject.toml): finished with status 'done'\n  Preparing metadata (pyproject.toml): finished with status 'done'\nBuilding wheels for collected packages: tsao-scicomputation\nBuilding wheels for collected packages: tsao-scicomputation\n  Building wheel for tsao-scicomputation (pyproject.toml): started\n  Building wheel for tsao-scicomputation (pyproject.toml): started\n  Building wheel for tsao-scicomputation (pyproject.toml): finished with status 'done'\n  Created wheel for tsao-scicomputation: filename=tsao_scicomputation-3.0.2-py3-none-any.whl size=61029 sha256=f4b3b170e5fbc8bd182edd8a2f7a545af39f3df72263f382effb17f8157ba402\n  Stored in directory: /home/runner/.cache/pip/wheels/55/1d/e7/3b33c8bd13270de9468e42fdc034c07fb04eec08c98fe92bfe\n  Building wheel for tsao-scicomputation (pyproject.toml): finished with status 'done'\n  Created wheel for tsao-scicomputation: filename=tsao_scicomputation-3.0.2-py3-none-any.whl size=61029 sha256=f4b3b170e5fbc8bd182edd8a2f7a545af39f3df72263f382effb17f8157ba402\n  Stored in directory: /home/runner/.cache/pip/wheels/41/49/d6/e181c7d90b17816847bf21f530ae0bba39999c7b29aad5314c\nSuccessfully built tsao-scicomputation\nSuccessfully built tsao-scicomputation\nProcessing /home/runner/work/TsaoSciComputation/TsaoSciComputation/dist/tsao_scicomputation-3.0.2-py3-none-any.whl\nInstalling collected packages: tsao-scicomputation\nSuccessfully installed tsao-scicomputation-3.0.2\n{\"artifact\": \"tsao_scicomputation-3.0.2-py3-none-any.whl\", \"byte_identical_rebuild\": true, \"bytes\": 61029, \"installation_mode\": \"pip-target-no-compile\", \"isolated_install\": true, \"parallel_isolated_rebuilds\": true, \"parallel_source_snapshots\": true, \"schema_version\": \"1.0\", \"sha256\": \"f4b3b170e5fbc8bd182edd8a2f7a545af39f3df72263f382effb17f8157ba402\", \"verification\": \"3.0.2 164 27 20\"}\n\n==> SBOM generation\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/build_sbom.py\n{\"sboms\": [\"TsaoSciComputation-3.0.2.spdx.json\", \"TsaoSciComputation-3.0.2.cdx.json\"]}\n\n==> release manifest\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/build_release_manifest.py\n{\"checksums\": \"SHA256SUMS\", \"manifest\": \"RELEASE_MANIFEST.json\"}\n\n==> repository manifest\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/build_manifest.py --check\n\nValidation failed (exit 1).",
+    "manifest": {
+      "log_tail": "",
       "returncode": 1,
       "status": "FAIL",
+      "timing": null
+    },
+    "package": {
+      "log_tail": "\n==> bounded parallel verification (2 workers)\n\n==> source build A [parallel]\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/package_release.py --output-dir /tmp/tsao-source-build-r7tjr4_2/first\n{\"artifacts\": {\"TsaoSciComputation-3.0.2.tar.gz\": {\"bytes\": 356644, \"sha256\": \"2e9d28b9c414a79c221a51eeb20ff982a8941cd99c16d9da064ab7bf259e73a2\"}, \"TsaoSciComputation-3.0.2.zip\": {\"bytes\": 778337, \"sha256\": \"3d68ff6c9198e60b73ee9294b474cf404a5c4a09d56954f90b3a8644036b0b37\"}}, \"file_count\": 534, \"schema_version\": \"1.0\", \"source_date_epoch\": 1700000000, \"version\": \"3.0.2\"}\n    elapsed=0.292s\n\n==> source build B [parallel]\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/package_release.py --output-dir /tmp/tsao-source-build-r7tjr4_2/second\n{\"artifacts\": {\"TsaoSciComputation-3.0.2.tar.gz\": {\"bytes\": 356644, \"sha256\": \"2e9d28b9c414a79c221a51eeb20ff982a8941cd99c16d9da064ab7bf259e73a2\"}, \"TsaoSciComputation-3.0.2.zip\": {\"bytes\": 778337, \"sha256\": \"3d68ff6c9198e60b73ee9294b474cf404a5c4a09d56954f90b3a8644036b0b37\"}}, \"file_count\": 534, \"schema_version\": \"1.0\", \"source_date_epoch\": 1700000000, \"version\": \"3.0.2\"}\n    elapsed=0.291s\n\n==> wheel rebuild and isolated install\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/verify_wheel.py\nProcessing ./.\nProcessing ./.\n  Preparing metadata (pyproject.toml): started\n  Preparing metadata (pyproject.toml): started\n  Preparing metadata (pyproject.toml): finished with status 'done'\n  Preparing metadata (pyproject.toml): finished with status 'done'\nBuilding wheels for collected packages: tsao-scicomputation\nBuilding wheels for collected packages: tsao-scicomputation\n  Building wheel for tsao-scicomputation (pyproject.toml): started\n  Building wheel for tsao-scicomputation (pyproject.toml): started\n  Building wheel for tsao-scicomputation (pyproject.toml): finished with status 'done'\n  Building wheel for tsao-scicomputation (pyproject.toml): finished with status 'done'\n  Created wheel for tsao-scicomputation: filename=tsao_scicomputation-3.0.2-py3-none-any.whl size=61029 sha256=f4b3b170e5fbc8bd182edd8a2f7a545af39f3df72263f382effb17f8157ba402\n  Created wheel for tsao-scicomputation: filename=tsao_scicomputation-3.0.2-py3-none-any.whl size=61029 sha256=f4b3b170e5fbc8bd182edd8a2f7a545af39f3df72263f382effb17f8157ba402\n  Stored in directory: /home/runner/.cache/pip/wheels/34/03/67/dc313eddf06b47360e3eefd3311a4658bbf243222da7a47a9b\n  Stored in directory: /home/runner/.cache/pip/wheels/40/9a/aa/591ae46d0c78c04b13910d53f520109b4010fb13c92d725e76\nSuccessfully built tsao-scicomputation\nSuccessfully built tsao-scicomputation\nProcessing /home/runner/work/TsaoSciComputation/TsaoSciComputation/dist/tsao_scicomputation-3.0.2-py3-none-any.whl\nInstalling collected packages: tsao-scicomputation\nSuccessfully installed tsao-scicomputation-3.0.2\n{\"artifact\": \"tsao_scicomputation-3.0.2-py3-none-any.whl\", \"byte_identical_rebuild\": true, \"bytes\": 61029, \"installation_mode\": \"pip-target-no-compile\", \"isolated_install\": true, \"parallel_isolated_rebuilds\": true, \"parallel_source_snapshots\": true, \"schema_version\": \"1.0\", \"sha256\": \"f4b3b170e5fbc8bd182edd8a2f7a545af39f3df72263f382effb17f8157ba402\", \"verification\": \"3.0.2 164 27 20\"}\n\n==> deterministic SPDX and CycloneDX SBOMs\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/build_sbom.py\n{\"sboms\": [\"TsaoSciComputation-3.0.2.spdx.json\", \"TsaoSciComputation-3.0.2.cdx.json\"]}\n\n==> release manifest and checksums\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/build_release_manifest.py\n{\"checksums\": \"SHA256SUMS\", \"manifest\": \"RELEASE_MANIFEST.json\"}\n\n==> repository manifest\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/build_manifest.py --check\n\nPASS: verification profile 'package' completed successfully.",
+      "returncode": 0,
+      "status": "PASS",
       "timing": {
         "claim_boundary": "This validates local orchestration, contracts, deterministic evidence and packaging. It does not claim external solver execution or production HPC performance.",
+        "default_parallel_workers": 3,
         "profile": "package",
-        "schema_version": "1.0",
-        "stages": [
+        "schema_version": "1.1",
+        "status": "PASS",
+        "steps": [
           {
             "command": [
               "/opt/hostedtoolcache/Python/3.13.14/x64/bin/python",
               "scripts/package_release.py",
-              "--output",
-              "/tmp/tsao-package-2apf4fb9/source-first"
+              "--output-dir",
+              "/tmp/tsao-source-build-r7tjr4_2/first"
             ],
-            "elapsed_seconds": 0.377981,
-            "label": "source archive first build",
+            "elapsed_seconds": 0.292039,
+            "label": "source build A",
             "mode": "parallel"
           },
           {
             "command": [
               "/opt/hostedtoolcache/Python/3.13.14/x64/bin/python",
               "scripts/package_release.py",
-              "--output",
-              "/tmp/tsao-package-2apf4fb9/source-second"
+              "--output-dir",
+              "/tmp/tsao-source-build-r7tjr4_2/second"
             ],
-            "elapsed_seconds": 0.376925,
-            "label": "source archive second build",
+            "elapsed_seconds": 0.290819,
+            "label": "source build B",
             "mode": "parallel"
           },
           {
@@ -381,8 +531,8 @@
               "/opt/hostedtoolcache/Python/3.13.14/x64/bin/python",
               "scripts/verify_wheel.py"
             ],
-            "elapsed_seconds": 1.901339,
-            "label": "deterministic wheel verification",
+            "elapsed_seconds": 1.836719,
+            "label": "wheel rebuild and isolated install",
             "mode": "sequential"
           },
           {
@@ -390,8 +540,8 @@
               "/opt/hostedtoolcache/Python/3.13.14/x64/bin/python",
               "scripts/build_sbom.py"
             ],
-            "elapsed_seconds": 0.054938,
-            "label": "SBOM generation",
+            "elapsed_seconds": 0.04417,
+            "label": "deterministic SPDX and CycloneDX SBOMs",
             "mode": "sequential"
           },
           {
@@ -399,8 +549,8 @@
               "/opt/hostedtoolcache/Python/3.13.14/x64/bin/python",
               "scripts/build_release_manifest.py"
             ],
-            "elapsed_seconds": 0.050025,
-            "label": "release manifest",
+            "elapsed_seconds": 0.041878,
+            "label": "release manifest and checksums",
             "mode": "sequential"
           },
           {
@@ -409,30 +559,32 @@
               "scripts/build_manifest.py",
               "--check"
             ],
-            "elapsed_seconds": 0.123402,
+            "elapsed_seconds": 0.095118,
             "label": "repository manifest",
             "mode": "sequential"
           }
         ],
-        "status": "FAIL",
-        "total_recorded_seconds": 2.88461
+        "total_recorded_seconds": 2.600743,
+        "total_seconds": 2.314678
       }
     },
     "quality": {
-      "log_tail": "\n==> repository quality rules\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/quality_check.py\n{\"passed\": true, \"problems\": [], \"python_files\": 118, \"schema_version\": \"1.0\"}\n\n==> Ruff lint\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python -m ruff check tsao_computation scripts tests _bootstrap.py\nUP035 [*] Import from `collections.abc` instead: `Sequence`\n  --> scripts/verify_all.py:13:1\n   |\n11 | from dataclasses import dataclass\n12 | from pathlib import Path\n13 | from typing import Sequence\n   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n14 |\n15 | ROOT = Path(__file__).resolve().parents[1]\n   |\nhelp: Import from `collections.abc`\n   |\n12 | from pathlib import Path\n   - from typing import Sequence\n13 + from collections.abc import Sequence\n14 |\n   |\n\nFound 1 error.\n[*] 1 fixable with the `--fix` option.\n\nFAILED: Ruff lint (exit 1)\n\nValidation failed (exit 1).",
+      "log_tail": "\n==> repository quality rules\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/quality_check.py\n{\"passed\": true, \"problems\": [], \"python_files\": 118, \"schema_version\": \"1.0\"}\n\n==> Ruff lint\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python -m ruff check tsao_computation scripts tests _bootstrap.py\nAll checks passed!\n\n==> Ruff formatting\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python -m ruff format --check tsao_computation scripts tests _bootstrap.py\n119 files already formatted\n\n==> bounded parallel verification (2 workers)\n\n==> Mypy [parallel]\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python -m mypy --python-version 3.13 tsao_computation scripts\nscripts/finalize_performance_v9.py:252: error: Incompatible types in assignment (expression has type \"dict[str, Any]\", target has type \"str\")  [assignment]\nscripts/verify_all.py:330: error: Generator has incompatible item type \"float\"; expected \"bool\"  [misc]\nscripts/verify_all.py:330: error: Argument 1 to \"float\" has incompatible type \"object\"; expected \"str | Buffer | SupportsFloat | SupportsIndex\"  [arg-type]\nFound 3 errors in 2 files (checked 83 source files)\n    elapsed=2.882s\n\nFAILED: Mypy (exit 1)\n\n==> Bandit [parallel]\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python -m bandit -q -r tsao_computation scripts -x tests\n[tester]\tWARNING\tnosec encountered (B603), but no failed test on file scripts/benchmark.py:59\n[tester]\tWARNING\tnosec encountered (B603), but no failed test on file scripts/benchmark.py:59\n[tester]\tWARNING\tnosec encountered (B603), but no failed test on file scripts/build_release_manifest.py:31\n[tester]\tWARNING\tnosec encountered (B603), but no failed test on file scripts/verify_wheel.py:112\n    elapsed=1.097s\n\n==> repository security scan [parallel]\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/security_scan.py\n{\"files_scanned\": 533, \"findings\": [], \"schema_version\": \"1.0\"}\n    elapsed=0.290s\n\n==> controlled mutation gate [parallel]\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/run_mutation_gate.py\n{\"killed\": 64, \"method\": \"controlled non-equivalent operator mutation probes\", \"schema_version\": \"1.0\", \"survived\": 0, \"total\": 64}\n    elapsed=0.078s\n\nValidation failed (exit 1).",
       "returncode": 1,
       "status": "FAIL",
       "timing": {
         "claim_boundary": "This validates local orchestration, contracts, deterministic evidence and packaging. It does not claim external solver execution or production HPC performance.",
+        "default_parallel_workers": 3,
         "profile": "quality",
-        "schema_version": "1.0",
-        "stages": [
+        "schema_version": "1.1",
+        "status": "FAIL",
+        "steps": [
           {
             "command": [
               "/opt/hostedtoolcache/Python/3.13.14/x64/bin/python",
               "scripts/quality_check.py"
             ],
-            "elapsed_seconds": 0.354729,
+            "elapsed_seconds": 0.278088,
             "label": "repository quality rules",
             "mode": "sequential"
           },
@@ -447,38 +599,85 @@
               "tests",
               "_bootstrap.py"
             ],
-            "elapsed_seconds": 0.048072,
+            "elapsed_seconds": 0.040004,
             "label": "Ruff lint",
             "mode": "sequential"
+          },
+          {
+            "command": [
+              "/opt/hostedtoolcache/Python/3.13.14/x64/bin/python",
+              "-m",
+              "ruff",
+              "format",
+              "--check",
+              "tsao_computation",
+              "scripts",
+              "tests",
+              "_bootstrap.py"
+            ],
+            "elapsed_seconds": 0.039431,
+            "label": "Ruff formatting",
+            "mode": "sequential"
+          },
+          {
+            "command": [
+              "/opt/hostedtoolcache/Python/3.13.14/x64/bin/python",
+              "-m",
+              "mypy",
+              "--python-version",
+              "3.13",
+              "tsao_computation",
+              "scripts"
+            ],
+            "elapsed_seconds": 2.88177,
+            "label": "Mypy",
+            "mode": "parallel"
+          },
+          {
+            "command": [
+              "/opt/hostedtoolcache/Python/3.13.14/x64/bin/python",
+              "-m",
+              "bandit",
+              "-q",
+              "-r",
+              "tsao_computation",
+              "scripts",
+              "-x",
+              "tests"
+            ],
+            "elapsed_seconds": 1.096956,
+            "label": "Bandit",
+            "mode": "parallel"
+          },
+          {
+            "command": [
+              "/opt/hostedtoolcache/Python/3.13.14/x64/bin/python",
+              "scripts/security_scan.py"
+            ],
+            "elapsed_seconds": 0.289887,
+            "label": "repository security scan",
+            "mode": "parallel"
+          },
+          {
+            "command": [
+              "/opt/hostedtoolcache/Python/3.13.14/x64/bin/python",
+              "scripts/run_mutation_gate.py"
+            ],
+            "elapsed_seconds": 0.078087,
+            "label": "controlled mutation gate",
+            "mode": "parallel"
           }
         ],
-        "status": "FAIL",
-        "total_recorded_seconds": 0.402801
+        "total_recorded_seconds": 4.704223,
+        "total_seconds": 3.240077
       }
     }
   },
-  "generated_at": "2026-07-27T08:48:49.312066+00:00",
-  "obsolete_artifacts": [
-    ".github/workflows/main-audit-v7.yml",
-    ".github/workflows/main-audit.yml",
-    ".github/workflows/performance-audit-v8.yml",
-    ".github/workflows/performance-audit-v9.yml",
-    ".github/workflows/performance-refresh-v9.yml",
-    ".github/workflows/readme-visual-redesign-v10.yml",
-    ".github/workflows/readme-visual-redesign-v11.yml",
-    ".github/workflows/readme-visual-redesign-v12.yml",
-    ".v9-ci-status.json",
-    ".v9-ci-trigger",
-    ".v9-performance-status.json",
-    ".v9-performance-trigger",
-    ".v9-production-ci.b64"
-  ],
-  "schema_version": "1.0",
-  "static_issues": [
-    "ci.yml is a temporary V9 same-host A/B workflow rather than canonical CI",
-    "sequential timing record is unreachable after return",
-    "13 obsolete or one-shot workflow/status artifacts remain tracked"
-  ],
+  "generated_at": "2026-07-27T08:58:55.376777+00:00",
+  "obsolete_artifacts_remaining": [],
+  "runtime_dependencies": 0,
+  "schema_version": "2.0",
   "status": "FAIL",
-  "tests_collected": 591
+  "tests_collected": 599,
+  "validated_source_sha": "2e513e55f0d602bbb447bc652326bd277c722eb2"
 }
