@@ -46,12 +46,25 @@ def test_run_commands_stops_after_first_failure(monkeypatch) -> None:
     assert labels == ["first", "second"]
 
 
-def test_quality_keeps_heavy_gates_sequential_and_refreshes_manifest_last(monkeypatch) -> None:
-    captured: list[tuple[str, Sequence[str]]] = []
+def test_quality_stages_static_checks_before_two_worker_group_and_manifest(monkeypatch) -> None:
+    prechecks: list[tuple[str, Sequence[str]]] = []
+    parallel: list[tuple[str, Sequence[str]]] = []
+    workers: list[int | None] = []
     sequential: list[tuple[str, Sequence[str]]] = []
 
     def fake_run_commands(commands: Sequence[tuple[str, Sequence[str]]]) -> int:
-        captured.extend(commands)
+        prechecks.extend(commands)
+        return 0
+
+    def fake_parallel(
+        commands: Sequence[tuple[str, Sequence[str]]],
+        *,
+        env: dict[str, str] | None = None,
+        max_workers: int | None = None,
+    ) -> int:
+        del env
+        parallel.extend(commands)
+        workers.append(max_workers)
         return 0
 
     def fake_run(
@@ -65,9 +78,21 @@ def test_quality_keeps_heavy_gates_sequential_and_refreshes_manifest_last(monkey
         return 0
 
     monkeypatch.setattr(verify_all, "run_commands", fake_run_commands)
+    monkeypatch.setattr(verify_all, "run_commands_parallel", fake_parallel)
     monkeypatch.setattr(verify_all, "run", fake_run)
     assert verify_all.verify_quality() == 0
-    assert captured[-1][0] == "controlled mutation gate"
+    assert [label for label, _ in prechecks] == [
+        "repository quality rules",
+        "Ruff lint",
+        "Ruff formatting",
+    ]
+    assert [label for label, _ in parallel] == [
+        "Mypy",
+        "Bandit",
+        "repository security scan",
+        "controlled mutation gate",
+    ]
+    assert workers == [2]
     assert sequential == [
         (
             "refresh repository manifest",
