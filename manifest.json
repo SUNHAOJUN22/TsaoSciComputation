@@ -2061,9 +2061,9 @@
       "sha256": "1e0f7908f1f7dbcc179cc9c855d872d086711209002058f640b21ba84f0faa91"
     },
     {
-      "bytes": 12341,
+      "bytes": 12476,
       "path": "scripts/verify_all.py",
-      "sha256": "43fa4ea8f90f85c23485eaa460ef90ae6e641a3423174aca3ff2ecee9bda502e"
+      "sha256": "620b9c5b447569ecc5d151922435909c89993f7e18d330f235022c11bdb1dd78"
     },
     {
       "bytes": 3354,
@@ -2341,9 +2341,9 @@
       "sha256": "d2bb4cdd39b9a18ae10a7d69dc451ed6837c4ee408e37ec2f64f18b2d6a8dd52"
     },
     {
-      "bytes": 2413,
+      "bytes": 3138,
       "path": "tests/test_verify_all.py",
-      "sha256": "228b191253d6e15902c164f5890c5f68fcce8a6fa614116474800c7734aadadc"
+      "sha256": "ed78fbaad72365a3c995ab17430baf50f6ac0ce2af46a1257e2126e9edd488fc"
     },
     {
       "bytes": 1031,
