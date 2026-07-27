@@ -1,90 +1,1834 @@
 {
-  "end_to_end": {
-    "claim_boundary": "Same-host command telemetry; external scientific solver performance is not measured.",
-    "command": [
-      "python",
-      "scripts/verify_all.py",
-      "--profile",
-      "all"
-    ],
-    "cwd": "/tmp/tsao-v9-candidate",
-    "repeats": 3,
-    "samples": [
-      {
-        "filesystem_inputs": 0.0,
-        "filesystem_outputs": 66264.0,
-        "peak_rss_kib": 57516.0,
-        "resource_metrics": "gnu-time",
-        "returncode": 0,
-        "system_seconds": 1.54,
-        "user_seconds": 9.36,
-        "wall_seconds": 8.109690839999999
-      },
-      {
-        "filesystem_inputs": 0.0,
-        "filesystem_outputs": 66264.0,
-        "peak_rss_kib": 57492.0,
-        "resource_metrics": "gnu-time",
-        "returncode": 0,
-        "system_seconds": 1.55,
-        "user_seconds": 9.41,
-        "wall_seconds": 8.129171457999988
-      },
-      {
-        "filesystem_inputs": 0.0,
-        "filesystem_outputs": 66264.0,
-        "peak_rss_kib": 57364.0,
-        "resource_metrics": "gnu-time",
-        "returncode": 0,
-        "system_seconds": 1.48,
-        "user_seconds": 9.46,
-        "wall_seconds": 8.136580686000002
-      }
-    ],
-    "schema_version": "1.0",
-    "status": "PASS",
-    "summary": {
-      "cpu_median_seconds": 10.940000000000001,
-      "peak_rss_max_kib": 57516.0,
-      "resource_metrics": "gnu-time",
-      "wall_cv": 0.0013957239543491411,
-      "wall_median_seconds": 8.129171457999988,
-      "wall_min_seconds": 8.109690839999999,
-      "wall_p90_seconds": 8.1350988404
+  "adapters": {
+    "get_adapter": {
+      "cv": 0.466175538023033,
+      "median_seconds": 2.999999537678377e-07,
+      "min_seconds": 2.200000039920269e-07,
+      "p90_seconds": 5.461999876388291e-07,
+      "peak_tracemalloc_bytes": 168,
+      "stdev_seconds": 1.6595848833774299e-07
     },
-    "warmup_samples": [
-      {
-        "filesystem_inputs": 8.0,
-        "filesystem_outputs": 97920.0,
-        "peak_rss_kib": 124172.0,
-        "resource_metrics": "gnu-time",
-        "returncode": 0,
-        "system_seconds": 1.58,
-        "user_seconds": 12.05,
-        "wall_seconds": 10.083225612000007
-      }
-    ],
-    "warmups": 1
+    "list_adapters": {
+      "cv": 0.7664448128453385,
+      "median_seconds": 2.699999868127634e-07,
+      "min_seconds": 1.6000001323845936e-07,
+      "p90_seconds": 8.593999837103185e-07,
+      "peak_tracemalloc_bytes": 104,
+      "stdev_seconds": 3.2114037242293377e-07
+    },
+    "probe_all_1": {
+      "cv": 0.010919742918973623,
+      "median_seconds": 0.23661927500000957,
+      "min_seconds": 0.2358161989999985,
+      "p90_seconds": 0.2406740541999966,
+      "peak_tracemalloc_bytes": 96730,
+      "stdev_seconds": 0.0025993473358762956
+    },
+    "probe_all_2": {
+      "cv": 0.0054677636523035,
+      "median_seconds": 0.13920818900004406,
+      "min_seconds": 0.13801597500003027,
+      "p90_seconds": 0.13972221699999637,
+      "peak_tracemalloc_bytes": 110245,
+      "stdev_seconds": 0.0007601556376317583
+    },
+    "probe_all_4": {
+      "cv": 0.021101990480736885,
+      "median_seconds": 0.09989452799999299,
+      "min_seconds": 0.09873661000000311,
+      "p90_seconds": 0.10295019439998897,
+      "peak_tracemalloc_bytes": 172510,
+      "stdev_seconds": 0.002126695522097896
+    },
+    "probe_all_8": {
+      "cv": 0.031864929354807434,
+      "median_seconds": 0.0959422869999571,
+      "min_seconds": 0.0897957460000498,
+      "p90_seconds": 0.0962620117999677,
+      "peak_tracemalloc_bytes": 187619,
+      "stdev_seconds": 0.002996152835881684
+    },
+    "single_probe": {
+      "cv": 0.08569567353990158,
+      "median_seconds": 0.0002413550000142095,
+      "min_seconds": 0.000236678000021584,
+      "p90_seconds": 0.000282218799986822,
+      "peak_tracemalloc_bytes": 2977,
+      "stdev_seconds": 2.1845438263889577e-05
+    }
   },
-  "micro": {
-    "adapter_lookup_cached_median_us": 0.1078,
-    "adapter_registry_cold_median_ms": 0.211,
-    "capability_registry_cached_median_ms": 0.00047,
-    "capability_registry_cold_median_ms": 1.869,
-    "claim_boundary": "Local orchestration microbenchmarks; no solver execution measured.",
-    "cli_import_median_ms": 41.721,
-    "methodology": {
-      "claim_boundary": "Same-host local orchestration microbenchmarks; no solver execution measured.",
-      "clock": "time.perf_counter",
-      "statistic": "median",
-      "warmups": 2
+  "baseline_sha": "04ce646e51a603faf8cfad72ec15e218e09a0ebd",
+  "claim_boundary": "Same-host repository orchestration, parsing, validation, memory and I/O telemetry only; external scientific solvers and production HPC execution are not measured.",
+  "end_to_end": {
+    "all": {
+      "claim_boundary": "Same-host command telemetry; external scientific solver performance is not measured.",
+      "command": [
+        "/opt/hostedtoolcache/Python/3.13.14/x64/bin/python",
+        "scripts/verify_all.py",
+        "--profile",
+        "all"
+      ],
+      "cwd": "/tmp/tsao-v9-ab-candidate",
+      "repeats": 3,
+      "samples": [],
+      "schema_version": "1.0",
+      "status": "FAIL",
+      "summary": {},
+      "warmup_samples": [
+        {
+          "failure_log_tail": "\n==> repository quality rules\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/quality_check.py\n{\"passed\": true, \"problems\": [], \"python_files\": 117, \"schema_version\": \"1.0\"}\n\n==> Ruff lint\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python -m ruff check tsao_computation scripts tests _bootstrap.py\nI001 [*] Import block is un-sorted or un-formatted\n  --> tests/test_performance_optimizations.py:1:1\n   |\n 1 | / from __future__ import annotations\n 2 | |\n 3 | | import sys\n 4 | | from pathlib import Path\n 5 | | from types import SimpleNamespace\n 6 | |\n 7 | | import pytest\n 8 | |\n 9 | | from scripts.benchmark import median_seconds\n10 | | from scripts.compare_performance import compare_performance\n11 | | from scripts.run_tests import _write_coverage_evidence\n12 | | from scripts.security_scan import scan\n13 | | from scripts import verify_wheel\n14 | | from tsao_computation.adapters import get_adapter\n15 | | from tsao_computation.adapters.registry import list_adapters\n16 | | from tsao_computation.provenance.manifest import file_manifest, iter_repository_entries\n17 | | from tsao_computation.registries import clear_registry_caches\n18 | | from tsao_computation.routing import route_question\n19 | | from tsao_computation.routing.router import _routing_index\n   | |__________________________________________________________^\n   |\nhelp: Organize imports\n   |\n8  |\n9  + from scripts import verify_wheel\n10 | from scripts.benchmark import median_seconds\n11 | from scripts.compare_performance import compare_performance\n12 | from scripts.run_tests import _write_coverage_evidence\n13 | from scripts.security_scan import scan\n   - from scripts import verify_wheel\n14 | from tsao_computation.adapters import get_adapter\n   |\n\nFound 1 error.\n[*] 1 fixable with the `--fix` option.\n\nFAILED: Ruff lint (exit 1)\n",
+          "filesystem_inputs": 0.0,
+          "filesystem_outputs": 1920.0,
+          "peak_rss_kib": 40492.0,
+          "resource_metrics": "gnu-time",
+          "returncode": 1,
+          "system_seconds": 0.05,
+          "user_seconds": 0.4,
+          "wall_seconds": 0.4632859069999995
+        }
+      ],
+      "warmups": 1
     },
-    "parser_5mib_throughput_mib_s": 19.25,
-    "python": "3.13.14 (main, Jun 11 2026, 03:02:07) [GCC 13.3.0]",
-    "repository_walk_median_ms": 8.344,
-    "route_decision_cold_median_ms": 0.369,
-    "route_decision_median_ms": 0.00013,
-    "schema_version": "1.1",
-    "workflow_registry_cold_median_ms": 0.161
+    "core": {
+      "claim_boundary": "Same-host command telemetry; external scientific solver performance is not measured.",
+      "command": [
+        "/opt/hostedtoolcache/Python/3.13.14/x64/bin/python",
+        "scripts/verify_all.py",
+        "--profile",
+        "core"
+      ],
+      "cwd": "/tmp/tsao-v9-ab-candidate",
+      "repeats": 2,
+      "samples": [
+        {
+          "failure_log_tail": "\n==> tests and coverage\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/run_tests.py --coverage\n........................................................................ [ 12%]\n........................................................................ [ 24%]\n........................................................................ [ 36%]\n........................................................................ [ 48%]\n........................................................................ [ 60%]\n........................................................................ [ 72%]\n........................................................................ [ 84%]\n........................................................................ [ 96%]\n......................                                                   [100%]\n598 passed in 3.34s\nTotal coverage: 96.57% (required: 95.00%)\n\n==> bounded parallel verification (3 workers)\n\n==> scientific reference benchmarks [parallel]\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/run_scientific_benchmarks.py\n{\"claim_boundary\": \"Deterministic analytical, conservation, and invariant benchmarks; no third-party solver execution is claimed.\", \"failed\": 0, \"passed\": 8, \"results\": [{\"absolute_error\": 1.7621459846850485e-12, \"benchmark_id\": \"steady-conduction-1d\", \"domain\": \"heat-transfer\", \"expected\": 0.0, \"invariant\": \"finite-difference profile matches the linear analytical solution\", \"observed\": 1.7621459846850485e-12, \"passed\": true, \"relative_error\": 1.7621459846850485e-12, \"tolerance\": 1e-11}, {\"absolute_error\": 2.454369162335074e-11, \"benchmark_id\": \"poiseuille-pipe-flow\", \"domain\": \"fluid-dynamics\", \"expected\": 0.00039269908169872416, \"invariant\": \"integrated parabolic profile matches Hagen-Poiseuille flow\", \"observed\": 0.00039269905715503254, \"passed\": true, \"relative_error\": 6.249999749727064e-08, \"tolerance\": 2e-07}, {\"absolute_error\": 5.551115123125783e-17, \"benchmark_id\": \"cstr-first-order-balance\", \"domain\": \"reaction-engineering\", \"expected\": 0.0, \"invariant\": \"steady inlet-outlet-generation mass balance closes\", \"observed\": -5.551115123125783e-17, \"passed\": true, \"relative_error\": 5.551115123125783e-17, \"tolerance\": 1e-14}, {\"absolute_error\": 1.0963452368173421e-14, \"benchmark_id\": \"pfr-first-order-rk4\", \"domain\": \"reaction-engineering\", \"expected\": 0.2465969639416065, \"invariant\": \"RK4 plug-flow integration matches analytical first-order decay\", \"observed\": 0.24659696394161745, \"passed\": true, \"relative_error\": 4.445899167992002e-14, \"tolerance\": 1e-11}, {\"absolute_error\": 9.999999982523988e-07, \"benchmark_id\": \"harmonic-oscillator-verlet\", \"domain\": \"molecular-dynamics\", \"expected\": 0.0, \"invariant\": \"velocity-Verlet bounds total-energy drift\", \"observed\": 9.999999982523988e-07, \"passed\": true, \"relative_error\": 9.999999982523988e-07, \"tolerance\": 1.1e-06}, {\"absolute_error\": 0.0, \"benchmark_id\": \"gaussian-chain-second-moment\", \"domain\": \"polymer-statistical-mechanics\", \"expected\": 2.84592, \"invariant\": \"isotropic covariance trace equals N b^2\", \"observed\": 2.84592, \"passed\": true, \"relative_error\": 0.0, \"tolerance\": 1e-14}, {\"absolute_error\": 0.0, \"benchmark_id\": \"parallel-plate-electric-field\", \"domain\": \"electrostatics\", \"expected\": 100000.0, \"invariant\": \"central-difference electric field matches V/d\", \"observed\": 100000.0, \"passed\": true, \"relative_error\": 0.0, \"tolerance\": 1e-14}, {\"absolute_error\": 0.0, \"benchmark_id\": \"electrothermal-steady-balance\", \"domain\": \"multiphysics\", \"expected\": 0.0, \"invariant\": \"electrical input, Joule heating, and steady heat removal close\", \"observed\": 0.0, \"passed\": true, \"relative_error\": 0.0, \"tolerance\": 1e-14}], \"schema_version\": \"1.0\", \"total\": 8}\n    elapsed=0.093s\n\n==> critical coverage policy [parallel]\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/check_critical_coverage.py\n{\n  \"passed\": true,\n  \"problems\": []\n}\n    elapsed=0.060s\n\n==> version metadata [parallel]\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/sync_version_metadata.py --check\n{\"passed\": true, \"problems\": [], \"release_date\": \"2026-07-24\", \"schema_version\": \"1.0\", \"version\": \"3.0.2\"}\n    elapsed=0.055s\n\n==> repository audit [parallel]\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/validate_repository.py\n{\n  \"counts\": {\n    \"adapters\": 27,\n    \"capabilities\": 164,\n    \"capability_input_profiles\": 20,\n    \"capability_output_profiles\": 20,\n    \"workflows\": 20\n  },\n  \"passed\": true,\n  \"problems\": [],\n  \"schema_version\": \"1.0\"\n}\n    elapsed=0.346s\n\n==> schema validation [parallel]\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/validate_schemas.py\n{\n  \"passed\": true,\n  \"problems\": [],\n  \"schema_version\": \"1.0\"\n}\n    elapsed=0.323s\n\n==> packaged registry assets [parallel]\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/sync_package_assets.py --check\n    elapsed=0.039s\n\n==> adapter metadata [parallel]\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/validate_adapter_metadata.py\n{\n  \"passed\": true,\n  \"problems\": []\n}\n    elapsed=0.038s\n\n==> capability index [parallel]\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/build_capability_index.py --check\n    elapsed=0.085s\n\n==> adapter documentation [parallel]\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/build_adapter_docs.py --check\n    elapsed=0.048s\n\n==> workflow documentation [parallel]\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/build_workflow_docs.py --check\n    elapsed=0.047s\n\n==> scenario examples [parallel]\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/build_examples.py --check\n    elapsed=0.048s\n\n==> repository manifest\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/build_manifest.py --check\n",
+          "filesystem_inputs": 0.0,
+          "filesystem_outputs": 26864.0,
+          "peak_rss_kib": 57636.0,
+          "resource_metrics": "gnu-time",
+          "returncode": 1,
+          "system_seconds": 0.72,
+          "user_seconds": 4.74,
+          "wall_seconds": 4.614315625999893
+        },
+        {
+          "failure_log_tail": "\n==> tests and coverage\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/run_tests.py --coverage\n........................................................................ [ 12%]\n........................................................................ [ 24%]\n........................................................................ [ 36%]\n........................................................................ [ 48%]\n........................................................................ [ 60%]\n........................................................................ [ 72%]\n........................................................................ [ 84%]\n........................................................................ [ 96%]\n......................                                                   [100%]\n598 passed in 2.87s\nTotal coverage: 96.57% (required: 95.00%)\n\n==> bounded parallel verification (3 workers)\n\n==> scientific reference benchmarks [parallel]\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/run_scientific_benchmarks.py\n{\"claim_boundary\": \"Deterministic analytical, conservation, and invariant benchmarks; no third-party solver execution is claimed.\", \"failed\": 0, \"passed\": 8, \"results\": [{\"absolute_error\": 1.7621459846850485e-12, \"benchmark_id\": \"steady-conduction-1d\", \"domain\": \"heat-transfer\", \"expected\": 0.0, \"invariant\": \"finite-difference profile matches the linear analytical solution\", \"observed\": 1.7621459846850485e-12, \"passed\": true, \"relative_error\": 1.7621459846850485e-12, \"tolerance\": 1e-11}, {\"absolute_error\": 2.454369162335074e-11, \"benchmark_id\": \"poiseuille-pipe-flow\", \"domain\": \"fluid-dynamics\", \"expected\": 0.00039269908169872416, \"invariant\": \"integrated parabolic profile matches Hagen-Poiseuille flow\", \"observed\": 0.00039269905715503254, \"passed\": true, \"relative_error\": 6.249999749727064e-08, \"tolerance\": 2e-07}, {\"absolute_error\": 5.551115123125783e-17, \"benchmark_id\": \"cstr-first-order-balance\", \"domain\": \"reaction-engineering\", \"expected\": 0.0, \"invariant\": \"steady inlet-outlet-generation mass balance closes\", \"observed\": -5.551115123125783e-17, \"passed\": true, \"relative_error\": 5.551115123125783e-17, \"tolerance\": 1e-14}, {\"absolute_error\": 1.0963452368173421e-14, \"benchmark_id\": \"pfr-first-order-rk4\", \"domain\": \"reaction-engineering\", \"expected\": 0.2465969639416065, \"invariant\": \"RK4 plug-flow integration matches analytical first-order decay\", \"observed\": 0.24659696394161745, \"passed\": true, \"relative_error\": 4.445899167992002e-14, \"tolerance\": 1e-11}, {\"absolute_error\": 9.999999982523988e-07, \"benchmark_id\": \"harmonic-oscillator-verlet\", \"domain\": \"molecular-dynamics\", \"expected\": 0.0, \"invariant\": \"velocity-Verlet bounds total-energy drift\", \"observed\": 9.999999982523988e-07, \"passed\": true, \"relative_error\": 9.999999982523988e-07, \"tolerance\": 1.1e-06}, {\"absolute_error\": 0.0, \"benchmark_id\": \"gaussian-chain-second-moment\", \"domain\": \"polymer-statistical-mechanics\", \"expected\": 2.84592, \"invariant\": \"isotropic covariance trace equals N b^2\", \"observed\": 2.84592, \"passed\": true, \"relative_error\": 0.0, \"tolerance\": 1e-14}, {\"absolute_error\": 0.0, \"benchmark_id\": \"parallel-plate-electric-field\", \"domain\": \"electrostatics\", \"expected\": 100000.0, \"invariant\": \"central-difference electric field matches V/d\", \"observed\": 100000.0, \"passed\": true, \"relative_error\": 0.0, \"tolerance\": 1e-14}, {\"absolute_error\": 0.0, \"benchmark_id\": \"electrothermal-steady-balance\", \"domain\": \"multiphysics\", \"expected\": 0.0, \"invariant\": \"electrical input, Joule heating, and steady heat removal close\", \"observed\": 0.0, \"passed\": true, \"relative_error\": 0.0, \"tolerance\": 1e-14}], \"schema_version\": \"1.0\", \"total\": 8}\n    elapsed=0.125s\n\n==> critical coverage policy [parallel]\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/check_critical_coverage.py\n{\n  \"passed\": true,\n  \"problems\": []\n}\n    elapsed=0.046s\n\n==> version metadata [parallel]\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/sync_version_metadata.py --check\n{\"passed\": true, \"problems\": [], \"release_date\": \"2026-07-24\", \"schema_version\": \"1.0\", \"version\": \"3.0.2\"}\n    elapsed=0.056s\n\n==> repository audit [parallel]\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/validate_repository.py\n{\n  \"counts\": {\n    \"adapters\": 27,\n    \"capabilities\": 164,\n    \"capability_input_profiles\": 20,\n    \"capability_output_profiles\": 20,\n    \"workflows\": 20\n  },\n  \"passed\": true,\n  \"problems\": [],\n  \"schema_version\": \"1.0\"\n}\n    elapsed=0.242s\n\n==> schema validation [parallel]\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/validate_schemas.py\n{\n  \"passed\": true,\n  \"problems\": [],\n  \"schema_version\": \"1.0\"\n}\n    elapsed=0.316s\n\n==> packaged registry assets [parallel]\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/sync_package_assets.py --check\n    elapsed=0.051s\n\n==> adapter metadata [parallel]\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/validate_adapter_metadata.py\n{\n  \"passed\": true,\n  \"problems\": []\n}\n    elapsed=0.053s\n\n==> capability index [parallel]\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/build_capability_index.py --check\n    elapsed=0.120s\n\n==> adapter documentation [parallel]\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/build_adapter_docs.py --check\n    elapsed=0.049s\n\n==> workflow documentation [parallel]\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/build_workflow_docs.py --check\n    elapsed=0.049s\n\n==> scenario examples [parallel]\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/build_examples.py --check\n    elapsed=0.051s\n\n==> repository manifest\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/build_manifest.py --check\n",
+          "filesystem_inputs": 0.0,
+          "filesystem_outputs": 26048.0,
+          "peak_rss_kib": 57884.0,
+          "resource_metrics": "gnu-time",
+          "returncode": 1,
+          "system_seconds": 0.72,
+          "user_seconds": 4.27,
+          "wall_seconds": 4.164999006000016
+        }
+      ],
+      "schema_version": "1.0",
+      "status": "FAIL",
+      "summary": {
+        "cpu_median_seconds": 5.225,
+        "peak_rss_max_kib": 57884.0,
+        "resource_metrics": "gnu-time",
+        "wall_cv": 0.05117900870782705,
+        "wall_median_seconds": 4.389657315999955,
+        "wall_min_seconds": 4.164999006000016,
+        "wall_p90_seconds": 4.569383963999906
+      },
+      "warmup_samples": [],
+      "warmups": 0
+    },
+    "package": {
+      "claim_boundary": "Same-host command telemetry; external scientific solver performance is not measured.",
+      "command": [
+        "/opt/hostedtoolcache/Python/3.13.14/x64/bin/python",
+        "scripts/verify_all.py",
+        "--profile",
+        "package"
+      ],
+      "cwd": "/tmp/tsao-v9-ab-candidate",
+      "repeats": 2,
+      "samples": [
+        {
+          "filesystem_inputs": 0.0,
+          "filesystem_outputs": 30712.0,
+          "peak_rss_kib": 45932.0,
+          "resource_metrics": "gnu-time",
+          "returncode": 0,
+          "system_seconds": 0.76,
+          "user_seconds": 3.23,
+          "wall_seconds": 2.4984680579999576
+        },
+        {
+          "filesystem_inputs": 0.0,
+          "filesystem_outputs": 30712.0,
+          "peak_rss_kib": 46176.0,
+          "resource_metrics": "gnu-time",
+          "returncode": 0,
+          "system_seconds": 0.76,
+          "user_seconds": 3.24,
+          "wall_seconds": 2.4808081989999664
+        }
+      ],
+      "schema_version": "1.0",
+      "status": "PASS",
+      "summary": {
+        "cpu_median_seconds": 3.995,
+        "peak_rss_max_kib": 46176.0,
+        "resource_metrics": "gnu-time",
+        "wall_cv": 0.0035466718632381155,
+        "wall_median_seconds": 2.489638128499962,
+        "wall_min_seconds": 2.4808081989999664,
+        "wall_p90_seconds": 2.4967020720999584
+      },
+      "warmup_samples": [],
+      "warmups": 0
+    },
+    "pytest": {
+      "claim_boundary": "Same-host command telemetry; external scientific solver performance is not measured.",
+      "command": [
+        "/opt/hostedtoolcache/Python/3.13.14/x64/bin/python",
+        "-m",
+        "pytest",
+        "-q"
+      ],
+      "cwd": "/tmp/tsao-v9-ab-candidate",
+      "repeats": 2,
+      "samples": [
+        {
+          "filesystem_inputs": 0.0,
+          "filesystem_outputs": 17808.0,
+          "peak_rss_kib": 50344.0,
+          "resource_metrics": "gnu-time",
+          "returncode": 0,
+          "system_seconds": 0.42,
+          "user_seconds": 1.84,
+          "wall_seconds": 2.1956595330000255
+        },
+        {
+          "filesystem_inputs": 0.0,
+          "filesystem_outputs": 17808.0,
+          "peak_rss_kib": 50004.0,
+          "resource_metrics": "gnu-time",
+          "returncode": 0,
+          "system_seconds": 0.42,
+          "user_seconds": 1.91,
+          "wall_seconds": 2.2693585499999926
+        }
+      ],
+      "schema_version": "1.0",
+      "status": "PASS",
+      "summary": {
+        "cpu_median_seconds": 2.295,
+        "peak_rss_max_kib": 50344.0,
+        "resource_metrics": "gnu-time",
+        "wall_cv": 0.016505872009917877,
+        "wall_median_seconds": 2.232509041500009,
+        "wall_min_seconds": 2.1956595330000255,
+        "wall_p90_seconds": 2.2619886482999956
+      },
+      "warmup_samples": [],
+      "warmups": 0
+    },
+    "quality": {
+      "claim_boundary": "Same-host command telemetry; external scientific solver performance is not measured.",
+      "command": [
+        "/opt/hostedtoolcache/Python/3.13.14/x64/bin/python",
+        "scripts/verify_all.py",
+        "--profile",
+        "quality"
+      ],
+      "cwd": "/tmp/tsao-v9-ab-candidate",
+      "repeats": 2,
+      "samples": [
+        {
+          "failure_log_tail": "\n==> repository quality rules\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/quality_check.py\n{\"passed\": true, \"problems\": [], \"python_files\": 117, \"schema_version\": \"1.0\"}\n\n==> Ruff lint\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python -m ruff check tsao_computation scripts tests _bootstrap.py\nI001 [*] Import block is un-sorted or un-formatted\n  --> tests/test_performance_optimizations.py:1:1\n   |\n 1 | / from __future__ import annotations\n 2 | |\n 3 | | import sys\n 4 | | from pathlib import Path\n 5 | | from types import SimpleNamespace\n 6 | |\n 7 | | import pytest\n 8 | |\n 9 | | from scripts.benchmark import median_seconds\n10 | | from scripts.compare_performance import compare_performance\n11 | | from scripts.run_tests import _write_coverage_evidence\n12 | | from scripts.security_scan import scan\n13 | | from scripts import verify_wheel\n14 | | from tsao_computation.adapters import get_adapter\n15 | | from tsao_computation.adapters.registry import list_adapters\n16 | | from tsao_computation.provenance.manifest import file_manifest, iter_repository_entries\n17 | | from tsao_computation.registries import clear_registry_caches\n18 | | from tsao_computation.routing import route_question\n19 | | from tsao_computation.routing.router import _routing_index\n   | |__________________________________________________________^\n   |\nhelp: Organize imports\n   |\n8  |\n9  + from scripts import verify_wheel\n10 | from scripts.benchmark import median_seconds\n11 | from scripts.compare_performance import compare_performance\n12 | from scripts.run_tests import _write_coverage_evidence\n13 | from scripts.security_scan import scan\n   - from scripts import verify_wheel\n14 | from tsao_computation.adapters import get_adapter\n   |\n\nFound 1 error.\n[*] 1 fixable with the `--fix` option.\n\nFAILED: Ruff lint (exit 1)\n",
+          "filesystem_inputs": 0.0,
+          "filesystem_outputs": 1960.0,
+          "peak_rss_kib": 40908.0,
+          "resource_metrics": "gnu-time",
+          "returncode": 1,
+          "system_seconds": 0.05,
+          "user_seconds": 0.43,
+          "wall_seconds": 0.46527229600008013
+        },
+        {
+          "failure_log_tail": "\n==> repository quality rules\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/quality_check.py\n{\"passed\": true, \"problems\": [], \"python_files\": 117, \"schema_version\": \"1.0\"}\n\n==> Ruff lint\n    /opt/hostedtoolcache/Python/3.13.14/x64/bin/python -m ruff check tsao_computation scripts tests _bootstrap.py\nI001 [*] Import block is un-sorted or un-formatted\n  --> tests/test_performance_optimizations.py:1:1\n   |\n 1 | / from __future__ import annotations\n 2 | |\n 3 | | import sys\n 4 | | from pathlib import Path\n 5 | | from types import SimpleNamespace\n 6 | |\n 7 | | import pytest\n 8 | |\n 9 | | from scripts.benchmark import median_seconds\n10 | | from scripts.compare_performance import compare_performance\n11 | | from scripts.run_tests import _write_coverage_evidence\n12 | | from scripts.security_scan import scan\n13 | | from scripts import verify_wheel\n14 | | from tsao_computation.adapters import get_adapter\n15 | | from tsao_computation.adapters.registry import list_adapters\n16 | | from tsao_computation.provenance.manifest import file_manifest, iter_repository_entries\n17 | | from tsao_computation.registries import clear_registry_caches\n18 | | from tsao_computation.routing import route_question\n19 | | from tsao_computation.routing.router import _routing_index\n   | |__________________________________________________________^\n   |\nhelp: Organize imports\n   |\n8  |\n9  + from scripts import verify_wheel\n10 | from scripts.benchmark import median_seconds\n11 | from scripts.compare_performance import compare_performance\n12 | from scripts.run_tests import _write_coverage_evidence\n13 | from scripts.security_scan import scan\n   - from scripts import verify_wheel\n14 | from tsao_computation.adapters import get_adapter\n   |\n\nFound 1 error.\n[*] 1 fixable with the `--fix` option.\n\nFAILED: Ruff lint (exit 1)\n",
+          "filesystem_inputs": 0.0,
+          "filesystem_outputs": 1920.0,
+          "peak_rss_kib": 40344.0,
+          "resource_metrics": "gnu-time",
+          "returncode": 1,
+          "system_seconds": 0.05,
+          "user_seconds": 0.4,
+          "wall_seconds": 0.46435003900000993
+        }
+      ],
+      "schema_version": "1.0",
+      "status": "FAIL",
+      "summary": {
+        "cpu_median_seconds": 0.46499999999999997,
+        "peak_rss_max_kib": 40908.0,
+        "resource_metrics": "gnu-time",
+        "wall_cv": 0.0009920770675869294,
+        "wall_median_seconds": 0.46481116750004503,
+        "wall_min_seconds": 0.46435003900000993,
+        "wall_p90_seconds": 0.46518007030007313
+      },
+      "warmup_samples": [],
+      "warmups": 0
+    }
+  },
+  "methodology": {
+    "resource_metrics": [
+      "wall",
+      "CPU",
+      "peak RSS",
+      "filesystem input/output"
+    ],
+    "same_host_required_for_comparison": true,
+    "statistics": [
+      "median",
+      "min",
+      "p90",
+      "stdev",
+      "cv"
+    ],
+    "warmups": "2 for microbenchmarks; 1 for verify_all all"
+  },
+  "parsing": {
+    "1kib_crlf": {
+      "cv": 0.09520702685078944,
+      "median_seconds": 5.801499997915016e-05,
+      "min_seconds": 5.7325000000219006e-05,
+      "p90_seconds": 6.30319999686435e-05,
+      "peak_tracemalloc_bytes": 2546,
+      "result": {
+        "completed": true,
+        "converged": true,
+        "raw_length": 1055,
+        "validated": false
+      },
+      "stdev_seconds": 5.749012844725645e-06
+    },
+    "1kib_failure": {
+      "cv": 0.022282010383459644,
+      "median_seconds": 7.054300004938341e-05,
+      "min_seconds": 6.976299999905677e-05,
+      "p90_seconds": 7.346439997490961e-05,
+      "peak_tracemalloc_bytes": 3603,
+      "result": {
+        "completed": false,
+        "converged": false,
+        "raw_length": 1065,
+        "validated": false
+      },
+      "stdev_seconds": 1.5925844102814693e-06
+    },
+    "1kib_mixed_case": {
+      "cv": 0.20321279867721578,
+      "median_seconds": 5.7304000051772164e-05,
+      "min_seconds": 5.6803000006766524e-05,
+      "p90_seconds": 6.74519999961376e-05,
+      "peak_tracemalloc_bytes": 2544,
+      "result": {
+        "completed": true,
+        "converged": true,
+        "raw_length": 1053,
+        "validated": false
+      },
+      "stdev_seconds": 1.2619492219889878e-05
+    },
+    "1kib_nonconverged": {
+      "cv": 0.04467329219795574,
+      "median_seconds": 0.00010150000002795423,
+      "min_seconds": 9.962699999732649e-05,
+      "p90_seconds": 0.00010929880002095161,
+      "peak_tracemalloc_bytes": 3303,
+      "result": {
+        "completed": true,
+        "converged": false,
+        "raw_length": 1057,
+        "validated": false
+      },
+      "stdev_seconds": 4.623199299933548e-06
+    },
+    "1kib_none": {
+      "cv": 0.0271768563456393,
+      "median_seconds": 3.6593999993783655e-05,
+      "min_seconds": 3.5192000041206484e-05,
+      "p90_seconds": 3.7813999995250924e-05,
+      "peak_tracemalloc_bytes": 2395,
+      "result": {
+        "completed": false,
+        "converged": false,
+        "raw_length": 1024,
+        "validated": false
+      },
+      "stdev_seconds": 9.89397612466745e-07
+    },
+    "1kib_success_end": {
+      "cv": 0.06445156218331619,
+      "median_seconds": 5.750500002932313e-05,
+      "min_seconds": 5.6333000031827396e-05,
+      "p90_seconds": 6.093200000805155e-05,
+      "peak_tracemalloc_bytes": 2544,
+      "result": {
+        "completed": true,
+        "converged": true,
+        "raw_length": 1053,
+        "validated": false
+      },
+      "stdev_seconds": 3.786027989171407e-06
+    },
+    "1kib_success_middle": {
+      "cv": 0.3228483737488807,
+      "median_seconds": 3.530200001478079e-05,
+      "min_seconds": 3.4029999994800164e-05,
+      "p90_seconds": 4.538440000487754e-05,
+      "peak_tracemalloc_bytes": 2545,
+      "result": {
+        "completed": true,
+        "converged": true,
+        "raw_length": 1054,
+        "validated": false
+      },
+      "stdev_seconds": 1.2872144021069786e-05
+    },
+    "1kib_success_start": {
+      "cv": 0.19577135740915205,
+      "median_seconds": 1.2919000027977745e-05,
+      "min_seconds": 1.195699996969779e-05,
+      "p90_seconds": 1.7358200011585723e-05,
+      "peak_tracemalloc_bytes": 2544,
+      "result": {
+        "completed": true,
+        "converged": true,
+        "raw_length": 1053,
+        "validated": false
+      },
+      "stdev_seconds": 2.7766034112131724e-06
+    },
+    "1mib_crlf": {
+      "cv": 0.003108932301814754,
+      "median_seconds": 0.048874181999963184,
+      "min_seconds": 0.04862710700001571,
+      "p90_seconds": 0.04899034420001272,
+      "peak_tracemalloc_bytes": 1050098,
+      "result": {
+        "completed": true,
+        "converged": true,
+        "raw_length": 1048607,
+        "validated": false
+      },
+      "stdev_seconds": 0.00015182630073246617
+    },
+    "1mib_failure": {
+      "cv": 0.00592234192421389,
+      "median_seconds": 0.057011148000015055,
+      "min_seconds": 0.05630479899997454,
+      "p90_seconds": 0.05730846339999971,
+      "peak_tracemalloc_bytes": 1050779,
+      "result": {
+        "completed": false,
+        "converged": false,
+        "raw_length": 1048617,
+        "validated": false
+      },
+      "stdev_seconds": 0.00033749937749331585
+    },
+    "1mib_mixed_case": {
+      "cv": 0.002562279278540693,
+      "median_seconds": 0.0494206649999569,
+      "min_seconds": 0.04937710000001516,
+      "p90_seconds": 0.04964126720000195,
+      "peak_tracemalloc_bytes": 1050096,
+      "result": {
+        "completed": true,
+        "converged": true,
+        "raw_length": 1048605,
+        "validated": false
+      },
+      "stdev_seconds": 0.0001267640891531971
+    },
+    "1mib_nonconverged": {
+      "cv": 0.0019752142283670764,
+      "median_seconds": 0.08306090100001029,
+      "min_seconds": 0.08272165199997517,
+      "p90_seconds": 0.08314295179998225,
+      "peak_tracemalloc_bytes": 1051043,
+      "result": {
+        "completed": true,
+        "converged": false,
+        "raw_length": 1048609,
+        "validated": false
+      },
+      "stdev_seconds": 0.00016400595576738123
+    },
+    "1mib_none": {
+      "cv": 0.0012395250065732567,
+      "median_seconds": 0.029196230000025025,
+      "min_seconds": 0.02916577500002404,
+      "p90_seconds": 0.029263983199996346,
+      "peak_tracemalloc_bytes": 1049947,
+      "result": {
+        "completed": false,
+        "converged": false,
+        "raw_length": 1048576,
+        "validated": false
+      },
+      "stdev_seconds": 3.620382217569956e-05
+    },
+    "1mib_success_end": {
+      "cv": 0.002980054433028226,
+      "median_seconds": 0.04819004500001256,
+      "min_seconds": 0.04790088899994771,
+      "p90_seconds": 0.0482992953999883,
+      "peak_tracemalloc_bytes": 1050096,
+      "result": {
+        "completed": true,
+        "converged": true,
+        "raw_length": 1048605,
+        "validated": false
+      },
+      "stdev_seconds": 0.00014341857545924737
+    },
+    "1mib_success_middle": {
+      "cv": 0.0059456511110112424,
+      "median_seconds": 0.02640283199997384,
+      "min_seconds": 0.02621512600001097,
+      "p90_seconds": 0.02659713000002739,
+      "peak_tracemalloc_bytes": 1050097,
+      "result": {
+        "completed": true,
+        "converged": true,
+        "raw_length": 1048606,
+        "validated": false
+      },
+      "stdev_seconds": 0.00015717282468008883
+    },
+    "1mib_success_start": {
+      "cv": 0.007499823299394755,
+      "median_seconds": 0.004151565999961804,
+      "min_seconds": 0.004121171999997841,
+      "p90_seconds": 0.0041992264000441535,
+      "peak_tracemalloc_bytes": 1050096,
+      "result": {
+        "completed": true,
+        "converged": true,
+        "raw_length": 1048605,
+        "validated": false
+      },
+      "stdev_seconds": 3.117233805997764e-05
+    },
+    "50mib_crlf": {
+      "cv": 0.0023932399365362038,
+      "median_seconds": 2.362234146999981,
+      "min_seconds": 2.3603290550000793,
+      "p90_seconds": 2.370987363800032,
+      "peak_tracemalloc_bytes": 52430410,
+      "result": {
+        "completed": true,
+        "converged": true,
+        "raw_length": 52428831,
+        "validated": false
+      },
+      "stdev_seconds": 0.005660601880972175
+    },
+    "50mib_failure": {
+      "cv": 0.016178311041516964,
+      "median_seconds": 2.704007252999986,
+      "min_seconds": 2.6813386450000394,
+      "p90_seconds": 2.768036564199997,
+      "peak_tracemalloc_bytes": 52431185,
+      "result": {
+        "completed": false,
+        "converged": false,
+        "raw_length": 52428841,
+        "validated": false
+      },
+      "stdev_seconds": 0.044055643014004456
+    },
+    "50mib_mixed_case": {
+      "cv": 0.0020656803594073783,
+      "median_seconds": 2.371239381999999,
+      "min_seconds": 2.362871631999951,
+      "p90_seconds": 2.3738412372000086,
+      "peak_tracemalloc_bytes": 52430408,
+      "result": {
+        "completed": true,
+        "converged": true,
+        "raw_length": 52428829,
+        "validated": false
+      },
+      "stdev_seconds": 0.004894700337068462
+    },
+    "50mib_nonconverged": {
+      "cv": 0.00563767655335846,
+      "median_seconds": 4.095400926000025,
+      "min_seconds": 4.0508508550000215,
+      "p90_seconds": 4.101526806799962,
+      "peak_tracemalloc_bytes": 52431073,
+      "result": {
+        "completed": true,
+        "converged": false,
+        "raw_length": 52428833,
+        "validated": false
+      },
+      "stdev_seconds": 0.02301921603626817
+    },
+    "50mib_none": {
+      "cv": 0.0007733896665550226,
+      "median_seconds": 1.4341777759999559,
+      "min_seconds": 1.432174725999971,
+      "p90_seconds": 1.434647383999959,
+      "peak_tracemalloc_bytes": 52430259,
+      "result": {
+        "completed": false,
+        "converged": false,
+        "raw_length": 52428800,
+        "validated": false
+      },
+      "stdev_seconds": 0.0011088132217267586
+    },
+    "50mib_success_end": {
+      "cv": 0.00866899115359943,
+      "median_seconds": 2.379601593000018,
+      "min_seconds": 2.362384162000012,
+      "p90_seconds": 2.405708220200006,
+      "peak_tracemalloc_bytes": 52430408,
+      "result": {
+        "completed": true,
+        "converged": true,
+        "raw_length": 52428829,
+        "validated": false
+      },
+      "stdev_seconds": 0.02067329178990227
+    },
+    "50mib_success_middle": {
+      "cv": 0.0006167438373039108,
+      "median_seconds": 1.288450322000017,
+      "min_seconds": 1.2884496839999997,
+      "p90_seconds": 1.289799210000001,
+      "peak_tracemalloc_bytes": 52430409,
+      "result": {
+        "completed": true,
+        "converged": true,
+        "raw_length": 52428830,
+        "validated": false
+      },
+      "stdev_seconds": 0.0007949902972553917
+    },
+    "50mib_success_start": {
+      "cv": 0.00870852292414766,
+      "median_seconds": 0.21104859400003306,
+      "min_seconds": 0.21094582199998513,
+      "p90_seconds": 0.21414429000002427,
+      "peak_tracemalloc_bytes": 52430408,
+      "result": {
+        "completed": true,
+        "converged": true,
+        "raw_length": 52428829,
+        "validated": false
+      },
+      "stdev_seconds": 0.0018488560796781758
+    },
+    "5mib_crlf": {
+      "cv": 0.0034593627225093424,
+      "median_seconds": 0.24337397499999724,
+      "min_seconds": 0.24271318400002428,
+      "p90_seconds": 0.24478214419998492,
+      "peak_tracemalloc_bytes": 5244490,
+      "result": {
+        "completed": true,
+        "converged": true,
+        "raw_length": 5242911,
+        "validated": false
+      },
+      "stdev_seconds": 0.0008432643288274891
+    },
+    "5mib_failure": {
+      "cv": 0.006118371669849042,
+      "median_seconds": 0.27415080199995145,
+      "min_seconds": 0.27073991599996816,
+      "p90_seconds": 0.27513191680000093,
+      "peak_tracemalloc_bytes": 5245359,
+      "result": {
+        "completed": false,
+        "converged": false,
+        "raw_length": 5242921,
+        "validated": false
+      },
+      "stdev_seconds": 0.0016735114450337914
+    },
+    "5mib_mixed_case": {
+      "cv": 0.002428545600334773,
+      "median_seconds": 0.24546152499999607,
+      "min_seconds": 0.24402252900000576,
+      "p90_seconds": 0.24556230700003426,
+      "peak_tracemalloc_bytes": 5244488,
+      "result": {
+        "completed": true,
+        "converged": true,
+        "raw_length": 5242909,
+        "validated": false
+      },
+      "stdev_seconds": 0.0005955012473410026
+    },
+    "5mib_nonconverged": {
+      "cv": 0.0065191522630501635,
+      "median_seconds": 0.41691597099998035,
+      "min_seconds": 0.4119925800000033,
+      "p90_seconds": 0.4189552414000104,
+      "peak_tracemalloc_bytes": 5245247,
+      "result": {
+        "completed": true,
+        "converged": false,
+        "raw_length": 5242913,
+        "validated": false
+      },
+      "stdev_seconds": 0.0027133121825645688
+    },
+    "5mib_none": {
+      "cv": 0.0012022930078968137,
+      "median_seconds": 0.14982134599995334,
+      "min_seconds": 0.1496221439999772,
+      "p90_seconds": 0.15007596359998843,
+      "peak_tracemalloc_bytes": 5244339,
+      "result": {
+        "completed": false,
+        "converged": false,
+        "raw_length": 5242880,
+        "validated": false
+      },
+      "stdev_seconds": 0.00018018603168112272
+    },
+    "5mib_success_end": {
+      "cv": 0.0026088646008318975,
+      "median_seconds": 0.24047120899996344,
+      "min_seconds": 0.2397032790000253,
+      "p90_seconds": 0.24123883080000041,
+      "peak_tracemalloc_bytes": 5244488,
+      "result": {
+        "completed": true,
+        "converged": true,
+        "raw_length": 5242909,
+        "validated": false
+      },
+      "stdev_seconds": 0.0006274592460946889
+    },
+    "5mib_success_middle": {
+      "cv": 0.006317758022760047,
+      "median_seconds": 0.13099410600000283,
+      "min_seconds": 0.13002219800000603,
+      "p90_seconds": 0.13200069139999188,
+      "peak_tracemalloc_bytes": 5244489,
+      "result": {
+        "completed": true,
+        "converged": true,
+        "raw_length": 5242910,
+        "validated": false
+      },
+      "stdev_seconds": 0.0008280268139878873
+    },
+    "5mib_success_start": {
+      "cv": 0.004311426811607617,
+      "median_seconds": 0.021240829000021222,
+      "min_seconds": 0.021097568000016054,
+      "p90_seconds": 0.021300108999980694,
+      "peak_tracemalloc_bytes": 5244368,
+      "result": {
+        "completed": true,
+        "converged": true,
+        "raw_length": 5242909,
+        "validated": false
+      },
+      "stdev_seconds": 9.142357617224693e-05
+    }
+  },
+  "platform": "linux",
+  "profiles": {
+    "manifest": {
+      "primitive_calls": 164559,
+      "top_cumulative": [
+        {
+          "calls": 64,
+          "cumulative_seconds": 0.13096394,
+          "file": "~",
+          "function": "<built-in method builtins.exec>",
+          "line": 0,
+          "primitive_calls": 1,
+          "total_seconds": 0.000218361
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.130960304,
+          "file": "/tmp/tsao-v9-profile-q20bfk8s/manifest.py",
+          "function": "<module>",
+          "line": 1,
+          "primitive_calls": 1,
+          "total_seconds": 0.00011694
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.081836488,
+          "file": "/tmp/tsao-v9-ab-candidate/tsao_computation/provenance/manifest.py",
+          "function": "file_manifest",
+          "line": 83,
+          "primitive_calls": 1,
+          "total_seconds": 0.001778424
+        },
+        {
+          "calls": 83,
+          "cumulative_seconds": 0.048993896,
+          "file": "<frozen importlib._bootstrap>",
+          "function": "_find_and_load",
+          "line": 1349,
+          "primitive_calls": 1,
+          "total_seconds": 0.00044819300000000005
+        },
+        {
+          "calls": 83,
+          "cumulative_seconds": 0.048932465,
+          "file": "<frozen importlib._bootstrap>",
+          "function": "_find_and_load_unlocked",
+          "line": 1304,
+          "primitive_calls": 1,
+          "total_seconds": 0.000279099
+        },
+        {
+          "calls": 188,
+          "cumulative_seconds": 0.048927318000000004,
+          "file": "<frozen importlib._bootstrap>",
+          "function": "_call_with_frames_removed",
+          "line": 480,
+          "primitive_calls": 1,
+          "total_seconds": 0.000130178
+        },
+        {
+          "calls": 11,
+          "cumulative_seconds": 0.048925915,
+          "file": "~",
+          "function": "<built-in method builtins.__import__>",
+          "line": 0,
+          "primitive_calls": 1,
+          "total_seconds": 2.6428000000000002e-05
+        },
+        {
+          "calls": 80,
+          "cumulative_seconds": 0.048484437000000005,
+          "file": "<frozen importlib._bootstrap>",
+          "function": "_load_unlocked",
+          "line": 911,
+          "primitive_calls": 2,
+          "total_seconds": 0.00026392900000000004
+        },
+        {
+          "calls": 63,
+          "cumulative_seconds": 0.048417598000000006,
+          "file": "<frozen importlib._bootstrap_external>",
+          "function": "exec_module",
+          "line": 1017,
+          "primitive_calls": 2,
+          "total_seconds": 0.000151027
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.039490630000000006,
+          "file": "/tmp/tsao-v9-ab-candidate/tsao_computation/__init__.py",
+          "function": "<module>",
+          "line": 1,
+          "primitive_calls": 1,
+          "total_seconds": 8.234000000000001e-06
+        },
+        {
+          "calls": 535,
+          "cumulative_seconds": 0.032604228,
+          "file": "/opt/hostedtoolcache/Python/3.13.14/x64/lib/python3.13/pathlib/_local.py",
+          "function": "relative_to",
+          "line": 365,
+          "primitive_calls": 535,
+          "total_seconds": 0.002122372
+        },
+        {
+          "calls": 536,
+          "cumulative_seconds": 0.025311353,
+          "file": "/tmp/tsao-v9-ab-candidate/tsao_computation/provenance/manifest.py",
+          "function": "iter_repository_entries",
+          "line": 40,
+          "primitive_calls": 536,
+          "total_seconds": 0.000529918
+        },
+        {
+          "calls": 96,
+          "cumulative_seconds": 0.024371055000000003,
+          "file": "/tmp/tsao-v9-ab-candidate/tsao_computation/provenance/manifest.py",
+          "function": "enqueue",
+          "line": 44,
+          "primitive_calls": 96,
+          "total_seconds": 0.0030768730000000004
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.020753812,
+          "file": "/opt/hostedtoolcache/Python/3.13.14/x64/lib/python3.13/importlib/metadata/__init__.py",
+          "function": "version",
+          "line": 980,
+          "primitive_calls": 1,
+          "total_seconds": 3.333e-06
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.018639514000000003,
+          "file": "/opt/hostedtoolcache/Python/3.13.14/x64/lib/python3.13/importlib/metadata/__init__.py",
+          "function": "version",
+          "line": 483,
+          "primitive_calls": 1,
+          "total_seconds": 5.8190000000000005e-06
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.018624581,
+          "file": "/opt/hostedtoolcache/Python/3.13.14/x64/lib/python3.13/importlib/metadata/__init__.py",
+          "function": "metadata",
+          "line": 448,
+          "primitive_calls": 1,
+          "total_seconds": 1.3609000000000001e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.018201249000000003,
+          "file": "/opt/hostedtoolcache/Python/3.13.14/x64/lib/python3.13/importlib/metadata/__init__.py",
+          "function": "<module>",
+          "line": 1,
+          "primitive_calls": 1,
+          "total_seconds": 6.569800000000001e-05
+        },
+        {
+          "calls": 535,
+          "cumulative_seconds": 0.017904388,
+          "file": "<frozen _collections_abc>",
+          "function": "__contains__",
+          "line": 1041,
+          "primitive_calls": 535,
+          "total_seconds": 0.0012661990000000002
+        },
+        {
+          "calls": 29,
+          "cumulative_seconds": 0.017488352000000002,
+          "file": "<frozen importlib._bootstrap>",
+          "function": "_handle_fromlist",
+          "line": 1398,
+          "primitive_calls": 19,
+          "total_seconds": 4.6343e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.015496211000000001,
+          "file": "/opt/hostedtoolcache/Python/3.13.14/x64/lib/python3.13/importlib/metadata/_adapters.py",
+          "function": "<module>",
+          "line": 1,
+          "primitive_calls": 1,
+          "total_seconds": 1.2159e-05
+        }
+      ],
+      "total_calls": 168392,
+      "total_seconds": 0.13098381099999995
+    },
+    "parser_50mib": {
+      "primitive_calls": 54328,
+      "top_cumulative": [
+        {
+          "calls": 74,
+          "cumulative_seconds": 0.249123067,
+          "file": "~",
+          "function": "<built-in method builtins.exec>",
+          "line": 0,
+          "primitive_calls": 1,
+          "total_seconds": 0.0016881200000000002
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.24911838000000003,
+          "file": "/tmp/tsao-v9-profile-q20bfk8s/parser_50mib.py",
+          "function": "<module>",
+          "line": 1,
+          "primitive_calls": 1,
+          "total_seconds": 0.013090991000000001
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.169953192,
+          "file": "/tmp/tsao-v9-ab-candidate/tsao_computation/adapters/base.py",
+          "function": "parse",
+          "line": 184,
+          "primitive_calls": 1,
+          "total_seconds": 3.4421e-05
+        },
+        {
+          "calls": 8,
+          "cumulative_seconds": 0.130050256,
+          "file": "~",
+          "function": "<built-in method builtins.any>",
+          "line": 0,
+          "primitive_calls": 8,
+          "total_seconds": 4.3275e-05
+        },
+        {
+          "calls": 11,
+          "cumulative_seconds": 0.13000618,
+          "file": "/tmp/tsao-v9-ab-candidate/tsao_computation/adapters/base.py",
+          "function": "<genexpr>",
+          "line": 188,
+          "primitive_calls": 11,
+          "total_seconds": 0.13000618
+        },
+        {
+          "calls": 88,
+          "cumulative_seconds": 0.065435597,
+          "file": "<frozen importlib._bootstrap>",
+          "function": "_find_and_load",
+          "line": 1349,
+          "primitive_calls": 1,
+          "total_seconds": 0.00048439500000000004
+        },
+        {
+          "calls": 88,
+          "cumulative_seconds": 0.065373335,
+          "file": "<frozen importlib._bootstrap>",
+          "function": "_find_and_load_unlocked",
+          "line": 1304,
+          "primitive_calls": 1,
+          "total_seconds": 0.00032466900000000003
+        },
+        {
+          "calls": 206,
+          "cumulative_seconds": 0.065116899,
+          "file": "<frozen importlib._bootstrap>",
+          "function": "_call_with_frames_removed",
+          "line": 480,
+          "primitive_calls": 4,
+          "total_seconds": 0.000507139
+        },
+        {
+          "calls": 87,
+          "cumulative_seconds": 0.064960818,
+          "file": "<frozen importlib._bootstrap>",
+          "function": "_load_unlocked",
+          "line": 911,
+          "primitive_calls": 2,
+          "total_seconds": 0.00028066100000000003
+        },
+        {
+          "calls": 70,
+          "cumulative_seconds": 0.064889484,
+          "file": "<frozen importlib._bootstrap_external>",
+          "function": "exec_module",
+          "line": 1017,
+          "primitive_calls": 2,
+          "total_seconds": 0.00016777300000000002
+        },
+        {
+          "calls": 10,
+          "cumulative_seconds": 0.041374810000000005,
+          "file": "~",
+          "function": "<built-in method builtins.__import__>",
+          "line": 0,
+          "primitive_calls": 2,
+          "total_seconds": 2.5526000000000003e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.040706387000000004,
+          "file": "/tmp/tsao-v9-ab-candidate/tsao_computation/__init__.py",
+          "function": "<module>",
+          "line": 1,
+          "primitive_calls": 1,
+          "total_seconds": 9.585e-06
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.0398581,
+          "file": "~",
+          "function": "<method 'casefold' of 'str' objects>",
+          "line": 0,
+          "primitive_calls": 1,
+          "total_seconds": 0.0398581
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.023923785000000003,
+          "file": "/tmp/tsao-v9-ab-candidate/tsao_computation/adapters/__init__.py",
+          "function": "<module>",
+          "line": 1,
+          "primitive_calls": 1,
+          "total_seconds": 1.4823e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.021657992,
+          "file": "/opt/hostedtoolcache/Python/3.13.14/x64/lib/python3.13/importlib/metadata/__init__.py",
+          "function": "version",
+          "line": 980,
+          "primitive_calls": 1,
+          "total_seconds": 3.985e-06
+        },
+        {
+          "calls": 31,
+          "cumulative_seconds": 0.020348048,
+          "file": "<frozen importlib._bootstrap>",
+          "function": "_handle_fromlist",
+          "line": 1398,
+          "primitive_calls": 19,
+          "total_seconds": 4.4914000000000004e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.019633956,
+          "file": "/opt/hostedtoolcache/Python/3.13.14/x64/lib/python3.13/importlib/metadata/__init__.py",
+          "function": "version",
+          "line": 483,
+          "primitive_calls": 1,
+          "total_seconds": 6.219e-06
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.019618363,
+          "file": "/opt/hostedtoolcache/Python/3.13.14/x64/lib/python3.13/importlib/metadata/__init__.py",
+          "function": "metadata",
+          "line": 448,
+          "primitive_calls": 1,
+          "total_seconds": 1.5421e-05
+        },
+        {
+          "calls": 70,
+          "cumulative_seconds": 0.019031231000000003,
+          "file": "<frozen importlib._bootstrap_external>",
+          "function": "get_code",
+          "line": 1090,
+          "primitive_calls": 70,
+          "total_seconds": 0.000492702
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.018468221,
+          "file": "/opt/hostedtoolcache/Python/3.13.14/x64/lib/python3.13/importlib/metadata/__init__.py",
+          "function": "<module>",
+          "line": 1,
+          "primitive_calls": 1,
+          "total_seconds": 7.1468e-05
+        }
+      ],
+      "total_calls": 55840,
+      "total_seconds": 0.24914159699999994
+    },
+    "repository_audit": {
+      "primitive_calls": 135814,
+      "top_cumulative": [
+        {
+          "calls": 68,
+          "cumulative_seconds": 0.118327706,
+          "file": "~",
+          "function": "<built-in method builtins.exec>",
+          "line": 0,
+          "primitive_calls": 1,
+          "total_seconds": 0.00020395800000000001
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.118324461,
+          "file": "/tmp/tsao-v9-profile-q20bfk8s/repository_audit.py",
+          "function": "<module>",
+          "line": 1,
+          "primitive_calls": 1,
+          "total_seconds": 4.9372e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.06624730100000001,
+          "file": "/tmp/tsao-v9-ab-candidate/tsao_computation/repository_audit.py",
+          "function": "audit_repository",
+          "line": 113,
+          "primitive_calls": 1,
+          "total_seconds": 0.005203989
+        },
+        {
+          "calls": 87,
+          "cumulative_seconds": 0.052018324000000005,
+          "file": "<frozen importlib._bootstrap>",
+          "function": "_find_and_load",
+          "line": 1349,
+          "primitive_calls": 1,
+          "total_seconds": 0.000469272
+        },
+        {
+          "calls": 87,
+          "cumulative_seconds": 0.051955712,
+          "file": "<frozen importlib._bootstrap>",
+          "function": "_find_and_load_unlocked",
+          "line": 1304,
+          "primitive_calls": 1,
+          "total_seconds": 0.00029274
+        },
+        {
+          "calls": 200,
+          "cumulative_seconds": 0.05172146800000001,
+          "file": "<frozen importlib._bootstrap>",
+          "function": "_call_with_frames_removed",
+          "line": 480,
+          "primitive_calls": 4,
+          "total_seconds": 0.000111391
+        },
+        {
+          "calls": 84,
+          "cumulative_seconds": 0.0515742,
+          "file": "<frozen importlib._bootstrap>",
+          "function": "_load_unlocked",
+          "line": 911,
+          "primitive_calls": 2,
+          "total_seconds": 0.00025933600000000004
+        },
+        {
+          "calls": 67,
+          "cumulative_seconds": 0.051507843000000005,
+          "file": "<frozen importlib._bootstrap_external>",
+          "function": "exec_module",
+          "line": 1017,
+          "primitive_calls": 2,
+          "total_seconds": 0.000150888
+        },
+        {
+          "calls": 11,
+          "cumulative_seconds": 0.046868190000000004,
+          "file": "~",
+          "function": "<built-in method builtins.__import__>",
+          "line": 0,
+          "primitive_calls": 2,
+          "total_seconds": 2.5238e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.037963243,
+          "file": "/tmp/tsao-v9-ab-candidate/tsao_computation/__init__.py",
+          "function": "<module>",
+          "line": 1,
+          "primitive_calls": 1,
+          "total_seconds": 8.393e-06
+        },
+        {
+          "calls": 536,
+          "cumulative_seconds": 0.023755488,
+          "file": "/tmp/tsao-v9-ab-candidate/tsao_computation/provenance/manifest.py",
+          "function": "iter_repository_entries",
+          "line": 40,
+          "primitive_calls": 536,
+          "total_seconds": 0.000459725
+        },
+        {
+          "calls": 96,
+          "cumulative_seconds": 0.022974795000000003,
+          "file": "/tmp/tsao-v9-ab-candidate/tsao_computation/provenance/manifest.py",
+          "function": "enqueue",
+          "line": 44,
+          "primitive_calls": 96,
+          "total_seconds": 0.0028557530000000004
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.019960756,
+          "file": "/opt/hostedtoolcache/Python/3.13.14/x64/lib/python3.13/importlib/metadata/__init__.py",
+          "function": "version",
+          "line": 980,
+          "primitive_calls": 1,
+          "total_seconds": 2.703e-06
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.017900427,
+          "file": "/opt/hostedtoolcache/Python/3.13.14/x64/lib/python3.13/importlib/metadata/__init__.py",
+          "function": "version",
+          "line": 483,
+          "primitive_calls": 1,
+          "total_seconds": 5.759e-06
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.017885324,
+          "file": "/opt/hostedtoolcache/Python/3.13.14/x64/lib/python3.13/importlib/metadata/__init__.py",
+          "function": "metadata",
+          "line": 448,
+          "primitive_calls": 1,
+          "total_seconds": 1.3068000000000001e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.017512536000000002,
+          "file": "/opt/hostedtoolcache/Python/3.13.14/x64/lib/python3.13/importlib/metadata/__init__.py",
+          "function": "<module>",
+          "line": 1,
+          "primitive_calls": 1,
+          "total_seconds": 5.6884000000000006e-05
+        },
+        {
+          "calls": 33,
+          "cumulative_seconds": 0.016715322,
+          "file": "<frozen importlib._bootstrap>",
+          "function": "_handle_fromlist",
+          "line": 1398,
+          "primitive_calls": 23,
+          "total_seconds": 4.9574000000000003e-05
+        },
+        {
+          "calls": 67,
+          "cumulative_seconds": 0.015926571,
+          "file": "<frozen importlib._bootstrap_external>",
+          "function": "get_code",
+          "line": 1090,
+          "primitive_calls": 67,
+          "total_seconds": 0.000452412
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.014804263000000002,
+          "file": "/opt/hostedtoolcache/Python/3.13.14/x64/lib/python3.13/importlib/metadata/_adapters.py",
+          "function": "<module>",
+          "line": 1,
+          "primitive_calls": 1,
+          "total_seconds": 1.1408e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.013925841000000001,
+          "file": "/opt/hostedtoolcache/Python/3.13.14/x64/lib/python3.13/email/message.py",
+          "function": "<module>",
+          "line": 1,
+          "primitive_calls": 1,
+          "total_seconds": 1.9318e-05
+        }
+      ],
+      "total_calls": 136829,
+      "total_seconds": 0.11834554099999998
+    },
+    "security_scan": {
+      "primitive_calls": 173913,
+      "top_cumulative": [
+        {
+          "calls": 68,
+          "cumulative_seconds": 0.319330173,
+          "file": "~",
+          "function": "<built-in method builtins.exec>",
+          "line": 0,
+          "primitive_calls": 1,
+          "total_seconds": 0.000226357
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.319326637,
+          "file": "/tmp/tsao-v9-profile-q20bfk8s/security_scan.py",
+          "function": "<module>",
+          "line": 1,
+          "primitive_calls": 1,
+          "total_seconds": 1.6434000000000002e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.26687636800000003,
+          "file": "/tmp/tsao-v9-ab-candidate/scripts/security_scan.py",
+          "function": "scan",
+          "line": 23,
+          "primitive_calls": 1,
+          "total_seconds": 0.177988965
+        },
+        {
+          "calls": 87,
+          "cumulative_seconds": 0.052421817,
+          "file": "<frozen importlib._bootstrap>",
+          "function": "_find_and_load",
+          "line": 1349,
+          "primitive_calls": 1,
+          "total_seconds": 0.0005163920000000001
+        },
+        {
+          "calls": 87,
+          "cumulative_seconds": 0.052355189,
+          "file": "<frozen importlib._bootstrap>",
+          "function": "_find_and_load_unlocked",
+          "line": 1304,
+          "primitive_calls": 1,
+          "total_seconds": 0.000294243
+        },
+        {
+          "calls": 200,
+          "cumulative_seconds": 0.052100113,
+          "file": "<frozen importlib._bootstrap>",
+          "function": "_call_with_frames_removed",
+          "line": 480,
+          "primitive_calls": 4,
+          "total_seconds": 0.000122965
+        },
+        {
+          "calls": 84,
+          "cumulative_seconds": 0.051934269000000005,
+          "file": "<frozen importlib._bootstrap>",
+          "function": "_load_unlocked",
+          "line": 911,
+          "primitive_calls": 2,
+          "total_seconds": 0.00026042400000000004
+        },
+        {
+          "calls": 67,
+          "cumulative_seconds": 0.051862064000000006,
+          "file": "<frozen importlib._bootstrap_external>",
+          "function": "exec_module",
+          "line": 1017,
+          "primitive_calls": 2,
+          "total_seconds": 0.000160886
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.05105681,
+          "file": "/tmp/tsao-v9-ab-candidate/scripts/security_scan.py",
+          "function": "<module>",
+          "line": 1,
+          "primitive_calls": 1,
+          "total_seconds": 2.3715000000000002e-05
+        },
+        {
+          "calls": 12,
+          "cumulative_seconds": 0.046827350000000004,
+          "file": "~",
+          "function": "<built-in method builtins.__import__>",
+          "line": 0,
+          "primitive_calls": 3,
+          "total_seconds": 2.7874e-05
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.036105921,
+          "file": "/tmp/tsao-v9-ab-candidate/tsao_computation/__init__.py",
+          "function": "<module>",
+          "line": 1,
+          "primitive_calls": 1,
+          "total_seconds": 7.33e-06
+        },
+        {
+          "calls": 535,
+          "cumulative_seconds": 0.027840609000000002,
+          "file": "/opt/hostedtoolcache/Python/3.13.14/x64/lib/python3.13/pathlib/_local.py",
+          "function": "relative_to",
+          "line": 365,
+          "primitive_calls": 535,
+          "total_seconds": 0.002313552
+        },
+        {
+          "calls": 536,
+          "cumulative_seconds": 0.025868524,
+          "file": "/tmp/tsao-v9-ab-candidate/tsao_computation/provenance/manifest.py",
+          "function": "iter_repository_entries",
+          "line": 40,
+          "primitive_calls": 536,
+          "total_seconds": 0.0007412670000000001
+        },
+        {
+          "calls": 96,
+          "cumulative_seconds": 0.024615633,
+          "file": "/tmp/tsao-v9-ab-candidate/tsao_computation/provenance/manifest.py",
+          "function": "enqueue",
+          "line": 44,
+          "primitive_calls": 96,
+          "total_seconds": 0.0032507400000000002
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.020591435,
+          "file": "/opt/hostedtoolcache/Python/3.13.14/x64/lib/python3.13/importlib/metadata/__init__.py",
+          "function": "version",
+          "line": 980,
+          "primitive_calls": 1,
+          "total_seconds": 2.645e-06
+        },
+        {
+          "calls": 535,
+          "cumulative_seconds": 0.020080547,
+          "file": "/opt/hostedtoolcache/Python/3.13.14/x64/lib/python3.13/pathlib/_local.py",
+          "function": "read_text",
+          "line": 539,
+          "primitive_calls": 535,
+          "total_seconds": 0.0007606760000000001
+        },
+        {
+          "calls": 535,
+          "cumulative_seconds": 0.019238524,
+          "file": "/opt/hostedtoolcache/Python/3.13.14/x64/lib/python3.13/pathlib/_abc.py",
+          "function": "read_text",
+          "line": 628,
+          "primitive_calls": 535,
+          "total_seconds": 0.000856264
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.018513828,
+          "file": "/opt/hostedtoolcache/Python/3.13.14/x64/lib/python3.13/importlib/metadata/__init__.py",
+          "function": "version",
+          "line": 483,
+          "primitive_calls": 1,
+          "total_seconds": 5.837e-06
+        },
+        {
+          "calls": 1,
+          "cumulative_seconds": 0.018498907000000002,
+          "file": "/opt/hostedtoolcache/Python/3.13.14/x64/lib/python3.13/importlib/metadata/__init__.py",
+          "function": "metadata",
+          "line": 448,
+          "primitive_calls": 1,
+          "total_seconds": 1.3439000000000001e-05
+        },
+        {
+          "calls": 535,
+          "cumulative_seconds": 0.018368313,
+          "file": "<frozen _collections_abc>",
+          "function": "__contains__",
+          "line": 1041,
+          "primitive_calls": 535,
+          "total_seconds": 0.001375865
+        }
+      ],
+      "total_calls": 177906,
+      "total_seconds": 0.3193502599999998
+    }
+  },
+  "python": "3.13.14 (main, Jun 11 2026, 03:02:07) [GCC 13.3.0]",
+  "registry_and_routing": {
+    "registries": {
+      "adapter_list_cached": {
+        "cv": 0.005752147997125965,
+        "median_seconds": 4.299274999937097e-07,
+        "min_seconds": 4.2413900001747605e-07,
+        "p90_seconds": 4.3124050001779325e-07,
+        "peak_tracemalloc_bytes": 224,
+        "stdev_seconds": 2.469041141165744e-09
+      },
+      "adapter_lookup_cached": {
+        "cv": 0.003231226069624173,
+        "median_seconds": 4.842774999929134e-07,
+        "min_seconds": 4.829055000072913e-07,
+        "p90_seconds": 4.854589999979453e-07,
+        "peak_tracemalloc_bytes": 224,
+        "stdev_seconds": 1.5649964169654474e-09
+      },
+      "adapters_cold": {
+        "cv": 0.023988035816385644,
+        "median_seconds": 0.0010491830000205482,
+        "min_seconds": 0.0010075819999997293,
+        "p90_seconds": 0.0010738211999864688,
+        "peak_tracemalloc_bytes": 103346,
+        "stdev_seconds": 2.5178863217186447e-05
+      },
+      "cache_clear_and_rebuild": {
+        "cv": 0.03394447426891235,
+        "median_seconds": 0.009620197999993252,
+        "min_seconds": 0.008717741999987538,
+        "p90_seconds": 0.00967887700001029,
+        "peak_tracemalloc_bytes": 1185489,
+        "stdev_seconds": 0.0003225356568242959
+      },
+      "capabilities_cached": {
+        "cv": 0.0030469408294487767,
+        "median_seconds": 2.2900025000183178e-06,
+        "min_seconds": 2.279783000005864e-06,
+        "p90_seconds": 2.2946068999999624e-06,
+        "peak_tracemalloc_bytes": 408,
+        "stdev_seconds": 6.979078570131278e-09
+      },
+      "capabilities_cold": {
+        "cv": 0.010149336693526547,
+        "median_seconds": 0.007401876000017182,
+        "min_seconds": 0.007240007999996578,
+        "p90_seconds": 0.007496313000001464,
+        "peak_tracemalloc_bytes": 1185489,
+        "stdev_seconds": 7.51753959874576e-05
+      },
+      "units_cold": {
+        "cv": 0.03609398311671219,
+        "median_seconds": 0.0003397799999902418,
+        "min_seconds": 0.0003314870000394876,
+        "p90_seconds": 0.00036489119999032486,
+        "peak_tracemalloc_bytes": 6213,
+        "stdev_seconds": 1.2482093429554453e-05
+      },
+      "workflows_cold": {
+        "cv": 0.017340731424572226,
+        "median_seconds": 0.0007347300000333234,
+        "min_seconds": 0.0007142299999713941,
+        "p90_seconds": 0.0007466243999829203,
+        "peak_tracemalloc_bytes": 63027,
+        "stdev_seconds": 1.2693236215304333e-05
+      }
+    },
+    "route_cache": {
+      "currsize": 1,
+      "maxsize": 256
+    },
+    "routing": {
+      "chinese_cold": {
+        "cv": 0.3053918593107356,
+        "median_seconds": 1.4120000173534208e-06,
+        "min_seconds": 1.3620000345326844e-06,
+        "p90_seconds": 2.5859999823296674e-06,
+        "peak_tracemalloc_bytes": 192,
+        "stdev_seconds": 5.404563343819066e-07
+      },
+      "chinese_warm": {
+        "cv": 0.0429808592471972,
+        "median_seconds": 5.269050000151765e-07,
+        "min_seconds": 5.109710000397172e-07,
+        "p90_seconds": 5.464050000000498e-07,
+        "peak_tracemalloc_bytes": 224,
+        "stdev_seconds": 2.2837072476554852e-08
+      },
+      "english_cold": {
+        "cv": 0.532012090822754,
+        "median_seconds": 1.7630000002100132e-06,
+        "min_seconds": 1.3419999618236034e-06,
+        "p90_seconds": 4.243399985170981e-06,
+        "peak_tracemalloc_bytes": 192,
+        "stdev_seconds": 1.2519764544147666e-06
+      },
+      "english_warm": {
+        "cv": 0.01882666655571915,
+        "median_seconds": 5.22869000008086e-07,
+        "min_seconds": 5.095299999879899e-07,
+        "p90_seconds": 5.365449999658267e-07,
+        "peak_tracemalloc_bytes": 224,
+        "stdev_seconds": 9.816943539181694e-09
+      },
+      "long_cold": {
+        "cv": 0.26608074944776994,
+        "median_seconds": 1.4020000094205898e-06,
+        "min_seconds": 1.3519999697564344e-06,
+        "p90_seconds": 2.3894000150903595e-06,
+        "peak_tracemalloc_bytes": 192,
+        "stdev_seconds": 4.499425468672876e-07
+      },
+      "long_warm": {
+        "cv": 0.011186447202726203,
+        "median_seconds": 5.169099999875471e-07,
+        "min_seconds": 5.115529999670798e-07,
+        "p90_seconds": 5.263959999979306e-07,
+        "peak_tracemalloc_bytes": 224,
+        "stdev_seconds": 5.809647795430713e-09
+      },
+      "mixed_cold": {
+        "cv": 0.26706713937906285,
+        "median_seconds": 1.4620000001741573e-06,
+        "min_seconds": 1.3419999618236034e-06,
+        "p90_seconds": 2.4059999987002812e-06,
+        "peak_tracemalloc_bytes": 192,
+        "stdev_seconds": 4.5740970380428166e-07
+      },
+      "mixed_warm": {
+        "cv": 0.013406273265120616,
+        "median_seconds": 5.268350000164901e-07,
+        "min_seconds": 5.148669999925914e-07,
+        "p90_seconds": 5.314117999887458e-07,
+        "peak_tracemalloc_bytes": 224,
+        "stdev_seconds": 7.033578924669117e-09
+      },
+      "no_match_cold": {
+        "cv": 0.20219573608735955,
+        "median_seconds": 1.442000041151914e-06,
+        "min_seconds": 1.301999986935698e-06,
+        "p90_seconds": 2.107000022988359e-06,
+        "peak_tracemalloc_bytes": 192,
+        "stdev_seconds": 3.251307467219546e-07
+      },
+      "no_match_warm": {
+        "cv": 0.010555350380111505,
+        "median_seconds": 5.207460000065112e-07,
+        "min_seconds": 5.133249999857981e-07,
+        "p90_seconds": 5.276085999980751e-07,
+        "peak_tracemalloc_bytes": 224,
+        "stdev_seconds": 5.500063521552362e-09
+      }
+    },
+    "routing_batches": {
+      "100": {
+        "cv": 0.06778582961599212,
+        "median_seconds": 2.2142000034364173e-05,
+        "min_seconds": 2.193199998146156e-05,
+        "p90_seconds": 2.4878399995031944e-05,
+        "peak_tracemalloc_bytes": 1616,
+        "stdev_seconds": 1.5633852597233519e-06
+      },
+      "1000": {
+        "cv": 0.026626262681639014,
+        "median_seconds": 0.00017310399999814763,
+        "min_seconds": 0.00016944899999771224,
+        "p90_seconds": 0.00017900920000784025,
+        "peak_tracemalloc_bytes": 8744,
+        "stdev_seconds": 4.6258711450818106e-06
+      },
+      "10000": {
+        "cv": 0.014212422327170323,
+        "median_seconds": 0.0016415340000435208,
+        "min_seconds": 0.001620032000005267,
+        "p90_seconds": 0.0016718089999926632,
+        "peak_tracemalloc_bytes": 99928,
+        "stdev_seconds": 2.3393939926469753e-05
+      }
+    }
+  },
+  "repository": {
+    "enumeration": {
+      "cv": 0.008582702515036858,
+      "median_seconds": 0.02471150300004865,
+      "min_seconds": 0.024310323000008793,
+      "p90_seconds": 0.02487268900001709,
+      "peak_tracemalloc_bytes": 360581,
+      "result_size": 535,
+      "stdev_seconds": 0.00021166449072454167
+    },
+    "manifest": {
+      "cv": 0.004360930629947381,
+      "median_seconds": 0.10038858199993683,
+      "min_seconds": 0.09952087599992865,
+      "p90_seconds": 0.1007138753999925,
+      "peak_tracemalloc_bytes": 725316,
+      "result_size": 535,
+      "stdev_seconds": 0.0004374179651789764
+    },
+    "repository_audit": {
+      "cv": 0.0067764217536455205,
+      "median_seconds": 0.12096809899992422,
+      "min_seconds": 0.1192733569999973,
+      "p90_seconds": 0.12102459019995422,
+      "peak_tracemalloc_bytes": 1536527,
+      "result_size": 4,
+      "stdev_seconds": 0.0008160622654571797
+    },
+    "security_scan": {
+      "cv": 0.004378400064801784,
+      "median_seconds": 0.28813166800000545,
+      "min_seconds": 0.28577340000003915,
+      "p90_seconds": 0.2885648976000084,
+      "peak_tracemalloc_bytes": 1477714,
+      "result_size": 3,
+      "stdev_seconds": 0.001258904255466682
+    },
+    "tree": {
+      "entries": 535,
+      "file_bytes": 2600198
+    }
+  },
+  "root": "/tmp/tsao-v9-ab-candidate",
+  "schema_version": "2.0",
+  "startup": {
+    "cli_list": {
+      "parent_cpu_seconds": {
+        "cv": 0.03868848589530382,
+        "mean": 0.0004366862222222261,
+        "median": 0.00043846300000000005,
+        "min": 0.00039728099999999933,
+        "p90": 0.0004531834000000096,
+        "stdev": 1.6894728749118103e-05
+      },
+      "wall_seconds": {
+        "cv": 0.014402598937855744,
+        "mean": 0.08815037566666382,
+        "median": 0.08861571500000309,
+        "min": 0.0863985340000113,
+        "p90": 0.08991962699999476,
+        "stdev": 0.0012695945069482772
+      }
+    },
+    "cli_probe": {
+      "parent_cpu_seconds": {
+        "cv": 0.12752246888222932,
+        "mean": 0.0004192876666666706,
+        "median": 0.0003955580000000042,
+        "min": 0.000377332000000008,
+        "p90": 0.00046972400000000193,
+        "stdev": 5.346859842520304e-05
+      },
+      "wall_seconds": {
+        "cv": 0.00952625044170053,
+        "mean": 0.32367250822221016,
+        "median": 0.32458773700000165,
+        "min": 0.3178744520000123,
+        "p90": 0.32707530619998126,
+        "stdev": 0.003083385374418148
+      }
+    },
+    "cli_route": {
+      "parent_cpu_seconds": {
+        "cv": 0.22245863074424152,
+        "mean": 0.000496385222222221,
+        "median": 0.0004596639999999985,
+        "min": 0.0004231989999999991,
+        "p90": 0.0006008520000000018,
+        "stdev": 0.00011042517685723133
+      },
+      "wall_seconds": {
+        "cv": 0.08095207877736817,
+        "mean": 0.09884171755555826,
+        "median": 0.09586569900000086,
+        "min": 0.0909442399999989,
+        "p90": 0.11003345619998299,
+        "stdev": 0.008001442506047927
+      }
+    },
+    "cli_version": {
+      "parent_cpu_seconds": {
+        "cv": 0.03622398159769209,
+        "mean": 0.0004057547777777763,
+        "median": 0.00040401100000000273,
+        "min": 0.00038230899999999735,
+        "p90": 0.0004177044000000019,
+        "stdev": 1.4698053603397812e-05
+      },
+      "wall_seconds": {
+        "cv": 0.013544899520411493,
+        "mean": 0.08165339899999759,
+        "median": 0.08171265099997527,
+        "min": 0.07949572100000069,
+        "p90": 0.08305473699999766,
+        "stdev": 0.0011059870849550355
+      }
+    },
+    "import_cli": {
+      "parent_cpu_seconds": {
+        "cv": 0.08383750997784821,
+        "mean": 0.0004037215555555549,
+        "median": 0.0004006049999999983,
+        "min": 0.0003532249999999987,
+        "p90": 0.0004482660000000013,
+        "stdev": 3.384700994216123e-05
+      },
+      "wall_seconds": {
+        "cv": 0.08536710642846683,
+        "mean": 0.0825020770000151,
+        "median": 0.07961529700003211,
+        "min": 0.07525023499999861,
+        "p90": 0.09201604860004409,
+        "stdev": 0.007042963587829855
+      }
+    },
+    "import_package": {
+      "parent_cpu_seconds": {
+        "cv": 0.06119559746455065,
+        "mean": 0.00041006377777777877,
+        "median": 0.00041670100000000543,
+        "min": 0.0003714339999999969,
+        "p90": 0.00043654540000000327,
+        "stdev": 2.50940978796819e-05
+      },
+      "wall_seconds": {
+        "cv": 0.011363293849796825,
+        "mean": 0.07567565277777374,
+        "median": 0.0758125029999519,
+        "min": 0.07452379699998346,
+        "p90": 0.07661272819997293,
+        "stdev": 0.0008599246797890365
+      }
+    }
   }
 }
