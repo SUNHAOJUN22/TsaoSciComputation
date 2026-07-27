@@ -34,6 +34,7 @@ jobs:
         shell: bash
         run: |
           rm -f tools/readme-visual-refresh.b64
+          rm -f tools/readme-visual-refresh.trigger
           rm -f .github/workflows/apply-readme-visual-refresh.yml
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
