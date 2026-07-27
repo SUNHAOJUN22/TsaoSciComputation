@@ -1,0 +1,278 @@
+{
+  "claim_boundary": "Local verification orchestration timing only; external scientific solver performance is not measured.",
+  "default_parallel_workers": 3,
+  "profile": "all",
+  "schema_version": "1.0",
+  "steps": [
+    {
+      "command": [
+        "/opt/hostedtoolcache/Python/3.13.14/x64/bin/python",
+        "scripts/quality_check.py"
+      ],
+      "elapsed_seconds": 0.228513,
+      "label": "repository quality rules",
+      "mode": "sequential"
+    },
+    {
+      "command": [
+        "/opt/hostedtoolcache/Python/3.13.14/x64/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "tsao_computation",
+        "scripts",
+        "tests",
+        "_bootstrap.py"
+      ],
+      "elapsed_seconds": 0.03526,
+      "label": "Ruff lint",
+      "mode": "sequential"
+    },
+    {
+      "command": [
+        "/opt/hostedtoolcache/Python/3.13.14/x64/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "tsao_computation",
+        "scripts",
+        "tests",
+        "_bootstrap.py"
+      ],
+      "elapsed_seconds": 0.038976,
+      "label": "Ruff formatting",
+      "mode": "sequential"
+    },
+    {
+      "command": [
+        "/opt/hostedtoolcache/Python/3.13.14/x64/bin/python",
+        "-m",
+        "mypy",
+        "--python-version",
+        "3.13",
+        "tsao_computation",
+        "scripts"
+      ],
+      "elapsed_seconds": 0.134162,
+      "label": "Mypy",
+      "mode": "parallel"
+    },
+    {
+      "command": [
+        "/opt/hostedtoolcache/Python/3.13.14/x64/bin/python",
+        "-m",
+        "bandit",
+        "-q",
+        "-r",
+        "tsao_computation",
+        "scripts"
+      ],
+      "elapsed_seconds": 0.650787,
+      "label": "Bandit",
+      "mode": "parallel"
+    },
+    {
+      "command": [
+        "/opt/hostedtoolcache/Python/3.13.14/x64/bin/python",
+        "scripts/security_scan.py"
+      ],
+      "elapsed_seconds": 0.23105,
+      "label": "repository security scan",
+      "mode": "parallel"
+    },
+    {
+      "command": [
+        "/opt/hostedtoolcache/Python/3.13.14/x64/bin/python",
+        "scripts/run_mutation_gate.py"
+      ],
+      "elapsed_seconds": 0.069427,
+      "label": "controlled mutation gate",
+      "mode": "parallel"
+    },
+    {
+      "command": [
+        "/opt/hostedtoolcache/Python/3.13.14/x64/bin/python",
+        "scripts/build_manifest.py"
+      ],
+      "elapsed_seconds": 0.099984,
+      "label": "refresh repository manifest",
+      "mode": "sequential"
+    },
+    {
+      "command": [
+        "/opt/hostedtoolcache/Python/3.13.14/x64/bin/python",
+        "scripts/run_tests.py",
+        "--coverage"
+      ],
+      "elapsed_seconds": 3.090626,
+      "label": "tests and coverage",
+      "mode": "sequential"
+    },
+    {
+      "command": [
+        "/opt/hostedtoolcache/Python/3.13.14/x64/bin/python",
+        "scripts/run_scientific_benchmarks.py"
+      ],
+      "elapsed_seconds": 0.103443,
+      "label": "scientific reference benchmarks",
+      "mode": "parallel"
+    },
+    {
+      "command": [
+        "/opt/hostedtoolcache/Python/3.13.14/x64/bin/python",
+        "scripts/check_critical_coverage.py"
+      ],
+      "elapsed_seconds": 0.049165,
+      "label": "critical coverage policy",
+      "mode": "parallel"
+    },
+    {
+      "command": [
+        "/opt/hostedtoolcache/Python/3.13.14/x64/bin/python",
+        "scripts/sync_version_metadata.py",
+        "--check"
+      ],
+      "elapsed_seconds": 0.033212,
+      "label": "version metadata",
+      "mode": "parallel"
+    },
+    {
+      "command": [
+        "/opt/hostedtoolcache/Python/3.13.14/x64/bin/python",
+        "scripts/validate_repository.py"
+      ],
+      "elapsed_seconds": 0.18326,
+      "label": "repository audit",
+      "mode": "parallel"
+    },
+    {
+      "command": [
+        "/opt/hostedtoolcache/Python/3.13.14/x64/bin/python",
+        "scripts/validate_schemas.py"
+      ],
+      "elapsed_seconds": 0.248142,
+      "label": "schema validation",
+      "mode": "parallel"
+    },
+    {
+      "command": [
+        "/opt/hostedtoolcache/Python/3.13.14/x64/bin/python",
+        "scripts/sync_package_assets.py",
+        "--check"
+      ],
+      "elapsed_seconds": 0.039426,
+      "label": "packaged registry assets",
+      "mode": "parallel"
+    },
+    {
+      "command": [
+        "/opt/hostedtoolcache/Python/3.13.14/x64/bin/python",
+        "scripts/validate_adapter_metadata.py"
+      ],
+      "elapsed_seconds": 0.040666,
+      "label": "adapter metadata",
+      "mode": "parallel"
+    },
+    {
+      "command": [
+        "/opt/hostedtoolcache/Python/3.13.14/x64/bin/python",
+        "scripts/build_capability_index.py",
+        "--check"
+      ],
+      "elapsed_seconds": 0.096857,
+      "label": "capability index",
+      "mode": "parallel"
+    },
+    {
+      "command": [
+        "/opt/hostedtoolcache/Python/3.13.14/x64/bin/python",
+        "scripts/build_adapter_docs.py",
+        "--check"
+      ],
+      "elapsed_seconds": 0.038617,
+      "label": "adapter documentation",
+      "mode": "parallel"
+    },
+    {
+      "command": [
+        "/opt/hostedtoolcache/Python/3.13.14/x64/bin/python",
+        "scripts/build_workflow_docs.py",
+        "--check"
+      ],
+      "elapsed_seconds": 0.03936,
+      "label": "workflow documentation",
+      "mode": "parallel"
+    },
+    {
+      "command": [
+        "/opt/hostedtoolcache/Python/3.13.14/x64/bin/python",
+        "scripts/build_examples.py",
+        "--check"
+      ],
+      "elapsed_seconds": 0.039913,
+      "label": "scenario examples",
+      "mode": "parallel"
+    },
+    {
+      "command": [
+        "/opt/hostedtoolcache/Python/3.13.14/x64/bin/python",
+        "scripts/build_manifest.py",
+        "--check"
+      ],
+      "elapsed_seconds": 0.093593,
+      "label": "repository manifest",
+      "mode": "sequential"
+    },
+    {
+      "command": [
+        "/opt/hostedtoolcache/Python/3.13.14/x64/bin/python",
+        "scripts/package_release.py",
+        "--output-dir",
+        "/tmp/tsao-source-build-ysbutl5q/first"
+      ],
+      "elapsed_seconds": 0.27477,
+      "label": "source build A",
+      "mode": "parallel"
+    },
+    {
+      "command": [
+        "/opt/hostedtoolcache/Python/3.13.14/x64/bin/python",
+        "scripts/package_release.py",
+        "--output-dir",
+        "/tmp/tsao-source-build-ysbutl5q/second"
+      ],
+      "elapsed_seconds": 0.274722,
+      "label": "source build B",
+      "mode": "parallel"
+    },
+    {
+      "command": [
+        "/opt/hostedtoolcache/Python/3.13.14/x64/bin/python",
+        "scripts/verify_wheel.py"
+      ],
+      "elapsed_seconds": 3.975866,
+      "label": "wheel rebuild and isolated install",
+      "mode": "sequential"
+    },
+    {
+      "command": [
+        "/opt/hostedtoolcache/Python/3.13.14/x64/bin/python",
+        "scripts/build_sbom.py"
+      ],
+      "elapsed_seconds": 0.042164,
+      "label": "deterministic SPDX and CycloneDX SBOMs",
+      "mode": "sequential"
+    },
+    {
+      "command": [
+        "/opt/hostedtoolcache/Python/3.13.14/x64/bin/python",
+        "scripts/build_release_manifest.py"
+      ],
+      "elapsed_seconds": 0.040504,
+      "label": "release manifest and checksums",
+      "mode": "sequential"
+    }
+  ],
+  "total_seconds": 8.898865
+}

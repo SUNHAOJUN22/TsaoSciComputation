@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Added V9 end-to-end verification performance engineering with bounded deterministic subprocess parallelism, concurrent isolated reproducibility builds, bounded route-result caching, large-file streaming hashes and same-host wall-time/memory acceptance.
+
 - Added measured V8 performance engineering for registry loading, adapter lookup, routing, solver-output parsing, deterministic repository traversal and repository security scanning.
 
 - Expanded the bilingual scientific atlas from thirty-six to forty-two repository-local SVG diagrams, adding molecular-state/environment, surface/defect migration, CFD closure, reactor scale-up, dynamic-control and HPC-recovery views.

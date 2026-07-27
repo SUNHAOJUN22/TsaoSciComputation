@@ -1,0 +1,210 @@
+{
+  "acceptance": {
+    "hot_path_maximum_regression": "5%",
+    "meaningful_improvement_threshold": 1.1,
+    "passed": {
+      "end_to_end": true,
+      "hot_paths": true,
+      "meaningful_improvements": true,
+      "memory": true
+    },
+    "peak_memory_maximum_increase": "10%",
+    "verify_all_minimum_speedup": 1.08
+  },
+  "applied_optimizations": [
+    "Bounded parallel execution of independent quality and post-test core gates.",
+    "Concurrent reproducibility source builds in isolated output directories.",
+    "Bounded repeated-question routing cache with explicit registry invalidation.",
+    "Streaming SHA-256 for files larger than one MiB to reduce peak allocation.",
+    "Deterministic captured logs emitted in declared gate order.",
+    "Structured per-step verification timing telemetry."
+  ],
+  "audit_run": 30231886878,
+  "baseline": {
+    "end_to_end": {
+      "claim_boundary": "Same-host command telemetry; external scientific solver performance is not measured.",
+      "command": [
+        "python",
+        "scripts/verify_all.py",
+        "--profile",
+        "all"
+      ],
+      "cwd": "/tmp/tsao-v8-baseline",
+      "repeats": 3,
+      "samples": [
+        {
+          "filesystem_inputs": 0.0,
+          "filesystem_outputs": 75880.0,
+          "peak_rss_kib": 74668.0,
+          "returncode": 0,
+          "system_seconds": 1.27,
+          "user_seconds": 8.29,
+          "wall_seconds": 9.507949666000002
+        },
+        {
+          "filesystem_inputs": 0.0,
+          "filesystem_outputs": 75880.0,
+          "peak_rss_kib": 74832.0,
+          "returncode": 0,
+          "system_seconds": 1.28,
+          "user_seconds": 8.34,
+          "wall_seconds": 9.686630152999953
+        },
+        {
+          "filesystem_inputs": 0.0,
+          "filesystem_outputs": 75856.0,
+          "peak_rss_kib": 74776.0,
+          "returncode": 0,
+          "system_seconds": 1.3,
+          "user_seconds": 8.26,
+          "wall_seconds": 9.494712453000034
+        }
+      ],
+      "schema_version": "1.0",
+      "status": "PASS",
+      "summary": {
+        "cpu_median_seconds": 9.56,
+        "peak_rss_max_kib": 74832.0,
+        "wall_cv": 0.009151620196400097,
+        "wall_median_seconds": 9.507949666000002,
+        "wall_min_seconds": 9.494712453000034,
+        "wall_p90_seconds": 9.650894055599963
+      },
+      "warmup_samples": [
+        {
+          "filesystem_inputs": 114024.0,
+          "filesystem_outputs": 108968.0,
+          "peak_rss_kib": 123500.0,
+          "returncode": 0,
+          "system_seconds": 1.37,
+          "user_seconds": 10.28,
+          "wall_seconds": 12.745648102000018
+        }
+      ],
+      "warmups": 1
+    },
+    "micro": {
+      "adapter_lookup_cached_median_us": 0.0846,
+      "adapter_registry_cold_median_ms": 0.142,
+      "capability_registry_cached_median_ms": 0.00032,
+      "capability_registry_cold_median_ms": 1.382,
+      "claim_boundary": "Local orchestration microbenchmarks; no solver execution measured.",
+      "cli_import_median_ms": 31.658,
+      "methodology": {
+        "claim_boundary": "Same-host local orchestration microbenchmarks; no solver execution measured.",
+        "clock": "time.perf_counter",
+        "statistic": "median",
+        "warmups": 2
+      },
+      "parser_5mib_throughput_mib_s": 25.91,
+      "python": "3.13.14 (main, Jun 11 2026, 03:02:07) [GCC 13.3.0]",
+      "repository_walk_median_ms": 5.597,
+      "route_decision_cold_median_ms": 0.245,
+      "route_decision_median_ms": 0.02477,
+      "schema_version": "1.1",
+      "workflow_registry_cold_median_ms": 0.102
+    }
+  },
+  "baseline_sha": "c2c0eca0fd6bf81cc3cbb1ff29489eefbcba58fd",
+  "candidate": {
+    "end_to_end": {
+      "claim_boundary": "Same-host command telemetry; external scientific solver performance is not measured.",
+      "command": [
+        "python",
+        "scripts/verify_all.py",
+        "--profile",
+        "all"
+      ],
+      "cwd": "/tmp/tsao-v9-candidate",
+      "repeats": 3,
+      "samples": [
+        {
+          "filesystem_inputs": 0.0,
+          "filesystem_outputs": 80832.0,
+          "peak_rss_kib": 74936.0,
+          "returncode": 0,
+          "system_seconds": 1.35,
+          "user_seconds": 8.75,
+          "wall_seconds": 8.864112382999963
+        },
+        {
+          "filesystem_inputs": 0.0,
+          "filesystem_outputs": 80800.0,
+          "peak_rss_kib": 74572.0,
+          "returncode": 0,
+          "system_seconds": 1.38,
+          "user_seconds": 8.76,
+          "wall_seconds": 8.795750629999986
+        },
+        {
+          "filesystem_inputs": 0.0,
+          "filesystem_outputs": 80800.0,
+          "peak_rss_kib": 74836.0,
+          "returncode": 0,
+          "system_seconds": 1.35,
+          "user_seconds": 8.7,
+          "wall_seconds": 8.765419217000044
+        }
+      ],
+      "schema_version": "1.0",
+      "status": "PASS",
+      "summary": {
+        "cpu_median_seconds": 10.1,
+        "peak_rss_max_kib": 74936.0,
+        "wall_cv": 0.004686011495401393,
+        "wall_median_seconds": 8.795750629999986,
+        "wall_min_seconds": 8.765419217000044,
+        "wall_p90_seconds": 8.850440032399968
+      },
+      "warmup_samples": [
+        {
+          "filesystem_inputs": 0.0,
+          "filesystem_outputs": 112520.0,
+          "peak_rss_kib": 124200.0,
+          "returncode": 0,
+          "system_seconds": 1.39,
+          "user_seconds": 10.56,
+          "wall_seconds": 10.08597480100002
+        }
+      ],
+      "warmups": 1
+    },
+    "micro": {
+      "adapter_lookup_cached_median_us": 0.0874,
+      "adapter_registry_cold_median_ms": 0.138,
+      "capability_registry_cached_median_ms": 0.00034,
+      "capability_registry_cold_median_ms": 1.376,
+      "claim_boundary": "Local orchestration microbenchmarks; no solver execution measured.",
+      "cli_import_median_ms": 33.785,
+      "methodology": {
+        "claim_boundary": "Same-host local orchestration microbenchmarks; no solver execution measured.",
+        "clock": "time.perf_counter",
+        "statistic": "median",
+        "warmups": 2
+      },
+      "parser_5mib_throughput_mib_s": 25.03,
+      "python": "3.13.14 (main, Jun 11 2026, 03:02:07) [GCC 13.3.0]",
+      "repository_walk_median_ms": 5.693,
+      "route_decision_cold_median_ms": 0.244,
+      "route_decision_median_ms": 0.0001,
+      "schema_version": "1.1",
+      "workflow_registry_cold_median_ms": 0.1
+    }
+  },
+  "candidate_sha": "852ffa461aa50d7e021623f8ff0692468b71e4cb",
+  "claim_boundary": "Same-host repository orchestration and verification telemetry only; external DFT, MD, CFD, process-simulation and production-HPC solver performance is not measured.",
+  "memory_ratio": 1.0014,
+  "not_adopted": [
+    "No persistent executable-probe cache because PATH-stable environments can still change on disk.",
+    "No mandatory third-party JSON or profiling runtime dependency.",
+    "No unsafe reuse of verification evidence across commit SHAs."
+  ],
+  "schema_version": "1.0",
+  "speedups": {
+    "parser_throughput": 0.966,
+    "route_decision": 247.7,
+    "verify_all_cpu": 0.9465,
+    "verify_all_wall": 1.081
+  },
+  "status": "PASS"
+}

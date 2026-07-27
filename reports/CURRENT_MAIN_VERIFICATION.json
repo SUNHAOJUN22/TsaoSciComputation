@@ -1,10 +1,10 @@
 {
-  "audit_generation": "ultimate-main-audit-v8",
+  "audit_generation": "ultimate-main-audit-v9",
   "branch": "main",
   "canonical_checkout_lf": true,
-  "canonical_ci_evidence": "The accepted final-commit CI run is recorded in the closing comment of GitHub Issue #28.",
+  "canonical_ci_evidence": "The accepted final-commit CI run is recorded in the closing comment of GitHub Issue #29.",
   "canonical_generated_text_lf": true,
-  "canonical_text_parent_commit": "ec2f4862ecab545ed57952148761cf4520d65e93",
+  "canonical_text_parent_commit": "852ffa461aa50d7e021623f8ff0692468b71e4cb",
   "claim_boundary": "Validated for repository orchestration, contracts, routing, deterministic fixtures, packaging, documentation and cross-platform CI. No live third-party solver or production HPC execution is claimed.",
   "controlled_mutants": "64/64",
   "counts": {
@@ -14,12 +14,12 @@
     "workflows": 20
   },
   "coverage": {
-    "branch_percent": 93.49112426035504,
-    "statement_percent": 97.40484429065744
+    "branch_percent": 93.5672514619883,
+    "statement_percent": 97.44027303754267
   },
   "cross_platform_manifest_stability": "PASS",
   "dependency_vulnerabilities": 0,
-  "deterministic_finalization_run_id": 30212422333,
+  "deterministic_finalization_run_id": 30231886878,
   "remote_branches": [
     "main"
   ],
@@ -31,10 +31,10 @@
   "temporary_branch_created": false,
   "tests": {
     "failed": 0,
-    "passed": 577
+    "passed": 583
   },
-  "ultimate_audit_issue": 28,
-  "verified_at_utc": "2026-07-26T17:22:52.896979+00:00",
+  "ultimate_audit_issue": 29,
+  "verified_at_utc": "2026-07-27T02:21:10.400486+00:00",
   "version": "3.0.2",
   "visual_atlas_version": 7,
   "wheel_reproducible_and_isolated_install": true,

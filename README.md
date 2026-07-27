@@ -279,20 +279,21 @@ python -m tsao_computation probe
 
 External solvers are optional and must be installed, licensed and validated separately. Missing executables, malformed contracts, unsafe paths, illegal state transitions or incomplete evidence are rejected rather than silently accepted.
 
-<!-- PERFORMANCE_V8:START -->
+<!-- PERFORMANCE_V9:START -->
 ## Performance engineering
 
-V8 profiles orchestration hot paths before changing them. On deterministic audit run `30212422333`, the same-host comparison against the accepted V7 commit measured:
+V9 measures the accepted V8 baseline and the candidate on the same runner before accepting any efficiency claim. Deterministic audit run `30231886878` recorded:
 
-| Measured path | V8 result |
-|---|---:|
-| Solver-output parser throughput | 18.85 MiB/s (1.24× baseline) |
-| Workflow routing | 0.03347 ms (3.86× baseline) |
-| Cached adapter lookup | 0.1082 µs |
-| Deterministic repository traversal | 8.286 ms |
+| Measured path | V8 baseline | V9 candidate | Result |
+|---|---:|---:|---:|
+| `verify_all --profile all` median wall time | 9.508 s | 8.796 s | 1.08× |
+| `verify_all` wall p90 | 9.651 s | 8.850 s | telemetry |
+| Workflow routing | baseline | candidate | 247.70× |
+| 5 MiB solver-output parsing | baseline | candidate | 0.97× |
+| Peak RSS ratio | 1.00× | 1.00× | limit 1.10× |
 
-The optimization preserves zero mandatory runtime dependencies, deterministic ordering, fail-closed parsing, registry invalidation, cross-platform Manifest stability and scientific acceptance boundaries. Parser and routing are hard performance gates; startup and cold-load timings remain environment-sensitive telemetry. Full evidence: [`reports/PERFORMANCE_ENGINEERING_V8.json`](reports/PERFORMANCE_ENGINEERING_V8.json) and [Issue #28](../../issues/28).
-<!-- PERFORMANCE_V8:END -->
+The optimized verifier runs only independent subprocess gates concurrently, captures their output separately, and emits logs in the original declared order. Source reproducibility builds run concurrently only because their output directories are isolated. Zero mandatory runtime dependencies, fail-closed parsing, cache invalidation, deterministic Manifests and scientific acceptance boundaries remain unchanged. Evidence: [`reports/PERFORMANCE_COMPARISON_V9.json`](reports/PERFORMANCE_COMPARISON_V9.json), [`reports/PERFORMANCE_PROFILE_V9.json`](reports/PERFORMANCE_PROFILE_V9.json), and [Issue #29](../../issues/29).
+<!-- PERFORMANCE_V9:END -->
 
 ## Verification
 
@@ -307,15 +308,15 @@ python scripts/verify_all.py --profile benchmark
 ### Current `main` verification
 
 <!-- CURRENT_MAIN_VERIFICATION:START -->
-Validated on `2026-07-26T17:22:52.896979+00:00` by deterministic finalization run `30212422333`.
+Validated on `2026-07-27T02:21:10.400486+00:00` by deterministic finalization run `30231886878`.
 
 | Current-main item | Result |
 |---|---:|
 | Version | 3.0.2 |
 | Capabilities / adapters / workflows | 164 / 27 / 20 |
-| Tests | 577 passed, 0 failed |
-| Statement / branch coverage | 97.40% / 93.49% |
-| Windows core | Python 3.10 and 3.13; final result recorded in Issue #28 |
+| Tests | 583 passed, 0 failed |
+| Statement / branch coverage | 97.44% / 93.57% |
+| Windows core | Python 3.10 and 3.13; final result recorded in Issue #29 |
 | Controlled mutation probes | 64/64 killed |
 | Scientific reference benchmarks | 8/8 passed |
 | Repository / dependency findings | 0 / 0 |
@@ -324,7 +325,7 @@ Validated on `2026-07-26T17:22:52.896979+00:00` by deterministic finalization ru
 | Scientific visual assets | 42 self-contained SVGs |
 | Remote branches | `main` only |
 
-The final V8 commit is accepted only after canonical Ubuntu/Windows/macOS × Python 3.10/3.13 CI is recorded in [Issue #28](../../issues/28). Machine-readable evidence: [`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json).
+The final V9 commit is accepted only after canonical Ubuntu/Windows/macOS × Python 3.10/3.13 CI is recorded in [Issue #29](../../issues/29). Machine-readable evidence: [`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json).
 <!-- CURRENT_MAIN_VERIFICATION:END -->
 
 ### v3.0.2 verified release baseline

@@ -1,0 +1,85 @@
+{
+  "end_to_end": {
+    "claim_boundary": "Same-host command telemetry; external scientific solver performance is not measured.",
+    "command": [
+      "python",
+      "scripts/verify_all.py",
+      "--profile",
+      "all"
+    ],
+    "cwd": "/tmp/tsao-v9-candidate",
+    "repeats": 3,
+    "samples": [
+      {
+        "filesystem_inputs": 0.0,
+        "filesystem_outputs": 80832.0,
+        "peak_rss_kib": 74936.0,
+        "returncode": 0,
+        "system_seconds": 1.35,
+        "user_seconds": 8.75,
+        "wall_seconds": 8.864112382999963
+      },
+      {
+        "filesystem_inputs": 0.0,
+        "filesystem_outputs": 80800.0,
+        "peak_rss_kib": 74572.0,
+        "returncode": 0,
+        "system_seconds": 1.38,
+        "user_seconds": 8.76,
+        "wall_seconds": 8.795750629999986
+      },
+      {
+        "filesystem_inputs": 0.0,
+        "filesystem_outputs": 80800.0,
+        "peak_rss_kib": 74836.0,
+        "returncode": 0,
+        "system_seconds": 1.35,
+        "user_seconds": 8.7,
+        "wall_seconds": 8.765419217000044
+      }
+    ],
+    "schema_version": "1.0",
+    "status": "PASS",
+    "summary": {
+      "cpu_median_seconds": 10.1,
+      "peak_rss_max_kib": 74936.0,
+      "wall_cv": 0.004686011495401393,
+      "wall_median_seconds": 8.795750629999986,
+      "wall_min_seconds": 8.765419217000044,
+      "wall_p90_seconds": 8.850440032399968
+    },
+    "warmup_samples": [
+      {
+        "filesystem_inputs": 0.0,
+        "filesystem_outputs": 112520.0,
+        "peak_rss_kib": 124200.0,
+        "returncode": 0,
+        "system_seconds": 1.39,
+        "user_seconds": 10.56,
+        "wall_seconds": 10.08597480100002
+      }
+    ],
+    "warmups": 1
+  },
+  "micro": {
+    "adapter_lookup_cached_median_us": 0.0874,
+    "adapter_registry_cold_median_ms": 0.138,
+    "capability_registry_cached_median_ms": 0.00034,
+    "capability_registry_cold_median_ms": 1.376,
+    "claim_boundary": "Local orchestration microbenchmarks; no solver execution measured.",
+    "cli_import_median_ms": 33.785,
+    "methodology": {
+      "claim_boundary": "Same-host local orchestration microbenchmarks; no solver execution measured.",
+      "clock": "time.perf_counter",
+      "statistic": "median",
+      "warmups": 2
+    },
+    "parser_5mib_throughput_mib_s": 25.03,
+    "python": "3.13.14 (main, Jun 11 2026, 03:02:07) [GCC 13.3.0]",
+    "repository_walk_median_ms": 5.693,
+    "route_decision_cold_median_ms": 0.244,
+    "route_decision_median_ms": 0.0001,
+    "schema_version": "1.1",
+    "workflow_registry_cold_median_ms": 0.1
+  }
+}
