@@ -2041,9 +2041,9 @@
       "sha256": "1982cd17e142d7657a24da289d966032d945d03190d7384b5cafe090285c5a63"
     },
     {
-      "bytes": 17812,
+      "bytes": 17677,
       "path": "scripts/regenerate_readme_visuals_v11.py",
-      "sha256": "def10559d6d1ab3c61ff34e2b45fba986d47c06a2a9409f4c2fa5cd8fb1b8e3c"
+      "sha256": "2bd3ca9aff70a6c4d0f00adcd2f817442a17bbc4ea29374316aece64a86b0349"
     },
     {
       "bytes": 1033,
