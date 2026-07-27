@@ -6,6 +6,8 @@ from pathlib import Path
 
 import pytest
 
+from scripts.compare_performance_v9 import compare_v9
+from scripts.measure_command_v9 import measure_command
 from scripts.verify_all import run_commands_parallel, verification_workers
 from tsao_computation.adapters import get_adapter
 from tsao_computation.provenance.manifest import _file_size_and_sha256
@@ -69,3 +71,62 @@ def test_fifty_mib_parser_keeps_failure_precedence() -> None:
     assert parsed["completed"] is True
     assert parsed["converged"] is False
     assert parsed["raw_length"] == size
+
+
+def _command_measurement(wall: float, cpu: float, rss: float) -> dict[str, object]:
+    return {
+        "status": "PASS",
+        "summary": {
+            "wall_median_seconds": wall,
+            "wall_min_seconds": wall * 0.98,
+            "wall_p90_seconds": wall * 1.03,
+            "wall_cv": 0.01,
+            "cpu_median_seconds": cpu,
+            "peak_rss_max_kib": rss,
+        },
+    }
+
+
+def test_v9_comparison_requires_end_to_end_gain_and_memory_bound() -> None:
+    baseline_micro = {
+        "route_decision_median_ms": 0.12,
+        "parser_5mib_throughput_mib_s": 20.0,
+    }
+    candidate_micro = {
+        "route_decision_median_ms": 0.04,
+        "parser_5mib_throughput_mib_s": 21.0,
+    }
+    report = compare_v9(
+        baseline_micro,
+        candidate_micro,
+        _command_measurement(100.0, 90.0, 100_000.0),
+        _command_measurement(85.0, 88.0, 105_000.0),
+        baseline_sha="a" * 40,
+        candidate_sha="b" * 40,
+        audit_run=1,
+    )
+    assert report["status"] == "PASS"
+    assert report["speedups"]["verify_all_wall"] > 1.17
+
+    failed = compare_v9(
+        baseline_micro,
+        candidate_micro,
+        _command_measurement(100.0, 90.0, 100_000.0),
+        _command_measurement(96.0, 88.0, 120_000.0),
+        baseline_sha="a" * 40,
+        candidate_sha="b" * 40,
+        audit_run=1,
+    )
+    assert failed["status"] == "FAIL"
+
+
+def test_command_measurement_records_repeat_statistics(tmp_path: Path) -> None:
+    report = measure_command(
+        tmp_path,
+        (sys.executable, "-c", "print('ok')"),
+        warmups=0,
+        repeats=2,
+    )
+    assert report["status"] == "PASS"
+    assert report["summary"]["wall_median_seconds"] > 0
+    assert len(report["samples"]) == 2
