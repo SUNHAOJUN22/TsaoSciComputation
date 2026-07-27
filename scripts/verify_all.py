@@ -320,15 +320,22 @@ def selected_verifications(profile: str) -> tuple[Callable[[], int], ...]:
         raise ValueError(f"unknown verification profile: {profile}") from error
 
 
+def _recorded_seconds() -> float:
+    total = 0.0
+    for record in _TIMING_RECORDS:
+        value = record.get("elapsed_seconds")
+        if isinstance(value, (int, float)) and not isinstance(value, bool):
+            total += float(value)
+    return total
+
+
 def _write_timing_report(path: Path, profile: str, elapsed: float, returncode: int) -> None:
     payload = {
         "schema_version": "1.1",
         "profile": profile,
         "status": "PASS" if returncode == 0 else "FAIL",
         "total_seconds": round(elapsed, 6),
-        "total_recorded_seconds": round(
-            sum(float(record["elapsed_seconds"]) for record in _TIMING_RECORDS), 6
-        ),
+        "total_recorded_seconds": round(_recorded_seconds(), 6),
         "default_parallel_workers": verification_workers(999),
         "steps": _TIMING_RECORDS,
         "claim_boundary": CLAIM_BOUNDARY,

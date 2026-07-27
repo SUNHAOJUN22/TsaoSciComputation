@@ -1,6 +1,6 @@
 # Current main code audit
 
-- Validated source SHA: `2e513e55f0d602bbb447bc652326bd277c722eb2`
+- Validated source SHA: `f4c8c2714901e2bf9b72e170c201489000390797`
 - Overall status: **FAIL**
 - Tests collected: `599`
 - Coverage: `96.57444005270092%`
@@ -10,7 +10,7 @@
 
 | Gate | Status | Return code |
 |---|---:|---:|
-| `quality` | FAIL | 1 |
+| `quality` | PASS | 0 |
 | `core` | PASS | 0 |
 | `package` | PASS | 0 |
 | `benchmark` | PASS | 0 |
@@ -21,12 +21,11 @@
 
 ## Fixed findings
 
-- restored the canonical verification API required by the test suite
-- restored deterministic sequential and bounded-parallel timing evidence
-- restored Mypy, Bandit, repository security scan and mutation gates
+- restored the canonical verification API required by all verification tests
+- restored complete quality, security and mutation gates
+- repaired strict type handling in timing and performance evidence generation
 - restored canonical cross-platform CI on main
-- removed obsolete V6-V12 audit, performance and visual transport workflows
-- removed V9 trigger, status and encoded CI transport files
+- removed obsolete audit, performance, visual transport, trigger and status files
 
 ## Remaining obsolete artifacts
 

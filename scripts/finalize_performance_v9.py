@@ -248,7 +248,9 @@ Median, minimum, p90 and variation are retained in the machine-readable reports.
         )
 
     current_path = reports / "CURRENT_MAIN_VERIFICATION.json"
-    current = _read(current_path) if current_path.is_file() else {"schema_version": "1.0"}
+    current: dict[str, Any] = (
+        _read(current_path) if current_path.is_file() else {"schema_version": "1.0"}
+    )
     current["performance_engineering_v9"] = {
         "status": report["status"],
         "baseline_sha": report["baseline_sha"],
