@@ -1,0 +1,34 @@
+name: V9 audit status diagnostic
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/v9-audit-status.yml'
+
+permissions:
+  actions: read
+  contents: read
+  issues: write
+
+jobs:
+  status:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+      ISSUE_NUMBER: '29'
+    steps:
+      - name: Report recent V9 audit runs
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          runs="$(gh run list --repo "$GITHUB_REPOSITORY" --workflow performance-audit-v9.yml --limit 10 --json databaseId,status,conclusion,headSha,createdAt,updatedAt,url)"
+          body="$(python -c 'import json,sys; rows=json.load(sys.stdin); print(json.dumps(rows, indent=2, sort_keys=True))' <<< "$runs")"
+          gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body \
+            "V9 audit status diagnostic:
+
+          \`\`\`json
+          $body
+          \`\`\`"
