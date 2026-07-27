@@ -3,7 +3,6 @@ from __future__ import annotations
 import argparse
 import json
 import math
-import shutil
 import statistics
 import subprocess  # nosec B404
 import tempfile
@@ -73,7 +72,9 @@ def _measure_once(cwd: Path, command: Sequence[str]) -> dict[str, Any]:
             "wall_seconds": wall_seconds,
         }
         if metrics_path.is_file():
-            sample.update(_parse_gnu_time(metrics_path.read_text(encoding="utf-8", errors="replace")))
+            sample.update(
+                _parse_gnu_time(metrics_path.read_text(encoding="utf-8", errors="replace"))
+            )
         if completed.returncode:
             tail = log_path.read_text(encoding="utf-8", errors="replace")[-8000:]
             sample["failure_log_tail"] = tail

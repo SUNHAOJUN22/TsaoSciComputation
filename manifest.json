@@ -36,9 +36,9 @@
       "sha256": "3df770971d50d2df680f50b254caebfb9c4088fa9b3c5813fe869640bafc22d1"
     },
     {
-      "bytes": 2528,
+      "bytes": 3388,
       "path": ".github/workflows/ci.yml",
-      "sha256": "0ace1dacfe9e2058d47f3e7ca21b0a7edc8d5b853e1c9a93c65d7dda55ff4a79"
+      "sha256": "5445891100e811612053f4ee29fad6cd1f94000a19a47b467ba51d5b88867cc3"
     },
     {
       "bytes": 706,
@@ -64,6 +64,11 @@
       "bytes": 9939,
       "path": ".github/workflows/performance-audit-v8.yml",
       "sha256": "d4c40b4c927e636a38c5dce049ecc505161deffa221eb745c08023ac93d34a1d"
+    },
+    {
+      "bytes": 12561,
+      "path": ".github/workflows/performance-audit-v9.yml",
+      "sha256": "a5e5d1735f37548b7c12028b48324614318b06a8d1615ca26e4209fd3ec5d318"
     },
     {
       "bytes": 5027,
@@ -1781,6 +1786,11 @@
       "sha256": "80b9a31407f1cbd520631f06f2e843ace1b85e045054b38f89c9dc3363bc8494"
     },
     {
+      "bytes": 2352,
+      "path": "reports/PERFORMANCE_RESEARCH_V9.md",
+      "sha256": "df79e44876b56f30d21e3761a0c066fca0a6c9bf4d02e354c2e8601c92a432cb"
+    },
+    {
       "bytes": 503,
       "path": "reports/PLATFORM_SETTINGS.json",
       "sha256": "7857ee3a6208cd82541d5023da02092ac48f8e4087a13c7f47a5f1e076bec4b4"
@@ -1941,6 +1951,11 @@
       "sha256": "bf9b4d42b115c976da64fe6db4fc3c60532e9884937496bff7ea0e0cbd1f5009"
     },
     {
+      "bytes": 13470,
+      "path": "scripts/compare_performance_v9.py",
+      "sha256": "f47b7a4ee0e1d78280f61b2f4f8f2a7cc506299724b4e7b20e66cd4dfd2808ef"
+    },
+    {
       "bytes": 387,
       "path": "scripts/init_project.py",
       "sha256": "ed27d1805e40e657243af5e7eb04a3f3266274a9e10106ea9808a963bee71150"
@@ -1949,6 +1964,11 @@
       "bytes": 10638,
       "path": "scripts/install_skill.py",
       "sha256": "ad8fe6936f6657f721d34151faefc6c56776e7dfc2e688bdbdd86af43952cb67"
+    },
+    {
+      "bytes": 5815,
+      "path": "scripts/measure_command_v9.py",
+      "sha256": "3537f8350cb9de1870e197e436a7d686eb629189070edcc0ca335ae209094e37"
     },
     {
       "bytes": 3984,
@@ -2036,9 +2056,9 @@
       "sha256": "1e0f7908f1f7dbcc179cc9c855d872d086711209002058f640b21ba84f0faa91"
     },
     {
-      "bytes": 6990,
+      "bytes": 12353,
       "path": "scripts/verify_all.py",
-      "sha256": "9971623df23fc8d5d73576573bfb4491f9a77e9dee24900198daf0e9fe0bb70a"
+      "sha256": "2ec2bc0bd35ef1ad3843521ef9ad4e76951f8f38c647dd5751d16c9ea3296586"
     },
     {
       "bytes": 3354,
@@ -2246,6 +2266,11 @@
       "sha256": "ca3c8f21b2c1f771c5b5bde10deea6787386c9389d2c1a01bcd33bd264ab87ac"
     },
     {
+      "bytes": 4617,
+      "path": "tests/test_performance_v9.py",
+      "sha256": "f89a82bbe0c7ab85cb4718be2ed27f5987ec435a85fdef59366ccc379e3c5904"
+    },
+    {
       "bytes": 1612,
       "path": "tests/test_python_compatibility.py",
       "sha256": "f46c1d35f8e9611e6c3d29de68819198d33e31913d4b58a2bf44c52ab00e4ded"
@@ -2446,9 +2471,9 @@
       "sha256": "8288cce44fb955900645cf2844067f0fdc0eebe86919bff93b8ba16c137ab60e"
     },
     {
-      "bytes": 2388,
+      "bytes": 2866,
       "path": "tsao_computation/provenance/manifest.py",
-      "sha256": "60f856b1f99400f441769baa3d1e536ee4661a6ff097087600fe83af51f711de"
+      "sha256": "62ded570f2bc7efd0867c11e1a511a1d0fa96d4272f466da8ad06c25c7521771"
     },
     {
       "bytes": 0,
@@ -2476,9 +2501,9 @@
       "sha256": "63e46860bd8b60c6f4130659943add005a1a05686ce5d6db617fb9cf1387504f"
     },
     {
-      "bytes": 2775,
+      "bytes": 2968,
       "path": "tsao_computation/routing/router.py",
-      "sha256": "47142e3c06ecaf65d5ef366a833fc842e3560771c7c8c428746f269d5607b6a3"
+      "sha256": "a848c351ba8739b819d2b1f710bc7e4e57f8f972a8dcdc84faac125882d7126c"
     },
     {
       "bytes": 144,

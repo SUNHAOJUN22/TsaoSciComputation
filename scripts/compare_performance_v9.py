@@ -150,10 +150,10 @@ def _update_readmes(root: Path, report: dict[str, Any], *, issue: int) -> None:
 
         | Measured path | V8 baseline | V9 candidate | Result |
         |---|---:|---:|---:|
-        | `verify_all --profile all` median wall time | {float(baseline_e2e['wall_median_seconds']):.3f} s | {float(candidate_e2e['wall_median_seconds']):.3f} s | {speedups['verify_all_wall']:.2f}× |
-        | `verify_all` wall p90 | {float(baseline_e2e['wall_p90_seconds']):.3f} s | {float(candidate_e2e['wall_p90_seconds']):.3f} s | telemetry |
-        | Workflow routing | baseline | candidate | {speedups['route_decision']:.2f}× |
-        | 5 MiB solver-output parsing | baseline | candidate | {speedups['parser_throughput']:.2f}× |
+        | `verify_all --profile all` median wall time | {float(baseline_e2e["wall_median_seconds"]):.3f} s | {float(candidate_e2e["wall_median_seconds"]):.3f} s | {speedups["verify_all_wall"]:.2f}× |
+        | `verify_all` wall p90 | {float(baseline_e2e["wall_p90_seconds"]):.3f} s | {float(candidate_e2e["wall_p90_seconds"]):.3f} s | telemetry |
+        | Workflow routing | baseline | candidate | {speedups["route_decision"]:.2f}× |
+        | 5 MiB solver-output parsing | baseline | candidate | {speedups["parser_throughput"]:.2f}× |
         | Peak RSS ratio | 1.00× | {memory_ratio:.2f}× | limit 1.10× |
 
         The optimized verifier runs only independent subprocess gates concurrently, captures their output separately, and emits logs in the original declared order. Source reproducibility builds run concurrently only because their output directories are isolated. Zero mandatory runtime dependencies, fail-closed parsing, cache invalidation, deterministic Manifests and scientific acceptance boundaries remain unchanged. Evidence: [`reports/PERFORMANCE_COMPARISON_V9.json`](reports/PERFORMANCE_COMPARISON_V9.json), [`reports/PERFORMANCE_PROFILE_V9.json`](reports/PERFORMANCE_PROFILE_V9.json), and [Issue #{issue}](../../issues/{issue}).
@@ -168,10 +168,10 @@ def _update_readmes(root: Path, report: dict[str, Any], *, issue: int) -> None:
 
         | 测量路径 | V8 基线 | V9 候选 | 结果 |
         |---|---:|---:|---:|
-        | `verify_all --profile all` 中位墙钟时间 | {float(baseline_e2e['wall_median_seconds']):.3f} s | {float(candidate_e2e['wall_median_seconds']):.3f} s | {speedups['verify_all_wall']:.2f} 倍 |
-        | `verify_all` 墙钟时间 p90 | {float(baseline_e2e['wall_p90_seconds']):.3f} s | {float(candidate_e2e['wall_p90_seconds']):.3f} s | 遥测 |
-        | 工作流路由 | 基线 | 候选 | {speedups['route_decision']:.2f} 倍 |
-        | 5 MiB 求解器输出解析 | 基线 | 候选 | {speedups['parser_throughput']:.2f} 倍 |
+        | `verify_all --profile all` 中位墙钟时间 | {float(baseline_e2e["wall_median_seconds"]):.3f} s | {float(candidate_e2e["wall_median_seconds"]):.3f} s | {speedups["verify_all_wall"]:.2f} 倍 |
+        | `verify_all` 墙钟时间 p90 | {float(baseline_e2e["wall_p90_seconds"]):.3f} s | {float(candidate_e2e["wall_p90_seconds"]):.3f} s | 遥测 |
+        | 工作流路由 | 基线 | 候选 | {speedups["route_decision"]:.2f} 倍 |
+        | 5 MiB 求解器输出解析 | 基线 | 候选 | {speedups["parser_throughput"]:.2f} 倍 |
         | 峰值 RSS 比值 | 1.00 倍 | {memory_ratio:.2f} 倍 | 上限 1.10 倍 |
 
         优化后的验证器只并发执行相互独立的子进程门禁，各任务输出分别捕获，并继续按原声明顺序输出日志。源码可重复构建仅因输出目录彼此隔离而并行。零强制运行时依赖、失败关闭式解析、缓存失效、确定性 Manifest 和科学验收边界均保持不变。证据：[`reports/PERFORMANCE_COMPARISON_V9.json`](reports/PERFORMANCE_COMPARISON_V9.json)、[`reports/PERFORMANCE_PROFILE_V9.json`](reports/PERFORMANCE_PROFILE_V9.json) 与 [Issue #{issue}](../../issues/{issue})。
@@ -217,21 +217,19 @@ def _write_reports(root: Path, report: dict[str, Any]) -> None:
     candidate_summary = _summary(cast(dict[str, Any], candidate["end_to_end"]))
     markdown = f"""# Performance engineering V9
 
-- Baseline commit: `{report['baseline_sha']}`
-- Candidate commit: `{report['candidate_sha']}`
-- Audit run: `{report['audit_run']}`
-- Status: `{report['status']}`
-- `verify_all --profile all`: `{baseline_summary['wall_median_seconds']:.3f} s` to `{candidate_summary['wall_median_seconds']:.3f} s` (`{speedups['verify_all_wall']:.2f}x`)
-- Workflow routing: `{speedups['route_decision']:.2f}x`
-- 5 MiB parser throughput: `{speedups['parser_throughput']:.2f}x`
-- Peak RSS ratio: `{report['memory_ratio']:.2f}x`
+- Baseline commit: `{report["baseline_sha"]}`
+- Candidate commit: `{report["candidate_sha"]}`
+- Audit run: `{report["audit_run"]}`
+- Status: `{report["status"]}`
+- `verify_all --profile all`: `{baseline_summary["wall_median_seconds"]:.3f} s` to `{candidate_summary["wall_median_seconds"]:.3f} s` (`{speedups["verify_all_wall"]:.2f}x`)
+- Workflow routing: `{speedups["route_decision"]:.2f}x`
+- 5 MiB parser throughput: `{speedups["parser_throughput"]:.2f}x`
+- Peak RSS ratio: `{report["memory_ratio"]:.2f}x`
 - Mandatory runtime dependencies added: `0`
 
 The measurements are same-host repository orchestration telemetry. They do not claim faster external scientific solvers or production HPC execution.
 """
-    (reports / "PERFORMANCE_ENGINEERING_V9.md").write_text(
-        markdown, encoding="utf-8", newline="\n"
-    )
+    (reports / "PERFORMANCE_ENGINEERING_V9.md").write_text(markdown, encoding="utf-8", newline="\n")
 
 
 def build_parser() -> argparse.ArgumentParser:
