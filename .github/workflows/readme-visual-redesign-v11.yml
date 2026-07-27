@@ -46,6 +46,20 @@ jobs:
         run: |
           set -Eeuo pipefail
           rm -f .v11-readme-visual-trigger
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          legacy = re.compile(
+              r'<!-- VISUAL_SYSTEM_V10:START -->.*?<!-- VISUAL_SYSTEM_V10:END -->',
+              re.DOTALL,
+          )
+          for name in ('README.md', 'README.zh-CN.md'):
+              path = Path(name)
+              text = legacy.sub('', path.read_text(encoding='utf-8'))
+              text = re.sub(r'\n{3,}', '\n\n', text)
+              path.write_text(text, encoding='utf-8', newline='\n')
+          PY
           python -m ruff check --fix \
             scripts/regenerate_readme_visuals_v11.py \
             tests/test_readme_visuals.py
