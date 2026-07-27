@@ -3,28 +3,21 @@ from __future__ import annotations
 import argparse
 import html
 import re
+import sys
 from pathlib import Path
 
-try:
-    from scripts.regenerate_readme_visuals_v10 import (
-        ROOT,
-        TOKENS,
-        VISUAL_ROOT,
-        VisualSpec,
-        parse_specs,
-        stage_glyph,
-        wrap_words,
-    )
-except ModuleNotFoundError:
-    from regenerate_readme_visuals_v10 import (
-        ROOT,
-        TOKENS,
-        VISUAL_ROOT,
-        VisualSpec,
-        parse_specs,
-        stage_glyph,
-        wrap_words,
-    )
+if __package__ in {None, ""}:
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from scripts.regenerate_readme_visuals_v10 import (  # noqa: E402
+    ROOT,
+    TOKENS,
+    VISUAL_ROOT,
+    VisualSpec,
+    parse_specs,
+    stage_glyph,
+    wrap_words,
+)
 
 SYSTEM_ID = "uiux-pro-max-scientific-swiss-v2"
 LAYOUTS = ("hero", "bento", "workflow", "loop", "risk")
