@@ -1,0 +1,36 @@
+name: V9 final-run diagnostic
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/v9-last-comment.yml'
+
+permissions:
+  contents: write
+  issues: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: main
+          persist-credentials: true
+      - name: Persist latest Issue 29 comment
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          gh api --paginate "repos/$GITHUB_REPOSITORY/issues/29/comments" \
+            | python -c 'import json,sys; rows=json.load(sys.stdin); row=rows[-1]; print(json.dumps({"id":row["id"],"created_at":row["created_at"],"body":row["body"]},indent=2,sort_keys=True))' \
+            > reports/V9_LAST_COMMENT.json
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add reports/V9_LAST_COMMENT.json
+          git commit -m 'Record latest V9 final-run diagnostic'
+          git push origin HEAD:refs/heads/main
