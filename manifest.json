@@ -1811,9 +1811,9 @@
       "sha256": "aa4a98b248b53ae6d70722530481ba93001f932d509bd6fd1681a216639ac6c4"
     },
     {
-      "bytes": 3027,
+      "bytes": 3792,
       "path": "reports/PERFORMANCE_RESEARCH_V9.md",
-      "sha256": "8322cf93508e91be1c8353084be6d6299ab588b7d1e70e3913ca4d3c62d790ed"
+      "sha256": "a5ff021ca32c1c492d088591942ddfdb034d56d4c899f2e40551b170a24b1f73"
     },
     {
       "bytes": 503,
@@ -2096,9 +2096,9 @@
       "sha256": "620b9c5b447569ecc5d151922435909c89993f7e18d330f235022c11bdb1dd78"
     },
     {
-      "bytes": 3354,
+      "bytes": 5244,
       "path": "scripts/verify_wheel.py",
-      "sha256": "28abb7181612cd31f37745181c7fe38bffbd93122904520527c70078b3462aea"
+      "sha256": "663b8ed2dbd56d8d26317790b29ee799e901f1d15092a77038c1824e9b6bf9a4"
     },
     {
       "bytes": 3163,
@@ -2301,9 +2301,9 @@
       "sha256": "ca3c8f21b2c1f771c5b5bde10deea6787386c9389d2c1a01bcd33bd264ab87ac"
     },
     {
-      "bytes": 4618,
+      "bytes": 5628,
       "path": "tests/test_performance_v9.py",
-      "sha256": "b634a8d2bb34ec37e4d2dcb1a214644898ab38ff2d329e8131c9eb666203adf7"
+      "sha256": "69a8f842b882ad62323ee379f3df6185bbcebc065d3c972f7fa9082bcf7c2507"
     },
     {
       "bytes": 1612,
