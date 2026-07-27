@@ -7,10 +7,11 @@ import shutil
 import subprocess  # nosec B404
 import sys
 import tempfile
-import venv
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import _bootstrap  # noqa: F401
+from tsao_computation.provenance.manifest import iter_repository_entries
 
 
 def sha256(path: Path) -> str:
@@ -21,10 +22,24 @@ def sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
-def build_once(root: Path, output: Path, epoch: str) -> Path:
+def prepare_source_snapshot(root: Path, destination: Path) -> None:
+    destination.mkdir(parents=True)
+    for source in iter_repository_entries(root):
+        relative = source.relative_to(root)
+        if source.is_symlink():
+            raise ValueError(f"wheel source tree contains symlink: {relative.as_posix()}")
+        if not source.is_file():
+            continue
+        target = destination / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source, target)
+
+
+def build_once(source_root: Path, output: Path, epoch: str) -> Path:
     output.mkdir(parents=True)
     env = dict(os.environ)
     env["SOURCE_DATE_EPOCH"] = epoch
+    env["PIP_DISABLE_PIP_VERSION_CHECK"] = "1"
     subprocess.run(  # nosec B603
         [
             sys.executable,
@@ -37,7 +52,7 @@ def build_once(root: Path, output: Path, epoch: str) -> Path:
             "--wheel-dir",
             str(output),
         ],
-        cwd=root,
+        cwd=source_root,
         env=env,
         check=True,
     )
@@ -45,6 +60,55 @@ def build_once(root: Path, output: Path, epoch: str) -> Path:
     if len(wheels) != 1:
         raise RuntimeError(f"expected one wheel, found {len(wheels)}")
     return wheels[0]
+
+
+def build_reproducible_pair(root: Path, temporary_root: Path, epoch: str) -> tuple[Path, Path]:
+    source_first = temporary_root / "source-first"
+    source_second = temporary_root / "source-second"
+    prepare_source_snapshot(root, source_first)
+    prepare_source_snapshot(root, source_second)
+    with ThreadPoolExecutor(max_workers=2, thread_name_prefix="tsao-wheel") as pool:
+        first_future = pool.submit(build_once, source_first, temporary_root / "first", epoch)
+        second_future = pool.submit(build_once, source_second, temporary_root / "second", epoch)
+        return first_future.result(), second_future.result()
+
+
+def verify_target_install(wheel: Path, temporary_root: Path, expected: str) -> str:
+    target = temporary_root / "target-install"
+    env = dict(os.environ)
+    env["PIP_DISABLE_PIP_VERSION_CHECK"] = "1"
+    subprocess.run(  # nosec B603
+        [
+            sys.executable,
+            "-m",
+            "pip",
+            "install",
+            "--no-index",
+            "--no-deps",
+            "--target",
+            str(target),
+            str(wheel),
+        ],
+        cwd=temporary_root,
+        env=env,
+        check=True,
+    )
+    script = (
+        "from pathlib import Path; import sys; "
+        "target=Path(sys.argv[1]).resolve(); sys.path.insert(0,str(target)); "
+        "import tsao_computation; "
+        "from tsao_computation import __version__; "
+        "from tsao_computation.registries import capabilities,adapters,workflows; "
+        "module=Path(tsao_computation.__file__).resolve(); "
+        "assert target in module.parents, (target,module); "
+        "print(__version__,len(capabilities()),len(adapters()),len(workflows()))"
+    )
+    return subprocess.check_output(  # nosec B603
+        [sys.executable, "-c", script, str(target)],
+        cwd=temporary_root,
+        text=True,
+        env=env,
+    ).strip()
 
 
 def main() -> int:
@@ -55,8 +119,7 @@ def main() -> int:
     dist.mkdir(exist_ok=True)
     with tempfile.TemporaryDirectory(prefix="tsao-wheel-") as temporary:
         temporary_root = Path(temporary)
-        first = build_once(root, temporary_root / "first", "1700000000")
-        second = build_once(root, temporary_root / "second", "1700000000")
+        first, second = build_reproducible_pair(root, temporary_root, "1700000000")
         first_hash = sha256(first)
         second_hash = sha256(second)
         if first_hash != second_hash:
@@ -64,25 +127,7 @@ def main() -> int:
         destination = dist / first.name
         shutil.copy2(first, destination)
 
-        environment = temporary_root / "venv"
-        venv.EnvBuilder(with_pip=True, clear=True).create(environment)
-        python = environment / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
-        subprocess.run(  # nosec B603
-            [str(python), "-m", "pip", "install", "--no-index", str(destination)],
-            cwd=temporary_root,
-            check=True,
-        )
-        verification = subprocess.check_output(  # nosec B603
-            [
-                str(python),
-                "-c",
-                "from tsao_computation import __version__; "
-                "from tsao_computation.registries import capabilities,adapters,workflows; "
-                "print(__version__,len(capabilities()),len(adapters()),len(workflows()))",
-            ],
-            cwd=temporary_root,
-            text=True,
-        ).strip()
+        verification = verify_target_install(destination, temporary_root, expected)
         if verification != expected:
             raise SystemExit(f"isolated wheel verification failed: {verification}")
 
@@ -92,7 +137,9 @@ def main() -> int:
         "sha256": sha256(destination),
         "bytes": destination.stat().st_size,
         "byte_identical_rebuild": True,
+        "parallel_isolated_rebuilds": True,
         "isolated_install": True,
+        "installation_mode": "pip-target",
         "verification": expected,
     }
     (dist / "WHEEL_VERIFICATION.json").write_text(
