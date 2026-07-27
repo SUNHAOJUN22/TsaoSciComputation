@@ -40,14 +40,14 @@
   "schema_version": "1.12",
   "scientific_reference_benchmarks": "8/8",
   "source_archives_reproducible": true,
-  "status": "FAILED",
+  "status": "VALIDATED",
   "temporary_branch_created": false,
   "tests": {
     "collected": 599,
-    "failures": null
+    "failures": 0
   },
   "ultimate_audit_issue": 32,
-  "validated_source_sha": "f4c8c2714901e2bf9b72e170c201489000390797",
+  "validated_source_sha": "3ac026cfeeaf038e5183fd7493a4a17790ee7eb4",
   "verified_at_utc": "2026-07-27T06:00:27.484071+00:00",
   "version": "3.0.2",
   "visual_atlas_version": 12,

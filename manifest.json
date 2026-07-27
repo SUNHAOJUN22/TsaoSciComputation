@@ -1736,19 +1736,19 @@
       "sha256": "4b1ea5595c760a27cc64a959eee5de1ae0574967d01a86e740ab0d56cf2412b3"
     },
     {
-      "bytes": 48794,
+      "bytes": 49053,
       "path": "reports/CURRENT_MAIN_CODE_AUDIT.json",
-      "sha256": "a862d76cc70294e0bfa58bc00e0ec77d9b8f23f630be3637771233e79b50ce92"
+      "sha256": "6e4f0f18d21ee1b1c59fc9e3c71eec232d7c201c127e3b7af34e6eb288ff9939"
     },
     {
-      "bytes": 985,
+      "bytes": 1102,
       "path": "reports/CURRENT_MAIN_CODE_AUDIT.md",
-      "sha256": "2d69a25fe5996c95fd9cb5259f5070ff361d5a7d6f3a62dff809eb270ca8740d"
+      "sha256": "17f44931d0e31ff444295fd17c689cfd134c4acb39f154d6fb309c5094031c2e"
     },
     {
       "bytes": 2025,
       "path": "reports/CURRENT_MAIN_VERIFICATION.json",
-      "sha256": "48ea3d7622d24f0b587fd016ee7eabff4dc960cef5b21aa87c6fd1336d4b9081"
+      "sha256": "c59ce8e1db535a7e50b2fcf5555c4ef2b2c6ebb25fb7eab4d76fee4e44f3bf6d"
     },
     {
       "bytes": 3115,
@@ -2141,9 +2141,9 @@
       "sha256": "1e0f7908f1f7dbcc179cc9c855d872d086711209002058f640b21ba84f0faa91"
     },
     {
-      "bytes": 13330,
+      "bytes": 13523,
       "path": "scripts/verify_all.py",
-      "sha256": "b2b247b16113c5eaea094b686467a76d1f5b39608c8b7b7e83be06e837109054"
+      "sha256": "201adf264293784f4f39ef126a545bbd0b831059a009b8ef44989561c2e14a8d"
     },
     {
       "bytes": 5493,

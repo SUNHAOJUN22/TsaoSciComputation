@@ -1,7 +1,7 @@
 # Current main code audit
 
-- Validated source SHA: `f4c8c2714901e2bf9b72e170c201489000390797`
-- Overall status: **FAIL**
+- Validated source SHA: `3ac026cfeeaf038e5183fd7493a4a17790ee7eb4`
+- Overall status: **PASS**
 - Tests collected: `599`
 - Coverage: `96.57444005270092%`
 - Runtime dependencies: `0`
@@ -16,15 +16,16 @@
 | `benchmark` | PASS | 0 |
 | `dependency_audit` | PASS | 0 |
 | `collect` | PASS | 0 |
-| `manifest` | FAIL | 1 |
+| `manifest` | PASS | 0 |
 | `diff_check` | PASS | 0 |
 
 ## Fixed findings
 
-- restored the canonical verification API required by all verification tests
-- restored complete quality, security and mutation gates
+- restored the canonical verification API required by the test suite
+- restored complete Ruff, Mypy, Bandit, repository security and mutation gates
 - repaired strict type handling in timing and performance evidence generation
-- restored canonical cross-platform CI on main
+- made benchmark verification side-effect-free
+- restored canonical Ubuntu, Windows and macOS CI on Python 3.10 and 3.13
 - removed obsolete audit, performance, visual transport, trigger and status files
 
 ## Remaining obsolete artifacts
@@ -33,4 +34,4 @@
 
 ## Claim boundary
 
-Repository-local verification only; no external solver execution is claimed.
+Repository-local verification only; no external scientific solver or production HPC execution is claimed.
