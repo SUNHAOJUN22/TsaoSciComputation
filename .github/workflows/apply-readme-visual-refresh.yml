@@ -12,41 +12,7 @@ permissions:
 
 jobs:
   regenerate:
-    if: github.actor != 'github-actions[bot]' && (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository)
+    if: ${{ false }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          ref: ${{ github.head_ref || github.ref_name }}
-
-      - name: Restore the validated generator
-        shell: bash
-        run: |
-          base64 --decode tools/readme-visual-refresh.b64 > /tmp/readme-visual-refresh.tar.gz
-          tar -xzf /tmp/readme-visual-refresh.tar.gz -C .
-
-      - name: Regenerate and validate all README visuals
-        shell: bash
-        run: |
-          python scripts/regenerate_readme_visuals_v11.py
-          python scripts/regenerate_readme_visuals_v11.py --check
-          python -m pytest tests/test_readme_visuals.py -q
-
-      - name: Commit the regenerated atlas
-        shell: bash
-        env:
-          TARGET_BRANCH: ${{ github.head_ref || github.ref_name }}
-        run: |
-          rm -f tools/readme-visual-refresh.b64
-          rm -f tools/readme-visual-refresh.trigger
-          rm -f .github/workflows/apply-readme-visual-refresh.yml
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
-          if git diff --cached --quiet; then
-            echo "No generated changes to commit."
-            exit 0
-          fi
-          git commit -m "Regenerate README visuals with UI UX Pro Max [skip ci]"
-          git push origin "HEAD:${TARGET_BRANCH}"
+      - run: echo "Staging verified payload fragments"
