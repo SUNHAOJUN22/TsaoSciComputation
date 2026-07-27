@@ -9,6 +9,7 @@ import pytest
 from scripts.compare_performance_v9 import compare_v9
 from scripts.measure_command_v9 import _gnu_time_executable, measure_command
 from scripts.verify_all import run_commands_parallel, verification_workers
+from scripts.verify_wheel import prepare_source_snapshot
 from tsao_computation.provenance.manifest import _file_size_and_sha256
 from tsao_computation.registries import clear_registry_caches
 from tsao_computation.routing import route_question
@@ -59,6 +60,29 @@ def test_large_file_hashing_preserves_manifest_bytes(tmp_path: Path) -> None:
     size, digest = _file_size_and_sha256(path)
     assert size == len(payload)
     assert digest == hashlib.sha256(payload).hexdigest()
+
+
+def test_wheel_source_snapshots_are_isolated_and_exclude_runtime_outputs(
+    tmp_path: Path,
+) -> None:
+    source = tmp_path / "source"
+    source.mkdir()
+    (source / "package").mkdir()
+    (source / "package" / "module.py").write_text("VALUE = 1\n", encoding="utf-8")
+    (source / "dist").mkdir()
+    (source / "dist" / "stale.whl").write_bytes(b"stale")
+
+    first = tmp_path / "first"
+    second = tmp_path / "second"
+    prepare_source_snapshot(source, first)
+    prepare_source_snapshot(source, second)
+
+    assert (first / "package" / "module.py").read_text(encoding="utf-8") == "VALUE = 1\n"
+    assert (second / "package" / "module.py").read_text(encoding="utf-8") == "VALUE = 1\n"
+    assert not (first / "dist").exists()
+    assert not (second / "dist").exists()
+    (first / "package" / "module.py").write_text("VALUE = 2\n", encoding="utf-8")
+    assert (second / "package" / "module.py").read_text(encoding="utf-8") == "VALUE = 1\n"
 
 
 def test_gnu_time_metrics_are_linux_only(monkeypatch: pytest.MonkeyPatch) -> None:
