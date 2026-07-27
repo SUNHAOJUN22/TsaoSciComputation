@@ -138,12 +138,12 @@
     {
       "bytes": 15372,
       "path": "README.md",
-      "sha256": "2beb160c10bf4546d65097e675c857dd245ae53b7c885b83440f5f0042fa2df6"
+      "sha256": "6fe01382d7868465dafab6ce45bbdc13dd98388e976a06fd1f9af2a4986b4fe0"
     },
     {
       "bytes": 14611,
       "path": "README.zh-CN.md",
-      "sha256": "5fbee33046b00b650f96234ca245716a7cd64f037177696727279c073620652b"
+      "sha256": "2cf8e3c6df3e56bc484584c53e5b077f95c8cb916d67e039287d793b3b88192c"
     },
     {
       "bytes": 3578,
@@ -666,9 +666,9 @@
       "sha256": "f229754dda8bceff6bf84c107c91db8c3599b889d2568835a3d08c457954d447"
     },
     {
-      "bytes": 815,
+      "bytes": 813,
       "path": "benchmarks/latest.json",
-      "sha256": "9b7092eec0370371600c539bb1d2441887dd3b67664815ac59a47be7905af698"
+      "sha256": "701bb43d6573821a95be66ee8eb63b9a15ba700900aa362e51065cc72e1a13a2"
     },
     {
       "bytes": 14680,
@@ -1608,7 +1608,7 @@
     {
       "bytes": 89,
       "path": "evidence/quality-check.json",
-      "sha256": "79d878a3390e85f1ba9e23b1a4f36cfe3036922d0ea46ce0fdea3ede47b4469c"
+      "sha256": "6ab92a2498b89b77f49b2dd972f8ccb0872f89c1def65d5b979d3c4fdf06d33c"
     },
     {
       "bytes": 3174,
@@ -1618,7 +1618,7 @@
     {
       "bytes": 72,
       "path": "evidence/security-scan.json",
-      "sha256": "3392e40e7e9b986f17faa34ffd562a30134f13cbc25eb71266014defe1761a3f"
+      "sha256": "44403ac64f6ac6b6e4dcbbe357000d7086865b8a188bee7df34ba6b9325763f0"
     },
     {
       "bytes": 573,
@@ -1773,7 +1773,7 @@
     {
       "bytes": 1510,
       "path": "reports/CURRENT_MAIN_VERIFICATION.json",
-      "sha256": "454a398b20b3e2b2ddff9bae42e9e509f778345abf2da33391c8725d69bbc147"
+      "sha256": "a487547fac9e6045a3c92e45e900ebe53c6e482f7e478d1a3aad515dfaf22f4a"
     },
     {
       "bytes": 3115,
@@ -1874,6 +1874,11 @@
       "bytes": 1033,
       "path": "reports/ULTIMATE_MAIN_AUDIT_V11.md",
       "sha256": "ac17c7d9de890488622c4531fe06079e80e2167021ab6bf25f379a80f9322686"
+    },
+    {
+      "bytes": 1056,
+      "path": "reports/ULTIMATE_MAIN_AUDIT_V12.md",
+      "sha256": "644f5bdcfe734d8d819d00caf7cf3941afe33600722add2201e06df2e6b10608"
     },
     {
       "bytes": 1185,
