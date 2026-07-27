@@ -1966,9 +1966,9 @@
       "sha256": "ad8fe6936f6657f721d34151faefc6c56776e7dfc2e688bdbdd86af43952cb67"
     },
     {
-      "bytes": 5815,
+      "bytes": 6533,
       "path": "scripts/measure_command_v9.py",
-      "sha256": "3537f8350cb9de1870e197e436a7d686eb629189070edcc0ca335ae209094e37"
+      "sha256": "a81886230f9c262c21ab173e44c38ce20bf3826ffdf223eff40bd5da288140f1"
     },
     {
       "bytes": 3984,
