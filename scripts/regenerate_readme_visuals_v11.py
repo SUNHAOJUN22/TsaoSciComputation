@@ -5,15 +5,26 @@ import html
 import re
 from pathlib import Path
 
-from scripts.regenerate_readme_visuals_v10 import (
-    ROOT,
-    TOKENS,
-    VISUAL_ROOT,
-    VisualSpec,
-    parse_specs,
-    stage_glyph,
-    wrap_words,
-)
+try:
+    from scripts.regenerate_readme_visuals_v10 import (
+        ROOT,
+        TOKENS,
+        VISUAL_ROOT,
+        VisualSpec,
+        parse_specs,
+        stage_glyph,
+        wrap_words,
+    )
+except ModuleNotFoundError:
+    from regenerate_readme_visuals_v10 import (
+        ROOT,
+        TOKENS,
+        VISUAL_ROOT,
+        VisualSpec,
+        parse_specs,
+        stage_glyph,
+        wrap_words,
+    )
 
 SYSTEM_ID = "uiux-pro-max-scientific-swiss-v2"
 LAYOUTS = ("hero", "bento", "workflow", "loop", "risk")
@@ -121,8 +132,7 @@ def lines(
         for index, line in enumerate(wrapped)
     )
     return (
-        f'<text x="{x:.1f}" y="{y:.1f}" text-anchor="{anchor}" '
-        f'class="{css_class}">{tspans}</text>'
+        f'<text x="{x:.1f}" y="{y:.1f}" text-anchor="{anchor}" class="{css_class}">{tspans}</text>'
     )
 
 
@@ -173,10 +183,7 @@ def evidence_strip(accent: str) -> str:
             f'<circle cx="{x}" cy="552" r="9" fill="#0B1220" stroke="{accent}" stroke-width="2"/>'
             f'<text x="{x + 16}" y="557" class="gate">{label}</text>'
         )
-    return (
-        '<rect x="48" y="516" width="1104" height="72" rx="16" class="raised"/>'
-        + "".join(items)
-    )
+    return '<rect x="48" y="516" width="1104" height="72" rx="16" class="raised"/>' + "".join(items)
 
 
 def render_hero(spec: VisualSpec) -> str:
