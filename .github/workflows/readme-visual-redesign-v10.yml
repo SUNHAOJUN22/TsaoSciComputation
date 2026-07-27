@@ -1,0 +1,184 @@
+name: README visual redesign V10
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.v10-readme-visual-trigger'
+
+permissions:
+  actions: write
+  contents: write
+  issues: write
+
+concurrency:
+  group: readme-visual-redesign-v10-main
+  cancel-in-progress: false
+
+jobs:
+  redesign:
+    if: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[run-v10-visuals]') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    env:
+      GH_TOKEN: ${{ github.token }}
+      ISSUE_NUMBER: '30'
+      TSAO_COVERAGE_JSON: /tmp/tsao-v10-coverage.json
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+          cache: pip
+
+      - name: Install verification environment
+        run: python -m pip install -e '.[validation,quality,security]'
+
+      - name: Generate the Scientific Swiss Bento atlas
+        id: candidate
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          rm -f .v10-readme-visual-trigger
+          python -m ruff check --fix \
+            scripts/regenerate_readme_visuals_v10.py \
+            tests/test_readme_visuals.py
+          python -m ruff format \
+            scripts/regenerate_readme_visuals_v10.py \
+            tests/test_readme_visuals.py
+          python scripts/regenerate_readme_visuals_v10.py
+          python scripts/regenerate_readme_visuals_v10.py --check
+          python scripts/build_manifest.py
+          python scripts/build_manifest.py --check
+          git diff --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          if ! git diff --cached --quiet; then
+            git commit -m 'Regenerate README visual system with UI UX Pro Max'
+            git push origin HEAD:refs/heads/main
+          fi
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Run visual system acceptance
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python scripts/regenerate_readme_visuals_v10.py --check
+          python -m pytest -q tests/test_readme_visuals.py
+
+      - name: Run deterministic release gates pass 1
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python scripts/build_manifest.py
+          python scripts/build_manifest.py --check
+          python scripts/verify_all.py --profile all | tee /tmp/v10-all-pass1.log
+          python scripts/verify_all.py --profile benchmark | tee /tmp/v10-benchmark.log
+          python -m pytest -q | tee /tmp/v10-pytest.log
+
+      - name: Collect dependency security and branch evidence
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python -m pip_audit --local --skip-editable --progress-spinner=off \
+            --format=json --output /tmp/v10-dependency.json
+          python scripts/security_scan.py > /tmp/v10-security.json
+          git ls-remote --heads origin > /tmp/v10-remote-heads.txt
+
+      - name: Refresh V10 current-main evidence
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python scripts/update_main_audit_evidence.py \
+            --run-id "$GITHUB_RUN_ID" \
+            --issue "$ISSUE_NUMBER" \
+            --test-log /tmp/v10-pytest.log \
+            --coverage-json "$TSAO_COVERAGE_JSON" \
+            --dependency-json /tmp/v10-dependency.json \
+            --security-json /tmp/v10-security.json \
+            --remote-heads /tmp/v10-remote-heads.txt \
+            --parent-commit '${{ steps.candidate.outputs.sha }}' \
+            --audit-generation ultimate-main-audit-v10 \
+            --audit-label V10 \
+            --visual-count 42 \
+            --visual-atlas-version 10 \
+            --report-path reports/ULTIMATE_MAIN_AUDIT_V10.md \
+            --visual-families 'UI UX Pro Max Scientific Swiss Bento redesign of all 42 README visuals.'
+          python scripts/regenerate_readme_visuals_v10.py --check
+          python scripts/build_manifest.py
+          python scripts/build_manifest.py --check
+          git diff --check
+
+      - name: Run deterministic release gates pass 2
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python scripts/verify_all.py --profile all | tee /tmp/v10-all-pass2.log
+          python scripts/regenerate_readme_visuals_v10.py --check
+          python scripts/build_manifest.py
+          python scripts/build_manifest.py --check
+          python scripts/validate_repository.py
+          git diff --check
+
+      - name: Commit every verified V10 artifact
+        id: final_commit
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          if ! git diff --cached --quiet; then
+            git commit -m 'Finalize UI UX Pro Max README visual system V10'
+            git push origin HEAD:refs/heads/main
+          fi
+          test -z "$(git diff --name-only)"
+          test -z "$(git diff --cached --name-only)"
+          echo "final_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Dispatch and wait for canonical CI
+        id: canonical_ci
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          final_sha='${{ steps.final_commit.outputs.final_sha }}'
+          gh workflow run ci.yml --ref main
+          run_id=''
+          for _ in $(seq 1 40); do
+            run_id="$(
+              gh run list --workflow ci.yml --branch main --event workflow_dispatch --limit 50 \
+                --json databaseId,headSha \
+              | python -c 'import json,sys; rows=json.load(sys.stdin); sha=sys.argv[1]; print(next((str(row["databaseId"]) for row in rows if row["headSha"]==sha), ""))' \
+                  "$final_sha"
+            )"
+            test -n "$run_id" && break
+            sleep 4
+          done
+          test -n "$run_id"
+          echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
+          gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body \
+            "Canonical CI dispatched for V10 visual final commit \`$final_sha\`. Run ID: \`$run_id\`."
+          gh run watch "$run_id" --repo "$GITHUB_REPOSITORY" --exit-status
+
+      - name: Report success and close Issue 30
+        shell: bash
+        run: |
+          final_sha='${{ steps.final_commit.outputs.final_sha }}'
+          run_id='${{ steps.canonical_ci.outputs.run_id }}'
+          gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body \
+            "README visual system V10 passed. Final commit: \`$final_sha\`. Canonical CI Run ID: \`$run_id\`. All 42 SVGs were regenerated with the UI/UX Pro Max-derived Scientific Swiss Bento system; full deterministic gates and Ubuntu/Windows/macOS CI succeeded. No branch or PR was created."
+          gh issue close "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --reason completed
+
+      - name: Report failure with no completion claim
+        if: ${{ failure() }}
+        shell: bash
+        run: |
+          gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body \
+            "README visual system V10 failed in workflow run \`$GITHUB_RUN_ID\`. No completion claim is made; inspect the failed step before retrying."
