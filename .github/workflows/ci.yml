@@ -81,3 +81,26 @@ jobs:
           cache: pip
       - run: python -m pip install -e '.[validation,quality]'
       - run: python scripts/verify_all.py --profile benchmark
+
+  performance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+          cache: pip
+      - run: python -m pip install -e '.[validation,quality]'
+      - run: python -m pytest -q tests/test_performance_v9.py
+      - name: Verify accepted V9 performance evidence when present
+        shell: bash
+        run: |
+          if test -f reports/PERFORMANCE_COMPARISON_V9.json; then
+            python scripts/compare_performance_v9.py \
+              --verify-report reports/PERFORMANCE_COMPARISON_V9.json
+          else
+            echo 'V9 performance evidence has not been finalized yet.'
+          fi
