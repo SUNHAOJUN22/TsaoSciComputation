@@ -12,7 +12,8 @@ HEX_COLOR = re.compile(r"#[0-9A-Fa-f]{6}")
 LAYOUT = re.compile(r'data-layout="([a-z]+)"')
 DETAILS_TAG = re.compile(r"^<details(?: open)?>$", re.MULTILINE)
 SUMMARY_TAG = re.compile(r"^<summary>.*</summary>$", re.MULTILINE)
-DESIGN_SYSTEM = "uiux-pro-max-scientific-swiss-v3"
+DESIGN_SYSTEM = "uiux-pro-max-scientific-console-v4"
+ICON_SYSTEM = "uiux-pro-max-line-v1"
 EXPECTED_LAYOUTS = {
     "hero": 1,
     "bento": 7,
@@ -22,20 +23,20 @@ EXPECTED_LAYOUTS = {
 }
 OVERVIEW_FILES = {"agent-orchestration.svg", "capability-landscape.svg"}
 ALLOWED_COLORS = {
-    "#0B1220",
-    "#111827",
-    "#172033",
-    "#334155",
+    "#07111F",
+    "#0F1B2D",
+    "#162338",
+    "#334865",
     "#F8FAFC",
-    "#CBD5E1",
-    "#94A3B8",
-    "#3B82F6",
-    "#06B6D4",
-    "#14B8A6",
-    "#22C55E",
-    "#F59E0B",
-    "#F97316",
-    "#EF4444",
+    "#D1D9E6",
+    "#93A4BB",
+    "#60A5FA",
+    "#22D3EE",
+    "#2DD4BF",
+    "#4ADE80",
+    "#FBBF24",
+    "#FB923C",
+    "#F87171",
 }
 BANNED_DECORATIVE_COLORS = {"#8B5CF6", "#D946EF", "#FF7EC7", "#EC4899"}
 
@@ -54,7 +55,8 @@ def test_readme_uses_progressive_disclosure_at_github_scale() -> None:
         (ROOT / "README.zh-CN.md").read_text(encoding="utf-8"),
     ]
     for readme in readmes:
-        assert "V12" in readme
+        assert "V13" in readme
+        assert "V12_VISUAL_SYSTEM" not in readme
         assert "V11_VISUAL_SYSTEM" not in readme
         assert "VISUAL_SYSTEM_V10" not in readme
         assert len(DETAILS_TAG.findall(readme)) == 4
@@ -74,10 +76,14 @@ def test_readme_visuals_are_readable_accessible_and_self_contained() -> None:
         (ROOT / "README.zh-CN.md").read_text(encoding="utf-8"),
     ]
     manifest_in = (ROOT / "MANIFEST.in").read_text(encoding="utf-8")
-    design_system = (ROOT / "assets" / "visuals" / "DESIGN_SYSTEM.md").read_text(encoding="utf-8")
+    design_system = (ROOT / "assets" / "visuals" / "DESIGN_SYSTEM.md").read_text(
+        encoding="utf-8"
+    )
     assert "recursive-include assets *.md *.svg" in manifest_in
-    assert "Scientific Swiss Bento V12" in design_system
-    assert "Minimum SVG text size: 16 px" in design_system
+    assert "Scientific Research Console V13" in design_system
+    assert "minimum 16 px" in design_system.lower()
+    assert "nextlevelbuilder/ui-ux-pro-max-skill" in design_system
+    assert "bbylw/ui-ux-pro-max-skill-cn" in design_system
     assert all(layout.title() in design_system for layout in EXPECTED_LAYOUTS)
 
     names = _inventory_names()
@@ -96,6 +102,10 @@ def test_readme_visuals_are_readable_accessible_and_self_contained() -> None:
         assert text.startswith('<svg xmlns="http://www.w3.org/2000/svg"')
         assert " viewBox=" in text
         assert f'data-design-system="{DESIGN_SYSTEM}"' in text
+        assert f'data-icon-system="{ICON_SYSTEM}"' in text
+        assert 'data-density="balanced"' in text
+        assert 'shape-rendering="geometricPrecision"' in text
+        assert 'text-rendering="optimizeLegibility"' in text
         assert " data-family=" in text
         layout_match = LAYOUT.search(text)
         assert layout_match is not None
@@ -111,7 +121,7 @@ def test_readme_visuals_are_readable_accessible_and_self_contained() -> None:
         assert "<lineargradient" not in lowered
         assert "<radialgradient" not in lowered
         assert "<filter" not in lowered
-        assert "EVIDENCE-BOUND" in text
+        assert "EVIDENCE BOUND" in text
         assert "NUMERICAL" in text
         assert "CONVERGENCE" in text
         assert "APPLICABILITY" in text
