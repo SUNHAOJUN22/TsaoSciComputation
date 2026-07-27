@@ -4,7 +4,7 @@
 - Issue: `#30`
 - Branch policy: `main` only; no branch or pull request created
 - Version: `3.0.2`
-- Deterministic finalization run: `30237243917`
+- Deterministic finalization run: `30237762442`
 - Tests: `585 passed, 0 failed`
 - Coverage: `97.44%` statement / `93.57%` branch
 - Scientific benchmarks: `8/8`
