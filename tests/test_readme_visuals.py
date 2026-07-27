@@ -74,9 +74,7 @@ def test_readme_visuals_are_readable_accessible_and_self_contained() -> None:
         (ROOT / "README.zh-CN.md").read_text(encoding="utf-8"),
     ]
     manifest_in = (ROOT / "MANIFEST.in").read_text(encoding="utf-8")
-    design_system = (ROOT / "assets" / "visuals" / "DESIGN_SYSTEM.md").read_text(
-        encoding="utf-8"
-    )
+    design_system = (ROOT / "assets" / "visuals" / "DESIGN_SYSTEM.md").read_text(encoding="utf-8")
     assert "recursive-include assets *.md *.svg" in manifest_in
     assert "Scientific Swiss Bento V12" in design_system
     assert "Minimum SVG text size: 16 px" in design_system

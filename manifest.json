@@ -2356,9 +2356,9 @@
       "sha256": "f46c1d35f8e9611e6c3d29de68819198d33e31913d4b58a2bf44c52ab00e4ded"
     },
     {
-      "bytes": 5251,
+      "bytes": 5398,
       "path": "tests/test_readme_visuals.py",
-      "sha256": "9da78a46d21815fdff3839cf98aa0f43e03856f51fafd5208db44a2f4c6fab6f"
+      "sha256": "c5c69e88433ed779b3ebdf984eab102cdbeb5fa71c02486175659f8a0ecaad30"
     },
     {
       "bytes": 2268,
