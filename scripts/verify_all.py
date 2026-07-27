@@ -209,6 +209,12 @@ def verify_quality() -> int:
             ("repository quality rules", (PYTHON, "scripts/quality_check.py")),
             ("Ruff lint", (PYTHON, "-m", "ruff", "check", *CODE_PATHS)),
             ("Ruff formatting", (PYTHON, "-m", "ruff", "format", "--check", *CODE_PATHS)),
+        )
+    )
+    if returncode:
+        return returncode
+    returncode = run_commands_parallel(
+        (
             (
                 "Mypy",
                 (PYTHON, "-m", "mypy", "--python-version", "3.13", "tsao_computation", "scripts"),
@@ -216,7 +222,8 @@ def verify_quality() -> int:
             ("Bandit", (PYTHON, "-m", "bandit", "-q", "-r", "tsao_computation", "scripts")),
             ("repository security scan", (PYTHON, "scripts/security_scan.py")),
             ("controlled mutation gate", (PYTHON, "scripts/run_mutation_gate.py")),
-        )
+        ),
+        max_workers=2,
     )
     if returncode:
         return returncode
