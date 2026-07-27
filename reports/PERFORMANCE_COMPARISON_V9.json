@@ -19,7 +19,7 @@
     "Deterministic captured logs emitted in declared gate order.",
     "Structured per-step verification timing telemetry."
   ],
-  "audit_run": 30232461778,
+  "audit_run": 30235135456,
   "baseline": {
     "end_to_end": {
       "claim_boundary": "Same-host command telemetry; external scientific solver performance is not measured.",
@@ -35,79 +35,79 @@
         {
           "filesystem_inputs": 0.0,
           "filesystem_outputs": 75880.0,
-          "peak_rss_kib": 74628.0,
+          "peak_rss_kib": 74704.0,
           "resource_metrics": "gnu-time",
           "returncode": 0,
-          "system_seconds": 1.44,
-          "user_seconds": 10.72,
-          "wall_seconds": 12.064624426000002
-        },
-        {
-          "filesystem_inputs": 0.0,
-          "filesystem_outputs": 75848.0,
-          "peak_rss_kib": 74760.0,
-          "resource_metrics": "gnu-time",
-          "returncode": 0,
-          "system_seconds": 1.45,
-          "user_seconds": 10.69,
-          "wall_seconds": 12.046246857
+          "system_seconds": 1.51,
+          "user_seconds": 10.82,
+          "wall_seconds": 12.238312367000006
         },
         {
           "filesystem_inputs": 0.0,
           "filesystem_outputs": 75880.0,
-          "peak_rss_kib": 74752.0,
+          "peak_rss_kib": 74232.0,
           "resource_metrics": "gnu-time",
           "returncode": 0,
           "system_seconds": 1.47,
-          "user_seconds": 10.7,
-          "wall_seconds": 12.077828264000004
+          "user_seconds": 10.89,
+          "wall_seconds": 12.270007485999997
+        },
+        {
+          "filesystem_inputs": 0.0,
+          "filesystem_outputs": 75912.0,
+          "peak_rss_kib": 74776.0,
+          "resource_metrics": "gnu-time",
+          "returncode": 0,
+          "system_seconds": 1.52,
+          "user_seconds": 10.86,
+          "wall_seconds": 12.290213969000007
         }
       ],
       "schema_version": "1.0",
       "status": "PASS",
       "summary": {
-        "cpu_median_seconds": 12.16,
-        "peak_rss_max_kib": 74760.0,
+        "cpu_median_seconds": 12.360000000000001,
+        "peak_rss_max_kib": 74776.0,
         "resource_metrics": "gnu-time",
-        "wall_cv": 0.0010735890287991694,
-        "wall_median_seconds": 12.064624426000002,
-        "wall_min_seconds": 12.046246857,
-        "wall_p90_seconds": 12.075187496400005
+        "wall_cv": 0.0017414611731462189,
+        "wall_median_seconds": 12.270007485999997,
+        "wall_min_seconds": 12.238312367000006,
+        "wall_p90_seconds": 12.286172672400005
       },
       "warmup_samples": [
         {
           "filesystem_inputs": 9736.0,
           "filesystem_outputs": 108968.0,
-          "peak_rss_kib": 123252.0,
+          "peak_rss_kib": 123476.0,
           "resource_metrics": "gnu-time",
           "returncode": 0,
-          "system_seconds": 1.55,
-          "user_seconds": 13.32,
-          "wall_seconds": 15.230103062000005
+          "system_seconds": 1.57,
+          "user_seconds": 13.55,
+          "wall_seconds": 15.706071270999992
         }
       ],
       "warmups": 1
     },
     "micro": {
-      "adapter_lookup_cached_median_us": 0.1082,
-      "adapter_registry_cold_median_ms": 0.201,
-      "capability_registry_cached_median_ms": 0.00081,
-      "capability_registry_cold_median_ms": 1.874,
+      "adapter_lookup_cached_median_us": 0.1068,
+      "adapter_registry_cold_median_ms": 0.202,
+      "capability_registry_cached_median_ms": 0.00046,
+      "capability_registry_cold_median_ms": 1.844,
       "claim_boundary": "Local orchestration microbenchmarks; no solver execution measured.",
-      "cli_import_median_ms": 40.185,
+      "cli_import_median_ms": 40.541,
       "methodology": {
         "claim_boundary": "Same-host local orchestration microbenchmarks; no solver execution measured.",
         "clock": "time.perf_counter",
         "statistic": "median",
         "warmups": 2
       },
-      "parser_5mib_throughput_mib_s": 18.9,
+      "parser_5mib_throughput_mib_s": 19.57,
       "python": "3.13.14 (main, Jun 11 2026, 03:02:07) [GCC 13.3.0]",
-      "repository_walk_median_ms": 8.345,
-      "route_decision_cold_median_ms": 0.347,
-      "route_decision_median_ms": 0.03364,
+      "repository_walk_median_ms": 8.183,
+      "route_decision_cold_median_ms": 0.355,
+      "route_decision_median_ms": 0.03383,
       "schema_version": "1.1",
-      "workflow_registry_cold_median_ms": 0.146
+      "workflow_registry_cold_median_ms": 0.154
     }
   },
   "baseline_sha": "c2c0eca0fd6bf81cc3cbb1ff29489eefbcba58fd",
@@ -125,85 +125,85 @@
       "samples": [
         {
           "filesystem_inputs": 0.0,
-          "filesystem_outputs": 81032.0,
-          "peak_rss_kib": 74780.0,
+          "filesystem_outputs": 66264.0,
+          "peak_rss_kib": 57516.0,
           "resource_metrics": "gnu-time",
           "returncode": 0,
-          "system_seconds": 1.53,
-          "user_seconds": 11.37,
-          "wall_seconds": 11.127462956000002
+          "system_seconds": 1.54,
+          "user_seconds": 9.36,
+          "wall_seconds": 8.109690839999999
         },
         {
           "filesystem_inputs": 0.0,
-          "filesystem_outputs": 81000.0,
-          "peak_rss_kib": 74668.0,
+          "filesystem_outputs": 66264.0,
+          "peak_rss_kib": 57492.0,
           "resource_metrics": "gnu-time",
           "returncode": 0,
-          "system_seconds": 1.58,
-          "user_seconds": 11.28,
-          "wall_seconds": 11.109176052999999
+          "system_seconds": 1.55,
+          "user_seconds": 9.41,
+          "wall_seconds": 8.129171457999988
         },
         {
           "filesystem_inputs": 0.0,
-          "filesystem_outputs": 81024.0,
-          "peak_rss_kib": 74640.0,
+          "filesystem_outputs": 66264.0,
+          "peak_rss_kib": 57364.0,
           "resource_metrics": "gnu-time",
           "returncode": 0,
-          "system_seconds": 1.65,
-          "user_seconds": 11.22,
-          "wall_seconds": 11.098111374000013
+          "system_seconds": 1.48,
+          "user_seconds": 9.46,
+          "wall_seconds": 8.136580686000002
         }
       ],
       "schema_version": "1.0",
       "status": "PASS",
       "summary": {
-        "cpu_median_seconds": 12.870000000000001,
-        "peak_rss_max_kib": 74780.0,
+        "cpu_median_seconds": 10.940000000000001,
+        "peak_rss_max_kib": 57516.0,
         "resource_metrics": "gnu-time",
-        "wall_cv": 0.0010892277552853736,
-        "wall_median_seconds": 11.109176052999999,
-        "wall_min_seconds": 11.098111374000013,
-        "wall_p90_seconds": 11.123805575400002
+        "wall_cv": 0.0013957239543491411,
+        "wall_median_seconds": 8.129171457999988,
+        "wall_min_seconds": 8.109690839999999,
+        "wall_p90_seconds": 8.1350988404
       },
       "warmup_samples": [
         {
-          "filesystem_inputs": 0.0,
-          "filesystem_outputs": 112728.0,
-          "peak_rss_kib": 124008.0,
+          "filesystem_inputs": 8.0,
+          "filesystem_outputs": 97920.0,
+          "peak_rss_kib": 124172.0,
           "resource_metrics": "gnu-time",
           "returncode": 0,
-          "system_seconds": 1.61,
-          "user_seconds": 13.9,
-          "wall_seconds": 13.022105857
+          "system_seconds": 1.58,
+          "user_seconds": 12.05,
+          "wall_seconds": 10.083225612000007
         }
       ],
       "warmups": 1
     },
     "micro": {
-      "adapter_lookup_cached_median_us": 0.106,
-      "adapter_registry_cold_median_ms": 0.199,
-      "capability_registry_cached_median_ms": 0.00046,
-      "capability_registry_cold_median_ms": 1.85,
+      "adapter_lookup_cached_median_us": 0.1078,
+      "adapter_registry_cold_median_ms": 0.211,
+      "capability_registry_cached_median_ms": 0.00047,
+      "capability_registry_cold_median_ms": 1.869,
       "claim_boundary": "Local orchestration microbenchmarks; no solver execution measured.",
-      "cli_import_median_ms": 39.75,
+      "cli_import_median_ms": 41.721,
       "methodology": {
         "claim_boundary": "Same-host local orchestration microbenchmarks; no solver execution measured.",
         "clock": "time.perf_counter",
         "statistic": "median",
         "warmups": 2
       },
-      "parser_5mib_throughput_mib_s": 19.21,
+      "parser_5mib_throughput_mib_s": 19.25,
       "python": "3.13.14 (main, Jun 11 2026, 03:02:07) [GCC 13.3.0]",
-      "repository_walk_median_ms": 8.317,
-      "route_decision_cold_median_ms": 0.346,
+      "repository_walk_median_ms": 8.344,
+      "route_decision_cold_median_ms": 0.369,
       "route_decision_median_ms": 0.00013,
       "schema_version": "1.1",
-      "workflow_registry_cold_median_ms": 0.149
+      "workflow_registry_cold_median_ms": 0.161
     }
   },
-  "candidate_sha": "65101d3989b7890a5dd884e01b383c229e88d749",
+  "candidate_sha": "6e9f88f4d7413e7351ba34298aba78b441bebbac",
   "claim_boundary": "Same-host repository orchestration and verification telemetry only; external DFT, MD, CFD, process-simulation and production-HPC solver performance is not measured.",
-  "memory_ratio": 1.0003,
+  "memory_ratio": 0.7692,
   "not_adopted": [
     "No persistent executable-probe cache because PATH-stable environments can still change on disk.",
     "No mandatory third-party JSON or profiling runtime dependency.",
@@ -211,10 +211,10 @@
   ],
   "schema_version": "1.0",
   "speedups": {
-    "parser_throughput": 1.0164,
-    "route_decision": 258.7692,
-    "verify_all_cpu": 0.9448,
-    "verify_all_wall": 1.086
+    "parser_throughput": 0.9836,
+    "route_decision": 260.2308,
+    "verify_all_cpu": 1.1298,
+    "verify_all_wall": 1.5094
   },
   "status": "PASS"
 }
