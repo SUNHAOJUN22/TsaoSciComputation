@@ -28,10 +28,6 @@ The 42 repository-local SVGs use **Scientific Swiss Bento V11**, derived from th
 All layouts retain high contrast, system fonts, semantic colors, explicit labels and a shared evidence vocabulary. See [`assets/visuals/DESIGN_SYSTEM.md`](assets/visuals/DESIGN_SYSTEM.md).
 <!-- V11_VISUAL_SYSTEM:END -->
 
-<!-- VISUAL_SYSTEM_V10:START -->
-> **Visual system V10.** All 42 repository-local diagrams now follow a UI/UX Pro Max-derived **Scientific Swiss Bento** system: high contrast, systematic spacing, semantic accents, numbered stages, consistent line language and explicit evidence boundaries. The SVGs remain static, self-contained and accessible; they are explanatory architecture diagrams, not solver screenshots or fabricated scientific plots. See [`assets/visuals/DESIGN_SYSTEM.md`](assets/visuals/DESIGN_SYSTEM.md).
-<!-- VISUAL_SYSTEM_V10:END -->
-
 ## What it is
 
 TsaoSciComputation converts a scientific question into a traceable calculation program with explicit contracts, method and scale routing, environment preflight, bounded execution, conservative parsing, numerical and physical validation, uncertainty, applicability, provenance, and acceptance gates.

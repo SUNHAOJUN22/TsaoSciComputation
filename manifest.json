@@ -76,9 +76,9 @@
       "sha256": "4b0747b23923d5e913a4b3c05a650da8f69c1b0ae59294b373a4a4ff7ccdb76c"
     },
     {
-      "bytes": 7511,
+      "bytes": 8037,
       "path": ".github/workflows/readme-visual-redesign-v11.yml",
-      "sha256": "c862cd21fdc77c8d913ae7f9f20cd6b0fe07f2a3d929ac98b5d4b0452a187d93"
+      "sha256": "6c92075190df2a0686cf56594e24daddb0061c482fed213647ca998df0aa11cd"
     },
     {
       "bytes": 5027,
@@ -131,14 +131,14 @@
       "sha256": "62d6fdd9d587504092fe8417670b55895ea4db4fc845790f6270e8f50612b6e2"
     },
     {
-      "bytes": 25266,
+      "bytes": 24716,
       "path": "README.md",
-      "sha256": "691fc8b4b971130e9489c7dd78188ea4b1d5c81616e5164e14fdb5434773f24c"
+      "sha256": "78060662e973e0d42376df25f4c20d5e93ec1082c437b55af74c71f3aef4572f"
     },
     {
-      "bytes": 23122,
+      "bytes": 22618,
       "path": "README.zh-CN.md",
-      "sha256": "5427a33ffa88470a2d2a3d13ee653f9735f020fea8b37d84c7451cd243d603b6"
+      "sha256": "ccf541e2a492edb880983524945820074355aabcea17a486beb20ae30bd0ebfc"
     },
     {
       "bytes": 3578,
@@ -2346,9 +2346,9 @@
       "sha256": "f46c1d35f8e9611e6c3d29de68819198d33e31913d4b58a2bf44c52ab00e4ded"
     },
     {
-      "bytes": 4375,
+      "bytes": 4447,
       "path": "tests/test_readme_visuals.py",
-      "sha256": "4bf3eb9bd4218407fdec70fb04def3edbcada164709973d783782ef754d6b924"
+      "sha256": "2a30ae767c008cef7527d2558613fddffef56859878994786ca6c1fe27c43198"
     },
     {
       "bytes": 2268,
