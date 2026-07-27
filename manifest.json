@@ -1811,9 +1811,9 @@
       "sha256": "ef53bf849d36a6c2b0ccc3b831bd57e28bd161afdeacdd43f72edb0beda5c937"
     },
     {
-      "bytes": 2352,
+      "bytes": 3027,
       "path": "reports/PERFORMANCE_RESEARCH_V9.md",
-      "sha256": "df79e44876b56f30d21e3761a0c066fca0a6c9bf4d02e354c2e8601c92a432cb"
+      "sha256": "8322cf93508e91be1c8353084be6d6299ab588b7d1e70e3913ca4d3c62d790ed"
     },
     {
       "bytes": 503,
@@ -1996,9 +1996,9 @@
       "sha256": "ad8fe6936f6657f721d34151faefc6c56776e7dfc2e688bdbdd86af43952cb67"
     },
     {
-      "bytes": 6533,
+      "bytes": 7206,
       "path": "scripts/measure_command_v9.py",
-      "sha256": "a81886230f9c262c21ab173e44c38ce20bf3826ffdf223eff40bd5da288140f1"
+      "sha256": "d52e0bbfd5448b71ccb34d6299ff9ac50c9d11009db1e8cf29933658bfa42009"
     },
     {
       "bytes": 3984,
@@ -2301,9 +2301,9 @@
       "sha256": "ca3c8f21b2c1f771c5b5bde10deea6787386c9389d2c1a01bcd33bd264ab87ac"
     },
     {
-      "bytes": 4150,
+      "bytes": 4618,
       "path": "tests/test_performance_v9.py",
-      "sha256": "2f6ba54c7483e1724bab8d5e7470ab84825997781ec7654ef32659ef86dff6e1"
+      "sha256": "b634a8d2bb34ec37e4d2dcb1a214644898ab38ff2d329e8131c9eb666203adf7"
     },
     {
       "bytes": 1612,

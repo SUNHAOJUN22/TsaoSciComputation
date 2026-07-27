@@ -163,7 +163,8 @@ def measure_command(
             "cpu_median_seconds": statistics.median(cpu),
             "peak_rss_max_kib": max(rss),
             "resource_metrics": (
-                "gnu-time" if any(sample.get("resource_metrics") == "gnu-time" for sample in samples)
+                "gnu-time"
+                if any(sample.get("resource_metrics") == "gnu-time" for sample in samples)
                 else "wall-clock-only"
             ),
         },
