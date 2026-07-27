@@ -10,7 +10,7 @@ ENTRY = re.compile(r"^- `([^`]+\.svg)` — ", re.MULTILINE)
 FONT_SIZE = re.compile(r"font-size:\s*([0-9]+)px")
 HEX_COLOR = re.compile(r"#[0-9A-Fa-f]{6}")
 LAYOUT = re.compile(r'data-layout="([a-z]+)"')
-DESIGN_SYSTEM = "uiux-pro-max-scientific-swiss-v2"
+DESIGN_SYSTEM = "uiux-pro-max-scientific-swiss-v3"
 EXPECTED_LAYOUTS = {
     "hero": 1,
     "bento": 7,
@@ -18,6 +18,7 @@ EXPECTED_LAYOUTS = {
     "loop": 5,
     "risk": 6,
 }
+OVERVIEW_FILES = {"agent-orchestration.svg", "capability-landscape.svg"}
 ALLOWED_COLORS = {
     "#0B1220",
     "#111827",
@@ -44,19 +45,40 @@ def _inventory_names() -> tuple[str, ...]:
     return names
 
 
-def test_readme_visuals_are_diverse_accessible_and_referenced() -> None:
+def test_readme_uses_progressive_disclosure_at_github_scale() -> None:
+    names = _inventory_names()
+    readmes = [
+        (ROOT / "README.md").read_text(encoding="utf-8"),
+        (ROOT / "README.zh-CN.md").read_text(encoding="utf-8"),
+    ]
+    for readme in readmes:
+        assert "V12" in readme
+        assert "V11_VISUAL_SYSTEM" not in readme
+        assert "VISUAL_SYSTEM_V10" not in readme
+        assert readme.count("<details") == 4
+        assert readme.count("<summary>") == 4
+        assert readme.count('<td width="50%"><img src="assets/visuals/') == 2
+        assert "assets/visuals/DESIGN_SYSTEM.md" in readme
+        for name in names:
+            relative = f"assets/visuals/{name}"
+            assert readme.count(relative) == 1
+            if name not in OVERVIEW_FILES:
+                assert f'<td width="50%"><img src="{relative}"' not in readme
+
+
+def test_readme_visuals_are_readable_accessible_and_self_contained() -> None:
     readmes = [
         (ROOT / "README.md").read_text(encoding="utf-8"),
         (ROOT / "README.zh-CN.md").read_text(encoding="utf-8"),
     ]
     manifest_in = (ROOT / "MANIFEST.in").read_text(encoding="utf-8")
-    design_system = (ROOT / "assets" / "visuals" / "DESIGN_SYSTEM.md").read_text(encoding="utf-8")
+    design_system = (ROOT / "assets" / "visuals" / "DESIGN_SYSTEM.md").read_text(
+        encoding="utf-8"
+    )
     assert "recursive-include assets *.md *.svg" in manifest_in
-    assert "Scientific Swiss Bento V11" in design_system
+    assert "Scientific Swiss Bento V12" in design_system
+    assert "Minimum SVG text size: 16 px" in design_system
     assert all(layout.title() in design_system for layout in EXPECTED_LAYOUTS)
-    assert all("assets/visuals/DESIGN_SYSTEM.md" in readme for readme in readmes)
-    assert all("V11" in readme for readme in readmes)
-    assert all("VISUAL_SYSTEM_V10" not in readme for readme in readmes)
 
     names = _inventory_names()
     assert len(names) == 42
@@ -93,7 +115,7 @@ def test_readme_visuals_are_diverse_accessible_and_referenced() -> None:
         assert "NUMERICAL" in text
         assert "CONVERGENCE" in text
         assert "APPLICABILITY" in text
-        assert 3_500 <= len(text.encode("utf-8")) <= 30_000
+        assert 3_000 <= len(text.encode("utf-8")) <= 30_000
 
         if layout == "bento":
             assert "DECISION GATE" in text
@@ -103,7 +125,7 @@ def test_readme_visuals_are_diverse_accessible_and_referenced() -> None:
             assert "BARRIER · LIMIT · ESCALATE" in text
 
         sizes = [int(value) for value in FONT_SIZE.findall(text)]
-        assert sizes and min(sizes) >= 13
+        assert sizes and min(sizes) >= 16
         colors = {value.upper() for value in HEX_COLOR.findall(text)}
         assert colors <= ALLOWED_COLORS
         assert not colors & BANNED_DECORATIVE_COLORS
