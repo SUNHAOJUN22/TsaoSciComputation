@@ -5,6 +5,7 @@ import json
 import math
 import statistics
 import subprocess  # nosec B404
+import sys
 import tempfile
 import time
 from collections.abc import Sequence
@@ -45,8 +46,18 @@ def _parse_gnu_time(text: str) -> dict[str, float]:
     return parsed
 
 
+def _gnu_time_executable(
+    platform_name: str | None = None,
+    executable: Path = Path("/usr/bin/time"),
+) -> Path | None:
+    platform_name = sys.platform if platform_name is None else platform_name
+    if not platform_name.startswith("linux") or not executable.is_file():
+        return None
+    return executable
+
+
 def _measure_once(cwd: Path, command: Sequence[str]) -> dict[str, Any]:
-    time_executable = Path("/usr/bin/time")
+    time_executable = _gnu_time_executable()
     started = time.perf_counter()
     with (
         tempfile.NamedTemporaryFile(prefix="tsao-v9-time-", suffix=".txt", delete=False) as metrics,
@@ -56,7 +67,7 @@ def _measure_once(cwd: Path, command: Sequence[str]) -> dict[str, Any]:
         log_path = Path(log.name)
     try:
         argv = list(command)
-        if time_executable.is_file():
+        if time_executable is not None:
             argv = [str(time_executable), "-v", "-o", str(metrics_path), *argv]
         with log_path.open("wb") as output:
             completed = subprocess.run(  # nosec B603
@@ -70,8 +81,9 @@ def _measure_once(cwd: Path, command: Sequence[str]) -> dict[str, Any]:
         sample: dict[str, Any] = {
             "returncode": completed.returncode,
             "wall_seconds": wall_seconds,
+            "resource_metrics": "gnu-time" if time_executable is not None else "wall-clock-only",
         }
-        if metrics_path.is_file():
+        if time_executable is not None and metrics_path.is_file():
             sample.update(
                 _parse_gnu_time(metrics_path.read_text(encoding="utf-8", errors="replace"))
             )
@@ -150,6 +162,10 @@ def measure_command(
             "wall_cv": statistics.pstdev(wall) / mean if mean else 0.0,
             "cpu_median_seconds": statistics.median(cpu),
             "peak_rss_max_kib": max(rss),
+            "resource_metrics": (
+                "gnu-time" if any(sample.get("resource_metrics") == "gnu-time" for sample in samples)
+                else "wall-clock-only"
+            ),
         },
         "claim_boundary": (
             "Same-host command telemetry; external scientific solver performance is not measured."
