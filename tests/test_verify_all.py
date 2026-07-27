@@ -46,18 +46,12 @@ def test_run_commands_stops_after_first_failure(monkeypatch) -> None:
     assert labels == ["first", "second"]
 
 
-def test_quality_parallelizes_independent_gates_and_refreshes_manifest_last(monkeypatch) -> None:
-    parallel: list[tuple[str, Sequence[str]]] = []
+def test_quality_keeps_heavy_gates_sequential_and_refreshes_manifest_last(monkeypatch) -> None:
+    captured: list[tuple[str, Sequence[str]]] = []
     sequential: list[tuple[str, Sequence[str]]] = []
 
-    def fake_parallel(
-        commands: Sequence[tuple[str, Sequence[str]]],
-        *,
-        env: dict[str, str] | None = None,
-        max_workers: int | None = None,
-    ) -> int:
-        del env, max_workers
-        parallel.extend(commands)
+    def fake_run_commands(commands: Sequence[tuple[str, Sequence[str]]]) -> int:
+        captured.extend(commands)
         return 0
 
     def fake_run(
@@ -70,10 +64,10 @@ def test_quality_parallelizes_independent_gates_and_refreshes_manifest_last(monk
         sequential.append((label, command))
         return 0
 
-    monkeypatch.setattr(verify_all, "run_commands_parallel", fake_parallel)
+    monkeypatch.setattr(verify_all, "run_commands", fake_run_commands)
     monkeypatch.setattr(verify_all, "run", fake_run)
     assert verify_all.verify_quality() == 0
-    assert parallel[-1][0] == "controlled mutation gate"
+    assert captured[-1][0] == "controlled mutation gate"
     assert sequential == [
         (
             "refresh repository manifest",
