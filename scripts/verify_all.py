@@ -299,7 +299,12 @@ def verify_benchmark() -> int:
     )
     if returncode:
         return returncode
-    return run("orchestration microbenchmark", (PYTHON, "scripts/benchmark.py"))
+    with tempfile.TemporaryDirectory(prefix="tsao-benchmark-") as temporary:
+        output = Path(temporary) / "benchmark.json"
+        return run(
+            "orchestration microbenchmark",
+            (PYTHON, "scripts/benchmark.py", "--output", str(output)),
+        )
 
 
 PROFILE_FUNCTIONS: dict[str, Callable[[], int]] = {
