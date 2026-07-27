@@ -324,7 +324,7 @@ python scripts/verify_all.py --profile benchmark
 ### Current `main` verification
 
 <!-- CURRENT_MAIN_VERIFICATION:START -->
-Validated on `2026-07-27T05:15:04.718029+00:00` by deterministic finalization run `30239186397`.
+Validated on `2026-07-27T05:28:38.175446+00:00` by deterministic finalization run `30239819085`.
 
 | Current-main item | Result |
 |---|---:|
