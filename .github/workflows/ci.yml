@@ -1,225 +1,112 @@
-name: V9 same-host performance A/B
+name: CI
 
 on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
   push:
     branches: [main]
-    paths: [.v9-ci-trigger]
 
 permissions:
-  contents: write
-  issues: write
+  contents: read
 
 concurrency:
-  group: v9-same-host-ab-main
+  group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  PIP_DISABLE_PIP_VERSION_CHECK: '1'
+
 jobs:
-  ab:
-    runs-on: ubuntu-latest
-    timeout-minutes: 300
-    env:
-      BASELINE_SHA: 04ce646e51a603faf8cfad72ec15e218e09a0ebd
-      ISSUE_NUMBER: '34'
-      STATUS_FILE: .v9-ci-status.json
+  core:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python: ['3.10', '3.13']
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
         with:
-          ref: main
-          fetch-depth: 0
-          persist-credentials: true
+          persist-credentials: false
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+      - run: python -m pip install -e '.[validation,quality]'
+      - run: python scripts/verify_all.py --profile core
+
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          persist-credentials: false
       - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
         with:
           python-version: '3.13'
           cache: pip
-      - name: Same-host baseline and candidate acceptance
+      - run: python -m pip install -e '.[validation,quality,security]'
+      - run: python scripts/verify_all.py --profile quality
+      - name: Reject generated or evidence drift
+        run: git diff --exit-code
+
+  package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+      - run: python -m pip install -e '.[validation,quality]'
+      - run: python scripts/verify_all.py --profile package
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: TsaoSciComputation-release-candidate-${{ github.run_id }}-${{ github.run_attempt }}
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 14
+
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+          cache: pip
+      - run: python -m pip install -e '.[validation,quality]'
+      - run: python scripts/verify_all.py --profile benchmark
+
+  performance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+          cache: pip
+      - run: python -m pip install -e '.[validation,quality]'
+      - run: python -m pytest -q tests/test_performance_v9.py tests/test_performance_optimizations.py
+      - run: python scripts/run_large_parser_regression.py
+      - name: Verify accepted V9 performance evidence when present
         shell: bash
         run: |
-          set -Eeuo pipefail
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          record_status() {
-            local outcome="$1"
-            local stage="$2"
-            local log_path="${3:-}"
-            python - "$outcome" "$stage" "$log_path" <<'PY'
-          import json,sys
-          from pathlib import Path
-          outcome,stage,log_path=sys.argv[1:4]
-          payload={'schema_version':'1.0','outcome':outcome,'stage':stage}
-          if log_path and Path(log_path).is_file():
-              lines=Path(log_path).read_text(encoding='utf-8',errors='replace').splitlines()
-              payload['log_tail']='\n'.join(lines[-40:])
-          Path('.v9-ci-status.json').write_text(
-              json.dumps(payload,indent=2,sort_keys=True)+'\n',encoding='utf-8',newline='\n'
-          )
-          PY
-            git add "$STATUS_FILE"
-            git commit -m "Record V9 A/B: $outcome at $stage" || true
-            git push origin HEAD:refs/heads/main || true
-            gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body \
-              "V9 same-host A/B: **$outcome** at stage \`$stage\` (run \`$GITHUB_RUN_ID\`)." || true
-          }
-          STAGE=initialization
-          : > /tmp/v9-ab.log
-          trap 'record_status failure "$STAGE" /tmp/v9-ab.log' ERR
-          record_status started initialization
-
-          STAGE=install
-          python -m pip install -e '.[validation,quality,security]' >>/tmp/v9-ab.log 2>&1
-
-          STAGE=repair-profiler
-          python - <<'PY' >>/tmp/v9-ab.log 2>&1
-          from pathlib import Path
-          path = Path("scripts/profile_performance_v9_refresh.py")
-          text = path.read_text(encoding="utf-8")
-          marker = '            profile_path = temporary_root / f"{name}.prof"\n'
-          insertion = marker + (
-              '            workload_path = temporary_root / f"{name}.py"\n'
-              '            workload_path.write_text(code + "\\n", encoding="utf-8", newline="\\n")\n'
-          )
-          if 'workload_path = temporary_root / f"{name}.py"' not in text:
-              if marker not in text:
-                  raise SystemExit("profiler profile_path anchor is missing")
-              text = text.replace(marker, insertion, 1)
-          old_argv = '[sys.executable, "-m", "cProfile", "-o", str(profile_path), "-c", code],'
-          new_argv = '[sys.executable, "-m", "cProfile", "-o", str(profile_path), str(workload_path)],'
-          text = text.replace(old_argv, new_argv, 1)
-          if old_argv in text or new_argv not in text:
-              raise SystemExit("profiler argv repair did not converge")
-          path.write_text(text, encoding="utf-8", newline="\n")
-          PY
-          python -m ruff check --fix scripts/profile_performance_v9_refresh.py scripts/finalize_performance_v9.py >>/tmp/v9-ab.log 2>&1
-          python -m ruff format scripts/profile_performance_v9_refresh.py scripts/finalize_performance_v9.py >>/tmp/v9-ab.log 2>&1
-          git add scripts/profile_performance_v9_refresh.py scripts/finalize_performance_v9.py
-          if ! git diff --cached --quiet; then
-            git commit -m 'Normalize current-main V9 performance tooling'
-            git push origin HEAD:refs/heads/main
+          if test -f reports/PERFORMANCE_COMPARISON_V9.json; then
+            python scripts/compare_performance_v9.py \
+              --verify-report reports/PERFORMANCE_COMPARISON_V9.json
+          else
+            echo 'V9 performance evidence has not been finalized yet.'
           fi
-          CANDIDATE_SOURCE_SHA="$(git rev-parse HEAD)"
-
-          STAGE=worktrees
-          rm -rf /tmp/tsao-v9-ab-baseline /tmp/tsao-v9-ab-candidate
-          git worktree add --detach /tmp/tsao-v9-ab-baseline "$BASELINE_SHA" >>/tmp/v9-ab.log 2>&1
-          git worktree add --detach /tmp/tsao-v9-ab-candidate "$CANDIDATE_SOURCE_SHA" >>/tmp/v9-ab.log 2>&1
-          candidate=/tmp/tsao-v9-ab-candidate
-          rm -f \
-            "$candidate/.github/workflows/performance-audit-v9.yml" \
-            "$candidate/.github/workflows/performance-refresh-v9.yml" \
-            "$candidate/.v9-performance-trigger" \
-            "$candidate/.v9-performance-refresh-trigger" \
-            "$candidate/.v9-performance-status.json" \
-            "$candidate/.v9-ci-trigger" \
-            "$candidate/.v9-ci-status.json" \
-            "$candidate/.v9-production-ci.b64"
-          base64 --decode "$GITHUB_WORKSPACE/.v9-production-ci.b64" > "$candidate/.github/workflows/ci.yml"
-          (cd "$candidate" && python scripts/build_manifest.py && python scripts/build_manifest.py --check) >>/tmp/v9-ab.log 2>&1
-
-          STAGE=baseline-profile
-          python scripts/profile_performance_v9_refresh.py \
-            --root /tmp/tsao-v9-ab-baseline \
-            --baseline-sha "$BASELINE_SHA" \
-            --include-end-to-end --repeats 3 \
-            --output /tmp/PERFORMANCE_BASELINE_V9.json >>/tmp/v9-ab.log 2>&1
-          (cd /tmp/tsao-v9-ab-baseline && python scripts/benchmark.py --output /tmp/v9-baseline-micro.json) >>/tmp/v9-ab.log 2>&1
-
-          STAGE=candidate-profile
-          python scripts/profile_performance_v9_refresh.py \
-            --root "$candidate" \
-            --baseline-sha "$BASELINE_SHA" \
-            --include-end-to-end --repeats 3 \
-            --output /tmp/PERFORMANCE_CANDIDATE_V9.json >>/tmp/v9-ab.log 2>&1
-          (cd "$candidate" && python scripts/benchmark.py --output /tmp/v9-candidate-micro.json) >>/tmp/v9-ab.log 2>&1
-
-          STAGE=publish-raw-measurements
-          cp /tmp/PERFORMANCE_BASELINE_V9.json reports/PERFORMANCE_BASELINE_V9.json
-          cp /tmp/PERFORMANCE_CANDIDATE_V9.json reports/PERFORMANCE_CANDIDATE_V9.json
-          cp /tmp/v9-baseline-micro.json reports/PERFORMANCE_BASELINE_MICRO_V9.json
-          cp /tmp/v9-candidate-micro.json reports/PERFORMANCE_CANDIDATE_MICRO_V9.json
-          git add reports/PERFORMANCE_BASELINE_V9.json reports/PERFORMANCE_CANDIDATE_V9.json \
-            reports/PERFORMANCE_BASELINE_MICRO_V9.json reports/PERFORMANCE_CANDIDATE_MICRO_V9.json
-          git commit -m 'Record raw same-host current-main V9 measurements'
-          git push origin HEAD:refs/heads/main
-
-          STAGE=compare
-          set +e
-          python scripts/finalize_performance_v9.py \
-            --baseline /tmp/PERFORMANCE_BASELINE_V9.json \
-            --candidate /tmp/PERFORMANCE_CANDIDATE_V9.json \
-            --baseline-micro /tmp/v9-baseline-micro.json \
-            --candidate-micro /tmp/v9-candidate-micro.json \
-            --baseline-sha "$BASELINE_SHA" \
-            --candidate-sha "$CANDIDATE_SOURCE_SHA" \
-            --run-id "$GITHUB_RUN_ID" \
-            --root "$candidate" >/tmp/v9-finalizer.log 2>&1
-          compare_rc=$?
-          cat /tmp/v9-finalizer.log >>/tmp/v9-ab.log
-          set -e
-          if [ "$compare_rc" -ne 0 ]; then
-            for path in reports/PERFORMANCE_BASELINE_V9.json reports/PERFORMANCE_CANDIDATE_V9.json \
-              reports/PERFORMANCE_COMPARISON_V9.json reports/PERFORMANCE_PROFILE_V9.json \
-              reports/PERFORMANCE_ENGINEERING_V9.md; do
-              if [ -f "$candidate/$path" ]; then
-                mkdir -p "$(dirname "$path")"; cp "$candidate/$path" "$path"; git add "$path"
-              fi
-            done
-            git commit -m 'Record non-accepted current-main V9 performance comparison' || true
-            git push origin HEAD:refs/heads/main || true
-            record_status failure acceptance /tmp/v9-finalizer.log
-            exit "$compare_rc"
-          fi
-
-          STAGE=final-candidate-gates
-          (cd "$candidate" && \
-            python scripts/build_manifest.py && \
-            python scripts/verify_all.py --profile all --timing-json /tmp/v9-final-profile.json && \
-            python scripts/verify_all.py --profile benchmark && \
-            python scripts/build_manifest.py && \
-            python scripts/build_manifest.py --check) >>/tmp/v9-ab.log 2>&1
-          cp /tmp/v9-final-profile.json "$candidate/reports/PERFORMANCE_PROFILE_STEPS_V9.json"
-          python - "$candidate" "$CANDIDATE_SOURCE_SHA" <<'PY' >>/tmp/v9-ab.log 2>&1
-          import json,re,subprocess,sys
-          from pathlib import Path
-          root=Path(sys.argv[1]); sha=sys.argv[2]
-          collected=subprocess.check_output(
-              [sys.executable,'-m','pytest','--collect-only','-q'],cwd=root,text=True
-          )
-          match=re.search(r'(\d+) tests? collected',collected)
-          tests=int(match.group(1)) if match else None
-          coverage_path=Path('/tmp/tsao-current-coverage.json')
-          coverage=json.loads(coverage_path.read_text())['totals'] if coverage_path.is_file() else {}
-          security=json.loads((root/'evidence/security-scan.json').read_text())
-          path=root/'reports/CURRENT_MAIN_VERIFICATION.json'
-          payload=json.loads(path.read_text()) if path.is_file() else {'schema_version':'1.0'}
-          payload.update({
-              'status':'VALIDATED','validated_candidate_source_sha':sha,
-              'tests':{'passed':tests,'failures':0,'errors':0},
-              'coverage':coverage,
-              'security':{'files_scanned':security['files_scanned'],'findings':len(security['findings'])},
-              'runtime_dependencies':0,
-          })
-          path.write_text(json.dumps(payload,indent=2,sort_keys=True)+'\n')
-          PY
-          (cd "$candidate" && python scripts/build_manifest.py && python scripts/build_manifest.py --check) >>/tmp/v9-ab.log 2>&1
-
-          STAGE=publish
-          for path in \
-            README.md README.zh-CN.md benchmarks/latest.json manifest.json \
-            evidence/quality-check.json evidence/security-scan.json \
-            reports/PERFORMANCE_BASELINE_V9.json reports/PERFORMANCE_CANDIDATE_V9.json \
-            reports/PERFORMANCE_COMPARISON_V9.json reports/PERFORMANCE_PROFILE_V9.json \
-            reports/PERFORMANCE_PROFILE_STEPS_V9.json reports/PERFORMANCE_ENGINEERING_V9.md \
-            reports/CURRENT_MAIN_VERIFICATION.json; do
-            if [ -f "$candidate/$path" ]; then
-              mkdir -p "$(dirname "$path")"; cp "$candidate/$path" "$path"; git add "$path"
-            fi
-          done
-          git commit -m 'Finalize current-main performance engineering V9'
-          git push origin HEAD:refs/heads/main
-          record_status success accepted
-
-      - name: Cleanup worktrees
-        if: always()
-        shell: bash
-        run: |
-          git worktree remove --force /tmp/tsao-v9-ab-baseline 2>/dev/null || true
-          git worktree remove --force /tmp/tsao-v9-ab-candidate 2>/dev/null || true
