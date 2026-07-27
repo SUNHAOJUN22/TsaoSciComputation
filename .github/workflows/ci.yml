@@ -95,6 +95,7 @@ jobs:
           cache: pip
       - run: python -m pip install -e '.[validation,quality]'
       - run: python -m pytest -q tests/test_performance_v9.py
+      - run: python scripts/run_large_parser_regression.py
       - name: Verify accepted V9 performance evidence when present
         shell: bash
         run: |
