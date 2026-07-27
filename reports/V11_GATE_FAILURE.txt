@@ -1,0 +1,68 @@
+redesign	Run deterministic release gates pass 1	﻿2026-07-27T05:10:11.9937185Z ##[group]Run set -Eeuo pipefail
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:11.9956291Z ^[[36;1mset -Eeuo pipefail^[[0m
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:11.9956622Z ^[[36;1mpython scripts/build_manifest.py^[[0m
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:11.9956984Z ^[[36;1mpython scripts/build_manifest.py --check^[[0m
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:11.9957683Z ^[[36;1mpython scripts/verify_all.py --profile all | tee /tmp/v11-all-pass1.log^[[0m
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:11.9958306Z ^[[36;1mpython scripts/verify_all.py --profile benchmark | tee /tmp/v11-benchmark.log^[[0m
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:11.9959099Z ^[[36;1mpython -m pytest -q | tee /tmp/v11-pytest.log^[[0m
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:12.0004335Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:12.0004748Z env:
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:12.0007953Z   GH_TOKEN: ***
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:12.0008199Z   ISSUE_NUMBER: 31
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:12.0008492Z   TSAO_COVERAGE_JSON: /tmp/tsao-v11-coverage.json
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:12.0009248Z   pythonLocation: /opt/hostedtoolcache/Python/3.13.14/x64
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:12.0009835Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.13.14/x64/lib/pkgconfig
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:12.0010430Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.13.14/x64
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:12.0010930Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.13.14/x64
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:12.0011437Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.13.14/x64
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:12.0011947Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.13.14/x64/lib
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:12.0012368Z ##[endgroup]
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:12.3323248Z 
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:12.3323805Z ==> repository quality rules
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:12.3324877Z     /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/quality_check.py
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:12.6307103Z {"passed": true, "problems": [], "python_files": 114, "schema_version": "1.0"}
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:12.6363322Z 
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:12.6363622Z ==> Ruff lint
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:12.6364773Z     /opt/hostedtoolcache/Python/3.13.14/x64/bin/python -m ruff check tsao_computation scripts tests _bootstrap.py
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:12.6815002Z All checks passed!
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:12.6821177Z 
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:12.6821493Z ==> Ruff formatting
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:12.6822152Z     /opt/hostedtoolcache/Python/3.13.14/x64/bin/python -m ruff format --check tsao_computation scripts tests _bootstrap.py
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:12.7264110Z 115 files already formatted
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:12.7271427Z 
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:12.7271647Z ==> bounded parallel verification (2 workers)
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:15.1356546Z 
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:15.1357153Z FAILED: Mypy (exit 1)
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:15.1357493Z 
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:15.1357894Z ==> Mypy [parallel]
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:15.1359146Z     /opt/hostedtoolcache/Python/3.13.14/x64/bin/python -m mypy --python-version 3.13 tsao_computation scripts
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:15.1360628Z scripts/regenerate_readme_visuals_v11.py:19: error: Cannot find implementation or library stub for module named "regenerate_readme_visuals_v10"  [import-not-found]
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:15.1362017Z scripts/regenerate_readme_visuals_v11.py:19: note: See https://mypy.readthedocs.io/en/stable/running_mypy.html#missing-imports
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:15.1363155Z scripts/regenerate_readme_visuals_v11.py:19: error: Name "ROOT" already defined (possibly by an import)  [no-redef]
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:15.1364179Z scripts/regenerate_readme_visuals_v11.py:19: error: Name "TOKENS" already defined (possibly by an import)  [no-redef]
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:15.1365230Z scripts/regenerate_readme_visuals_v11.py:19: error: Name "VISUAL_ROOT" already defined (possibly by an import)  [no-redef]
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:15.1366324Z scripts/regenerate_readme_visuals_v11.py:19: error: Name "VisualSpec" already defined (possibly by an import)  [no-redef]
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:15.1367393Z scripts/regenerate_readme_visuals_v11.py:19: error: Name "parse_specs" already defined (possibly by an import)  [no-redef]
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:15.1368455Z scripts/regenerate_readme_visuals_v11.py:19: error: Name "stage_glyph" already defined (possibly by an import)  [no-redef]
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:15.1370333Z scripts/regenerate_readme_visuals_v11.py:19: error: Name "wrap_words" already defined (possibly by an import)  [no-redef]
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:15.1371412Z Found 8 errors in 1 file (checked 79 source files)
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:15.1371754Z     elapsed=2.408s
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:15.1371900Z 
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:15.1372159Z ==> Bandit [parallel]
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:15.1372649Z     /opt/hostedtoolcache/Python/3.13.14/x64/bin/python -m bandit -q -r tsao_computation scripts
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:15.1373392Z [tester]	WARNING	nosec encountered (B603), but no failed test on file scripts/benchmark.py:59
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:15.1374093Z [tester]	WARNING	nosec encountered (B603), but no failed test on file scripts/benchmark.py:59
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:15.1374841Z [tester]	WARNING	nosec encountered (B603), but no failed test on file scripts/build_release_manifest.py:31
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:15.1375597Z [tester]	WARNING	nosec encountered (B603), but no failed test on file scripts/verify_wheel.py:106
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:15.1376117Z     elapsed=1.039s
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:15.1376263Z 
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:15.1376383Z ==> repository security scan [parallel]
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:15.1376854Z     /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/security_scan.py
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:15.1377389Z {"files_scanned": 529, "findings": [], "schema_version": "1.0"}
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:15.1377766Z     elapsed=0.316s
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:15.1377913Z 
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:15.1378024Z ==> controlled mutation gate [parallel]
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:15.1378478Z     /opt/hostedtoolcache/Python/3.13.14/x64/bin/python scripts/run_mutation_gate.py
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:15.1379667Z {"killed": 64, "method": "controlled non-equivalent operator mutation probes", "schema_version": "1.0", "survived": 0, "total": 64}
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:15.1380278Z     elapsed=0.085s
+redesign	Run deterministic release gates pass 1	2026-07-27T05:10:15.1499660Z ##[error]Process completed with exit code 1.
