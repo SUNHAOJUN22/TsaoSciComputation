@@ -1,11 +1,6 @@
 {
   "files": [
     {
-      "bytes": 54,
-      "path": ".diagnose-acceleration-matrix-v1-trigger",
-      "sha256": "7daa7546fbee1a8143cb57e5ef880ff5027e1c2ff4dee38a5efe63a603544703"
-    },
-    {
       "bytes": 356,
       "path": ".gitattributes",
       "sha256": "b2f26f95023598ab18a03ce9120e2d535bb0d4623801583e4831fe5b05da1706"
@@ -54,11 +49,6 @@
       "bytes": 1398,
       "path": ".github/workflows/dependency-audit.yml",
       "sha256": "15d510e1f5228c7de316c385f6ae91044ce9fa30cbced49a30a85f6a21e9a1bb"
-    },
-    {
-      "bytes": 6988,
-      "path": ".github/workflows/diagnose-acceleration-matrix-v1.yml",
-      "sha256": "e10ab777cb5b33f2c3ad6242195abd4a0037f4f58b53e8d20285fe3fed45bcfc"
     },
     {
       "bytes": 5555,
@@ -1786,34 +1776,9 @@
       "sha256": "895bd216966140a71a8d40ad66b784c8efa01ee9e511f5e0d87ae31b60f9d167"
     },
     {
-      "bytes": 11066,
-      "path": "reports/ACCELERATION_MATRIX_macos-latest_310.json",
-      "sha256": "f631cb3c18ce39af55ecf7cf18c9a278deafe7d0440aa5536e7db777d64cdef7"
-    },
-    {
-      "bytes": 11073,
-      "path": "reports/ACCELERATION_MATRIX_macos-latest_313.json",
-      "sha256": "b785fb07e0e238ce797c49d87d48b6f3ff21c583062031c47b43ff1e1abd4209"
-    },
-    {
-      "bytes": 10790,
-      "path": "reports/ACCELERATION_MATRIX_ubuntu-latest_310.json",
-      "sha256": "c74110945f618f50e3b4969c0482d7eff38cb858ce18444abaaee7fe26335074"
-    },
-    {
-      "bytes": 10790,
-      "path": "reports/ACCELERATION_MATRIX_ubuntu-latest_313.json",
-      "sha256": "f2b26530ba9665b56192e6a039113ff27e8d09660bc18df12450a3e3f5dea043"
-    },
-    {
-      "bytes": 9122,
-      "path": "reports/ACCELERATION_MATRIX_windows-latest_310.json",
-      "sha256": "8378052609a7bdf14486f07d41ed0b16f4b7a29f6aa2f6fc5d48164887b09882"
-    },
-    {
-      "bytes": 9129,
-      "path": "reports/ACCELERATION_MATRIX_windows-latest_313.json",
-      "sha256": "056c2309825cae00e7e87237365406afdc13aee4995ef06ae0ab6c25f6c8143c"
+      "bytes": 66343,
+      "path": "reports/ACCELERATION_MATRIX_DIAGNOSTIC.json",
+      "sha256": "e00d356718396e12f32c065300e9e47e475bc41e3551ff97ef30e8ed8a6bee84"
     },
     {
       "bytes": 5586,
