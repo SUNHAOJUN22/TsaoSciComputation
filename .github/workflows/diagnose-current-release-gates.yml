@@ -1,0 +1,73 @@
+name: Diagnose current release gates
+
+on:
+  push:
+    branches: [main]
+    paths: [.diagnose-current-release-gates-trigger]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: diagnose-current-release-gates-main
+  cancel-in-progress: true
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+          cache: pip
+      - run: python -m pip install -e '.[validation,quality,security]'
+      - name: Run gates independently and publish diagnostics
+        shell: bash
+        run: |
+          set -u
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          rm -f .github/workflows/diagnose-current-release-gates.yml \
+            .diagnose-current-release-gates-trigger
+          python scripts/build_manifest.py
+          mkdir -p /tmp/tsao-release-diagnostic reports
+          run_gate() {
+            name="$1"; shift
+            set +e
+            "$@" >"/tmp/tsao-release-diagnostic/${name}.log" 2>&1
+            code=$?
+            set -e
+            printf '%s' "$code" >"/tmp/tsao-release-diagnostic/${name}.rc"
+          }
+          set -e
+          run_gate quality python scripts/verify_all.py --profile quality
+          run_gate core python scripts/verify_all.py --profile core
+          run_gate package python scripts/verify_all.py --profile package
+          run_gate benchmark python scripts/verify_all.py --profile benchmark
+          run_gate collect python -m pytest --collect-only -q
+          run_gate manifest python scripts/build_manifest.py --check
+          run_gate diff_check git diff --check
+          python - <<'PY'
+          import json
+          from datetime import datetime,timezone
+          from pathlib import Path
+          root=Path('/tmp/tsao-release-diagnostic')
+          names=('quality','core','package','benchmark','collect','manifest','diff_check')
+          gates={}
+          for name in names:
+              rc=int((root/f'{name}.rc').read_text())
+              log=(root/f'{name}.log').read_text(encoding='utf-8',errors='replace')
+              gates[name]={'status':'PASS' if rc==0 else 'FAIL','returncode':rc,'log_tail':'\n'.join(log.splitlines()[-220:])}
+          payload={'schema_version':'1.0','generated_at':datetime.now(timezone.utc).isoformat(),'status':'PASS' if all(v['returncode']==0 for v in gates.values()) else 'BLOCKED','gates':gates}
+          Path('reports/CURRENT_RELEASE_GATE_DIAGNOSTIC.json').write_text(json.dumps(payload,indent=2,sort_keys=True)+'\n',encoding='utf-8',newline='\n')
+          PY
+          python scripts/build_manifest.py
+          git add -A
+          git commit -m 'Record focused release-gate diagnostic'
+          git push origin HEAD:refs/heads/main
