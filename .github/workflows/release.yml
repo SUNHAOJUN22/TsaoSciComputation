@@ -8,26 +8,29 @@ on:
         required: true
         type: string
 
-permissions:
-  contents: write
-  id-token: write
-  attestations: write
-  artifact-metadata: write
+permissions: read-all
 
 concurrency:
-  group: release-${{ inputs.tag }}
+  group: release-${{ github.run_id }}
   cancel-in-progress: false
 
 jobs:
   release:
+    if: ${{ github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+      artifact-metadata: write
     env:
       GH_TOKEN: ${{ github.token }}
+      REQUESTED_TAG: ${{ inputs.tag }}
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
         with:
-          ref: main
+          ref: ${{ github.sha }}
           fetch-depth: 0
           persist-credentials: true
 
@@ -40,10 +43,13 @@ jobs:
         shell: bash
         run: |
           set -Eeuo pipefail
+          test "$GITHUB_REF" = "refs/heads/main"
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
           VERSION_VALUE="$(tr -d '[:space:]' < VERSION)"
-          TAG="${{ inputs.tag }}"
+          TAG="$REQUESTED_TAG"
           test "$TAG" = "v$VERSION_VALUE"
-          echo "VERSION_VALUE=$VERSION_VALUE" >> "$GITHUB_ENV"
+          printf 'VERSION_VALUE=%s\n' "$VERSION_VALUE" >> "$GITHUB_ENV"
+          printf 'RELEASE_TAG=%s\n' "$TAG" >> "$GITHUB_ENV"
           python scripts/sync_version_metadata.py --check
           if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             echo "Release already exists: $TAG" >&2
@@ -60,13 +66,16 @@ jobs:
           set -Eeuo pipefail
           export SOURCE_DATE_EPOCH="$(git show -s --format=%ct "$GITHUB_SHA")"
           python -m pip install -e '.[validation,quality]'
-          python scripts/sync_package_assets.py
-          python scripts/build_adapter_docs.py
-          python scripts/build_workflow_docs.py
-          python scripts/build_examples.py
-          python scripts/build_manifest.py
+          python scripts/validate_skill_spec.py
+          python scripts/sync_package_assets.py --check
+          python scripts/build_adapter_docs.py --check
+          python scripts/build_workflow_docs.py --check
+          python scripts/build_examples.py --check
+          python scripts/build_manifest.py --check
           python scripts/verify_all.py --profile all
           python scripts/verify_all.py --profile benchmark
+          git diff --exit-code
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
           cp reports/FINAL_VERIFICATION.json dist/FINAL_VERIFICATION.json
           python scripts/build_release_manifest.py --output-dir dist
 
@@ -101,7 +110,7 @@ jobs:
 
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
-          name: TsaoSciComputation-${{ inputs.tag }}-${{ github.run_id }}-${{ github.run_attempt }}
+          name: TsaoSciComputation-${{ env.RELEASE_TAG }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: dist/*
           if-no-files-found: error
           retention-days: 90
@@ -110,7 +119,7 @@ jobs:
         shell: bash
         run: |
           set -Eeuo pipefail
-          TAG="${{ inputs.tag }}"
+          TAG="$RELEASE_TAG"
           cleanup_unpublished_tag() {
             code=$?
             set +e
@@ -120,6 +129,7 @@ jobs:
             exit "$code"
           }
           trap cleanup_unpublished_tag ERR
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git tag -a "$TAG" "$GITHUB_SHA" -m "TsaoSciComputation $TAG"
