@@ -57,9 +57,20 @@ _LIBRARIES = (
         "NVIDIA",
         "math",
         (AcceleratorBackend.CUDA,),
-        ("dense-linear-algebra", "sparse-linear-algebra", "fft", "random"),
+        ("dense-linear-algebra", "sparse-linear-algebra", "fft", "random", "tensor"),
         ("quantum", "cfd", "finite-element", "molecular", "process"),
         "optional Python package",
+        _BOUNDARY,
+    ),
+    AccelerationLibrary(
+        "cupy",
+        "CuPy",
+        "CuPy project",
+        "array",
+        (AcceleratorBackend.CUDA,),
+        ("array-api", "dense-linear-algebra", "sparse-linear-algebra", "fft", "custom-kernel"),
+        ("quantum", "materials", "molecular", "finite-element", "data"),
+        "optional Python package with DLPack interoperability",
         _BOUNDARY,
     ),
     AccelerationLibrary(
@@ -107,6 +118,17 @@ _LIBRARIES = (
         _BOUNDARY,
     ),
     AccelerationLibrary(
+        "curand",
+        "NVIDIA cuRAND",
+        "NVIDIA",
+        "random",
+        (AcceleratorBackend.CUDA,),
+        ("monte-carlo", "stochastic-simulation", "uncertainty", "sampling"),
+        ("reactors", "polymers", "molecular", "uncertainty"),
+        "native C/C++ or qualified framework integration",
+        _BOUNDARY,
+    ),
+    AccelerationLibrary(
         "nccl",
         "NVIDIA NCCL",
         "NVIDIA",
@@ -140,6 +162,17 @@ _LIBRARIES = (
         _BOUNDARY,
     ),
     AccelerationLibrary(
+        "gpudirect-storage",
+        "NVIDIA GPUDirect Storage",
+        "NVIDIA",
+        "data-path",
+        (AcceleratorBackend.CUDA,),
+        ("direct-storage", "trajectory", "field-data", "checkpoint", "training-data"),
+        ("molecular", "cfd", "finite-element", "machine-learning", "hpc"),
+        "qualified Linux server/HPC deployment",
+        _BOUNDARY,
+    ),
+    AccelerationLibrary(
         "tensorrt",
         "NVIDIA TensorRT",
         "NVIDIA",
@@ -159,6 +192,39 @@ _LIBRARIES = (
         ("table", "graph", "clustering", "nearest-neighbor", "dataframe"),
         ("trajectory", "materials-informatics", "uncertainty", "digital-twin"),
         "optional Python packages",
+        _BOUNDARY,
+    ),
+    AccelerationLibrary(
+        "rapids-cudf",
+        "RAPIDS cuDF",
+        "NVIDIA",
+        "dataframe",
+        (AcceleratorBackend.CUDA,),
+        ("dataframe", "columnar-data", "preprocessing", "trajectory-table"),
+        ("materials-informatics", "trajectory", "process", "uncertainty"),
+        "optional Python package",
+        _BOUNDARY,
+    ),
+    AccelerationLibrary(
+        "rapids-cuml",
+        "RAPIDS cuML",
+        "NVIDIA",
+        "machine-learning",
+        (AcceleratorBackend.CUDA,),
+        ("clustering", "regression", "nearest-neighbor", "dimensionality-reduction"),
+        ("surrogates", "materials-informatics", "process", "uncertainty"),
+        "optional Python package",
+        _BOUNDARY,
+    ),
+    AccelerationLibrary(
+        "warp",
+        "NVIDIA Warp",
+        "NVIDIA",
+        "kernel-framework",
+        (AcceleratorBackend.CPU, AcceleratorBackend.CUDA),
+        ("particle", "mesh", "geometry", "sparse", "fem", "differentiable-simulation"),
+        ("molecular", "finite-element", "multiphysics", "robotics", "digital-twin"),
+        "optional Python JIT kernel package",
         _BOUNDARY,
     ),
     AccelerationLibrary(
@@ -242,6 +308,5 @@ def recommend_acceleration_libraries(
     )
 
 
-# Concise aliases used by CLI and older design notes.
 library_catalog = acceleration_libraries
 recommend_libraries = recommend_acceleration_libraries
