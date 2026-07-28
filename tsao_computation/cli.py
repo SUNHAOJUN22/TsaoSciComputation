@@ -20,16 +20,44 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--version", action="version", version=__version__)
     subparsers = parser.add_subparsers(dest="command", required=True)
+
     route = subparsers.add_parser("route")
     route.add_argument("question")
+
     listing = subparsers.add_parser("list")
-    listing.add_argument("kind", choices=("capabilities", "adapters", "workflows"))
+    listing.add_argument("kind", choices=("capabilities", "adapters", "accelerators", "workflows"))
+
     probe = subparsers.add_parser("probe")
     probe.add_argument("--workers", type=int, default=8)
+
+    subparsers.add_parser(
+        "probe-accelerators",
+        help="detect CPU, accelerator, MPI, scheduler and edge-planning evidence",
+    )
+
+    libraries = subparsers.add_parser(
+        "list-acceleration-libraries",
+        help="list optional acceleration-library candidates without installing them",
+    )
+    libraries.add_argument("--backend")
+    libraries.add_argument("--workload")
+
+    planning = subparsers.add_parser(
+        "plan-acceleration",
+        help="build a fail-closed acceleration plan for one adapter",
+    )
+    planning.add_argument("adapter")
+    planning.add_argument(
+        "--resources",
+        type=Path,
+        help="JSON resource request; omitted means the conservative default request",
+    )
+
     initialize = subparsers.add_parser("init")
     initialize.add_argument("--root", type=Path, default=Path("."))
     initialize.add_argument("--name", required=True)
     initialize.add_argument("--question", required=True)
+
     contract = subparsers.add_parser("validate-contract")
     contract.add_argument("path", type=Path)
     contract.add_argument(
@@ -37,6 +65,7 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="require every field needed before solver preflight",
     )
+
     repository = subparsers.add_parser("validate-repository")
     repository.add_argument("--root", type=Path, default=Path("."))
     return parser
@@ -51,14 +80,44 @@ def main(argv: list[str] | None = None) -> int:
             decision = route_question(args.question)
             _json(asdict(decision) if is_dataclass(decision) else decision)
         elif args.command == "list":
-            from .registries import adapters, capabilities, workflows
+            from .registries import accelerators, adapters, capabilities, workflows
 
-            loaders = {"capabilities": capabilities, "adapters": adapters, "workflows": workflows}
+            loaders = {
+                "capabilities": capabilities,
+                "adapters": adapters,
+                "accelerators": accelerators,
+                "workflows": workflows,
+            }
             _json(loaders[args.kind]())
         elif args.command == "probe":
             from .adapters import probe_all
 
             _json([asdict(item) for item in probe_all(args.workers)])
+        elif args.command == "probe-accelerators":
+            from .accelerators import probe_accelerators
+
+            _json(probe_accelerators().to_dict())
+        elif args.command == "list-acceleration-libraries":
+            from .accelerators import recommend_acceleration_libraries
+
+            _json(
+                [
+                    item.to_dict()
+                    for item in recommend_acceleration_libraries(
+                        backend=args.backend,
+                        workload=args.workload,
+                    )
+                ]
+            )
+        elif args.command == "plan-acceleration":
+            from .accelerators import plan_acceleration
+
+            resources = (
+                None
+                if args.resources is None
+                else json.loads(args.resources.read_text(encoding="utf-8"))
+            )
+            _json(plan_acceleration(args.adapter, resources).to_dict())
         elif args.command == "init":
             from .project import initialize_project
 
