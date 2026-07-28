@@ -1,10 +1,9 @@
 {
   "audit_id": "TSAOSCICOMPUTATION_ULTIMATE_SKILL_AND_REPOSITORY_AUDIT_V1",
-  "baseline_sha": "05525a859481237b9fb443a664e1d8b5849efb83",
   "created_branch": false,
   "created_pull_request": false,
-  "failure_stage": "release-gates",
-  "generated_at": "2026-07-28T05:58:17.446374+00:00",
+  "failure_stage": "format",
+  "generated_at": "2026-07-28T06:03:33.749708+00:00",
   "returncode": 1,
   "status": "BLOCKED"
 }
