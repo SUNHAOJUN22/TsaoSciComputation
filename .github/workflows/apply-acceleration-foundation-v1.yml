@@ -1,0 +1,375 @@
+name: Apply acceleration foundation V1
+
+on:
+  push:
+    branches: [main]
+    paths: [.apply-acceleration-foundation-v1-trigger]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: apply-acceleration-foundation-v1-main
+  cancel-in-progress: true
+
+env:
+  PIP_DISABLE_PIP_VERSION_CHECK: '1'
+  TSAO_COVERAGE_JSON: /tmp/tsao-acceleration-coverage.json
+
+jobs:
+  apply-and-validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+          cache: pip
+
+      - name: Decode, apply and validate acceleration foundation
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          ORIGINAL_SHA="$GITHUB_SHA"
+          STAGE=initialization
+          LOG=/tmp/tsao-acceleration-foundation-v1.log
+          exec > >(tee -a "$LOG") 2>&1
+
+          blocked() {
+            code=$?
+            set +e
+            echo "Acceleration foundation blocked at stage: $STAGE (exit $code)"
+            git reset --hard "$ORIGINAL_SHA"
+            rm -f .apply-acceleration-foundation-v1-trigger
+            python - "$STAGE" "$code" "$ORIGINAL_SHA" "$LOG" <<'PY'
+          import json
+          import sys
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          stage, code, baseline, log_path = sys.argv[1], int(sys.argv[2]), sys.argv[3], Path(sys.argv[4])
+          log = log_path.read_text(encoding="utf-8", errors="replace") if log_path.is_file() else ""
+          payload = {
+              "schema_version": "1.0",
+              "status": "BLOCKED",
+              "failure_stage": stage,
+              "returncode": code,
+              "baseline_sha": baseline,
+              "created_branch": False,
+              "created_pull_request": False,
+              "force_push": False,
+              "generated_at": datetime.now(timezone.utc).isoformat(),
+              "log_tail": "\n".join(log.splitlines()[-300:]),
+          }
+          path = Path("reports/ACCELERATION_FOUNDATION_V1_BLOCKED.json")
+          path.parent.mkdir(exist_ok=True)
+          path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8", newline="\n")
+          PY
+            python scripts/build_manifest.py || true
+            git add -A
+            git commit -m "Record blocked acceleration foundation at $STAGE" || true
+            git push origin HEAD:refs/heads/main || true
+            exit "$code"
+          }
+          trap blocked ERR
+
+          STAGE=decode-and-audit-payload
+          rm -rf /tmp/tsao-acceleration-patch
+          python - <<'PY'
+          from __future__ import annotations
+
+          import base64
+          import gzip
+          import io
+          import json
+          import shutil
+          import tarfile
+          import zipfile
+          from pathlib import Path, PurePosixPath
+
+          parts = sorted(Path("tools").glob("acceleration-foundation-v1.part-*.b85"))
+          if len(parts) != 4:
+              raise SystemExit(f"expected four transport parts, found {len(parts)}")
+          encoded = "".join(path.read_text(encoding="ascii").strip() for path in parts)
+          payload = base64.b85decode(encoded.encode("ascii"))
+          destination = Path("/tmp/tsao-acceleration-patch")
+          destination.mkdir(parents=True)
+
+          def safe_relative(raw: str) -> PurePosixPath:
+              if "\\" in raw:
+                  raise ValueError(f"backslash path is forbidden: {raw}")
+              path = PurePosixPath(raw)
+              if path.is_absolute() or not path.parts or ".." in path.parts:
+                  raise ValueError(f"unsafe archive path: {raw}")
+              return path
+
+          def write_file(raw: str, data: bytes) -> None:
+              relative = safe_relative(raw)
+              target = destination.joinpath(*relative.parts)
+              target.parent.mkdir(parents=True, exist_ok=True)
+              target.write_bytes(data)
+
+          def extract_zip(data: bytes) -> bool:
+              stream = io.BytesIO(data)
+              if not zipfile.is_zipfile(stream):
+                  return False
+              stream.seek(0)
+              with zipfile.ZipFile(stream) as archive:
+                  for info in archive.infolist():
+                      relative = safe_relative(info.filename)
+                      if info.is_dir():
+                          destination.joinpath(*relative.parts).mkdir(parents=True, exist_ok=True)
+                          continue
+                      mode = info.external_attr >> 16
+                      if mode & 0o170000 == 0o120000:
+                          raise ValueError(f"symlink is forbidden: {info.filename}")
+                      write_file(info.filename, archive.read(info))
+              return True
+
+          def extract_tar(data: bytes) -> bool:
+              try:
+                  archive = tarfile.open(fileobj=io.BytesIO(data), mode="r:*")
+              except tarfile.TarError:
+                  return False
+              with archive:
+                  for member in archive.getmembers():
+                      relative = safe_relative(member.name)
+                      if member.isdir():
+                          destination.joinpath(*relative.parts).mkdir(parents=True, exist_ok=True)
+                          continue
+                      if not member.isfile() or member.issym() or member.islnk():
+                          raise ValueError(f"non-regular archive member is forbidden: {member.name}")
+                      handle = archive.extractfile(member)
+                      if handle is None:
+                          raise ValueError(f"cannot read archive member: {member.name}")
+                      write_file(member.name, handle.read())
+              return True
+
+          def extract_json(data: bytes) -> bool:
+              try:
+                  document = json.loads(data.decode("utf-8"))
+              except (UnicodeDecodeError, json.JSONDecodeError):
+                  return False
+              files = document.get("files") if isinstance(document, dict) else None
+              if not isinstance(files, dict):
+                  return False
+              for raw, content in files.items():
+                  if not isinstance(raw, str) or not isinstance(content, str):
+                      raise ValueError("JSON patch files must map paths to UTF-8 strings")
+                  write_file(raw, content.encode("utf-8"))
+              return True
+
+          extracted = extract_zip(payload) or extract_tar(payload) or extract_json(payload)
+          if not extracted and payload.startswith(b"\x1f\x8b"):
+              unpacked = gzip.decompress(payload)
+              extracted = extract_tar(unpacked) or extract_json(unpacked)
+          if not extracted:
+              raise SystemExit(f"unsupported decoded payload format: {payload[:16]!r}")
+
+          entries = [item for item in destination.iterdir()]
+          root = entries[0] if len(entries) == 1 and entries[0].is_dir() else destination
+          allowed_top = {
+              ".github", "CHANGELOG.md", "MANIFEST.in", "README.md", "README.zh-CN.md",
+              "SKILL.md", "THIRD_PARTY.md", "adapters", "docs", "native", "pyproject.toml",
+              "registry", "schemas", "scripts", "skills", "templates", "tests", "tsao_computation",
+          }
+          allowed_github = {".github/CODEOWNERS", ".github/workflows/ci.yml"}
+          forbidden_suffixes = {".dll", ".dylib", ".exe", ".o", ".obj", ".so", ".a", ".lib", ".pyc"}
+          files: list[str] = []
+          for path in sorted(root.rglob("*")):
+              if path.is_symlink():
+                  raise SystemExit(f"payload symlink is forbidden: {path}")
+              if not path.is_file():
+                  continue
+              relative = path.relative_to(root).as_posix()
+              top = PurePosixPath(relative).parts[0]
+              if top not in allowed_top:
+                  raise SystemExit(f"payload path is outside the allowlist: {relative}")
+              if relative.startswith(".github/") and relative not in allowed_github:
+                  raise SystemExit(f"payload GitHub path is not allowed: {relative}")
+              if path.suffix.casefold() in forbidden_suffixes:
+                  raise SystemExit(f"prebuilt native binary is forbidden: {relative}")
+              if path.stat().st_size > 5 * 1024 * 1024:
+                  raise SystemExit(f"payload file exceeds size boundary: {relative}")
+              files.append(relative)
+          if not files:
+              raise SystemExit("decoded payload contains no files")
+          Path("/tmp/tsao-acceleration-patch-root.txt").write_text(str(root), encoding="utf-8")
+          Path("/tmp/tsao-acceleration-patch-files.json").write_text(
+              json.dumps(files, indent=2) + "\n", encoding="utf-8"
+          )
+          print(json.dumps({"decoded_bytes": len(payload), "files": files}, indent=2))
+          PY
+
+          STAGE=apply-validated-payload
+          PATCH_ROOT="$(cat /tmp/tsao-acceleration-patch-root.txt)"
+          python - "$PATCH_ROOT" <<'PY'
+          from __future__ import annotations
+
+          import shutil
+          import sys
+          from pathlib import Path
+
+          root = Path(sys.argv[1])
+          for source in sorted(root.rglob("*")):
+              if not source.is_file():
+                  continue
+              relative = source.relative_to(root)
+              if relative.as_posix() == "PATCH_MANIFEST.json":
+                  continue
+              target = Path(relative)
+              target.parent.mkdir(parents=True, exist_ok=True)
+              shutil.copy2(source, target)
+          PY
+          rm -f tools/acceleration-foundation-v1.part-*.b85
+          rm -f .github/workflows/apply-acceleration-foundation-v1.yml
+          rm -f .apply-acceleration-foundation-v1-trigger
+          rm -f reports/ACCELERATION_FOUNDATION_V1_BLOCKED.json
+
+          STAGE=install-validation-toolchain
+          python -m pip install -e '.[validation,quality,security]'
+
+          STAGE=bounded-format-check
+          mapfile -t changed_python < <(git diff --name-only --diff-filter=AM "$ORIGINAL_SHA" -- '*.py')
+          if ((${#changed_python[@]})); then
+            python -m ruff format "${changed_python[@]}"
+          fi
+          python -m ruff check tsao_computation scripts tests _bootstrap.py
+          python -m ruff format --check tsao_computation scripts tests _bootstrap.py
+
+          STAGE=synchronize-generated-assets
+          python scripts/sync_package_assets.py
+          python scripts/build_adapter_docs.py
+          python scripts/build_workflow_docs.py
+          python scripts/build_examples.py
+          python scripts/build_manifest.py
+
+          STAGE=acceleration-target-tests
+          python - <<'PY'
+          from __future__ import annotations
+
+          import subprocess
+          import sys
+          from pathlib import Path
+
+          candidates = sorted(
+              {
+                  *Path("tests").glob("*accelerat*.py"),
+                  *Path("tests").glob("*native*.py"),
+                  *Path("tests").glob("*parallel*.py"),
+                  *Path("tests").glob("*edge*.py"),
+              }
+          )
+          if not candidates:
+              raise SystemExit("acceleration foundation added no targeted tests")
+          command = [sys.executable, "-m", "pytest", "-q", *(str(path) for path in candidates)]
+          print(" ".join(command))
+          raise SystemExit(subprocess.run(command, check=False).returncode)
+          PY
+
+          STAGE=native-cpp20-smoke
+          if test -f native/CMakeLists.txt; then
+            rm -rf /tmp/tsao-native-build
+            cmake -S native -B /tmp/tsao-native-build \
+              -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON
+            cmake --build /tmp/tsao-native-build --config Release --parallel 2
+            ctest --test-dir /tmp/tsao-native-build --output-on-failure -C Release
+          else
+            echo 'No native CMake project was supplied; native smoke test skipped.' >&2
+            exit 1
+          fi
+
+          STAGE=complete-release-gates
+          python scripts/build_manifest.py
+          python scripts/verify_all.py --profile all \
+            --timing-json /tmp/tsao-acceleration-all-timing.json
+          python scripts/verify_all.py --profile benchmark \
+            --timing-json /tmp/tsao-acceleration-benchmark-timing.json
+
+          STAGE=dependency-and-build
+          python -m pip_audit --local --skip-editable --progress-spinner=off
+          rm -rf /tmp/tsao-acceleration-pep517
+          python -m build --outdir /tmp/tsao-acceleration-pep517
+
+          STAGE=final-evidence
+          python - "$ORIGINAL_SHA" <<'PY'
+          from __future__ import annotations
+
+          import hashlib
+          import json
+          import subprocess
+          import sys
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          def sha256(path: Path) -> str:
+              digest = hashlib.sha256()
+              with path.open("rb") as handle:
+                  for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+                      digest.update(chunk)
+              return digest.hexdigest()
+
+          baseline = sys.argv[1]
+          coverage_path = Path("/tmp/tsao-acceleration-coverage.json")
+          coverage = json.loads(coverage_path.read_text(encoding="utf-8"))["totals"]
+          payload_files = json.loads(Path("/tmp/tsao-acceleration-patch-files.json").read_text())
+          changed = subprocess.check_output(
+              ["git", "diff", "--name-only", baseline], text=True
+          ).splitlines()
+          native_artifacts = {
+              path.name: {"bytes": path.stat().st_size, "sha256": sha256(path)}
+              for path in sorted(Path("/tmp/tsao-acceleration-pep517").glob("*"))
+              if path.is_file()
+          }
+          report = {
+              "schema_version": "1.0",
+              "status": "VALIDATED",
+              "baseline_sha": baseline,
+              "created_branch": False,
+              "created_pull_request": False,
+              "force_push": False,
+              "generated_at": datetime.now(timezone.utc).isoformat(),
+              "scope": "Acceleration foundation, hardware-aware planning, edge/HPC placement, optional C++20 ABI, and evidence-bound CUDA-X catalog; no live accelerator or third-party solver execution is claimed.",
+              "payload_files": payload_files,
+              "changed_files": changed,
+              "coverage": coverage,
+              "gates": {
+                  "targeted_tests": "PASS",
+                  "native_cpp20_smoke": "PASS",
+                  "ruff": "PASS",
+                  "mypy": "PASS",
+                  "bandit": "PASS",
+                  "security_scan": "PASS",
+                  "core": "PASS",
+                  "quality": "PASS",
+                  "package": "PASS",
+                  "benchmark": "PASS",
+                  "dependency_audit": "PASS",
+                  "pep517_build": "PASS",
+                  "manifest": "PASS",
+              },
+              "pep517_artifacts": native_artifacts,
+              "runtime_dependency_growth": 0,
+              "claim_boundary": "Library catalog entries and hardware detections are planning evidence only. Detected CUDA, cuTENSOR, cuEquivariance, MPI, or solver executables do not establish live numerical speedup, convergence, physical validity, applicability, or authorization.",
+          }
+          path = Path("reports/ACCELERATION_FOUNDATION_V1.json")
+          path.parent.mkdir(exist_ok=True)
+          path.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8", newline="\n")
+          PY
+          python scripts/build_manifest.py
+          python scripts/build_manifest.py --check
+          git diff --check
+
+          STAGE=commit-main
+          git add -A
+          git commit -m 'Add hardware-aware acceleration foundation V1'
+          git push origin HEAD:refs/heads/main
+          trap - ERR
