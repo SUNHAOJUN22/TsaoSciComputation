@@ -1,0 +1,393 @@
+{
+  "files": {
+    "tsao_computation/acceleration.py": {
+      "missing_branches": [],
+      "missing_lines": [],
+      "summary": {
+        "covered_branches": 0,
+        "covered_lines": 2,
+        "excluded_lines": 0,
+        "missing_branches": 0,
+        "missing_lines": 0,
+        "num_branches": 0,
+        "num_partial_branches": 0,
+        "num_statements": 2,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100",
+        "percent_covered": 100.0,
+        "percent_covered_display": "100",
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100"
+      }
+    },
+    "tsao_computation/accelerators/__init__.py": {
+      "missing_branches": [],
+      "missing_lines": [],
+      "summary": {
+        "covered_branches": 0,
+        "covered_lines": 5,
+        "excluded_lines": 0,
+        "missing_branches": 0,
+        "missing_lines": 0,
+        "num_branches": 0,
+        "num_partial_branches": 0,
+        "num_statements": 5,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100",
+        "percent_covered": 100.0,
+        "percent_covered_display": "100",
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100"
+      }
+    },
+    "tsao_computation/accelerators/catalog.py": {
+      "missing_branches": [],
+      "missing_lines": [],
+      "summary": {
+        "covered_branches": 4,
+        "covered_lines": 33,
+        "excluded_lines": 0,
+        "missing_branches": 0,
+        "missing_lines": 0,
+        "num_branches": 4,
+        "num_partial_branches": 0,
+        "num_statements": 33,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100",
+        "percent_covered": 100.0,
+        "percent_covered_display": "100",
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100"
+      }
+    },
+    "tsao_computation/accelerators/model.py": {
+      "missing_branches": [
+        [
+          109,
+          110
+        ],
+        [
+          118,
+          119
+        ]
+      ],
+      "missing_lines": [
+        110,
+        119
+      ],
+      "summary": {
+        "covered_branches": 22,
+        "covered_lines": 138,
+        "excluded_lines": 0,
+        "missing_branches": 2,
+        "missing_lines": 2,
+        "num_branches": 24,
+        "num_partial_branches": 2,
+        "num_statements": 140,
+        "percent_branches_covered": 91.66666666666667,
+        "percent_branches_covered_display": "92",
+        "percent_covered": 97.5609756097561,
+        "percent_covered_display": "98",
+        "percent_statements_covered": 98.57142857142857,
+        "percent_statements_covered_display": "99"
+      }
+    },
+    "tsao_computation/accelerators/planner.py": {
+      "missing_branches": [
+        [
+          62,
+          63
+        ],
+        [
+          89,
+          90
+        ],
+        [
+          91,
+          92
+        ],
+        [
+          109,
+          114
+        ],
+        [
+          117,
+          118
+        ],
+        [
+          121,
+          122
+        ],
+        [
+          122,
+          123
+        ],
+        [
+          122,
+          126
+        ]
+      ],
+      "missing_lines": [
+        63,
+        68,
+        69,
+        90,
+        92,
+        118,
+        122,
+        123,
+        126,
+        127
+      ],
+      "summary": {
+        "covered_branches": 36,
+        "covered_lines": 103,
+        "excluded_lines": 0,
+        "missing_branches": 8,
+        "missing_lines": 10,
+        "num_branches": 44,
+        "num_partial_branches": 6,
+        "num_statements": 113,
+        "percent_branches_covered": 81.81818181818181,
+        "percent_branches_covered_display": "82",
+        "percent_covered": 88.53503184713375,
+        "percent_covered_display": "89",
+        "percent_statements_covered": 91.15044247787611,
+        "percent_statements_covered_display": "91"
+      }
+    },
+    "tsao_computation/accelerators/probe.py": {
+      "missing_branches": [
+        [
+          54,
+          55
+        ],
+        [
+          61,
+          62
+        ],
+        [
+          124,
+          126
+        ],
+        [
+          132,
+          133
+        ],
+        [
+          134,
+          135
+        ],
+        [
+          136,
+          137
+        ],
+        [
+          149,
+          150
+        ]
+      ],
+      "missing_lines": [
+        55,
+        59,
+        60,
+        62,
+        67,
+        68,
+        133,
+        135,
+        137,
+        150
+      ],
+      "summary": {
+        "covered_branches": 23,
+        "covered_lines": 69,
+        "excluded_lines": 0,
+        "missing_branches": 7,
+        "missing_lines": 10,
+        "num_branches": 30,
+        "num_partial_branches": 7,
+        "num_statements": 79,
+        "percent_branches_covered": 76.66666666666667,
+        "percent_branches_covered_display": "77",
+        "percent_covered": 84.40366972477064,
+        "percent_covered_display": "84",
+        "percent_statements_covered": 87.34177215189874,
+        "percent_statements_covered_display": "87"
+      }
+    },
+    "tsao_computation/cli.py": {
+      "missing_branches": [
+        [
+          133,
+          139
+        ]
+      ],
+      "missing_lines": [],
+      "summary": {
+        "covered_branches": 19,
+        "covered_lines": 80,
+        "excluded_lines": 0,
+        "missing_branches": 1,
+        "missing_lines": 0,
+        "num_branches": 20,
+        "num_partial_branches": 1,
+        "num_statements": 80,
+        "percent_branches_covered": 95.0,
+        "percent_branches_covered_display": "95",
+        "percent_covered": 99.0,
+        "percent_covered_display": "99",
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100"
+      }
+    },
+    "tsao_computation/execution/batch.py": {
+      "missing_branches": [],
+      "missing_lines": [],
+      "summary": {
+        "covered_branches": 4,
+        "covered_lines": 28,
+        "excluded_lines": 0,
+        "missing_branches": 0,
+        "missing_lines": 0,
+        "num_branches": 4,
+        "num_partial_branches": 0,
+        "num_statements": 28,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100",
+        "percent_covered": 100.0,
+        "percent_covered_display": "100",
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100"
+      }
+    },
+    "tsao_computation/registries/loader.py": {
+      "missing_branches": [],
+      "missing_lines": [],
+      "summary": {
+        "covered_branches": 2,
+        "covered_lines": 29,
+        "excluded_lines": 0,
+        "missing_branches": 0,
+        "missing_lines": 0,
+        "num_branches": 2,
+        "num_partial_branches": 0,
+        "num_statements": 29,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100",
+        "percent_covered": 100.0,
+        "percent_covered_display": "100",
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100"
+      }
+    },
+    "tsao_computation/repository_audit.py": {
+      "missing_branches": [
+        [
+          141,
+          142
+        ],
+        [
+          156,
+          157
+        ],
+        [
+          169,
+          170
+        ],
+        [
+          185,
+          186
+        ],
+        [
+          251,
+          252
+        ],
+        [
+          279,
+          280
+        ],
+        [
+          285,
+          286
+        ],
+        [
+          287,
+          288
+        ],
+        [
+          289,
+          290
+        ],
+        [
+          292,
+          293
+        ]
+      ],
+      "missing_lines": [
+        125,
+        126,
+        127,
+        142,
+        157,
+        170,
+        186,
+        252,
+        280,
+        286,
+        288,
+        290,
+        293
+      ],
+      "summary": {
+        "covered_branches": 114,
+        "covered_lines": 182,
+        "excluded_lines": 0,
+        "missing_branches": 10,
+        "missing_lines": 13,
+        "num_branches": 124,
+        "num_partial_branches": 10,
+        "num_statements": 195,
+        "percent_branches_covered": 91.93548387096774,
+        "percent_branches_covered_display": "92",
+        "percent_covered": 92.78996865203762,
+        "percent_covered_display": "93",
+        "percent_statements_covered": 93.33333333333333,
+        "percent_statements_covered_display": "93"
+      }
+    }
+  },
+  "generated_at": "2026-07-28T18:04:37.220917+00:00",
+  "schema_version": "1.0",
+  "test_log_tail": [
+    "........................................................................ [ 11%]",
+    "........................................................................ [ 22%]",
+    "........................................................................ [ 33%]",
+    "........................................................................ [ 44%]",
+    "........................................................................ [ 55%]",
+    "........................................................................ [ 66%]",
+    "........................................................................ [ 78%]",
+    "........................................................................ [ 89%]",
+    "......................................................................   [100%]",
+    "646 passed in 4.12s",
+    "Coverage failure: total of 95.00% is below 95.00%",
+    "Total coverage: 95.00% (required: 95.00%)"
+  ],
+  "test_returncode": 2,
+  "totals": {
+    "covered_branches": 430,
+    "covered_lines": 1564,
+    "excluded_lines": 0,
+    "missing_branches": 46,
+    "missing_lines": 59,
+    "num_branches": 476,
+    "num_partial_branches": 44,
+    "num_statements": 1623,
+    "percent_branches_covered": 90.33613445378151,
+    "percent_branches_covered_display": "90",
+    "percent_covered": 94.99761791329205,
+    "percent_covered_display": "95",
+    "percent_statements_covered": 96.36475662353666,
+    "percent_statements_covered_display": "96"
+  }
+}
