@@ -26,6 +26,10 @@ def adapters() -> tuple[dict[str, Any], ...]:
     return cast(tuple[dict[str, Any], ...], _load("adapters.json"))
 
 
+def accelerators() -> tuple[dict[str, Any], ...]:
+    return cast(tuple[dict[str, Any], ...], _load("accelerators.json"))
+
+
 def workflows() -> tuple[dict[str, Any], ...]:
     return cast(tuple[dict[str, Any], ...], _load("workflows.json"))
 
