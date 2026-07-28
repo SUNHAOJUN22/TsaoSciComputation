@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Any
 
 import _bootstrap  # noqa: F401
-from tsao_computation.registries import adapters, capabilities, workflows
+from tsao_computation.registries import accelerators, adapters, capabilities, workflows
 
 
 def _validate_shape(record: dict[str, Any], schema: dict[str, Any]) -> list[str]:
@@ -23,6 +23,7 @@ def main() -> int:
     collections = {
         "capability.schema": capabilities(),
         "adapter.schema": adapters(),
+        "accelerator-profile.schema": accelerators(),
         "workflow.schema": workflows(),
     }
     for name, records in collections.items():
@@ -48,7 +49,7 @@ def main() -> int:
             for index, record in enumerate(records):
                 for error in validator.iter_errors(record):
                     problems.append(f"{name}[{index}] {error.json_path}: {error.message}")
-    report = {"schema_version": "1.0", "passed": not problems, "problems": problems}
+    report = {"schema_version": "1.1", "passed": not problems, "problems": problems}
     print(json.dumps(report, indent=2, sort_keys=True))
     return 0 if not problems else 1
 
