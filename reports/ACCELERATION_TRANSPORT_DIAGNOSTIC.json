@@ -1,0 +1,128 @@
+{
+  "complete_member_count": 21,
+  "complete_members": [
+    {
+      "bytes": 668,
+      "path": ".github/CODEOWNERS",
+      "sha256": "f516cb5182b5219a41e0216a9ae7686ad651f661101b67088bf3c3bc4562884f"
+    },
+    {
+      "bytes": 4280,
+      "path": ".github/workflows/ci.yml",
+      "sha256": "8b0918643c973c2ee86615ea099bec896c60c64be4274ec4cf6a58ea7fb0872b"
+    },
+    {
+      "bytes": 5298,
+      "path": "CHANGELOG.md",
+      "sha256": "bd05a0d078ee64d3cc7874be18e524034244a08a504d0219de4d2011c22cc6d0"
+    },
+    {
+      "bytes": 657,
+      "path": "MANIFEST.in",
+      "sha256": "c882e1ca2a2d30088ef484525c2a2bb89147ea0f2027da66a64b5990f7432172"
+    },
+    {
+      "bytes": 15810,
+      "path": "SKILL.md",
+      "sha256": "e3d38860a26cec418657c62310a827e097ca385f79c296826035d6a4d13571c7"
+    },
+    {
+      "bytes": 1120,
+      "path": "THIRD_PARTY.md",
+      "sha256": "24e28d215be324ec5e8f642e739510ac263d16387ab2c66ce170b2f02f0262a2"
+    },
+    {
+      "bytes": 1383,
+      "path": "native/CMakeLists.txt",
+      "sha256": "8e11ea5a4deb00c8c169beadc371c6d2af6d154ccf775fbf081b79155b96d910"
+    },
+    {
+      "bytes": 1141,
+      "path": "native/README.md",
+      "sha256": "42bcf4283a08d9e04f7c2dc9d4a69b28f845ab64bebc4e56adbefd4d0e8dc817"
+    },
+    {
+      "bytes": 945,
+      "path": "native/include/tsao/capi.h",
+      "sha256": "7caa614877bc094e5fe92cd6e8d50a3e691cbe9768a1730a3c5146a1cf810c0c"
+    },
+    {
+      "bytes": 888,
+      "path": "native/src/capi.cpp",
+      "sha256": "8d5e126c295578281aa7ec49cdfb482464a08a683c6632eda07e89597f7c5197"
+    },
+    {
+      "bytes": 609,
+      "path": "native/tests/native_smoke.cpp",
+      "sha256": "b5938bd3121da2db9aa042e892686baa67fe9d6aecb4ecd52df35cfdb1bb5d26"
+    },
+    {
+      "bytes": 5745,
+      "path": "references/accelerated-computing.md",
+      "sha256": "9ca136e460295cd73197e48e37a2b40f63af3dc1966e02aa2978f53a0e5a6584"
+    },
+    {
+      "bytes": 27940,
+      "path": "registry/accelerators.json",
+      "sha256": "f3bf7752e55d15a28d685ecbe575da189fc455716de6fee3bef1b0bfe55789b9"
+    },
+    {
+      "bytes": 3228,
+      "path": "schemas/accelerator-profile.schema.json",
+      "sha256": "1836ce703c9e7e9121adaa7a7eb0e5fc20ce58d38976e90e21c94e26ddba0dc4"
+    },
+    {
+      "bytes": 4857,
+      "path": "schemas/calculation-contract.schema.json",
+      "sha256": "e28454ad5e45523d05c8adad9e094dfd2583d867e2e3cd6e0063ad789e982e38"
+    },
+    {
+      "bytes": 6432,
+      "path": "scripts/benchmark.py",
+      "sha256": "bcb792ff07999c28bf3e8cf8ac0f4bdc0a83f235bb1a7023f42cfb78dcd5a91c"
+    },
+    {
+      "bytes": 9876,
+      "path": "scripts/build_adapter_docs.py",
+      "sha256": "03a96d9884164bd26127b7484a6392c88b3802bbe2dd2c78d4516c62cca9c11a"
+    },
+    {
+      "bytes": 7619,
+      "path": "scripts/build_workflow_docs.py",
+      "sha256": "cd774d045d3b0fc911009ef31369db53fcbd64c90ebd6861bdbf773b6a75bbaf"
+    },
+    {
+      "bytes": 4544,
+      "path": "scripts/validate_accelerator_metadata.py",
+      "sha256": "ef9a7cf32604e3d521d73fe50bb313d412c0ea01d8a68b0e2fc968b2293f3f6b"
+    },
+    {
+      "bytes": 4691,
+      "path": "scripts/validate_adapter_metadata.py",
+      "sha256": "0b679b0773a0041cb98d782d13e51e23aa15c795d0d2f6b14e71c9964792bcdd"
+    },
+    {
+      "bytes": 2194,
+      "path": "scripts/validate_schemas.py",
+      "sha256": "382532ffbbd5fff0a2d132ff46f3b10d89563473f7adb401891037e434580033"
+    }
+  ],
+  "decoded_bytes": 28800,
+  "decompressed_bytes": 129194,
+  "encoded_characters": 36000,
+  "first_incomplete_error": "ReadError: unexpected end of data",
+  "generated_at": "2026-07-28T14:39:19.478929+00:00",
+  "gzip_eof": false,
+  "gzip_unused_bytes": 0,
+  "manifest_candidates": [],
+  "part_bytes": {
+    "acceleration-foundation-v1.part-00.b85": 6001,
+    "acceleration-foundation-v1.part-01.b85": 6001,
+    "acceleration-foundation-v1.part-02.b85": 12001,
+    "acceleration-foundation-v1.part-03.b85": 12001
+  },
+  "part_count": 4,
+  "schema_version": "1.0",
+  "status": "TRUNCATED",
+  "tar_end_markers_present": false
+}

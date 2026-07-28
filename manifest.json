@@ -1746,6 +1746,11 @@
       "sha256": "62a53e54c479db039fbdc89dd7814fc178dfde01467e9597e2c4f57ae98b842c"
     },
     {
+      "bytes": 4037,
+      "path": "reports/ACCELERATION_TRANSPORT_DIAGNOSTIC.json",
+      "sha256": "701b21cf73beac32ec80d2fba55a37fd9581af091116b6953ab7a9d615b156cf"
+    },
+    {
       "bytes": 5586,
       "path": "reports/CURRENT_MAIN_VERIFICATION.json",
       "sha256": "dd8e9249d67a703de42e131ba1ae3efb9b27c5b833179fdc4a11227d163742e6"
