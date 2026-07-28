@@ -53,6 +53,7 @@ quality = [
   "bandit>=1.8",
   "build>=1.2",
   "types-jsonschema>=4.25",
+  "types-PyYAML>=6.0.12",
   "setuptools>=80",
   "wheel>=0.45",
 ]
