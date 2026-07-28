@@ -13,6 +13,7 @@ class AcceleratorBackend(str, Enum):
     OPENMP = "openmp"
     MPI = "mpi"
     TASK_PARALLEL = "task-parallel"
+    REMOTE = "remote"
     CUDA = "cuda"
     HIP = "hip"
     SYCL = "sycl"
@@ -129,6 +130,7 @@ class ComputeResourceRequest:
         AcceleratorBackend.OPENMP,
         AcceleratorBackend.MPI,
         AcceleratorBackend.TASK_PARALLEL,
+        AcceleratorBackend.REMOTE,
         AcceleratorBackend.CPU,
     )
     cpu_cores: int | None = None
@@ -225,6 +227,5 @@ class ComputeResourceRequest:
         return payload
 
 
-# Backward-friendly aliases for callers that use shorter names.
 ResourceRequest = ComputeResourceRequest
 HardwareInventory = AcceleratorInventory
