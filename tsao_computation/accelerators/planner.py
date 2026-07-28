@@ -109,9 +109,14 @@ def plan_acceleration(
         if candidate in detected.backends:
             selected = candidate
             break
+
+    first_requested = order[0] if order else AcceleratorBackend.CPU
     fallback = False
     if request.accelerator_policy is AcceleratorPolicy.DISABLED:
+        if AcceleratorBackend.CPU not in supported:
+            raise ContractError(f"adapter {adapter_slug} does not declare a CPU fallback")
         selected = AcceleratorBackend.CPU
+        fallback = first_requested is not AcceleratorBackend.CPU
     elif selected is None:
         if request.accelerator_policy is AcceleratorPolicy.REQUIRED or not request.allow_fallback:
             raise ContractError(
@@ -119,9 +124,11 @@ def plan_acceleration(
             )
         selected = AcceleratorBackend.CPU
         fallback = True
+    elif selected is not first_requested:
+        fallback = True
 
     if request.accelerator_policy is AcceleratorPolicy.REQUIRED and selected not in _HARDWARE_BACKENDS:
-        raise ContractError("an accelerator was required, but only CPU/MPI task backends are available")
+        raise ContractError("an accelerator was required, but only CPU/MPI/task/remote backends are available")
 
     devices = detected.devices_for(selected)
     if selected in _HARDWARE_BACKENDS:
@@ -151,10 +158,11 @@ def plan_acceleration(
         environment["OMP_NUM_THREADS"] = str(threads)
 
     profile_libraries = tuple(str(item) for item in record.get("library_candidates", []))
-    known = {item.slug for item in recommend_acceleration_libraries(backend=selected)}
-    libraries = tuple(item for item in profile_libraries if item in known or not known)
+    compatible = {item.slug for item in recommend_acceleration_libraries(backend=selected)}
+    libraries = tuple(item for item in profile_libraries if item in compatible)
     reason = (
-        f"selected {selected.value} for {adapter_slug}; supported={sorted(item.value for item in supported)}; "
+        f"selected {selected.value} for {adapter_slug}; "
+        f"supported={sorted(item.value for item in supported)}; "
         f"detected={sorted(item.value for item in detected.backends)}"
     )
     return AccelerationPlan(
