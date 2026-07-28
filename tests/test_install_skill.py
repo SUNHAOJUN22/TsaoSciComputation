@@ -55,10 +55,7 @@ def test_resolve_destination_for_user_and_project(tmp_path: Path) -> None:
 
     legacy = home / ".codex/skills/TsaoSciComputation"
     legacy.mkdir(parents=True)
-    assert (
-        install_skill.resolve_destination("codex", "user", None, home=home)
-        == legacy.resolve()
-    )
+    assert install_skill.resolve_destination("codex", "user", None, home=home) == legacy.resolve()
     explicit = tmp_path / "custom" / "TsaoSciComputation"
     assert install_skill.resolve_destination("codex", "user", explicit) == explicit.resolve()
 
@@ -73,9 +70,7 @@ def test_install_validate_and_uninstall_roundtrip(tmp_path: Path) -> None:
         scope="project",
     )
     assert install_skill.validate_installation(destination) == []
-    receipt = json.loads(
-        (destination / install_skill.RECEIPT_NAME).read_text(encoding="utf-8")
-    )
+    receipt = json.loads((destination / install_skill.RECEIPT_NAME).read_text(encoding="utf-8"))
     assert receipt["skill"] == "tsao-scicomputation"
     install_skill.uninstall_skill(destination)
     assert not destination.exists()
@@ -103,13 +98,8 @@ def test_validation_detects_tampering_and_unlisted_files(tmp_path: Path) -> None
 
     problems = install_skill.validate_installation(destination)
 
-    assert any(
-        "hash differs" in problem and "SKILL.md" in problem for problem in problems
-    )
-    assert any(
-        "unlisted files" in problem and "unexpected.txt" in problem
-        for problem in problems
-    )
+    assert any("hash differs" in problem and "SKILL.md" in problem for problem in problems)
+    assert any("unlisted files" in problem and "unexpected.txt" in problem for problem in problems)
 
 
 def test_uninstall_requires_valid_manifest_without_force(tmp_path: Path) -> None:
@@ -128,9 +118,7 @@ def test_uninstall_requires_valid_manifest_without_force(tmp_path: Path) -> None
 def test_validation_rejects_manifest_path_escape(tmp_path: Path) -> None:
     destination = tmp_path / "tsao-scicomputation"
     destination.mkdir()
-    (destination / "SKILL.md").write_text(
-        "name: tsao-scicomputation\n", encoding="utf-8"
-    )
+    (destination / "SKILL.md").write_text("name: tsao-scicomputation\n", encoding="utf-8")
     (destination / "VERSION").write_text("3.0.0\n", encoding="utf-8")
     (destination / "scripts").mkdir()
     (destination / "scripts" / "verify_all.py").write_text("pass\n", encoding="utf-8")
