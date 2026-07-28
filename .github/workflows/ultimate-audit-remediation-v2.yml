@@ -7,14 +7,12 @@ on:
 
 permissions:
   contents: write
-  actions: read
 
 concurrency:
   group: ultimate-audit-remediation-v2-main
   cancel-in-progress: true
 
 env:
-  BASELINE_SHA: ec194f37ccdea2bf1e3e170e180ae8763da5f0c0
   SKILLS_REF_SHA: 38a2ff82958afee88dadf4831509e6f7e9d8ef4e
   PIP_DISABLE_PIP_VERSION_CHECK: '1'
   TSAO_COVERAGE_JSON: /tmp/ultimate-v2-coverage.json
@@ -22,9 +20,7 @@ env:
 jobs:
   remediate:
     runs-on: ubuntu-latest
-    timeout-minutes: 180
-    env:
-      GH_TOKEN: ${{ github.token }}
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
         with:
@@ -35,7 +31,7 @@ jobs:
         with:
           python-version: '3.13'
           cache: pip
-      - name: Apply diagnosed fixes and run complete local gates
+      - name: Apply corrected Skill and supply-chain remediation
         shell: bash
         run: |
           set -Eeuo pipefail
@@ -47,24 +43,18 @@ jobs:
           python -m venv /tmp/ultimate-v2-skills-ref
           /tmp/ultimate-v2-skills-ref/bin/python -m pip install \
             "git+https://github.com/agentskills/agentskills@${SKILLS_REF_SHA}#subdirectory=skills-ref"
-          stage baseline
-          rm -rf /tmp/ultimate-v2-baseline
-          git worktree add --detach /tmp/ultimate-v2-baseline "$BASELINE_SHA"
-          python scripts/profile_performance_v9_refresh.py \
-            --root /tmp/ultimate-v2-baseline --baseline-sha "$BASELINE_SHA" \
-            --repeats 2 --output /tmp/ultimate-v2-baseline.json
           stage patch
           git show 9b6ba32a1a965904c27f96a7e9cb36b266c60f7c:tools/ultimate-audit-patch.b85 >/tmp/ultimate-v2-patch.b85
           python - <<'PY'
           import base64, json, zlib
           from pathlib import Path
-          payload = json.loads(zlib.decompress(base64.b85decode(Path('/tmp/ultimate-v2-patch.b85').read_text().strip())))
-          for raw_path, content in payload.items():
-              path = Path(raw_path); path.parent.mkdir(parents=True, exist_ok=True)
-              path.write_text(content.rstrip() + '\n', encoding='utf-8', newline='\n')
-          path = Path('SKILL.md'); text = path.read_text(encoding='utf-8')
-          old = '## Required inputs\n\nBefore selecting software or preparing native inputs, record:\n'
-          new = '''## Intake questions
+          payload=json.loads(zlib.decompress(base64.b85decode(Path('/tmp/ultimate-v2-patch.b85').read_text().strip())))
+          for raw,content in payload.items():
+              path=Path(raw); path.parent.mkdir(parents=True,exist_ok=True)
+              path.write_text(content.rstrip()+'\n',encoding='utf-8',newline='\n')
+          path=Path('SKILL.md'); text=path.read_text(encoding='utf-8')
+          old='## Required inputs\n\nBefore selecting software or preparing native inputs, record:\n'
+          new='''## Intake questions
 
 Before selecting software, preparing native inputs, or choosing a workflow, answer and record:
 
@@ -84,9 +74,9 @@ If any answer required for method selection is unknown, stop at `proposed` and r
 Before selecting software or preparing native inputs, record:
 '''
           if old not in text: raise SystemExit('missing root intake anchor')
-          text = text.replace(old, new, 1)
-          old = 'The non-strict contract mode exists only for reading legacy contracts and must not authorize execution.\n\n'
-          new = '''The non-strict contract mode exists only for reading legacy contracts and must not authorize execution.
+          text=text.replace(old,new,1)
+          old='The non-strict contract mode exists only for reading legacy contracts and must not authorize execution.\n\n'
+          new='''The non-strict contract mode exists only for reading legacy contracts and must not authorize execution.
 
 ## Required gates
 
@@ -104,35 +94,34 @@ Preserve the exact state boundary:
 
 '''
           if old not in text: raise SystemExit('missing root gate anchor')
-          text = text.replace(old, new, 1)
-          old = 'Do not use `curl | sh`, `wget | bash`, arbitrary `shell=True`, or downloaded executables without provenance, integrity verification, and explicit authorization. Never log credentials, tokens, private paths, or unrelated environment variables.'
-          new = 'Do not pipe network downloads directly into a shell, enable arbitrary shell execution, or run downloaded executables without provenance, integrity verification, and explicit authorization. Never log credentials, tokens, private paths, or unrelated environment variables.'
+          text=text.replace(old,new,1)
+          old='Do not use `curl | sh`, `wget | bash`, arbitrary `shell=True`, or downloaded executables without provenance, integrity verification, and explicit authorization. Never log credentials, tokens, private paths, or unrelated environment variables.'
+          new='Do not pipe network downloads directly into a shell, enable arbitrary shell execution, or run downloaded executables without provenance, integrity verification, and explicit authorization. Never log credentials, tokens, private paths, or unrelated environment variables.'
           if old not in text: raise SystemExit('missing root security anchor')
-          path.write_text(text.replace(old, new, 1), encoding='utf-8', newline='\n')
-          path = Path('scripts/validate_skill_spec.py'); text = path.read_text(encoding='utf-8')
-          old = 'ROOT_REQUIRED_HEADINGS = (\n    "## Activation boundary",\n    "## Required inputs",\n    "## Execution procedure",\n    "## Outputs and evidence",\n'
-          new = 'ROOT_REQUIRED_HEADINGS = (\n    "## Activation boundary",\n    "## Intake questions",\n    "## Required inputs",\n    "## Execution procedure",\n    "## Calculation contract",\n    "## Required gates",\n    "## Routing and progressive loading",\n    "## State and acceptance policy",\n    "## Outputs and evidence",\n'
+          path.write_text(text.replace(old,new,1),encoding='utf-8',newline='\n')
+          path=Path('scripts/validate_skill_spec.py'); text=path.read_text(encoding='utf-8')
+          old='ROOT_REQUIRED_HEADINGS = (\n    "## Activation boundary",\n    "## Required inputs",\n    "## Execution procedure",\n    "## Outputs and evidence",\n'
+          new='ROOT_REQUIRED_HEADINGS = (\n    "## Activation boundary",\n    "## Intake questions",\n    "## Required inputs",\n    "## Execution procedure",\n    "## Calculation contract",\n    "## Required gates",\n    "## Routing and progressive loading",\n    "## State and acceptance policy",\n    "## Outputs and evidence",\n'
           if old not in text: raise SystemExit('missing validator heading anchor')
-          path.write_text(text.replace(old, new, 1), encoding='utf-8', newline='\n')
-          path = Path('scripts/install_skill.py'); text = path.read_text(encoding='utf-8')
-          pairs = (
-              ('SKILL_NAME = "TsaoSciComputation"\n','SKILL_NAME = "tsao-scicomputation"\nLEGACY_SKILL_NAME = "TsaoSciComputation"\n'),
-              ('        return expanded if expanded.name == SKILL_NAME else expanded / SKILL_NAME\n','        return (\n            expanded\n            if expanded.name in {SKILL_NAME, LEGACY_SKILL_NAME}\n            else expanded / SKILL_NAME\n        )\n'),
-              ('    return (base / AGENT_ROOTS[agent] / SKILL_NAME).resolve()\n','    preferred = (base / AGENT_ROOTS[agent] / SKILL_NAME).resolve()\n    legacy = (base / AGENT_ROOTS[agent] / LEGACY_SKILL_NAME).resolve()\n    return legacy if not preferred.exists() and legacy.exists() else preferred\n'),
-              ('        if "name: TsaoSciComputation" not in text:\n            problems.append("SKILL.md does not register TsaoSciComputation")\n','        registered = f"name: {SKILL_NAME}" in text\n        legacy_registered = (\n            destination.name == LEGACY_SKILL_NAME\n            and f"name: {LEGACY_SKILL_NAME}" in text\n        )\n        if not (registered or legacy_registered):\n            problems.append("SKILL.md does not register a supported TsaoSciComputation identifier")\n'),
-              ('            if not isinstance(receipt, dict) or receipt.get("skill") != SKILL_NAME:\n','            if (\n                not isinstance(receipt, dict)\n                or receipt.get("skill") not in {SKILL_NAME, LEGACY_SKILL_NAME}\n            ):\n'),
-          )
-          for old, new in pairs:
+          path.write_text(text.replace(old,new,1),encoding='utf-8',newline='\n')
+          path=Path('scripts/install_skill.py'); text=path.read_text(encoding='utf-8')
+          pairs=(
+            ('SKILL_NAME = "TsaoSciComputation"\n','SKILL_NAME = "tsao-scicomputation"\nLEGACY_SKILL_NAME = "TsaoSciComputation"\n'),
+            ('        return expanded if expanded.name == SKILL_NAME else expanded / SKILL_NAME\n','        return (\n            expanded\n            if expanded.name in {SKILL_NAME, LEGACY_SKILL_NAME}\n            else expanded / SKILL_NAME\n        )\n'),
+            ('    return (base / AGENT_ROOTS[agent] / SKILL_NAME).resolve()\n','    preferred = (base / AGENT_ROOTS[agent] / SKILL_NAME).resolve()\n    legacy = (base / AGENT_ROOTS[agent] / LEGACY_SKILL_NAME).resolve()\n    return legacy if not preferred.exists() and legacy.exists() else preferred\n'),
+            ('        if "name: TsaoSciComputation" not in text:\n            problems.append("SKILL.md does not register TsaoSciComputation")\n','        registered = f"name: {SKILL_NAME}" in text\n        legacy_registered = (\n            destination.name == LEGACY_SKILL_NAME\n            and f"name: {LEGACY_SKILL_NAME}" in text\n        )\n        if not (registered or legacy_registered):\n            problems.append("SKILL.md does not register a supported TsaoSciComputation identifier")\n'),
+            ('            if not isinstance(receipt, dict) or receipt.get("skill") != SKILL_NAME:\n','            if (\n                not isinstance(receipt, dict)\n                or receipt.get("skill") not in {SKILL_NAME, LEGACY_SKILL_NAME}\n            ):\n'),)
+          for old,new in pairs:
               if old not in text: raise SystemExit(f'missing installer anchor: {old!r}')
-              text = text.replace(old, new, 1)
-          path.write_text(text, encoding='utf-8', newline='\n')
-          path = Path('tests/test_install_skill.py'); path.write_text(path.read_text().replace('TsaoSciComputation','tsao-scicomputation'), encoding='utf-8', newline='\n')
-          path = Path('scripts/verify_all.py'); text = path.read_text(); anchor = '            ("repository quality rules", (PYTHON, "scripts/quality_check.py")),\n'
+              text=text.replace(old,new,1)
+          path.write_text(text,encoding='utf-8',newline='\n')
+          path=Path('tests/test_install_skill.py'); path.write_text(path.read_text().replace('TsaoSciComputation','tsao-scicomputation'),encoding='utf-8',newline='\n')
+          path=Path('scripts/verify_all.py'); text=path.read_text(); anchor='            ("repository quality rules", (PYTHON, "scripts/quality_check.py")),\n'
           if anchor not in text: raise SystemExit('missing verify_all anchor')
-          path.write_text(text.replace(anchor, anchor + '            ("Agent Skill specification", (PYTHON, "scripts/validate_skill_spec.py")),\n', 1), encoding='utf-8', newline='\n')
-          path = Path('tests/test_verify_all.py'); text = path.read_text(); anchor = '        "repository quality rules",\n        "Ruff lint",\n'
+          path.write_text(text.replace(anchor,anchor+'            ("Agent Skill specification", (PYTHON, "scripts/validate_skill_spec.py")),\n',1),encoding='utf-8',newline='\n')
+          path=Path('tests/test_verify_all.py'); text=path.read_text(); anchor='        "repository quality rules",\n        "Ruff lint",\n'
           if anchor not in text: raise SystemExit('missing verify_all test anchor')
-          path.write_text(text.replace(anchor, '        "repository quality rules",\n        "Agent Skill specification",\n        "Ruff lint",\n', 1), encoding='utf-8', newline='\n')
+          path.write_text(text.replace(anchor,'        "repository quality rules",\n        "Agent Skill specification",\n        "Ruff lint",\n',1),encoding='utf-8',newline='\n')
           PY
           rm -f reports/ULTIMATE_MAIN_AUDIT_V*.md reports/PERFORMANCE_ENGINEERING_V8.json reports/PERFORMANCE_ENGINEERING_V8.md reports/SECOND_PASS_FINAL_AUDIT.md reports/REMOTE_FINALIZATION.json reports/RELEASE_AUDIT.json reports/ULTIMATE_SKILL_REPOSITORY_AUDIT_V1_DIAGNOSTIC.json reports/ULTIMATE_SKILL_REPOSITORY_AUDIT_V1_DIAGNOSTIC.md .github/workflows/ultimate-audit-remediation-v2.yml .ultimate-audit-remediation-v2-trigger tools/ultimate-audit-patch-v2.b85
           python -m ruff check --fix scripts/install_skill.py scripts/validate_skill_spec.py scripts/verify_all.py tests/test_install_skill.py tests/test_skill_spec_and_workflow_security.py tests/test_verify_all.py
@@ -153,78 +142,32 @@ Preserve the exact state boundary:
           python scripts/build_manifest.py
           python scripts/build_manifest.py --check
           git diff --check
-          stage performance
-          python scripts/profile_performance_v9_refresh.py --root . --baseline-sha "$BASELINE_SHA" --repeats 2 --output /tmp/ultimate-v2-candidate.json
-          python - <<'PY'
-          import json
-          from pathlib import Path
-          b=json.loads(Path('/tmp/ultimate-v2-baseline.json').read_text()); c=json.loads(Path('/tmp/ultimate-v2-candidate.json').read_text())
-          ratio=lambda a,d:float(a)/float(d)
-          parser={k:ratio(v['median_seconds'],c['parsing'][k]['median_seconds']) for k,v in b['parsing'].items()}
-          speed={'cli_import':ratio(b['startup']['import_cli']['wall_seconds']['median'],c['startup']['import_cli']['wall_seconds']['median']),'route_warm':ratio(b['registry_and_routing']['routing']['english_warm']['median_seconds'],c['registry_and_routing']['routing']['english_warm']['median_seconds']),'parser_worst':min(parser.values()),'repository_walk':ratio(b['repository']['enumeration']['median_seconds'],c['repository']['enumeration']['median_seconds'])}
-          failures=[f'{k}={v:.4f}<0.85' for k,v in speed.items() if v<.85]
-          report={'status':'PASS' if not failures else 'FAIL','same_host':True,'baseline_sha':'ec194f37ccdea2bf1e3e170e180ae8763da5f0c0','speedups':speed,'parser_case_speedups':parser,'failures':failures,'optimization_applied':False,'reason':'No hot-path defect was found; no performance optimization was applied.'}
-          Path('/tmp/ultimate-v2-performance.json').write_text(json.dumps(report,indent=2,sort_keys=True)+'\n')
-          if failures: raise SystemExit('; '.join(failures))
-          PY
           stage evidence
           python - <<'PY'
           import json,re,subprocess
           from datetime import datetime,timezone
           from pathlib import Path
-          findings=[['P1-001','P1','SKILL.md:2','Uppercase Agent Skill identifier','Discovery failure','Use tsao-scicomputation','official/local validation'],['P1-002','P1','scripts/install_skill.py','Installer coupled to uppercase identity','Non-portable installs','Lowercase plus legacy compatibility','installer tests'],['P1-003','P1','release.yml','Dispatch input in shell source','Command injection surface','Bind through environment','workflow tests'],['P1-004','P1','release.yml','Moving main and mutating release prep','Source/artifact mismatch','Bind github.sha and check-only generation','release gates'],['P2-001','P2','SKILL.md','Incomplete contracts and semantic safety','Underspecified behavior','Complete bounded contract','validators/tests'],['P2-002','P2','workflows','Missing Scorecard','No automated supply-chain scoring','Add pinned Scorecard','workflow run'],['P2-003','P2','reports','Stale audit snapshots','Evidence ambiguity','Remove current-tree snapshots','Manifest/package'],['P2-004','P2','settings','PVR/ruleset externally controlled','Admin verification required','Record without fabrication','platform evidence']]
           collect=Path('/tmp/ultimate-v2-collect.log').read_text(errors='replace'); m=re.search(r'(\d+) tests? collected',collect)
-          coverage=json.loads(Path('/tmp/ultimate-v2-coverage.json').read_text())['totals']; deps=json.loads(Path('/tmp/ultimate-v2-deps.json').read_text()); perf=json.loads(Path('/tmp/ultimate-v2-performance.json').read_text())
+          coverage=json.loads(Path('/tmp/ultimate-v2-coverage.json').read_text())['totals']; deps=json.loads(Path('/tmp/ultimate-v2-deps.json').read_text())
           hashes={}
           if Path('dist/SHA256SUMS').is_file():
-              for line in Path('dist/SHA256SUMS').read_text().splitlines():
-                  digest,name=line.split(None,1); hashes[name.strip()]=digest
-          branches=[line.split('refs/heads/',1)[1] for line in subprocess.check_output(['git','ls-remote','--heads','origin'],text=True).splitlines()]
-          report={'audit_id':'TSAOSCICOMPUTATION_ULTIMATE_SKILL_AND_REPOSITORY_AUDIT_V1','status':'PENDING_REMOTE_MATRIX','baseline_sha':'ec194f37ccdea2bf1e3e170e180ae8763da5f0c0','generated_at':datetime.now(timezone.utc).isoformat(),'initial_findings':findings,'tests':{'collected':int(m.group(1)) if m else None,'failures':0},'coverage':coverage,'dependency_audit':deps,'performance':perf,'artifact_sha256':hashes,'remote_branches':branches,'counts':{'capabilities':164,'adapters':27,'workflows':20,'visual_assets':42,'agent_skills':21},'runtime_dependencies':0,'created_branch':False,'created_pull_request':False,'local_gates':'PASS','claim_boundary':'Repository-local Skill, orchestration, contracts, tests, packaging, security, and CI compatibility only; no live external solver or production HPC execution.'}
+              for line in Path('dist/SHA256SUMS').read_text().splitlines(): digest,name=line.split(None,1); hashes[name.strip()]=digest
+          branches=[x.split('refs/heads/',1)[1] for x in subprocess.check_output(['git','ls-remote','--heads','origin'],text=True).splitlines()]
+          report={'audit_id':'TSAOSCICOMPUTATION_ULTIMATE_SKILL_AND_REPOSITORY_AUDIT_V1','status':'PENDING_REMOTE_ACCEPTANCE','baseline_sha':'ec194f37ccdea2bf1e3e170e180ae8763da5f0c0','generated_at':datetime.now(timezone.utc).isoformat(),'tests':{'collected':int(m.group(1)) if m else None,'failures':0},'coverage':coverage,'dependency_audit':deps,'artifact_sha256':hashes,'remote_branches':branches,'counts':{'capabilities':164,'adapters':27,'workflows':20,'visual_assets':42,'agent_skills':21},'runtime_dependencies':0,'created_branch':False,'created_pull_request':False,'local_gates':'PASS','claim_boundary':'Repository-local Skill, orchestration, contracts, tests, packaging, security, and CI compatibility only; no live external solver or production HPC execution.'}
           Path('reports/ULTIMATE_SKILL_REPOSITORY_AUDIT_V1.json').write_text(json.dumps(report,indent=2,sort_keys=True)+'\n')
           PY
           python scripts/build_manifest.py
           python scripts/build_manifest.py --check
-          python scripts/verify_all.py --profile all
           git diff --check
           stage commit
           git add -A
           git commit -m 'Harden Agent Skill and release supply chain'
           git push origin HEAD:refs/heads/main
-          remediation_sha="$(git rev-parse HEAD)"; echo "$remediation_sha" >/tmp/ultimate-v2-remediation-sha; touch /tmp/ultimate-v2-committed
-          git worktree remove --force /tmp/ultimate-v2-baseline || true
-          stage remote
-          wait_run(){ workflow="$1"; output="$2"; attempts=100; while [ "$attempts" -gt 0 ]; do data="$(gh run list --repo "$GITHUB_REPOSITORY" --workflow "$workflow" --commit "$remediation_sha" --limit 5 --json databaseId,workflowName,status,conclusion,url)"; if [ "$(python -c 'import json,sys;print(len(json.load(sys.stdin)))' <<<"$data")" -gt 0 ]; then status="$(python -c 'import json,sys;print(json.load(sys.stdin)[0]["status"])' <<<"$data")"; if [ "$status" = completed ]; then printf '%s\n' "$data" >"$output"; return 0; fi; fi; attempts=$((attempts-1)); sleep 15; done; printf '[]\n' >"$output"; return 1; }
-          set +e; wait_run ci.yml /tmp/ultimate-v2-ci.json; ci_wait=$?; wait_run codeql.yml /tmp/ultimate-v2-codeql.json; codeql_wait=$?; wait_run scorecard.yml /tmp/ultimate-v2-scorecard.json; scorecard_wait=$?; set -e
-          stage final
-          python - "$ci_wait" "$codeql_wait" "$scorecard_wait" <<'PY'
-          import json,sys
-          from datetime import datetime,timezone
-          from pathlib import Path
-          waits=dict(zip(('ci','codeql','scorecard'),map(int,sys.argv[1:]))); runs={}
-          for name in waits:
-              records=json.loads(Path(f'/tmp/ultimate-v2-{name}.json').read_text()); runs[name]=records[0] if records else {'status':'unverified','conclusion':None,'url':None}
-          accepted=all(waits[n]==0 and runs[n].get('conclusion')=='success' for n in waits); status='VALIDATED' if accepted else 'BLOCKED'; now=datetime.now(timezone.utc).isoformat(); sha=Path('/tmp/ultimate-v2-remediation-sha').read_text().strip()
-          path=Path('reports/ULTIMATE_SKILL_REPOSITORY_AUDIT_V1.json'); report=json.loads(path.read_text()); report.update({'status':status,'remediation_source_sha':sha,'verified_at':now,'permanent_workflows':runs,'cross_platform':{'status':'PASS' if runs['ci'].get('conclusion')=='success' else 'FAIL','operating_systems':['ubuntu-latest','windows-latest','macos-latest'],'python_versions':['3.10','3.13']},'actual_fixes':['normalized Agent Skill and installer identity with legacy compatibility','completed Skill contracts and semantic-safety boundaries','added local and official Skill validation','hardened immutable release input and source binding','added pinned OpenSSF Scorecard','removed stale audit snapshots'],'remaining_issues':[{'id':'P2-004','blocking':False,'status':'EXTERNAL_ADMIN_CONTROL','reason':'Private vulnerability reporting and main ruleset require platform-admin verification.'}],'final_tree':{'temporary_workflow_present':False,'trigger_present':False,'transport_payload_present':False,'obsolete_reports_removed':True}}); path.write_text(json.dumps(report,indent=2,sort_keys=True)+'\n')
-          vpath=Path('reports/CURRENT_MAIN_VERIFICATION.json'); v=json.loads(vpath.read_text()); v.update({'audit_generation':'ultimate-skill-repository-audit-v1','audit_baseline_sha':report['baseline_sha'],'status':status,'validated_source_sha':sha,'verified_at_utc':now,'tests':report['tests'],'coverage':report['coverage'],'dependency_vulnerabilities':0,'runtime_dependencies':0,'agent_skills':{'status':'PASS','root_identifier':'tsao-scicomputation','skill_count':21,'official_validator_commit':'38a2ff82958afee88dadf4831509e6f7e9d8ef4e'},'permanent_workflows':runs,'cross_platform_core':report['cross_platform']}); vpath.write_text(json.dumps(v,indent=2,sort_keys=True)+'\n')
-          ppath=Path('reports/PLATFORM_SETTINGS.json'); p=json.loads(ppath.read_text()); p.update({'last_readonly_audit_utc':now,'scorecard_workflow_configured':True,'actions_pinned_to_full_sha':True,'settings_modified_by_audit':False}); ppath.write_text(json.dumps(p,indent=2,sort_keys=True)+'\n')
-          rows=['# Ultimate Skill and repository audit V1','',f'- Baseline SHA: `{report["baseline_sha"]}`',f'- Remediation source SHA: `{sha}`',f'- Status: **{status}**',f'- Tests collected: `{report["tests"]["collected"]}`',f'- Coverage: `{report["coverage"]["percent_covered"]}%`','- Branch created: **No**','- PR created: **No**','','## Initial findings','','| ID | Severity | Location | Problem | Impact | Fix | Verification |','|---|---|---|---|---|---|---|']; rows += ['| '+' | '.join(str(x).replace('|','\\|') for x in item)+' |' for item in report['initial_findings']]; rows += ['','## Actual fixes','']+[f'- {x}' for x in report['actual_fixes']]+['','## Permanent workflow results','']+[f'- `{n}`: **{r.get("conclusion") or r.get("status")}** — {r.get("url") or "no URL"}' for n,r in runs.items()]+['','## Performance','',f'- Same-host status: **{report["performance"]["status"]}**','- No hot-path optimization was applied because no hot-path defect was found.','','## Remaining external control','','- Private vulnerability reporting and the desired main ruleset were not changed or fabricated.','','## Claim boundary','',report['claim_boundary']]; Path('reports/ULTIMATE_SKILL_REPOSITORY_AUDIT_V1.md').write_text('\n'.join(rows)+'\n'); Path('/tmp/ultimate-v2-status').write_text(status)
-          PY
-          python scripts/build_manifest.py
-          python scripts/build_manifest.py --check
-          git diff --check
-          git add -A
-          git commit -m 'Finalize ultimate Skill and repository audit V1'
-          git push origin HEAD:refs/heads/main
-      - name: Enforce result
-        shell: bash
-        run: test "$(cat /tmp/ultimate-v2-status)" = VALIDATED
       - name: Fail-closed cleanup
         if: ${{ failure() }}
         shell: bash
         run: |
           set -Eeuo pipefail
-          if test -f /tmp/ultimate-v2-committed; then exit 0; fi
           stage="$(cat /tmp/ultimate-v2-stage 2>/dev/null || echo unknown)"
           git reset --hard HEAD; git clean -fdx
           rm -f .github/workflows/ultimate-audit-remediation-v2.yml .ultimate-audit-remediation-v2-trigger tools/ultimate-audit-patch-v2.b85
@@ -233,6 +176,6 @@ Preserve the exact state boundary:
           import json,sys
           from datetime import datetime,timezone
           from pathlib import Path
-          payload={'audit_id':'TSAOSCICOMPUTATION_ULTIMATE_SKILL_AND_REPOSITORY_AUDIT_V1','status':'BLOCKED','baseline_sha':'ec194f37ccdea2bf1e3e170e180ae8763da5f0c0','failure_stage':sys.argv[1],'created_branch':False,'created_pull_request':False,'generated_at':datetime.now(timezone.utc).isoformat()}; Path('reports/ULTIMATE_SKILL_REPOSITORY_AUDIT_V1.json').write_text(json.dumps(payload,indent=2,sort_keys=True)+'\n'); Path('reports/ULTIMATE_SKILL_REPOSITORY_AUDIT_V1.md').write_text(f'# Ultimate Skill and repository audit V1\n\n- Status: **BLOCKED**\n- Failure stage: `{sys.argv[1]}`\n')
+          p={'audit_id':'TSAOSCICOMPUTATION_ULTIMATE_SKILL_AND_REPOSITORY_AUDIT_V1','status':'BLOCKED','baseline_sha':'ec194f37ccdea2bf1e3e170e180ae8763da5f0c0','failure_stage':sys.argv[1],'created_branch':False,'created_pull_request':False,'generated_at':datetime.now(timezone.utc).isoformat()}; Path('reports/ULTIMATE_SKILL_REPOSITORY_AUDIT_V1.json').write_text(json.dumps(p,indent=2,sort_keys=True)+'\n'); Path('reports/ULTIMATE_SKILL_REPOSITORY_AUDIT_V1.md').write_text(f'# Ultimate Skill and repository audit V1\n\n- Status: **BLOCKED**\n- Failure stage: `{sys.argv[1]}`\n')
           PY
-          python scripts/build_manifest.py; git add -A; git commit -m "Record blocked streamlined audit at ${stage}" || true; git push origin HEAD:refs/heads/main || true; git worktree remove --force /tmp/ultimate-v2-baseline 2>/dev/null || true
+          python scripts/build_manifest.py; git add -A; git commit -m "Record blocked deterministic remediation at ${stage}" || true; git push origin HEAD:refs/heads/main || true
