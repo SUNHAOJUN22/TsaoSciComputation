@@ -51,9 +51,9 @@
       "sha256": "15d510e1f5228c7de316c385f6ae91044ce9fa30cbced49a30a85f6a21e9a1bb"
     },
     {
-      "bytes": 5570,
+      "bytes": 5555,
       "path": ".github/workflows/release.yml",
-      "sha256": "5e3e5d72b1840b34806f438f0042e61b93e5ec7379a1b04611c4736bc2ed5b2c"
+      "sha256": "b0ebf6572cd48fb93dd5f3c16f235e299fe865dd4779aa45dd561f18c295eb8f"
     },
     {
       "bytes": 1226,
@@ -1761,6 +1761,11 @@
       "sha256": "a6e39084f0cb7040d6195123cdd18546423760081fac748b102e430e3bf71903"
     },
     {
+      "bytes": 10607,
+      "path": "reports/CURRENT_REMEDIATION_DIAGNOSTIC.json",
+      "sha256": "44d58bf50f2b5eb8c01c08be9e0d0a03729f21b6839504e6f6d6685eaf54094f"
+    },
+    {
       "bytes": 3115,
       "path": "reports/DEPENDENCY_AUDIT.json",
       "sha256": "3467726c295583aeb699aa517df64cd5f3283b0dfc81796da9737bd317993fd5"
@@ -1966,9 +1971,9 @@
       "sha256": "ed27d1805e40e657243af5e7eb04a3f3266274a9e10106ea9808a963bee71150"
     },
     {
-      "bytes": 11223,
+      "bytes": 11156,
       "path": "scripts/install_skill.py",
-      "sha256": "0e7343bed195613b4048c7ef7b90d5d9ac09012581b776598ae53668664ef47d"
+      "sha256": "36e24391d27b2fa03fe07b4b377e74b3303ab04085a6d6d9f6ef716cae235104"
     },
     {
       "bytes": 7206,
@@ -2091,9 +2096,9 @@
       "sha256": "1e0f7908f1f7dbcc179cc9c855d872d086711209002058f640b21ba84f0faa91"
     },
     {
-      "bytes": 8100,
+      "bytes": 8291,
       "path": "scripts/validate_skill_spec.py",
-      "sha256": "5820c596ee2f959a3d01eac14a7c67e6d155189d3e335107f119492fda3b4109"
+      "sha256": "8e5017e674a80d34f3c194dc975efd814727b947a22e6aa7ebee00c97cb3a9bf"
     },
     {
       "bytes": 13523,
@@ -2291,9 +2296,9 @@
       "sha256": "0d520e20029e18776bd99a119987ca05aeeeb18628456484bd8d4006c1319c1e"
     },
     {
-      "bytes": 6134,
+      "bytes": 6247,
       "path": "tests/test_install_skill.py",
-      "sha256": "528197f38a65a486640b3617866ec46177f23f004f090c6f4b928843d4460195"
+      "sha256": "60fa21a8e6cbb138018c9b64542e9a61f84c99b5ab58ad0357cbdb3f62af4cb7"
     },
     {
       "bytes": 2946,
@@ -2346,9 +2351,9 @@
       "sha256": "90d3712ebcad190a046d6a6278ac8c497fddd3b2859dd04b67d7533fd8834075"
     },
     {
-      "bytes": 3127,
+      "bytes": 3179,
       "path": "tests/test_skill_spec_and_workflow_security.py",
-      "sha256": "65502b5770a0529deeadab6488cf8e90d7f0a3b10140d6059ddbbfe057dcd83c"
+      "sha256": "d71de9871fe96ca1aa1b545816bafcbbb80fdcf7182e9d8423333a32b445083c"
     },
     {
       "bytes": 3703,
