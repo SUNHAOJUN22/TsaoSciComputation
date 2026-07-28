@@ -4,6 +4,9 @@ import json
 from pathlib import Path
 from typing import Any
 
+import _bootstrap  # noqa: F401
+from tsao_computation.accelerators import acceleration_libraries
+
 ROOT = Path(__file__).resolve().parents[1]
 BACKENDS = {
     "cpu",
@@ -13,6 +16,7 @@ BACKENDS = {
     "hip",
     "sycl",
     "opencl",
+    "kokkos",
     "task-parallel",
     "remote",
 }
@@ -41,6 +45,7 @@ def validate(root: Path = ROOT) -> list[str]:
 
     adapter_slugs = {str(record["slug"]) for record in adapters}
     workflow_slugs = {str(record["slug"]) for record in workflows}
+    library_slugs = {item.slug for item in acceleration_libraries()}
     seen: set[str] = set()
     for index, record in enumerate(records):
         if not isinstance(record, dict):
@@ -77,6 +82,15 @@ def validate(root: Path = ROOT) -> list[str]:
             problems.append(
                 f"acceleration profile {slug} prefers undeclared backends: {missing_preferred}"
             )
+        libraries = record.get("library_candidates")
+        if not isinstance(libraries, list) or len(libraries) != len(set(map(str, libraries))):
+            problems.append(f"acceleration profile {slug} has invalid library_candidates")
+        else:
+            unknown_libraries = sorted(set(map(str, libraries)) - library_slugs)
+            if unknown_libraries:
+                problems.append(
+                    f"acceleration profile {slug} references unknown libraries: {unknown_libraries}"
+                )
         for key in (
             "interfaces",
             "implementation_languages",
