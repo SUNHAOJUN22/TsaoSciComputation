@@ -1,0 +1,101 @@
+name: Diagnose acceleration coverage V1
+
+on:
+  push:
+    branches: [main]
+    paths: [.diagnose-acceleration-coverage-v1-trigger]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: diagnose-acceleration-coverage-v1-main
+  cancel-in-progress: true
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+          cache: pip
+      - run: python -m pip install -e '.[validation,quality]'
+      - name: Measure coverage and publish missing-line evidence
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          ORIGINAL_SHA="$GITHUB_SHA"
+          rm -f reports/ACCELERATION_FOUNDATION_V1_BLOCKED.json
+          rm -f reports/ACCELERATION_COVERAGE_DIAGNOSTIC.json
+          files=(
+            tests/test_acceleration_coverage.py tests/test_acceleration_foundation.py
+            tests/test_acceleration_hardening.py tsao_computation/acceleration.py
+            tsao_computation/accelerators/__init__.py tsao_computation/accelerators/catalog.py
+            tsao_computation/accelerators/model.py tsao_computation/accelerators/planner.py
+            tsao_computation/accelerators/probe.py tsao_computation/execution/batch.py
+          )
+          python -m ruff check --fix "${files[@]}"
+          python -m ruff format "${files[@]}"
+          python scripts/sync_package_assets.py
+          python scripts/build_adapter_docs.py
+          python scripts/build_workflow_docs.py
+          python scripts/build_examples.py
+          python scripts/build_manifest.py
+          export TSAO_COVERAGE_JSON=/tmp/tsao-acceleration-coverage.json
+          set +e
+          python scripts/run_tests.py --coverage > /tmp/tsao-acceleration-coverage.log 2>&1
+          code=$?
+          set -e
+          python - "$code" <<'PY'
+          import json, sys
+          from datetime import datetime, timezone
+          from pathlib import Path
+          code = int(sys.argv[1])
+          coverage = json.loads(Path('/tmp/tsao-acceleration-coverage.json').read_text())
+          interesting = {}
+          for path, record in coverage.get('files', {}).items():
+              if path.startswith('tsao_computation/acceler') or path in {
+                  'tsao_computation/acceleration.py',
+                  'tsao_computation/execution/batch.py',
+                  'tsao_computation/registries/loader.py',
+                  'tsao_computation/cli.py',
+                  'tsao_computation/repository_audit.py',
+              }:
+                  summary = record.get('summary', {})
+                  interesting[path] = {
+                      'summary': summary,
+                      'missing_lines': record.get('missing_lines', []),
+                      'missing_branches': record.get('missing_branches', []),
+                  }
+          report = {
+              'schema_version': '1.0',
+              'generated_at': datetime.now(timezone.utc).isoformat(),
+              'test_returncode': code,
+              'totals': coverage.get('totals', {}),
+              'files': interesting,
+              'test_log_tail': Path('/tmp/tsao-acceleration-coverage.log').read_text(
+                  encoding='utf-8', errors='replace'
+              ).splitlines()[-80:],
+          }
+          Path('/tmp/ACCELERATION_COVERAGE_DIAGNOSTIC.json').write_text(
+              json.dumps(report, indent=2, sort_keys=True) + '\n', encoding='utf-8', newline='\n'
+          )
+          PY
+          git reset --hard "$ORIGINAL_SHA"
+          rm -f .github/workflows/diagnose-acceleration-coverage-v1.yml
+          rm -f .diagnose-acceleration-coverage-v1-trigger
+          rm -f reports/ACCELERATION_FOUNDATION_V1_BLOCKED.json
+          cp /tmp/ACCELERATION_COVERAGE_DIAGNOSTIC.json reports/ACCELERATION_COVERAGE_DIAGNOSTIC.json
+          python scripts/build_manifest.py
+          git add -A
+          git commit -m 'Record acceleration coverage diagnostics'
+          git push origin HEAD:refs/heads/main
