@@ -1,0 +1,3 @@
+mode=verified-archives-exact-ruff-fixes-full-gates
+baseline=cf787e8e3792d8fca3dde07590a985abf4f10581
+no_branch=true
