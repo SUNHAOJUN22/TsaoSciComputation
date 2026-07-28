@@ -1,0 +1,75 @@
+name: Apply acceleration foundation V3
+
+on:
+  push:
+    branches: [main]
+    paths: [.apply-acceleration-foundation-v3-trigger]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: apply-acceleration-foundation-v3-main
+  cancel-in-progress: true
+
+jobs:
+  apply-and-validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+          cache: pip
+
+      - name: Execute audited V2 applicator with bounded Ruff safe fixes
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python - <<'PY'
+          from __future__ import annotations
+
+          from pathlib import Path
+
+          source = Path('.github/workflows/apply-acceleration-foundation-v2.yml')
+          lines = source.read_text(encoding='utf-8').splitlines()
+          marker = '        run: |'
+          try:
+              start = lines.index(marker) + 1
+          except ValueError as exc:
+              raise SystemExit('V2 applicator shell block was not found') from exc
+          body: list[str] = []
+          for line in lines[start:]:
+              if line and not line.startswith('          '):
+                  break
+              body.append(line[10:] if line.startswith('          ') else '')
+          script = '\n'.join(body) + '\n'
+          original_lint = 'python -m ruff check tsao_computation scripts tests _bootstrap.py'
+          bounded_lint = '''if ((${#changed_python[@]})); then
+            python -m ruff check --fix "${changed_python[@]}"
+          fi
+          python -m ruff check tsao_computation scripts tests _bootstrap.py'''
+          if original_lint not in script:
+              raise SystemExit('Ruff lint anchor was not found in V2 applicator')
+          script = script.replace(original_lint, bounded_lint, 1)
+          script = script.replace(
+              'rm -f .github/workflows/apply-acceleration-foundation-v2.yml',
+              'rm -f .github/workflows/apply-acceleration-foundation-v2.yml .github/workflows/apply-acceleration-foundation-v3.yml',
+          )
+          script = script.replace(
+              'rm -f .apply-acceleration-foundation-v1-trigger .apply-acceleration-foundation-v2-trigger',
+              'rm -f .apply-acceleration-foundation-v1-trigger .apply-acceleration-foundation-v2-trigger .apply-acceleration-foundation-v3-trigger',
+          )
+          script = script.replace(
+              'rm -f .apply-acceleration-foundation-v2-trigger',
+              'rm -f .apply-acceleration-foundation-v2-trigger .apply-acceleration-foundation-v3-trigger',
+          )
+          target = Path('/tmp/apply-acceleration-foundation-v3.sh')
+          target.write_text(script, encoding='utf-8', newline='\n')
+          PY
+          bash /tmp/apply-acceleration-foundation-v3.sh
