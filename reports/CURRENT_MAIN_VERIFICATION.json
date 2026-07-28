@@ -1,5 +1,5 @@
 {
-  "audit_generation": "ultimate-main-audit-v12",
+  "audit_generation": "fresh-current-main-audit-v13",
   "branch": "main",
   "canonical_checkout_lf": true,
   "canonical_ci_evidence": "The accepted final-commit CI run is recorded in the closing comment of GitHub Issue #32.",
@@ -29,6 +29,18 @@
     "percent_statements_covered": 97.44463373083475,
     "percent_statements_covered_display": "97"
   },
+  "cross_platform_core": {
+    "operating_systems": [
+      "ubuntu-latest",
+      "windows-latest",
+      "macos-latest"
+    ],
+    "python_versions": [
+      "3.10",
+      "3.13"
+    ],
+    "status": "PASS"
+  },
   "cross_platform_manifest_stability": "PASS",
   "dependency_vulnerabilities": 0,
   "deterministic_finalization_run_id": 30241324041,
@@ -47,10 +59,10 @@
     "failures": 0
   },
   "ultimate_audit_issue": 32,
-  "validated_source_sha": "3ac026cfeeaf038e5183fd7493a4a17790ee7eb4",
-  "verified_at_utc": "2026-07-27T06:00:27.484071+00:00",
+  "validated_source_sha": "0fa1e26764ca772185490f68bd0e9a93082e07e7",
+  "verified_at_utc": "2026-07-28T01:44:15.813622+00:00",
   "version": "3.0.2",
-  "visual_atlas_version": 12,
+  "visual_atlas_version": 13,
   "wheel_reproducible_and_isolated_install": true,
   "windows_python_310_core": "PASS",
   "windows_python_313_core": "PASS"

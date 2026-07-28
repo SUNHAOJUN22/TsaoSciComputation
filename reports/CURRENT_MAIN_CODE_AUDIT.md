@@ -1,6 +1,6 @@
 # Current main code audit
 
-- Validated source SHA: `3ac026cfeeaf038e5183fd7493a4a17790ee7eb4`
+- Validated source SHA: `0fa1e26764ca772185490f68bd0e9a93082e07e7`
 - Overall status: **PASS**
 - Tests collected: `599`
 - Coverage: `96.57444005270092%`
@@ -18,20 +18,23 @@
 | `collect` | PASS | 0 |
 | `manifest` | PASS | 0 |
 | `diff_check` | PASS | 0 |
+| `cross_platform_core` | PASS | 0 |
 
-## Fixed findings
+## Findings
 
-- restored the canonical verification API required by the test suite
-- restored complete Ruff, Mypy, Bandit, repository security and mutation gates
-- repaired strict type handling in timing and performance evidence generation
-- made benchmark verification side-effect-free
-- restored canonical Ubuntu, Windows and macOS CI on Python 3.10 and 3.13
-- removed obsolete audit, performance, visual transport, trigger and status files
+- No code changes occurred after the previously validated source commit.
+- Verification metadata still identified the V13 visual system as V12.
+- Fresh cross-platform and complete repository gates were required before updating evidence.
 
-## Remaining obsolete artifacts
+## Improvements completed
 
-- None.
+- revalidated core behavior on Ubuntu, Windows and macOS with Python 3.10 and 3.13
+- reran Ruff, formatting, Mypy, Bandit, repository security and mutation gates
+- reran coverage, schemas, registries, documentation, examples and scientific benchmarks
+- reran deterministic source and wheel builds, isolated install, SBOM and release manifests
+- reran dependency vulnerability audit and side-effect-free performance benchmarks
+- synchronized verification metadata with Scientific Research Console V13
 
 ## Claim boundary
 
-Repository-local verification only; no external scientific solver or production HPC execution is claimed.
+Repository-local orchestration, contracts, tests, packaging and evidence only; no external scientific solver or production HPC execution is claimed.
