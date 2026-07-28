@@ -1756,6 +1756,11 @@
       "sha256": "c9afcec07f81155e69e8a0bc411c60b50113120718163881c777aa73075e7f47"
     },
     {
+      "bytes": 37306,
+      "path": "reports/CURRENT_RELEASE_GATE_DIAGNOSTIC.json",
+      "sha256": "a6e39084f0cb7040d6195123cdd18546423760081fac748b102e430e3bf71903"
+    },
+    {
       "bytes": 3115,
       "path": "reports/DEPENDENCY_AUDIT.json",
       "sha256": "3467726c295583aeb699aa517df64cd5f3283b0dfc81796da9737bd317993fd5"
