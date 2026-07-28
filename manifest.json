@@ -1746,6 +1746,11 @@
       "sha256": "62a53e54c479db039fbdc89dd7814fc178dfde01467e9597e2c4f57ae98b842c"
     },
     {
+      "bytes": 72345,
+      "path": "reports/ACCELERATION_PAYLOAD_CONTRACTS.json",
+      "sha256": "85f0860b92366f9169eba4f5d18cc0aeaabc8d91c5c7eb35f3e3e4c3149b0dff"
+    },
+    {
       "bytes": 4037,
       "path": "reports/ACCELERATION_TRANSPORT_DIAGNOSTIC.json",
       "sha256": "701b21cf73beac32ec80d2fba55a37fd9581af091116b6953ab7a9d615b156cf"
