@@ -1,0 +1,111 @@
+name: Diagnose ultimate same-host performance
+
+on:
+  push:
+    branches: [main]
+    paths: [.diagnose-ultimate-performance-trigger]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: diagnose-ultimate-performance-main
+  cancel-in-progress: true
+
+env:
+  PIP_DISABLE_PIP_VERSION_CHECK: '1'
+  EXECUTION_BASELINE_SHA: 05525a859481237b9fb443a664e1d8b5849efb83
+  PRODUCT_BASELINE_SHA: ec194f37ccdea2bf1e3e170e180ae8763da5f0c0
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+          cache: pip
+      - run: python -m pip install -e '.[validation,quality,security]'
+      - name: Measure execution and product baselines without hiding failures
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          rm -f .github/workflows/diagnose-ultimate-performance.yml \
+            .diagnose-ultimate-performance-trigger
+          rm -f reports/ULTIMATE_SKILL_REPOSITORY_AUDIT_V1_BLOCKED.json \
+            reports/ULTIMATE_PERFORMANCE_DIAGNOSTIC.json
+          python scripts/build_manifest.py
+          rm -rf /tmp/ultimate-perf-execution /tmp/ultimate-perf-product /tmp/ultimate-perf-candidate
+          git worktree add --detach /tmp/ultimate-perf-execution "$EXECUTION_BASELINE_SHA"
+          git worktree add --detach /tmp/ultimate-perf-product "$PRODUCT_BASELINE_SHA"
+          git worktree add --detach /tmp/ultimate-perf-candidate HEAD
+          (
+            cd /tmp/ultimate-perf-candidate
+            rm -f .github/workflows/diagnose-ultimate-performance.yml \
+              .diagnose-ultimate-performance-trigger \
+              reports/ULTIMATE_SKILL_REPOSITORY_AUDIT_V1_BLOCKED.json
+            python scripts/build_manifest.py
+          )
+          mkdir -p /tmp/ultimate-perf
+          measure() {
+            name="$1"; root="$2"; sha="$3"
+            set +e
+            python scripts/profile_performance_v9_refresh.py \
+              --root "$root" --baseline-sha "$sha" --include-end-to-end --repeats 2 \
+              --output "/tmp/ultimate-perf/${name}.json" \
+              >"/tmp/ultimate-perf/${name}.log" 2>&1
+            code=$?
+            set -e
+            printf '%s' "$code" >"/tmp/ultimate-perf/${name}.rc"
+          }
+          measure execution /tmp/ultimate-perf-execution "$EXECUTION_BASELINE_SHA"
+          measure product /tmp/ultimate-perf-product "$PRODUCT_BASELINE_SHA"
+          measure candidate /tmp/ultimate-perf-candidate "$PRODUCT_BASELINE_SHA"
+          python - <<'PY'
+          import json
+          from datetime import datetime,timezone
+          from pathlib import Path
+          root=Path('/tmp/ultimate-perf')
+          records={}
+          for name in ('execution','product','candidate'):
+              rc=int((root/f'{name}.rc').read_text())
+              log=(root/f'{name}.log').read_text(encoding='utf-8',errors='replace')
+              payload=json.loads((root/f'{name}.json').read_text()) if (root/f'{name}.json').exists() else None
+              records[name]={'returncode':rc,'status':'PASS' if rc==0 else 'FAIL','log_tail':'\n'.join(log.splitlines()[-120:]),'report':payload}
+          comparisons={}
+          if records['product']['report'] and records['candidate']['report']:
+              b=records['product']['report']; c=records['candidate']['report']
+              b_all=b['end_to_end']['all']; c_all=c['end_to_end']['all']
+              if b_all['status']=='PASS' and c_all['status']=='PASS':
+                  parser={key:b['parsing'][key]['median_seconds']/c['parsing'][key]['median_seconds'] for key in b['parsing']}
+                  semantics=all(b['parsing'][key]['result']==c['parsing'][key]['result'] for key in b['parsing'])
+                  b_cli=b['startup']['import_cli']['wall_seconds']['median']; c_cli=c['startup']['import_cli']['wall_seconds']['median']
+                  b_route=b['registry_and_routing']['routing']['english_warm']['median_seconds']; c_route=c['registry_and_routing']['routing']['english_warm']['median_seconds']
+                  comparisons={
+                      'verify_all_wall_speedup':b_all['summary']['wall_median_seconds']/c_all['summary']['wall_median_seconds'],
+                      'peak_memory_ratio':c_all['summary']['peak_rss_max_kib']/b_all['summary']['peak_rss_max_kib'],
+                      'cli_import_speedup':b_cli/c_cli,
+                      'route_hot_speedup':b_route/c_route,
+                      'parser_worst_speedup':min(parser.values()),
+                      'parser_semantics_equal':semantics,
+                      'parser_cases':parser,
+                  }
+          report={'schema_version':'1.0','generated_at':datetime.now(timezone.utc).isoformat(),'execution_baseline_sha':'05525a859481237b9fb443a664e1d8b5849efb83','product_baseline_sha':'ec194f37ccdea2bf1e3e170e180ae8763da5f0c0','candidate_parent_sha':'b0ba03e4ad1dc2b9825d255be345c51841f04d92','records':records,'comparisons':comparisons}
+          Path('reports').mkdir(exist_ok=True)
+          Path('reports/ULTIMATE_PERFORMANCE_DIAGNOSTIC.json').write_text(json.dumps(report,indent=2,sort_keys=True)+'\n',encoding='utf-8',newline='\n')
+          PY
+          git worktree remove --force /tmp/ultimate-perf-execution
+          git worktree remove --force /tmp/ultimate-perf-product
+          git worktree remove --force /tmp/ultimate-perf-candidate
+          python scripts/build_manifest.py
+          git add -A
+          git commit -m 'Record focused same-host performance diagnostic'
+          git push origin HEAD:refs/heads/main
