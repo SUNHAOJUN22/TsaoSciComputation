@@ -1,0 +1,148 @@
+name: Apply acceleration foundation V7
+
+on:
+  push:
+    branches: [main]
+    paths: [.apply-acceleration-foundation-v7-trigger]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: apply-acceleration-foundation-v7-main
+  cancel-in-progress: true
+
+jobs:
+  apply-and-validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+          cache: pip
+
+      - name: Execute audited V2 applicator with contract-complete fixes
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python - <<'PY'
+          from __future__ import annotations
+
+          from pathlib import Path
+
+          source = Path('.github/workflows/apply-acceleration-foundation-v2.yml')
+          lines = source.read_text(encoding='utf-8').splitlines()
+          marker = '        run: |'
+          try:
+              start = lines.index(marker) + 1
+          except ValueError as exc:
+              raise SystemExit('V2 applicator shell block was not found') from exc
+          body: list[str] = []
+          for line in lines[start:]:
+              if line and not line.startswith('          '):
+                  break
+              body.append(line[10:] if line.startswith('          ') else '')
+          script = '\n'.join(body) + '\n'
+
+          contract_patch = r'''python - <<'PY_PATCH'
+          from pathlib import Path
+
+          docs_path = Path('scripts/build_adapter_docs.py')
+          docs = docs_path.read_text(encoding='utf-8')
+          if '"## Acceleration and placement",' not in docs:
+              heading_anchor = '    "## Prerequisites",\n'
+              if heading_anchor not in docs:
+                  raise SystemExit('adapter heading anchor is missing')
+              docs = docs.replace(
+                  heading_anchor,
+                  heading_anchor + '    "## Acceleration and placement",\n',
+                  1,
+              )
+          if '## Acceleration and placement\n\n' not in docs:
+              section_anchor = '## Environment probe\n'
+              section = f'''## Acceleration and placement
+
+- Acceleration profile: `{{slug}}` in `registry/accelerators.json`.
+- Candidate CPU, OpenMP, MPI, CUDA, HIP, SYCL, OpenCL, Kokkos, task-parallel, remote, edge, workstation, and HPC paths are planning metadata until the exact executable, build features, libraries, devices, versions, precision, topology, and lawful environment are probed.
+- Use `python -m tsao_computation probe-accelerators` and `python -m tsao_computation plan-acceleration {{slug}}` before preparing an accelerated run.
+- Compare the selected backend with a CPU reference for completion, convergence, scientific observables, conservation, precision, determinism, uncertainty, applicability, wall time, memory, energy, and thermal behavior. Preserve a bounded CPU fallback.
+- Detecting a GPU or CUDA-X library never proves that {{record["name"]}} supports it, that the requested method is covered, or that a scientifically accepted result is faster.
+
+'''
+              if section_anchor not in docs:
+                  raise SystemExit('adapter environment-section anchor is missing')
+              docs = docs.replace(section_anchor, section + section_anchor, 1)
+          docs_path.write_text(docs, encoding='utf-8', newline='\n')
+
+          header_path = Path('native/include/tsao/capi.h')
+          header = header_path.read_text(encoding='utf-8')
+          declaration = 'TSAO_NATIVE_API const char* tsao_native_api_version(void);'
+          if declaration not in header:
+              probe_anchor = 'TSAO_NATIVE_API int32_t tsao_native_probe('
+              if probe_anchor not in header:
+                  raise SystemExit('native probe declaration anchor is missing')
+              header = header.replace(probe_anchor, declaration + '\n\n' + probe_anchor, 1)
+              header_path.write_text(header, encoding='utf-8', newline='\n')
+
+          version_path = Path('native/src/version.cpp')
+          version_path.write_text(
+              '#include "tsao/capi.h"\n\n'
+              'extern "C" const char* tsao_native_api_version(void) { return "1.0.0"; }\n',
+              encoding='utf-8',
+              newline='\n',
+          )
+          cmake_path = Path('native/CMakeLists.txt')
+          cmake = cmake_path.read_text(encoding='utf-8')
+          old = 'add_library(tsao_native SHARED src/capi.cpp)'
+          new = 'add_library(tsao_native SHARED src/capi.cpp src/version.cpp)'
+          if new not in cmake:
+              if old not in cmake:
+                  raise SystemExit('native library source anchor is missing')
+              cmake = cmake.replace(old, new, 1)
+              cmake_path.write_text(cmake, encoding='utf-8', newline='\n')
+          PY_PATCH
+          '''
+          stage_anchor = 'STAGE=format-and-static-precheck\n'
+          if stage_anchor not in script:
+              raise SystemExit('static-precheck stage anchor was not found')
+          script = script.replace(stage_anchor, contract_patch + stage_anchor, 1)
+
+          lint_anchor = 'python -m ruff check tsao_computation scripts tests _bootstrap.py'
+          ordered_fix = '''python -m ruff check --fix \
+            scripts/build_adapter_docs.py \
+            scripts/validate_accelerator_metadata.py \
+            tsao_computation/accelerators/model.py \
+            tsao_computation/accelerators/planner.py \
+            tsao_computation/accelerators/probe.py
+          python -m ruff format \
+            scripts/build_adapter_docs.py \
+            scripts/validate_accelerator_metadata.py \
+            tsao_computation/accelerators/model.py \
+            tsao_computation/accelerators/planner.py \
+            tsao_computation/accelerators/probe.py
+          python -m ruff check tsao_computation scripts tests _bootstrap.py'''
+          if lint_anchor not in script:
+              raise SystemExit('Ruff lint anchor was not found')
+          script = script.replace(lint_anchor, ordered_fix, 1)
+          script = script.replace(
+              'rm -f .github/workflows/apply-acceleration-foundation-v2.yml',
+              'rm -f .github/workflows/apply-acceleration-foundation-v2.yml .github/workflows/apply-acceleration-foundation-v3.yml .github/workflows/apply-acceleration-foundation-v4.yml .github/workflows/apply-acceleration-foundation-v5.yml .github/workflows/apply-acceleration-foundation-v6.yml .github/workflows/apply-acceleration-foundation-v7.yml',
+          )
+          script = script.replace(
+              'rm -f .apply-acceleration-foundation-v1-trigger .apply-acceleration-foundation-v2-trigger',
+              'rm -f .apply-acceleration-foundation-v1-trigger .apply-acceleration-foundation-v2-trigger .apply-acceleration-foundation-v3-trigger .apply-acceleration-foundation-v4-trigger .apply-acceleration-foundation-v5-trigger .apply-acceleration-foundation-v6-trigger .apply-acceleration-foundation-v7-trigger',
+          )
+          script = script.replace(
+              'rm -f .apply-acceleration-foundation-v2-trigger',
+              'rm -f .apply-acceleration-foundation-v2-trigger .apply-acceleration-foundation-v3-trigger .apply-acceleration-foundation-v4-trigger .apply-acceleration-foundation-v5-trigger .apply-acceleration-foundation-v6-trigger .apply-acceleration-foundation-v7-trigger',
+          )
+          target = Path('/tmp/apply-acceleration-foundation-v7.sh')
+          target.write_text(script, encoding='utf-8', newline='\n')
+          PY
+          bash /tmp/apply-acceleration-foundation-v7.sh
