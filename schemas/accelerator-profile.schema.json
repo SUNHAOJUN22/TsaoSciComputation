@@ -4,9 +4,7 @@
   "additionalProperties": false,
   "properties": {
     "candidate_backends": {
-      "contains": {
-        "const": "cpu"
-      },
+      "contains": {"const": "cpu"},
       "items": {
         "enum": [
           "cpu",
@@ -16,6 +14,7 @@
           "hip",
           "sycl",
           "opencl",
+          "kokkos",
           "task-parallel",
           "remote"
         ]
@@ -24,31 +23,15 @@
       "type": "array",
       "uniqueItems": true
     },
-    "claim_boundary": {
-      "minLength": 40,
-      "type": "string"
-    },
+    "claim_boundary": {"minLength": 40, "type": "string"},
     "edge_suitability": {
-      "enum": [
-        "suitable",
-        "limited",
-        "unsuitable"
-      ]
+      "enum": ["suitable", "limited", "unsuitable"]
     },
     "execution_mode": {
-      "enum": [
-        "solver-native",
-        "hybrid-library",
-        "delegated-plugin",
-        "orchestration",
-        "ensemble"
-      ]
+      "enum": ["solver-native", "hybrid-library", "delegated-plugin", "orchestration", "ensemble"]
     },
     "implementation_languages": {
-      "items": {
-        "minLength": 1,
-        "type": "string"
-      },
+      "items": {"minLength": 1, "type": "string"},
       "minItems": 1,
       "type": "array",
       "uniqueItems": true
@@ -71,17 +54,35 @@
     },
     "library_candidates": {
       "items": {
-        "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
-        "type": "string"
+        "enum": [
+          "cutensor",
+          "cuequivariance",
+          "nvmath-python",
+          "cupy",
+          "cublas",
+          "cusolver",
+          "cusparse",
+          "cufft",
+          "curand",
+          "nccl",
+          "nvshmem",
+          "nvcomp",
+          "gpudirect-storage",
+          "tensorrt",
+          "rapids",
+          "rapids-cudf",
+          "rapids-cuml",
+          "warp",
+          "kokkos",
+          "mpi",
+          "dlpack-arrow"
+        ]
       },
       "type": "array",
       "uniqueItems": true
     },
     "limitations": {
-      "items": {
-        "minLength": 20,
-        "type": "string"
-      },
+      "items": {"minLength": 20, "type": "string"},
       "minItems": 1,
       "type": "array",
       "uniqueItems": true
@@ -112,6 +113,7 @@
           "hip",
           "sycl",
           "opencl",
+          "kokkos",
           "task-parallel",
           "remote"
         ]
@@ -121,10 +123,7 @@
       "uniqueItems": true
     },
     "probe_hints": {
-      "items": {
-        "minLength": 3,
-        "type": "string"
-      },
+      "items": {"minLength": 3, "type": "string"},
       "minItems": 1,
       "type": "array",
       "uniqueItems": true
