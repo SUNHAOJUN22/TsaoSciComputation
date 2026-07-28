@@ -7,12 +7,18 @@ from dataclasses import dataclass
 from .runner import ExecutionRecord, run_plan
 from .typing_compat import CommandPlanLike
 
+_DEFAULT_MAX_EXTERNAL_PLANS = 4
+
 
 @dataclass(frozen=True, slots=True)
 class BatchExecutionResult:
     records: tuple[ExecutionRecord, ...]
     completed: bool
     failed_indices: tuple[int, ...]
+
+
+def _default_workers(plan_count: int) -> int:
+    return min(plan_count, max(1, min(_DEFAULT_MAX_EXTERNAL_PLANS, os.cpu_count() or 1)))
 
 
 def run_plan_batch(
@@ -24,7 +30,7 @@ def run_plan_batch(
     items = tuple(plans)
     if not items:
         return BatchExecutionResult((), True, ())
-    workers = min(len(items), max(1, os.cpu_count() or 1)) if max_workers is None else max_workers
+    workers = _default_workers(len(items)) if max_workers is None else max_workers
     if workers < 1:
         raise ValueError("max_workers must be positive")
     workers = min(workers, len(items))
