@@ -1771,9 +1771,9 @@
       "sha256": "4b1ea5595c760a27cc64a959eee5de1ae0574967d01a86e740ab0d56cf2412b3"
     },
     {
-      "bytes": 21912,
-      "path": "reports/ACCELERATION_FOUNDATION_V1_BLOCKED.json",
-      "sha256": "fbc59cc8a98291f983d1f6c74c998107f6f120f99ffdccb78896da0c01da58d1"
+      "bytes": 16369,
+      "path": "reports/ACCELERATION_FOUNDATION_GATE_DIAGNOSTIC.json",
+      "sha256": "b1085f85b86980238329e52f88cb4d9061382da944cd032a908dcf1b74a0a568"
     },
     {
       "bytes": 5586,
