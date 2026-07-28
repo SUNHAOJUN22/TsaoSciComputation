@@ -1816,11 +1816,6 @@
       "sha256": "6a70f52615a2a8d2eb164b704487e8b7d9fc9109a9861fd4c175b29bb0d1a265"
     },
     {
-      "bytes": 240029,
-      "path": "reports/ULTIMATE_PERFORMANCE_DIAGNOSTIC.json",
-      "sha256": "63e104db369d27bb896a07a951bedc52108041f6e962985b9e835be5be0a1f91"
-    },
-    {
       "bytes": 311,
       "path": "reports/ULTIMATE_SKILL_REPOSITORY_AUDIT_V1.json",
       "sha256": "fd0bdbcff82e86be080140531c9ff2061b0b94dc948ac751fff62b58db89fedb"
@@ -1829,6 +1824,11 @@
       "bytes": 95,
       "path": "reports/ULTIMATE_SKILL_REPOSITORY_AUDIT_V1.md",
       "sha256": "d4f4f3fd4f89b31e398b480152c24202cf71276c49078debac5886b5a0ebbbe8"
+    },
+    {
+      "bytes": 509,
+      "path": "reports/ULTIMATE_SKILL_REPOSITORY_AUDIT_V1_BLOCKED.json",
+      "sha256": "9ad3c2dae205026be3bbf83589f2530ccfea1beef31314588ca0784cf1648a1c"
     },
     {
       "bytes": 4766,
