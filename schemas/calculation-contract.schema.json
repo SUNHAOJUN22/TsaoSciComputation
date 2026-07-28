@@ -7,7 +7,46 @@
     "acceptance_criteria": {"type": "object"},
     "assumptions": {"items": {"minLength": 1, "type": "string"}, "type": "array"},
     "boundary_conditions": {"type": "object"},
-    "compute_resources": {"type": "object"},
+    "compute_resources": {
+      "additionalProperties": true,
+      "description": "Backward-compatible resource envelope. Structured acceleration fields are recommended when hardware-aware planning is requested.",
+      "properties": {
+        "accelerator_count": {"minimum": 1, "type": ["integer", "null"]},
+        "accelerator_policy": {"enum": ["disabled", "preferred", "required"]},
+        "allow_fallback": {"type": "boolean"},
+        "cpu_cores": {"minimum": 1, "type": ["integer", "null"]},
+        "deterministic": {"type": "boolean"},
+        "maximum_energy_kwh": {"exclusiveMinimum": 0, "type": ["number", "null"]},
+        "maximum_wall_seconds": {"exclusiveMinimum": 0, "type": ["number", "null"]},
+        "memory_gib": {"exclusiveMinimum": 0, "type": ["number", "null"]},
+        "minimum_vram_gib": {"exclusiveMinimum": 0, "type": ["number", "null"]},
+        "mpi_ranks": {"minimum": 1, "type": ["integer", "null"]},
+        "placement": {"enum": ["edge", "local", "workstation", "hpc", "cloud"]},
+        "power_limit_watts": {"exclusiveMinimum": 0, "type": ["number", "null"]},
+        "precision": {"enum": ["fp64", "fp32", "mixed", "bf16", "fp16"]},
+        "preferred_backends": {
+          "items": {
+            "enum": [
+              "cpu",
+              "openmp",
+              "mpi",
+              "task-parallel",
+              "remote",
+              "cuda",
+              "hip",
+              "sycl",
+              "opencl",
+              "kokkos"
+            ]
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "threads_per_rank": {"minimum": 1, "type": ["integer", "null"]}
+      },
+      "type": "object"
+    },
     "conditions": {"type": "object"},
     "convergence_plan": {"type": "object"},
     "expected_artifacts": {"items": {"minLength": 1, "type": "string"}, "type": "array"},
