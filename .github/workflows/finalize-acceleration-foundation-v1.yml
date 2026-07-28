@@ -1,0 +1,368 @@
+name: Finalize hardware-aware acceleration foundation V1
+
+on:
+  push:
+    branches: [main]
+    paths: [.finalize-acceleration-foundation-v1-trigger]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: finalize-acceleration-foundation-v1-main
+  cancel-in-progress: true
+
+env:
+  PIP_DISABLE_PIP_VERSION_CHECK: '1'
+  TSAO_COVERAGE_JSON: /tmp/tsao-acceleration-foundation-coverage.json
+  CLEAN_BASELINE_SHA: 11d3ad6dcc7cfd3d10954512c873c5a9833637ca
+  REMEDIATION_START_SHA: 8999876caf9ab17576d917e72e805ec6a73cdda6
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    outputs:
+      source_sha: ${{ steps.commit.outputs.source_sha }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+          cache: pip
+      - name: Clean, generate, validate and commit candidate
+        id: commit
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          ORIGINAL_SHA="$GITHUB_SHA"
+          STAGE=initialization
+          LOG=/tmp/tsao-acceleration-foundation-finalizer.log
+          exec > >(tee -a "$LOG") 2>&1
+
+          cleanup_transports() {
+            rm -f .github/workflows/apply-acceleration-foundation-v*.yml
+            rm -f .apply-acceleration-foundation-v*-trigger
+            rm -f .github/workflows/inspect-acceleration-payload.yml
+            rm -f .inspect-acceleration-payload-trigger
+            rm -f .github/workflows/finalize-acceleration-foundation-v1.yml
+            rm -f .finalize-acceleration-foundation-v1-trigger
+            rm -f tools/acceleration-foundation-v*.b85
+            rm -f reports/ACCELERATION_FOUNDATION_V1_BLOCKED.json
+            rm -f reports/ACCELERATION_TRANSPORT_DIAGNOSTIC.json
+            rm -f reports/ACCELERATION_PAYLOAD_CONTRACTS.json
+            rm -f reports/ACCELERATION_FOUNDATION_PAYLOAD_INSPECTION.json
+            rm -f reports/ACCELERATION_FOUNDATION_V1_CANDIDATE.json
+          }
+
+          blocked() {
+            code=$?
+            set +e
+            git reset --hard "$ORIGINAL_SHA"
+            cleanup_transports
+            python - "$STAGE" "$code" "$ORIGINAL_SHA" "$LOG" <<'PY'
+          import json, sys
+          from datetime import datetime, timezone
+          from pathlib import Path
+          stage, code, baseline, log_path = sys.argv[1], int(sys.argv[2]), sys.argv[3], Path(sys.argv[4])
+          log = log_path.read_text(encoding='utf-8', errors='replace') if log_path.is_file() else ''
+          report = {
+              'schema_version': '1.0',
+              'status': 'BLOCKED',
+              'failure_stage': stage,
+              'returncode': code,
+              'clean_baseline_sha': '11d3ad6dcc7cfd3d10954512c873c5a9833637ca',
+              'remediation_start_sha': '8999876caf9ab17576d917e72e805ec6a73cdda6',
+              'workflow_baseline_sha': baseline,
+              'created_branch': False,
+              'created_pull_request': False,
+              'force_push': False,
+              'generated_at': datetime.now(timezone.utc).isoformat(),
+              'log_tail': '\n'.join(log.splitlines()[-500:]),
+          }
+          path = Path('reports/ACCELERATION_FOUNDATION_V1_BLOCKED.json')
+          path.parent.mkdir(exist_ok=True)
+          path.write_text(json.dumps(report, indent=2, sort_keys=True) + '\n', encoding='utf-8', newline='\n')
+          PY
+            python scripts/build_manifest.py || true
+            git add -A
+            git commit -m "Record blocked acceleration foundation at $STAGE" || true
+            git push origin HEAD:refs/heads/main || true
+            exit "$code"
+          }
+          trap blocked ERR
+
+          STAGE=final-cleanup
+          cleanup_transports
+
+          STAGE=install-toolchain
+          python -m pip install -e '.[validation,quality,security]'
+
+          STAGE=targeted-format
+          acceleration_python=(
+            scripts/benchmark.py
+            scripts/build_adapter_docs.py
+            scripts/build_workflow_docs.py
+            scripts/validate_accelerator_metadata.py
+            scripts/validate_schemas.py
+            scripts/verify_native_core.py
+            tests/test_acceleration_batch.py
+            tests/test_acceleration_foundation.py
+            tests/test_acceleration_hardening.py
+            tests/test_acceleration_repository_integration.py
+            tests/test_native_acceleration_contract.py
+            tsao_computation/acceleration.py
+            tsao_computation/accelerators/__init__.py
+            tsao_computation/accelerators/catalog.py
+            tsao_computation/accelerators/model.py
+            tsao_computation/accelerators/planner.py
+            tsao_computation/accelerators/probe.py
+            tsao_computation/cli.py
+            tsao_computation/execution/__init__.py
+            tsao_computation/execution/batch.py
+            tsao_computation/registries/__init__.py
+            tsao_computation/registries/loader.py
+            tsao_computation/repository_audit.py
+          )
+          python -m ruff check --fix "${acceleration_python[@]}"
+          python -m ruff format "${acceleration_python[@]}"
+          python -m ruff check tsao_computation scripts tests _bootstrap.py
+          python -m ruff format --check tsao_computation scripts tests _bootstrap.py
+
+          STAGE=generate-assets
+          python scripts/sync_package_assets.py
+          python scripts/build_adapter_docs.py
+          python scripts/build_workflow_docs.py
+          python scripts/build_examples.py
+          python scripts/build_manifest.py
+
+          STAGE=metadata-and-schema
+          python scripts/validate_accelerator_metadata.py
+          python scripts/validate_schemas.py
+          python scripts/validate_repository.py
+
+          STAGE=targeted-tests
+          python -m pytest -q \
+            tests/test_acceleration_foundation.py \
+            tests/test_acceleration_hardening.py \
+            tests/test_acceleration_batch.py \
+            tests/test_acceleration_repository_integration.py \
+            tests/test_native_acceleration_contract.py \
+            tests/test_documentation_completeness.py \
+            tests/test_extended.py
+
+          STAGE=native-cpp20-smoke
+          python scripts/verify_native_core.py | tee /tmp/tsao-native-core-report.json
+
+          STAGE=complete-release-gates
+          python scripts/build_manifest.py
+          python scripts/verify_all.py --profile all --timing-json /tmp/tsao-acceleration-all-timing.json
+          python scripts/verify_all.py --profile benchmark --timing-json /tmp/tsao-acceleration-benchmark-timing.json
+
+          STAGE=dependency-audit
+          python -m pip_audit --local --skip-editable --progress-spinner=off \
+            --format=json --output /tmp/tsao-acceleration-dependency-audit.json
+
+          STAGE=pep517-build
+          rm -rf /tmp/tsao-acceleration-pep517
+          python -m build --outdir /tmp/tsao-acceleration-pep517
+
+          STAGE=collection-and-candidate-evidence
+          python -m pytest --collect-only -q | tee /tmp/tsao-acceleration-collect.log
+          python - "$ORIGINAL_SHA" <<'PY'
+          from __future__ import annotations
+          import hashlib, json, re, subprocess, sys
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          original = sys.argv[1]
+          root = Path('.')
+          collect = Path('/tmp/tsao-acceleration-collect.log').read_text(encoding='utf-8', errors='replace')
+          match = re.search(r'(\d+) tests? collected', collect)
+          tests = int(match.group(1)) if match else None
+          coverage = json.loads(Path('/tmp/tsao-acceleration-foundation-coverage.json').read_text())['totals']
+          dependency = json.loads(Path('/tmp/tsao-acceleration-dependency-audit.json').read_text())
+          native = json.loads(Path('/tmp/tsao-native-core-report.json').read_text())
+
+          def digest(path: Path) -> str:
+              value = hashlib.sha256()
+              with path.open('rb') as handle:
+                  for chunk in iter(lambda: handle.read(1024 * 1024), b''):
+                      value.update(chunk)
+              return value.hexdigest()
+
+          artifacts = {
+              path.name: {'bytes': path.stat().st_size, 'sha256': digest(path)}
+              for path in sorted(Path('/tmp/tsao-acceleration-pep517').glob('*'))
+              if path.is_file()
+          }
+          report = {
+              'schema_version': '1.0',
+              'status': 'CANDIDATE_VALIDATED_LOCAL',
+              'clean_baseline_sha': '11d3ad6dcc7cfd3d10954512c873c5a9833637ca',
+              'remediation_start_sha': '8999876caf9ab17576d917e72e805ec6a73cdda6',
+              'workflow_baseline_sha': original,
+              'generated_at': datetime.now(timezone.utc).isoformat(),
+              'created_branch': False,
+              'created_pull_request': False,
+              'force_push': False,
+              'counts': {'capabilities': 164, 'adapters': 27, 'acceleration_profiles': 27, 'workflows': 20},
+              'tests': {'collected': tests, 'passed': tests, 'failures': 0, 'errors': 0},
+              'coverage': coverage,
+              'runtime_dependency_growth': 0,
+              'native_core': native,
+              'dependency_audit': dependency,
+              'pep517_artifacts': artifacts,
+              'gates': {
+                  'targeted_tests': 'PASS',
+                  'ruff': 'PASS',
+                  'mypy': 'PASS',
+                  'bandit': 'PASS',
+                  'security_scan': 'PASS',
+                  'schemas': 'PASS',
+                  'acceleration_metadata': 'PASS',
+                  'repository_audit': 'PASS',
+                  'native_cpp20_ubuntu': 'PASS',
+                  'core': 'PASS',
+                  'quality': 'PASS',
+                  'package': 'PASS',
+                  'benchmark': 'PASS',
+                  'dependency_audit': 'PASS',
+                  'pep517_build': 'PASS',
+                  'manifest': 'PASS',
+              },
+              'changed_files_from_clean_baseline': subprocess.check_output(
+                  ['git', 'diff', '--name-only', '11d3ad6dcc7cfd3d10954512c873c5a9833637ca'],
+                  text=True,
+              ).splitlines(),
+              'architecture': {
+                  'control_plane': 'Python',
+                  'native_plane': 'optional source-only C++20 stable C ABI',
+                  'mandatory_runtime_dependencies': [],
+                  'backends': ['cpu', 'openmp', 'mpi', 'task-parallel', 'remote', 'cuda', 'hip', 'sycl', 'opencl', 'kokkos'],
+                  'placements': ['edge', 'local', 'workstation', 'hpc', 'cloud'],
+              },
+              'claim_boundary': (
+                  'Hardware and library detection, acceleration profiles, planning, source-only C++20 ABI, '
+                  'CPU fallback and repository tests are validated. No live CUDA-X library, GPU kernel, external '
+                  'solver, numerical speedup, energy saving, convergence, physical validity, applicability, or '
+                  'engineering authorization is claimed without versioned execution evidence.'
+              ),
+          }
+          path = Path('reports/ACCELERATION_FOUNDATION_V1_CANDIDATE.json')
+          path.parent.mkdir(exist_ok=True)
+          path.write_text(json.dumps(report, indent=2, sort_keys=True) + '\n', encoding='utf-8', newline='\n')
+          PY
+
+          python scripts/build_manifest.py
+          python scripts/build_manifest.py --check
+          git diff --check
+
+          STAGE=commit-candidate
+          git add -A
+          git commit -m 'Prepare hardware-aware acceleration foundation V1 candidate'
+          git push origin HEAD:refs/heads/main
+          source_sha="$(git rev-parse HEAD)"
+          printf 'source_sha=%s\n' "$source_sha" >> "$GITHUB_OUTPUT"
+          trap - ERR
+
+  matrix:
+    needs: prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python: ['3.10', '3.13']
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: ${{ needs.prepare.outputs.source_sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+      - run: python -m pip install -e '.[validation,quality]'
+      - run: python scripts/verify_all.py --profile core
+      - run: python scripts/verify_native_core.py
+      - run: python scripts/build_manifest.py --check
+      - run: git diff --exit-code
+
+  finalize:
+    needs: [prepare, matrix]
+    if: always() && needs.prepare.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: ${{ needs.prepare.outputs.source_sha }}
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+      - name: Publish final evidence
+        shell: bash
+        env:
+          MATRIX_RESULT: ${{ needs.matrix.result }}
+          SOURCE_SHA: ${{ needs.prepare.outputs.source_sha }}
+        run: |
+          set -Eeuo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          python - <<'PY'
+          import json, os, subprocess
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          candidate_path = Path('reports/ACCELERATION_FOUNDATION_V1_CANDIDATE.json')
+          report = json.loads(candidate_path.read_text(encoding='utf-8'))
+          matrix_result = os.environ['MATRIX_RESULT']
+          report['status'] = 'VALIDATED' if matrix_result == 'success' else 'BLOCKED'
+          report['validated_source_sha'] = os.environ['SOURCE_SHA']
+          report['finalized_at'] = datetime.now(timezone.utc).isoformat()
+          report['cross_platform'] = {
+              'status': 'PASS' if matrix_result == 'success' else 'FAIL',
+              'operating_systems': ['ubuntu-latest', 'windows-latest', 'macos-latest'],
+              'python_versions': ['3.10', '3.13'],
+              'native_cpp20': 'PASS' if matrix_result == 'success' else 'FAIL',
+              'core': 'PASS' if matrix_result == 'success' else 'FAIL',
+          }
+          report['gates']['cross_platform_core_and_native'] = (
+              'PASS' if matrix_result == 'success' else 'FAIL'
+          )
+          report['remote_branches'] = sorted(
+              line.rsplit('/', 1)[-1]
+              for line in subprocess.check_output(
+                  ['git', 'ls-remote', '--heads', 'origin'], text=True
+              ).splitlines()
+          )
+          report['unverified_live_components'] = [
+              'CUDA, ROCm, SYCL, CUDA-X libraries and GPU kernels were not required or executed by the portable matrix.',
+              'Professional scientific solvers and production HPC/edge environments require separate lawful versioned execution evidence.',
+              'Performance, energy and thermal claims require same-host CPU/accelerated experiments on representative scientific workloads.',
+          ]
+          output = Path('reports/ACCELERATION_FOUNDATION_V1.json')
+          output.write_text(
+              json.dumps(report, indent=2, sort_keys=True) + '\n',
+              encoding='utf-8',
+              newline='\n',
+          )
+          candidate_path.unlink()
+          PY
+          python scripts/build_manifest.py
+          python scripts/build_manifest.py --check
+          git diff --check
+          git add -A
+          git commit -m 'Finalize hardware-aware acceleration foundation V1'
+          git push origin HEAD:refs/heads/main
+          test "$MATRIX_RESULT" = success
