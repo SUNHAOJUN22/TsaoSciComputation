@@ -7,7 +7,7 @@ from typing import Any
 from . import __version__
 from .paths import SOURCE_REGISTRY_ROOT
 from .provenance.manifest import iter_repository_entries
-from .registries import adapters, capabilities, workflows
+from .registries import accelerators, adapters, capabilities, workflows
 
 REQUIRED_FILES = (
     "README.md",
@@ -33,6 +33,8 @@ REQUIRED_DIRECTORIES = (
     "adapters",
     "skills/workflows",
     "examples",
+    "references",
+    "native",
     ".github/workflows",
 )
 FORBIDDEN_PATHS = (
@@ -59,6 +61,21 @@ CAPABILITY_REQUIRED = {
     "implementation_level",
     "maturity",
     "applicability",
+    "claim_boundary",
+}
+ACCELERATOR_REQUIRED = {
+    "slug",
+    "workflow",
+    "interfaces",
+    "implementation_languages",
+    "parallel_strategies",
+    "candidate_backends",
+    "preferred_backends",
+    "execution_mode",
+    "edge_suitability",
+    "library_candidates",
+    "probe_hints",
+    "limitations",
     "claim_boundary",
 }
 
@@ -143,17 +160,21 @@ def audit_repository(root: Path) -> dict[str, object]:
 
     capability_records = capabilities()
     adapter_records = adapters()
+    accelerator_records = accelerators()
     workflow_records = workflows()
     if len(capability_records) != 164:
         problems.append("capability count is not 164")
     if len(adapter_records) != 27:
         problems.append("adapter count is not 27")
+    if len(accelerator_records) != 27:
+        problems.append("acceleration profile count is not 27")
     if len(workflow_records) != 20:
         problems.append("workflow count is not 20")
 
     capability_ids = [str(record.get("id", "")) for record in capability_records]
     capability_slugs = [str(record.get("slug", "")) for record in capability_records]
     adapter_slugs = [str(record.get("slug", "")) for record in adapter_records]
+    accelerator_slugs = [str(record.get("slug", "")) for record in accelerator_records]
     workflow_slugs = [str(record.get("slug", "")) for record in workflow_records]
     if len(capability_ids) != len(set(capability_ids)):
         problems.append("duplicate capability ID")
@@ -161,6 +182,8 @@ def audit_repository(root: Path) -> dict[str, object]:
         problems.append("duplicate capability slug")
     if len(adapter_slugs) != len(set(adapter_slugs)):
         problems.append("duplicate adapter slug")
+    if len(accelerator_slugs) != len(set(accelerator_slugs)):
+        problems.append("duplicate acceleration profile slug")
     if len(workflow_slugs) != len(set(workflow_slugs)):
         problems.append("duplicate workflow slug")
 
@@ -246,6 +269,29 @@ def audit_repository(root: Path) -> dict[str, object]:
         if not isinstance(adapter.get("executables"), list):
             problems.append(f"adapter {adapter.get('slug')} lacks executable declarations")
 
+    if set(accelerator_slugs) != adapter_set:
+        missing = sorted(adapter_set - set(accelerator_slugs))
+        extra = sorted(set(accelerator_slugs) - adapter_set)
+        problems.append(f"acceleration profiles differ from adapters: missing={missing}, extra={extra}")
+    for profile in accelerator_records:
+        slug = str(profile.get("slug", ""))
+        missing = sorted(ACCELERATOR_REQUIRED - profile.keys())
+        if missing:
+            problems.append(f"acceleration profile {slug} missing fields: {missing}")
+        if str(profile.get("workflow", "")) not in workflow_set:
+            problems.append(f"acceleration profile {slug} references unknown workflow")
+        candidates = profile.get("candidate_backends")
+        preferred = profile.get("preferred_backends")
+        if not isinstance(candidates, list) or "cpu" not in candidates:
+            problems.append(f"acceleration profile {slug} lacks CPU fallback")
+        if not isinstance(preferred, list) or not preferred:
+            problems.append(f"acceleration profile {slug} lacks preferred backends")
+        elif isinstance(candidates, list) and not set(map(str, preferred)) <= set(map(str, candidates)):
+            problems.append(f"acceleration profile {slug} prefers undeclared backends")
+        boundary = profile.get("claim_boundary")
+        if not isinstance(boundary, str) or len(boundary) < 40:
+            problems.append(f"acceleration profile {slug} has a weak claim boundary")
+
     source_registry = SOURCE_REGISTRY_ROOT
     package_registry = root / "tsao_computation" / "data" / "registry"
     for source in sorted(source_registry.glob("*.json")):
@@ -269,12 +315,13 @@ def audit_repository(root: Path) -> dict[str, object]:
         problems.append(f"symlinks are forbidden in the release tree: {symlinks}")
 
     return {
-        "schema_version": "1.0",
+        "schema_version": "1.1",
         "passed": not problems,
         "problems": problems,
         "counts": {
             "capabilities": len(capability_records),
             "adapters": len(adapter_records),
+            "accelerators": len(accelerator_records),
             "workflows": len(workflow_records),
             "capability_input_profiles": len(input_profiles),
             "capability_output_profiles": len(output_profiles),
