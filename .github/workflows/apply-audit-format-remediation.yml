@@ -1,0 +1,90 @@
+name: Apply deterministic audit formatting remediation
+
+on:
+  push:
+    branches: [main]
+    paths: [.apply-audit-format-remediation-trigger]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: apply-audit-format-remediation-main
+  cancel-in-progress: true
+
+jobs:
+  remediate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+          cache: pip
+      - run: python -m pip install -e '.[validation,quality,security]'
+      - name: Format audited files and rerun release gates
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          STAGE=format
+          cleanup() {
+            rm -f .github/workflows/apply-audit-format-remediation.yml \
+              .apply-audit-format-remediation-trigger
+          }
+          blocked() {
+            code=$?
+            set +e
+            cleanup
+            python - "$STAGE" "$code" <<'PY'
+          import json,sys
+          from datetime import datetime,timezone
+          from pathlib import Path
+          stage,code=sys.argv[1],int(sys.argv[2])
+          payload={'audit_id':'TSAOSCICOMPUTATION_ULTIMATE_SKILL_AND_REPOSITORY_AUDIT_V1','status':'BLOCKED','failure_stage':stage,'returncode':code,'generated_at':datetime.now(timezone.utc).isoformat(),'created_branch':False,'created_pull_request':False}
+          Path('reports/ULTIMATE_SKILL_REPOSITORY_AUDIT_V1_BLOCKED.json').write_text(json.dumps(payload,indent=2,sort_keys=True)+'\n',encoding='utf-8',newline='\n')
+          PY
+            python scripts/build_manifest.py || true
+            git add -A
+            git commit -m "Record blocked formatting remediation at $STAGE" || true
+            git push origin HEAD:refs/heads/main || true
+            exit "$code"
+          }
+          trap blocked ERR
+          cleanup
+          python - <<'PY'
+          from pathlib import Path
+          path=Path('.github/workflows/release.yml')
+          text=path.read_text(encoding='utf-8')
+          old='name: TsaoSciComputation-${{ env.RELEASE_TAG }}-${{ github.run_id }}-${{ github.run_attempt }}'
+          new='name: TsaoSciComputation-release-${{ github.run_id }}-${{ github.run_attempt }}'
+          if old not in text:
+              raise SystemExit('release artifact-name anchor is missing')
+          path.write_text(text.replace(old,new,1),encoding='utf-8',newline='\n')
+          PY
+          python -m ruff format \
+            scripts/install_skill.py scripts/validate_skill_spec.py scripts/quality_check.py \
+            tests/test_install_skill.py tests/test_skill_spec_and_workflow_security.py
+          STAGE=quality
+          python -m ruff check tsao_computation scripts tests _bootstrap.py
+          python -m ruff format --check tsao_computation scripts tests _bootstrap.py
+          STAGE=manifest
+          rm -f reports/CURRENT_RELEASE_GATE_DIAGNOSTIC.json \
+            reports/ULTIMATE_SKILL_REPOSITORY_AUDIT_V1_BLOCKED.json
+          python scripts/build_manifest.py
+          STAGE=release-gates
+          python scripts/verify_all.py --profile all
+          python scripts/verify_all.py --profile benchmark
+          python scripts/build_manifest.py
+          python scripts/build_manifest.py --check
+          git diff --check
+          git add -A
+          git commit -m 'Apply deterministic audit formatting remediation'
+          git push origin HEAD:refs/heads/main
+          trap - ERR
