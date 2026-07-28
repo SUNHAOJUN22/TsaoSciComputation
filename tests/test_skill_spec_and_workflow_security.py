@@ -27,7 +27,10 @@ def test_installer_uses_portable_skill_identifier_and_preserves_legacy_target(
 
     legacy = home / ".codex/skills/TsaoSciComputation"
     legacy.mkdir(parents=True)
-    assert install_skill.resolve_destination("codex", "user", None, home=home) == legacy.resolve()
+    assert (
+        install_skill.resolve_destination("codex", "user", None, home=home)
+        == legacy.resolve()
+    )
 
 
 def test_workflows_pin_actions_and_avoid_privileged_untrusted_triggers() -> None:
@@ -45,7 +48,9 @@ def test_workflows_pin_actions_and_avoid_privileged_untrusted_triggers() -> None
 
 
 def test_release_workflow_does_not_interpolate_dispatch_input_into_shell() -> None:
-    workflow = (ROOT / ".github" / "workflows" / "release.yml").read_text(encoding="utf-8")
+    workflow = (ROOT / ".github" / "workflows" / "release.yml").read_text(
+        encoding="utf-8"
+    )
     assert 'TAG="${{ inputs.tag }}"' not in workflow
     assert "REQUESTED_TAG: ${{ inputs.tag }}" in workflow
     assert 'TAG="$REQUESTED_TAG"' in workflow
@@ -56,7 +61,9 @@ def test_release_workflow_does_not_interpolate_dispatch_input_into_shell() -> No
 
 
 def test_scorecard_workflow_is_pinned_and_least_privilege() -> None:
-    workflow = (ROOT / ".github" / "workflows" / "scorecard.yml").read_text(encoding="utf-8")
+    workflow = (ROOT / ".github" / "workflows" / "scorecard.yml").read_text(
+        encoding="utf-8"
+    )
     assert "permissions: read-all" in workflow
     assert "security-events: write" in workflow
     assert "id-token: write" in workflow
