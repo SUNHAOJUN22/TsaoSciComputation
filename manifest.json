@@ -1911,6 +1911,16 @@
       "sha256": "d4f4f3fd4f89b31e398b480152c24202cf71276c49078debac5886b5a0ebbbe8"
     },
     {
+      "bytes": 37790,
+      "path": "reports/ULTIMATE_SKILL_REPOSITORY_AUDIT_V1_DIAGNOSTIC.json",
+      "sha256": "5a951bb0419f44724493751d21a9a4487b387047d049914b62b1af77dcffbb7a"
+    },
+    {
+      "bytes": 308,
+      "path": "reports/ULTIMATE_SKILL_REPOSITORY_AUDIT_V1_DIAGNOSTIC.md",
+      "sha256": "053f728952fb72d868f291350a2cb40d3e7e76ca144a805da7163b7a1e50baaf"
+    },
+    {
       "bytes": 4766,
       "path": "schemas/adapter.schema.json",
       "sha256": "31a1e5caa5acc048208ebe644014e76f8ac8289abbfe986eaaedd1bb03c4109e"
