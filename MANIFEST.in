@@ -7,6 +7,8 @@ recursive-include adapters *.md *.yaml
 recursive-include skills *.md
 recursive-include examples *.md *.json
 recursive-include docs *.md
+recursive-include references *.md
+recursive-include native CMakeLists.txt *.md *.h *.hpp *.c *.cc *.cpp *.cmake
 recursive-include assets *.md *.svg
 recursive-include tsao_computation/data/registry *.json
 include tsao_computation/py.typed
