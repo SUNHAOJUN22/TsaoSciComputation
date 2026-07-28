@@ -36,9 +36,15 @@ _MODULE_CANDIDATES = (
     "torch",
     "jax",
     "nvmath",
+    "cutensor",
     "cuequivariance",
     "cuequivariance_torch",
     "cuequivariance_jax",
+    "tensorrt",
+    "cudf",
+    "cuml",
+    "rmm",
+    "warp",
     "mpi4py",
     "dask",
 )
@@ -62,7 +68,10 @@ def _command_output(executable: str, arguments: tuple[str, ...]) -> str:
     return result.stdout if result.returncode == 0 else ""
 
 
-def _nvidia_devices(executable: str, runner: Callable[[str, tuple[str, ...]], str]) -> tuple[AcceleratorDevice, ...]:
+def _nvidia_devices(
+    executable: str,
+    runner: Callable[[str, tuple[str, ...]], str],
+) -> tuple[AcceleratorDevice, ...]:
     output = runner(
         executable,
         (
@@ -116,6 +125,8 @@ def probe_accelerators(
         backends.update({AcceleratorBackend.OPENMP, AcceleratorBackend.TASK_PARALLEL})
     if {"mpirun", "mpiexec", "srun"} & found.keys():
         backends.add(AcceleratorBackend.MPI)
+    if {"srun", "sbatch", "qsub"} & found.keys():
+        backends.add(AcceleratorBackend.REMOTE)
     if {"nvidia-smi", "nvcc"} & found.keys():
         backends.add(AcceleratorBackend.CUDA)
     if {"rocminfo", "hipcc"} & found.keys():
