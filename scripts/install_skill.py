@@ -36,9 +36,7 @@ def resolve_destination(
     if target is not None:
         expanded = target.expanduser().resolve()
         return (
-            expanded
-            if expanded.name in {SKILL_NAME, LEGACY_SKILL_NAME}
-            else expanded / SKILL_NAME
+            expanded if expanded.name in {SKILL_NAME, LEGACY_SKILL_NAME} else expanded / SKILL_NAME
         )
     base = (home or Path.home()) if scope == "user" else (cwd or Path.cwd())
     preferred = (base / AGENT_ROOTS[agent] / SKILL_NAME).resolve()
@@ -121,13 +119,10 @@ def validate_installation(destination: Path) -> list[str]:
         text = skill_path.read_text(encoding="utf-8")
         registered = f"name: {SKILL_NAME}" in text
         legacy_registered = (
-            destination.name == LEGACY_SKILL_NAME
-            and f"name: {LEGACY_SKILL_NAME}" in text
+            destination.name == LEGACY_SKILL_NAME and f"name: {LEGACY_SKILL_NAME}" in text
         )
         if not (registered or legacy_registered):
-            problems.append(
-                "SKILL.md does not register a supported TsaoSciComputation identifier"
-            )
+            problems.append("SKILL.md does not register a supported TsaoSciComputation identifier")
 
     version = None
     version_path = destination / "VERSION"
@@ -141,10 +136,10 @@ def validate_installation(destination: Path) -> list[str]:
         except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
             problems.append(f"invalid installation receipt: {exc}")
         else:
-            if (
-                not isinstance(receipt, dict)
-                or receipt.get("skill") not in {SKILL_NAME, LEGACY_SKILL_NAME}
-            ):
+            if not isinstance(receipt, dict) or receipt.get("skill") not in {
+                SKILL_NAME,
+                LEGACY_SKILL_NAME,
+            }:
                 problems.append("installation receipt does not belong to TsaoSciComputation")
             elif version is not None and receipt.get("version") != version:
                 problems.append("installation receipt version differs from VERSION")
