@@ -1,3 +1,10 @@
-from .loader import adapters, capabilities, clear_registry_caches, units, workflows
+from .loader import accelerators, adapters, capabilities, clear_registry_caches, units, workflows
 
-__all__ = ["capabilities", "adapters", "workflows", "units", "clear_registry_caches"]
+__all__ = [
+    "accelerators",
+    "adapters",
+    "capabilities",
+    "clear_registry_caches",
+    "units",
+    "workflows",
+]
