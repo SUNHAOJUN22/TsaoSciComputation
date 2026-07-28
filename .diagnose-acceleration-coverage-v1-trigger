@@ -1,0 +1,2 @@
+mode=per-file-missing-lines
+coverage_gate=95
