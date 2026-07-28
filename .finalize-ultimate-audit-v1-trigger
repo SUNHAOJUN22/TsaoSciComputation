@@ -1,0 +1,5 @@
+mode=final-evidence-publication-with-method-bound-performance
+execution_baseline=05525a859481237b9fb443a664e1d8b5849efb83
+product_baseline=ec194f37ccdea2bf1e3e170e180ae8763da5f0c0
+validated_source=6681c08677d30231c321e898c9cb9ed34496b128
+performance_evidence=ad4f1fda748dd0ee651daf4be698596e264d32a0
