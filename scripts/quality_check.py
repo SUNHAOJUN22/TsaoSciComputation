@@ -5,6 +5,8 @@ import json
 import py_compile
 from pathlib import Path
 
+from scripts.validate_skill_spec import validate_repository_skills
+
 ROOTS = (Path("tsao_computation"), Path("scripts"), Path("tests"))
 
 
@@ -50,10 +52,20 @@ def main() -> int:
                 and node.func.id in {"eval", "exec"}
             ):
                 problems.append(f"{path}:{node.lineno}: dynamic code execution")
+
+    skill_report = validate_repository_skills(Path("."))
+    skill_problems = skill_report.get("problems")
+    if isinstance(skill_problems, list):
+        problems.extend(str(item) for item in skill_problems)
+
     report = {
-        "schema_version": "1.0",
+        "schema_version": "1.1",
         "passed": not problems,
         "python_files": len(files),
+        "agent_skills": {
+            "status": skill_report["status"],
+            "count": skill_report["skill_count"],
+        },
         "problems": problems,
     }
     output = Path("evidence/quality-check.json")
