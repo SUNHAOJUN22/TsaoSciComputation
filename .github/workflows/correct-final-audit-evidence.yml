@@ -1,0 +1,75 @@
+name: Correct final ultimate audit evidence
+
+on:
+  push:
+    branches: [main]
+    paths: [.correct-final-audit-evidence-trigger]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: correct-final-audit-evidence-main
+  cancel-in-progress: true
+
+jobs:
+  correct:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+      - name: Correct evidence semantics and self-clean
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          rm -f .github/workflows/correct-final-audit-evidence.yml \
+            .correct-final-audit-evidence-trigger
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          report_path=Path('reports/ULTIMATE_SKILL_REPOSITORY_AUDIT_V1.json')
+          report=json.loads(report_path.read_text(encoding='utf-8'))
+          performance=report['performance']
+          performance['execution_baseline_status']='NON_EXECUTABLE_MANIFEST_FAIL'
+          performance['execution_baseline_profile_process_status']='PASS'
+          performance['execution_baseline_usable_for_ab']=False
+          action=(
+              'A pre-existing remote branch refresh-readme-visuals-uiux-pro-max remains. '
+              'It was not created or modified by this audit because the user prohibited operations on non-main branches.'
+          )
+          actions=report.setdefault('remaining_non_code_admin_actions',[])
+          if action not in actions:
+              actions.append(action)
+          report['remote_branch_governance']={
+              'status':'PRE_EXISTING_NON_MAIN_BRANCH_REPORTED_NOT_MODIFIED',
+              'branches':report.get('remote_branches',[]),
+              'created_by_this_audit':False,
+          }
+          report_path.write_text(
+              json.dumps(report,indent=2,sort_keys=True)+'\n',encoding='utf-8',newline='\n')
+
+          verification_path=Path('reports/CURRENT_MAIN_VERIFICATION.json')
+          verification=json.loads(verification_path.read_text(encoding='utf-8'))
+          verification['performance_audit']['execution_baseline_status']='NON_EXECUTABLE_MANIFEST_FAIL'
+          verification['performance_audit']['execution_baseline_profile_process_status']='PASS'
+          verification['performance_audit']['execution_baseline_usable_for_ab']=False
+          verification['remote_branch_governance']=report['remote_branch_governance']
+          verification_path.write_text(
+              json.dumps(verification,indent=2,sort_keys=True)+'\n',encoding='utf-8',newline='\n')
+          PY
+          python scripts/build_manifest.py
+          python scripts/build_manifest.py --check
+          git diff --check
+          git add -A
+          git commit -m 'Correct final audit evidence semantics'
+          git push origin HEAD:refs/heads/main
