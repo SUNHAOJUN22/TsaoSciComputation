@@ -41,7 +41,10 @@ ROOT_REQUIRED_PHRASES = (
 )
 PROHIBITED_INSTRUCTION_PATTERNS = (
     re.compile(r"\bignore (?:all |any )?(?:previous|prior|system|developer) instructions\b", re.I),
-    re.compile(r"\boverride (?:the )?(?:system|developer|safety) (?:message|instructions|rules)\b", re.I),
+    re.compile(
+        r"\boverride (?:the )?(?:system|developer|safety) (?:message|instructions|rules)\b",
+        re.I,
+    ),
     re.compile(r"\breveal (?:credentials|secrets|tokens|private data)\b", re.I),
     re.compile(r"\bexfiltrat(?:e|ion)\b", re.I),
     re.compile(r"\bcurl\b[^\n|]*\|\s*(?:sh|bash)\b", re.I),
@@ -55,7 +58,9 @@ def _split_frontmatter(text: str, path: Path) -> tuple[dict[str, Any], str]:
     if len(lines) < 3 or lines[0].strip() != "---":
         raise ValueError(f"{path.as_posix()}: missing YAML frontmatter")
     try:
-        closing = next(index for index, line in enumerate(lines[1:], start=1) if line.strip() == "---")
+        closing = next(
+            index for index, line in enumerate(lines[1:], start=1) if line.strip() == "---"
+        )
     except StopIteration as error:
         raise ValueError(f"{path.as_posix()}: unterminated YAML frontmatter") from error
     try:
@@ -88,7 +93,11 @@ def _validate_one(path: Path, root: Path, *, is_root: bool) -> dict[str, object]
         text = path.read_text(encoding="utf-8")
         frontmatter, body = _split_frontmatter(text, path.relative_to(root))
     except (OSError, UnicodeDecodeError, ValueError) as error:
-        return {"path": path.relative_to(root).as_posix(), "status": "FAIL", "problems": [str(error)]}
+        return {
+            "path": path.relative_to(root).as_posix(),
+            "status": "FAIL",
+            "problems": [str(error)],
+        }
 
     relative = path.relative_to(root).as_posix()
     unknown = sorted(set(frontmatter) - FRONTMATTER_KEYS)
@@ -96,7 +105,11 @@ def _validate_one(path: Path, root: Path, *, is_root: bool) -> dict[str, object]
         problems.append(f"{relative}: unsupported frontmatter keys: {unknown}")
 
     name = frontmatter.get("name")
-    if not isinstance(name, str) or not NAME_PATTERN.fullmatch(name) or len(name) > 64:
+    if (
+        not isinstance(name, str)
+        or not NAME_PATTERN.fullmatch(name)
+        or len(name) > 64
+    ):
         problems.append(f"{relative}: name must use lowercase letters, digits, and single hyphens")
     elif not is_root and path.parent.name != name:
         problems.append(f"{relative}: name must match its containing directory")
@@ -112,7 +125,9 @@ def _validate_one(path: Path, root: Path, *, is_root: bool) -> dict[str, object]
 
     for pattern in PROHIBITED_INSTRUCTION_PATTERNS:
         if pattern.search(text):
-            problems.append(f"{relative}: contains prohibited instruction pattern: {pattern.pattern}")
+            problems.append(
+                f"{relative}: contains prohibited instruction pattern: {pattern.pattern}"
+            )
 
     _validate_links(path, body, root, problems)
 
@@ -153,13 +168,18 @@ def _validate_one(path: Path, root: Path, *, is_root: bool) -> dict[str, object]
 
 def validate_repository_skills(root: Path) -> dict[str, object]:
     root = root.resolve()
-    skill_paths = [root / "SKILL.md", *sorted((root / "skills" / "workflows").glob("*/SKILL.md"))]
+    skill_paths = [
+        root / "SKILL.md",
+        *sorted((root / "skills" / "workflows").glob("*/SKILL.md")),
+    ]
     records = [
         _validate_one(path, root, is_root=path == root / "SKILL.md")
         for path in skill_paths
         if path.is_file()
     ]
-    problems = [problem for record in records for problem in cast(list[str], record["problems"])]
+    problems = [
+        problem for record in records for problem in cast(list[str], record["problems"])
+    ]
     expected = 1 + len(tuple((root / "skills" / "workflows").glob("*/SKILL.md")))
     if len(records) != expected:
         problems.append("Skill discovery did not cover every root and workflow SKILL.md")
