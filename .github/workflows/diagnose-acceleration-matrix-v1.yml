@@ -1,0 +1,170 @@
+name: Diagnose acceleration cross-platform matrix V1
+
+on:
+  push:
+    branches: [main]
+    paths: [.diagnose-acceleration-matrix-v1-trigger]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: diagnose-acceleration-matrix-v1-main
+  cancel-in-progress: true
+
+env:
+  PIP_DISABLE_PIP_VERSION_CHECK: '1'
+
+jobs:
+  matrix:
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python: ['3.10', '3.13']
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+      - name: Run isolated product gates and commit one structured result
+        shell: bash
+        env:
+          MATRIX_OS: ${{ matrix.os }}
+          MATRIX_PYTHON: ${{ matrix.python }}
+        run: |
+          set -Eeuo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git fetch origin main
+          git reset --hard origin/main
+          work="${RUNNER_TEMP}/tsao-matrix-product-${MATRIX_OS}-${MATRIX_PYTHON}"
+          rm -rf "$work"
+          git worktree add --detach "$work" origin/main
+          cd "$work"
+          rm -f .github/workflows/diagnose-acceleration-matrix-v1.yml
+          rm -f .diagnose-acceleration-matrix-v1-trigger
+          rm -f reports/ACCELERATION_MATRIX_*.json
+          rm -f reports/ACCELERATION_MATRIX_DIAGNOSTIC.json
+          python scripts/build_manifest.py
+          git add -A
+          git -c user.name=matrix-diagnostic -c user.email=matrix@example.invalid \
+            commit -m 'Temporary clean product tree for diagnostics'
+          python -m pip install -e '.[validation,quality]'
+          mkdir -p "${RUNNER_TEMP}/tsao-matrix-logs"
+          run_gate() {
+            name="$1"; shift
+            set +e
+            "$@" >"${RUNNER_TEMP}/tsao-matrix-logs/${name}.log" 2>&1
+            code=$?
+            set -e
+            printf '%s' "$code" >"${RUNNER_TEMP}/tsao-matrix-logs/${name}.rc"
+          }
+          run_gate core python scripts/verify_all.py --profile core
+          run_gate native python scripts/verify_native_core.py
+          run_gate manifest python scripts/build_manifest.py --check
+          run_gate diff git diff --exit-code
+          python - <<'PY'
+          import json, os, platform
+          from datetime import datetime, timezone
+          from pathlib import Path
+          logs = Path(os.environ['RUNNER_TEMP']) / 'tsao-matrix-logs'
+          gates = {}
+          for name in ('core', 'native', 'manifest', 'diff'):
+              rc = int((logs / f'{name}.rc').read_text())
+              lines = (logs / f'{name}.log').read_text(encoding='utf-8', errors='replace').splitlines()
+              gates[name] = {
+                  'status': 'PASS' if rc == 0 else 'FAIL',
+                  'returncode': rc,
+                  'log_tail': lines[-160:],
+              }
+          payload = {
+              'schema_version': '1.0',
+              'generated_at': datetime.now(timezone.utc).isoformat(),
+              'matrix_os': os.environ['MATRIX_OS'],
+              'matrix_python': os.environ['MATRIX_PYTHON'],
+              'runner_os': os.environ.get('RUNNER_OS'),
+              'platform': platform.platform(),
+              'python_runtime': platform.python_version(),
+              'status': 'PASS' if all(item['returncode'] == 0 for item in gates.values()) else 'FAIL',
+              'gates': gates,
+          }
+          target = Path(os.environ['RUNNER_TEMP']) / (
+              f"ACCELERATION_MATRIX_{os.environ['MATRIX_OS']}_{os.environ['MATRIX_PYTHON'].replace('.', '')}.json"
+          )
+          target.write_text(json.dumps(payload, indent=2, sort_keys=True) + '\n', encoding='utf-8', newline='\n')
+          print(json.dumps(payload, sort_keys=True))
+          PY
+          cd "$GITHUB_WORKSPACE"
+          git worktree remove --force "$work"
+          git fetch origin main
+          git reset --hard origin/main
+          mkdir -p reports
+          cp "${RUNNER_TEMP}/ACCELERATION_MATRIX_${MATRIX_OS}_${MATRIX_PYTHON//./}.json" reports/
+          python scripts/build_manifest.py
+          git add -A
+          git commit -m "Record acceleration matrix diagnostic ${MATRIX_OS} Python ${MATRIX_PYTHON}"
+          git push origin HEAD:refs/heads/main
+
+  aggregate:
+    needs: matrix
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+      - name: Aggregate evidence and self-clean
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git fetch origin main
+          git reset --hard origin/main
+          python - <<'PY'
+          import json
+          from datetime import datetime, timezone
+          from pathlib import Path
+          paths = sorted(Path('reports').glob('ACCELERATION_MATRIX_*_*.json'))
+          records = [json.loads(path.read_text(encoding='utf-8')) for path in paths]
+          expected = {
+              (os_name, python)
+              for os_name in ('ubuntu-latest', 'windows-latest', 'macos-latest')
+              for python in ('3.10', '3.13')
+          }
+          observed = {(item['matrix_os'], item['matrix_python']) for item in records}
+          report = {
+              'schema_version': '1.0',
+              'generated_at': datetime.now(timezone.utc).isoformat(),
+              'status': 'PASS' if observed == expected and all(item['status'] == 'PASS' for item in records) else 'FAIL',
+              'expected': sorted([list(item) for item in expected]),
+              'observed': sorted([list(item) for item in observed]),
+              'records': records,
+          }
+          Path('reports/ACCELERATION_MATRIX_DIAGNOSTIC.json').write_text(
+              json.dumps(report, indent=2, sort_keys=True) + '\n', encoding='utf-8', newline='\n'
+          )
+          PY
+          rm -f reports/ACCELERATION_MATRIX_*_*.json
+          rm -f .github/workflows/diagnose-acceleration-matrix-v1.yml
+          rm -f .diagnose-acceleration-matrix-v1-trigger
+          python scripts/build_manifest.py
+          python scripts/build_manifest.py --check
+          git add -A
+          git commit -m 'Record acceleration cross-platform matrix diagnostics'
+          git push origin HEAD:refs/heads/main
