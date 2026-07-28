@@ -11,14 +11,14 @@
       "status": "PASS"
     },
     "mypy": {
-      "log_tail": "scripts/validate_skill_spec.py:9: error: Library stubs not installed for \"yaml\"  [import-untyped]\nscripts/validate_skill_spec.py:9: note: Hint: \"python3 -m pip install types-PyYAML\"\nscripts/validate_skill_spec.py:9: note: (or run \"mypy --install-types\" to install all missing stub packages)\nscripts/validate_skill_spec.py:9: note: See https://mypy.readthedocs.io/en/stable/running_mypy.html#missing-imports\nFound 1 error in 1 file (checked 84 source files)",
-      "returncode": 1,
-      "status": "FAIL"
+      "log_tail": "Success: no issues found in 84 source files",
+      "returncode": 0,
+      "status": "PASS"
     },
     "ruff_format": {
-      "log_tail": "unformatted: File would be reformatted\n   --> scripts/validate_skill_spec.py:1:1\n    |\n107 |     name = frontmatter.get(\"name\")\n    -     if (\n    -         not isinstance(name, str)\n    -         or not NAME_PATTERN.fullmatch(name)\n    -         or len(name) > 64\n    -     ):\n108 +     if not isinstance(name, str) or not NAME_PATTERN.fullmatch(name) or len(name) > 64:\n109 |         problems.append(f\"{relative}: name must use lowercase letters, digits, and single hyphens\")\n--------------------------------------------------------------------------------\n175 |     ]\n    -     problems = [\n    -         problem for record in records for problem in cast(list[str], record[\"problems\"])\n    -     ]\n176 +     problems = [problem for record in records for problem in cast(list[str], record[\"problems\"])]\n177 |     expected = 1 + len(tuple((root / \"skills\" / \"workflows\").glob(\"*/SKILL.md\")))\n    |\n\nunformatted: File would be reformatted\n   --> tests/test_install_skill.py:1:1\n    |\n57  |     legacy.mkdir(parents=True)\n    -     assert (\n    -         install_skill.resolve_destination(\"codex\", \"user\", None, home=home)\n    -         == legacy.resolve()\n    -     )\n58  +     assert install_skill.resolve_destination(\"codex\", \"user\", None, home=home) == legacy.resolve()\n59  |     explicit = tmp_path / \"custom\" / \"TsaoSciComputation\"\n--------------------------------------------------------------------------------\n72  |     assert install_skill.validate_installation(destination) == []\n    -     receipt = json.loads(\n    -         (destination / install_skill.RECEIPT_NAME).read_text(encoding=\"utf-8\")\n    -     )\n73  +     receipt = json.loads((destination / install_skill.RECEIPT_NAME).read_text(encoding=\"utf-8\"))\n74  |     assert receipt[\"skill\"] == \"tsao-scicomputation\"\n--------------------------------------------------------------------------------\n100 |\n    -     assert any(\n    -         \"hash differs\" in problem and \"SKILL.md\" in problem for problem in problems\n    -     )\n    -     assert any(\n    -         \"unlisted files\" in problem and \"unexpected.txt\" in problem\n    -         for problem in problems\n    -     )\n101 +     assert any(\"hash differs\" in problem and \"SKILL.md\" in problem for problem in problems)\n102 +     assert any(\"unlisted files\" in problem and \"unexpected.txt\" in problem for problem in problems)\n103 |\n--------------------------------------------------------------------------------\n120 |     destination.mkdir()\n    -     (destination / \"SKILL.md\").write_text(\n    -         \"name: tsao-scicomputation\\n\", encoding=\"utf-8\"\n    -     )\n121 +     (destination / \"SKILL.md\").write_text(\"name: tsao-scicomputation\\n\", encoding=\"utf-8\")\n122 |     (destination / \"VERSION\").write_text(\"3.0.0\\n\", encoding=\"utf-8\")\n    |\n\nunformatted: File would be reformatted\n  --> tests/test_skill_spec_and_workflow_security.py:1:1\n   |\n29 |     legacy.mkdir(parents=True)\n   -     assert (\n   -         install_skill.resolve_destination(\"codex\", \"user\", None, home=home)\n   -         == legacy.resolve()\n   -     )\n30 +     assert install_skill.resolve_destination(\"codex\", \"user\", None, home=home) == legacy.resolve()\n31 |\n--------------------------------------------------------------------------------\n47 | def test_release_workflow_does_not_interpolate_dispatch_input_into_shell() -> None:\n   -     workflow = (ROOT / \".github\" / \"workflows\" / \"release.yml\").read_text(\n   -         encoding=\"utf-8\"\n   -     )\n48 +     workflow = (ROOT / \".github\" / \"workflows\" / \"release.yml\").read_text(encoding=\"utf-8\")\n49 |     assert 'TAG=\"${{ inputs.tag }}\"' not in workflow\n--------------------------------------------------------------------------------\n58 | def test_scorecard_workflow_is_pinned_and_least_privilege() -> None:\n   -     workflow = (ROOT / \".github\" / \"workflows\" / \"scorecard.yml\").read_text(\n   -         encoding=\"utf-8\"\n   -     )\n59 +     workflow = (ROOT / \".github\" / \"workflows\" / \"scorecard.yml\").read_text(encoding=\"utf-8\")\n60 |     assert \"permissions: read-all\" in workflow\n   |\n\n3 files would be reformatted, 118 files already formatted",
-      "returncode": 1,
-      "status": "FAIL"
+      "log_tail": "121 files already formatted",
+      "returncode": 0,
+      "status": "PASS"
     },
     "ruff_lint": {
       "log_tail": "All checks passed!",
@@ -36,7 +36,7 @@
       "status": "PASS"
     }
   },
-  "generated_at": "2026-07-28T06:25:41.915556+00:00",
+  "generated_at": "2026-07-28T06:31:09.578994+00:00",
   "schema_version": "1.0",
-  "status": "BLOCKED"
+  "status": "PASS"
 }

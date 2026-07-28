@@ -1711,9 +1711,9 @@
       "sha256": "211c09f91d4360102c120887969b17fb9a8dfe87b07f2e5d8903f20569fa8617"
     },
     {
-      "bytes": 2399,
+      "bytes": 2425,
       "path": "pyproject.toml",
-      "sha256": "7d60a79df6847e2c60fdcdedffdc2a8e3a4b4bda3d841f3df69a0c29d9710216"
+      "sha256": "bfe4817c7a44f9bf14425f118118c6db7a7e6b694cf1489672ab3c8ac0d8c9a6"
     },
     {
       "bytes": 195,
@@ -1761,9 +1761,9 @@
       "sha256": "a6e39084f0cb7040d6195123cdd18546423760081fac748b102e430e3bf71903"
     },
     {
-      "bytes": 10607,
+      "bytes": 5920,
       "path": "reports/CURRENT_REMEDIATION_DIAGNOSTIC.json",
-      "sha256": "44d58bf50f2b5eb8c01c08be9e0d0a03729f21b6839504e6f6d6685eaf54094f"
+      "sha256": "df2649477edfe1948e563f149c05d0743415f66e0a12dfcdb6c42f775d816c9c"
     },
     {
       "bytes": 3115,
@@ -2096,9 +2096,9 @@
       "sha256": "1e0f7908f1f7dbcc179cc9c855d872d086711209002058f640b21ba84f0faa91"
     },
     {
-      "bytes": 8291,
+      "bytes": 8245,
       "path": "scripts/validate_skill_spec.py",
-      "sha256": "8e5017e674a80d34f3c194dc975efd814727b947a22e6aa7ebee00c97cb3a9bf"
+      "sha256": "893786f1da88e34c074e1c7e4c87d81fe344616393e2c6b45d47da7c7463270b"
     },
     {
       "bytes": 13523,
@@ -2296,9 +2296,9 @@
       "sha256": "0d520e20029e18776bd99a119987ca05aeeeb18628456484bd8d4006c1319c1e"
     },
     {
-      "bytes": 6247,
+      "bytes": 6159,
       "path": "tests/test_install_skill.py",
-      "sha256": "60fa21a8e6cbb138018c9b64542e9a61f84c99b5ab58ad0357cbdb3f62af4cb7"
+      "sha256": "be1dfef1ed0693f318397722c36a53b5b8ea00232077bee287183959fdbf4854"
     },
     {
       "bytes": 2946,
@@ -2351,9 +2351,9 @@
       "sha256": "90d3712ebcad190a046d6a6278ac8c497fddd3b2859dd04b67d7533fd8834075"
     },
     {
-      "bytes": 3179,
+      "bytes": 3127,
       "path": "tests/test_skill_spec_and_workflow_security.py",
-      "sha256": "d71de9871fe96ca1aa1b545816bafcbbb80fdcf7182e9d8423333a32b445083c"
+      "sha256": "65502b5770a0529deeadab6488cf8e90d7f0a3b10140d6059ddbbfe057dcd83c"
     },
     {
       "bytes": 3703,
