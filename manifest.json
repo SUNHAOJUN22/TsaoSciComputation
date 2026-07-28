@@ -1771,9 +1771,9 @@
       "sha256": "4b1ea5595c760a27cc64a959eee5de1ae0574967d01a86e740ab0d56cf2412b3"
     },
     {
-      "bytes": 14239,
-      "path": "reports/ACCELERATION_FOUNDATION_V1_CANDIDATE.json",
-      "sha256": "f030a59ce75af69193e8a2704e713c684d68f585781a7a740f104cb0ea2a84d5"
+      "bytes": 15211,
+      "path": "reports/ACCELERATION_FOUNDATION_V1.json",
+      "sha256": "06c63ceb866c0853965bdc1154473e756f0a7a95de14419fe854ce981da0c9ac"
     },
     {
       "bytes": 5586,

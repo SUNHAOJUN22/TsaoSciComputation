@@ -145,6 +145,22 @@
   },
   "created_branch": false,
   "created_pull_request": false,
+  "cross_platform": {
+    "clean_tree": "PASS",
+    "core": "PASS",
+    "manifest": "PASS",
+    "native_cpp20": "PASS",
+    "operating_systems": [
+      "ubuntu-latest",
+      "windows-latest",
+      "macos-latest"
+    ],
+    "python_versions": [
+      "3.10",
+      "3.13"
+    ],
+    "status": "PASS"
+  },
   "dependency_audit": {
     "dependencies": [
       {
@@ -419,12 +435,14 @@
     ],
     "fixes": []
   },
+  "finalized_at": "2026-07-28T18:27:32.364830+00:00",
   "force_push": false,
   "gates": {
     "acceleration_metadata": "PASS",
     "bandit": "PASS",
     "benchmark": "PASS",
     "core": "PASS",
+    "cross_platform_core_native_manifest_clean_tree": "PASS",
     "dependency_audit": "PASS",
     "format": "PASS",
     "manifest": "PASS",
@@ -499,13 +517,23 @@
     }
   },
   "previous_candidate_sha": "46b9ad301202f038e0b4899a4eea41279507ca9a",
+  "remote_branches": [
+    "main",
+    "refresh-readme-visuals-uiux-pro-max"
+  ],
   "runtime_dependency_growth": 0,
   "schema_version": "2.0",
-  "status": "CANDIDATE_VALIDATED_LOCAL",
+  "status": "VALIDATED",
   "tests": {
     "collected": 651,
     "errors": 0,
     "failures": 0,
     "passed": 651
-  }
+  },
+  "unverified_live_components": [
+    "CUDA, ROCm, SYCL, CUDA-X libraries and GPU kernels were not installed or executed by the portable matrix.",
+    "Professional scientific solvers and production HPC/edge environments require separate lawful versioned execution evidence.",
+    "Performance, energy and thermal claims require same-host CPU/accelerated experiments on representative scientific workloads."
+  ],
+  "validated_source_sha": "4192edd87d9b6a19bfd0d7b0f82d1e2e375f7d30"
 }
