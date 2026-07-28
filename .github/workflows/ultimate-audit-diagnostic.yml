@@ -1,0 +1,205 @@
+name: Ultimate audit diagnostic and retry
+
+on:
+  push:
+    branches: [main]
+    paths: [.ultimate-audit-diagnostic-trigger]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ultimate-audit-diagnostic-main
+  cancel-in-progress: false
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      PIP_DISABLE_PIP_VERSION_CHECK: '1'
+      TSAO_COVERAGE_JSON: /tmp/ultimate-diagnostic-coverage.json
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+          cache: pip
+      - name: Apply candidate in worktree and record every gate
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          START_SHA="$(git rev-parse HEAD)"
+          python -m pip install -e '.[validation,quality,security]'
+          git show 9b6ba32a1a965904c27f96a7e9cb36b266c60f7c:tools/ultimate-audit-patch.b85 \
+            >/tmp/ultimate-audit-patch.b85
+          python - <<'PY'
+          import base64, json, zlib
+          from pathlib import Path
+          payload = json.loads(zlib.decompress(base64.b85decode(
+              Path('/tmp/ultimate-audit-patch.b85').read_text().strip()
+          )))
+          for raw_path, content in payload.items():
+              path = Path(raw_path)
+              path.parent.mkdir(parents=True, exist_ok=True)
+              path.write_text(content.rstrip() + '\n', encoding='utf-8', newline='\n')
+
+          path = Path('scripts/install_skill.py')
+          text = path.read_text()
+          pairs = (
+              ('SKILL_NAME = "TsaoSciComputation"\n',
+               'SKILL_NAME = "tsao-scicomputation"\nLEGACY_SKILL_NAME = "TsaoSciComputation"\n'),
+              ('        return expanded if expanded.name == SKILL_NAME else expanded / SKILL_NAME\n',
+               '        return (\n            expanded\n'
+               '            if expanded.name in {SKILL_NAME, LEGACY_SKILL_NAME}\n'
+               '            else expanded / SKILL_NAME\n        )\n'),
+              ('    return (base / AGENT_ROOTS[agent] / SKILL_NAME).resolve()\n',
+               '    preferred = (base / AGENT_ROOTS[agent] / SKILL_NAME).resolve()\n'
+               '    legacy = (base / AGENT_ROOTS[agent] / LEGACY_SKILL_NAME).resolve()\n'
+               '    return legacy if not preferred.exists() and legacy.exists() else preferred\n'),
+              ('        if "name: TsaoSciComputation" not in text:\n'
+               '            problems.append("SKILL.md does not register TsaoSciComputation")\n',
+               '        registered = f"name: {SKILL_NAME}" in text\n'
+               '        legacy_registered = (\n'
+               '            destination.name == LEGACY_SKILL_NAME\n'
+               '            and f"name: {LEGACY_SKILL_NAME}" in text\n        )\n'
+               '        if not (registered or legacy_registered):\n'
+               '            problems.append("SKILL.md does not register a supported TsaoSciComputation identifier")\n'),
+              ('            if not isinstance(receipt, dict) or receipt.get("skill") != SKILL_NAME:\n',
+               '            if (\n                not isinstance(receipt, dict)\n'
+               '                or receipt.get("skill") not in {SKILL_NAME, LEGACY_SKILL_NAME}\n'
+               '            ):\n'),
+          )
+          for old, new in pairs:
+              if old not in text:
+                  raise SystemExit(f'missing installer anchor: {old!r}')
+              text = text.replace(old, new, 1)
+          path.write_text(text, encoding='utf-8', newline='\n')
+          path = Path('tests/test_install_skill.py')
+          path.write_text(path.read_text().replace(
+              'TsaoSciComputation', 'tsao-scicomputation'
+          ), encoding='utf-8', newline='\n')
+          path = Path('scripts/verify_all.py')
+          text = path.read_text()
+          anchor = '            ("repository quality rules", (PYTHON, "scripts/quality_check.py")),\n'
+          path.write_text(text.replace(anchor, anchor +
+              '            ("Agent Skill specification", (PYTHON, "scripts/validate_skill_spec.py")),\n', 1),
+              encoding='utf-8', newline='\n')
+          path = Path('tests/test_verify_all.py')
+          text = path.read_text()
+          anchor = '        "repository quality rules",\n        "Ruff lint",\n'
+          path.write_text(text.replace(anchor,
+              '        "repository quality rules",\n'
+              '        "Agent Skill specification",\n'
+              '        "Ruff lint",\n', 1), encoding='utf-8', newline='\n')
+          PY
+          rm -f \
+            reports/ULTIMATE_MAIN_AUDIT_V*.md \
+            reports/PERFORMANCE_ENGINEERING_V8.json \
+            reports/PERFORMANCE_ENGINEERING_V8.md \
+            reports/SECOND_PASS_FINAL_AUDIT.md \
+            reports/REMOTE_FINALIZATION.json \
+            reports/RELEASE_AUDIT.json \
+            .github/workflows/ultimate-audit-diagnostic.yml \
+            .ultimate-audit-diagnostic-trigger
+          python -m ruff check --fix \
+            scripts/install_skill.py scripts/validate_skill_spec.py scripts/verify_all.py \
+            tests/test_install_skill.py tests/test_skill_spec_and_workflow_security.py \
+            tests/test_verify_all.py
+          python -m ruff format \
+            scripts/install_skill.py scripts/validate_skill_spec.py scripts/verify_all.py \
+            tests/test_install_skill.py tests/test_skill_spec_and_workflow_security.py \
+            tests/test_verify_all.py
+          python scripts/build_manifest.py
+          python -m venv /tmp/skills-ref-diagnostic
+          /tmp/skills-ref-diagnostic/bin/python -m pip install \
+            'git+https://github.com/agentskills/agentskills@38a2ff82958afee88dadf4831509e6f7e9d8ef4e#subdirectory=skills-ref'
+
+          mkdir -p /tmp/ultimate-gates
+          run_gate() {
+            name="$1"; shift
+            set +e
+            "$@" >"/tmp/ultimate-gates/${name}.log" 2>&1
+            rc=$?
+            set -e
+            echo "$rc" >"/tmp/ultimate-gates/${name}.rc"
+          }
+          cat >/tmp/validate-skills.sh <<'SH'
+          set -Eeuo pipefail
+          rm -rf /tmp/skill-install-diagnostic
+          python scripts/install_skill.py --agent open-agent-skills --scope project \
+            --target /tmp/skill-install-diagnostic/tsao-scicomputation
+          /tmp/skills-ref-diagnostic/bin/skills-ref validate \
+            /tmp/skill-install-diagnostic/tsao-scicomputation
+          for skill in skills/workflows/*; do
+            /tmp/skills-ref-diagnostic/bin/skills-ref validate "$skill"
+          done
+          SH
+          chmod +x /tmp/validate-skills.sh
+          run_gate skill /tmp/validate-skills.sh
+          run_gate collect python -m pytest --collect-only -q
+          run_gate quality python scripts/verify_all.py --profile quality
+          run_gate core python scripts/verify_all.py --profile core
+          run_gate package python scripts/verify_all.py --profile package
+          run_gate benchmark python scripts/verify_all.py --profile benchmark
+          run_gate pip_audit python -m pip_audit --local --skip-editable --progress-spinner=off
+          run_gate pep517 python -m build --outdir /tmp/diagnostic-build
+          run_gate manifest python scripts/build_manifest.py --check
+          run_gate diff git diff --check
+
+          python - "$START_SHA" <<'PY'
+          import json, subprocess, sys
+          from datetime import datetime, timezone
+          from pathlib import Path
+          names = ('skill','collect','quality','core','package','benchmark',
+                   'pip_audit','pep517','manifest','diff')
+          gates = {}
+          for name in names:
+              rc = int(Path(f'/tmp/ultimate-gates/{name}.rc').read_text())
+              log = Path(f'/tmp/ultimate-gates/{name}.log').read_text(
+                  encoding='utf-8', errors='replace'
+              )
+              gates[name] = {
+                  'status':'PASS' if rc == 0 else 'FAIL',
+                  'returncode':rc,
+                  'log_tail':'\n'.join(log.splitlines()[-120:]),
+              }
+          passed = all(item['returncode'] == 0 for item in gates.values())
+          payload = {
+              'audit_id':'TSAOSCICOMPUTATION_ULTIMATE_SKILL_AND_REPOSITORY_AUDIT_V1',
+              'diagnostic_source_sha':sys.argv[1],
+              'status':'PASS' if passed else 'BLOCKED',
+              'gates':gates,
+              'generated_at':datetime.now(timezone.utc).isoformat(),
+              'created_branch':False,'created_pull_request':False,
+          }
+          if not passed:
+              subprocess.run(['git','reset','--hard',sys.argv[1]],check=True)
+              subprocess.run(['git','clean','-fdx'],check=True)
+              Path('.github/workflows/ultimate-audit-diagnostic.yml').unlink(missing_ok=True)
+              Path('.ultimate-audit-diagnostic-trigger').unlink(missing_ok=True)
+          Path('reports/ULTIMATE_SKILL_REPOSITORY_AUDIT_V1_DIAGNOSTIC.json').write_text(
+              json.dumps(payload, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+          lines = ['# Ultimate audit diagnostic','',f'- Status: **{payload["status"]}**','']
+          for name, item in gates.items():
+              lines.append(f'- `{name}`: **{item["status"]}** ({item["returncode"]})')
+          Path('reports/ULTIMATE_SKILL_REPOSITORY_AUDIT_V1_DIAGNOSTIC.md').write_text(
+              '\n'.join(lines) + '\n', encoding='utf-8'
+          )
+          Path('/tmp/diagnostic-status').write_text(payload['status'])
+          PY
+          python scripts/build_manifest.py
+          git add -A
+          if test "$(cat /tmp/diagnostic-status)" = PASS; then
+            git commit -m 'Harden Agent Skill and release supply chain'
+          else
+            git commit -m 'Record detailed blocked ultimate audit'
+          fi
+          git push origin HEAD:refs/heads/main
