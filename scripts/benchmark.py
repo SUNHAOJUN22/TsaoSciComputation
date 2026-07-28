@@ -12,8 +12,22 @@ from typing import TypeVar
 
 import _bootstrap  # noqa: F401
 from tsao_computation.adapters import get_adapter
+from tsao_computation.accelerators import (
+    AcceleratorBackend,
+    AcceleratorInventory,
+    PlacementTarget,
+    acceleration_libraries,
+    plan_acceleration,
+)
+from tsao_computation.execution.batch import _default_workers
 from tsao_computation.provenance.manifest import iter_repository_entries
-from tsao_computation.registries import adapters, capabilities, clear_registry_caches, workflows
+from tsao_computation.registries import (
+    accelerators,
+    adapters,
+    capabilities,
+    clear_registry_caches,
+    workflows,
+)
 from tsao_computation.registries.loader import _load
 from tsao_computation.routing import route_question
 
@@ -86,14 +100,32 @@ def repository_walk_seconds() -> float:
     )
 
 
+def cpu_inventory() -> AcceleratorInventory:
+    return AcceleratorInventory(
+        logical_cpu_count=8,
+        architecture="benchmark",
+        operating_system="benchmark",
+        memory_gib=16.0,
+        backends=(
+            AcceleratorBackend.CPU,
+            AcceleratorBackend.OPENMP,
+            AcceleratorBackend.TASK_PARALLEL,
+        ),
+        placements=(PlacementTarget.LOCAL,),
+    )
+
+
 def build_result() -> dict[str, object]:
     clear_registry_caches()
     capabilities()
     adapters()
+    accelerators()
     workflows()
+    acceleration_libraries()
     question = "OpenFOAM non-Newtonian polymer extrusion"
+    inventory = cpu_inventory()
     return {
-        "schema_version": "1.1",
+        "schema_version": "1.2",
         "python": sys.version,
         "cli_import_median_ms": round(import_seconds() * 1000, 3),
         "capability_registry_cold_median_ms": round(cold_registry_seconds(capabilities) * 1000, 3),
@@ -101,6 +133,9 @@ def build_result() -> dict[str, object]:
             median_seconds(capabilities, loops=2_000) * 1000, 5
         ),
         "adapter_registry_cold_median_ms": round(cold_registry_seconds(adapters) * 1000, 3),
+        "accelerator_registry_cold_median_ms": round(
+            cold_registry_seconds(accelerators) * 1000, 3
+        ),
         "workflow_registry_cold_median_ms": round(cold_registry_seconds(workflows) * 1000, 3),
         "adapter_lookup_cached_median_us": round(
             median_seconds(lambda: get_adapter("orca"), loops=2_000) * 1_000_000,
@@ -111,15 +146,41 @@ def build_result() -> dict[str, object]:
             median_seconds(lambda: route_question(question), loops=200) * 1000,
             5,
         ),
+        "acceleration_plan_cpu_median_ms": round(
+            median_seconds(
+                lambda: plan_acceleration(
+                    "gromacs",
+                    {
+                        "preferred_backends": ["cuda", "openmp", "cpu"],
+                        "accelerator_policy": "preferred",
+                    },
+                    inventory=inventory,
+                ),
+                loops=100,
+            )
+            * 1000,
+            5,
+        ),
+        "acceleration_library_catalog_median_ms": round(
+            median_seconds(acceleration_libraries, loops=2_000) * 1000,
+            5,
+        ),
+        "external_plan_default_worker_cap": _default_workers(1_000),
         "parser_5mib_throughput_mib_s": round(parser_throughput_mib_s(), 2),
         "repository_walk_median_ms": round(repository_walk_seconds() * 1000, 3),
         "methodology": {
             "clock": "time.perf_counter",
             "statistic": "median",
             "warmups": 2,
-            "claim_boundary": "Same-host local orchestration microbenchmarks; no solver execution measured.",
+            "claim_boundary": (
+                "Same-host local orchestration, registry, acceleration-planning and parser "
+                "microbenchmarks; no external solver or GPU kernel execution measured."
+            ),
         },
-        "claim_boundary": "Local orchestration microbenchmarks; no solver execution measured.",
+        "claim_boundary": (
+            "Local orchestration and planning microbenchmarks only; no CUDA-X, GPU, native "
+            "numerical-kernel, external-solver, energy, or scientific speedup is measured."
+        ),
     }
 
 
