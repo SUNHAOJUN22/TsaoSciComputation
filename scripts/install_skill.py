@@ -15,7 +15,8 @@ if str(REPOSITORY_ROOT) not in sys.path:
 
 from tsao_computation.provenance.manifest import iter_repository_entries  # noqa: E402
 
-SKILL_NAME = "TsaoSciComputation"
+SKILL_NAME = "tsao-scicomputation"
+LEGACY_SKILL_NAME = "TsaoSciComputation"
 RECEIPT_NAME = ".tsao-install.json"
 AGENT_ROOTS = {
     "codex": ".codex/skills",
@@ -34,9 +35,15 @@ def resolve_destination(
 ) -> Path:
     if target is not None:
         expanded = target.expanduser().resolve()
-        return expanded if expanded.name == SKILL_NAME else expanded / SKILL_NAME
+        return (
+            expanded
+            if expanded.name in {SKILL_NAME, LEGACY_SKILL_NAME}
+            else expanded / SKILL_NAME
+        )
     base = (home or Path.home()) if scope == "user" else (cwd or Path.cwd())
-    return (base / AGENT_ROOTS[agent] / SKILL_NAME).resolve()
+    preferred = (base / AGENT_ROOTS[agent] / SKILL_NAME).resolve()
+    legacy = (base / AGENT_ROOTS[agent] / LEGACY_SKILL_NAME).resolve()
+    return legacy if not preferred.exists() and legacy.exists() else preferred
 
 
 def _sha256(path: Path) -> str:
@@ -112,8 +119,15 @@ def validate_installation(destination: Path) -> list[str]:
     skill_path = destination / "SKILL.md"
     if skill_path.is_file():
         text = skill_path.read_text(encoding="utf-8")
-        if "name: TsaoSciComputation" not in text:
-            problems.append("SKILL.md does not register TsaoSciComputation")
+        registered = f"name: {SKILL_NAME}" in text
+        legacy_registered = (
+            destination.name == LEGACY_SKILL_NAME
+            and f"name: {LEGACY_SKILL_NAME}" in text
+        )
+        if not (registered or legacy_registered):
+            problems.append(
+                "SKILL.md does not register a supported TsaoSciComputation identifier"
+            )
 
     version = None
     version_path = destination / "VERSION"
@@ -127,7 +141,10 @@ def validate_installation(destination: Path) -> list[str]:
         except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
             problems.append(f"invalid installation receipt: {exc}")
         else:
-            if not isinstance(receipt, dict) or receipt.get("skill") != SKILL_NAME:
+            if (
+                not isinstance(receipt, dict)
+                or receipt.get("skill") not in {SKILL_NAME, LEGACY_SKILL_NAME}
+            ):
                 problems.append("installation receipt does not belong to TsaoSciComputation")
             elif version is not None and receipt.get("version") != version:
                 problems.append("installation receipt version differs from VERSION")
