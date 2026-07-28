@@ -17,6 +17,7 @@ extern "C" {
 #endif
 
 #define TSAO_NATIVE_ABI_VERSION 1u
+#define TSAO_NATIVE_API_VERSION "1.0.0"
 
 enum TsaoNativeBackendMask {
     TSAO_NATIVE_BACKEND_CPU = 1u << 0,
@@ -34,6 +35,8 @@ typedef struct TsaoNativeHardwareSummary {
 } TsaoNativeHardwareSummary;
 
 TSAO_NATIVE_API uint32_t tsao_native_abi_version(void);
+TSAO_NATIVE_API const char* tsao_native_api_version(void);
+TSAO_NATIVE_API const char* tsao_native_capabilities_json(void);
 TSAO_NATIVE_API int32_t tsao_native_probe(TsaoNativeHardwareSummary* output);
 
 #ifdef __cplusplus
