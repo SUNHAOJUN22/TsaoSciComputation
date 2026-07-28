@@ -1,0 +1,182 @@
+from __future__ import annotations
+
+from dataclasses import asdict, dataclass
+from typing import Any, Mapping
+
+from ..errors import ContractError
+from ..registries import accelerators as accelerator_records
+from .catalog import recommend_acceleration_libraries
+from .model import (
+    AcceleratorBackend,
+    AcceleratorInventory,
+    AcceleratorPolicy,
+    ComputeResourceRequest,
+    PlacementTarget,
+)
+from .probe import probe_accelerators
+
+_HARDWARE_BACKENDS = {
+    AcceleratorBackend.CUDA,
+    AcceleratorBackend.HIP,
+    AcceleratorBackend.SYCL,
+    AcceleratorBackend.OPENCL,
+    AcceleratorBackend.KOKKOS,
+}
+
+
+@dataclass(frozen=True, slots=True)
+class AccelerationPlan:
+    adapter_slug: str
+    workflow: str
+    backend: AcceleratorBackend
+    placement: PlacementTarget
+    execution_mode: str
+    mpi_ranks: int
+    threads_per_rank: int
+    device_indices: tuple[int, ...]
+    library_candidates: tuple[str, ...]
+    environment: dict[str, str]
+    fallback_used: bool
+    reason: str
+    claim_boundary: str
+
+    def to_dict(self) -> dict[str, object]:
+        payload = asdict(self)
+        payload["backend"] = self.backend.value
+        payload["placement"] = self.placement.value
+        payload["device_indices"] = list(self.device_indices)
+        payload["library_candidates"] = list(self.library_candidates)
+        return payload
+
+
+def _profile(slug: str) -> dict[str, Any]:
+    for record in accelerator_records():
+        if str(record.get("slug")) == slug:
+            return dict(record)
+    raise KeyError(f"unknown accelerator profile: {slug}")
+
+
+def _record_backends(record: Mapping[str, object], key: str) -> tuple[AcceleratorBackend, ...]:
+    raw = record.get(key, [])
+    if not isinstance(raw, list):
+        return ()
+    result: list[AcceleratorBackend] = []
+    for item in raw:
+        try:
+            result.append(AcceleratorBackend(str(item)))
+        except ValueError:
+            continue
+    return tuple(result)
+
+
+def plan_acceleration(
+    adapter_slug: str,
+    resources: ComputeResourceRequest | Mapping[str, object] | None = None,
+    *,
+    inventory: AcceleratorInventory | None = None,
+) -> AccelerationPlan:
+    request = (
+        resources
+        if isinstance(resources, ComputeResourceRequest)
+        else ComputeResourceRequest.from_mapping(resources)
+    )
+    detected = inventory or probe_accelerators()
+    record = _profile(adapter_slug)
+    supported = set(_record_backends(record, "candidate_backends"))
+    preferred = _record_backends(record, "preferred_backends")
+    order = tuple(item for item in request.preferred_backends if item in supported)
+    if not order:
+        order = tuple(item for item in preferred if item in supported)
+    if AcceleratorBackend.CPU in supported and AcceleratorBackend.CPU not in order:
+        order += (AcceleratorBackend.CPU,)
+
+    if request.placement not in detected.placements:
+        if request.allow_fallback and request.placement is not PlacementTarget.EDGE:
+            placement = PlacementTarget.LOCAL
+        else:
+            raise ContractError(
+                f"requested placement {request.placement.value} is unavailable in the detected environment"
+            )
+    else:
+        placement = request.placement
+
+    edge_suitability = str(record.get("edge_suitability", "unsuitable"))
+    if placement is PlacementTarget.EDGE and edge_suitability == "unsuitable":
+        raise ContractError(f"adapter {adapter_slug} is not suitable for edge placement")
+
+    selected: AcceleratorBackend | None = None
+    for candidate in order:
+        if candidate in detected.backends:
+            selected = candidate
+            break
+    fallback = False
+    if request.accelerator_policy is AcceleratorPolicy.DISABLED:
+        selected = AcceleratorBackend.CPU
+    elif selected is None:
+        if request.accelerator_policy is AcceleratorPolicy.REQUIRED or not request.allow_fallback:
+            raise ContractError(
+                f"no requested backend is both supported by {adapter_slug} and detected locally"
+            )
+        selected = AcceleratorBackend.CPU
+        fallback = True
+
+    if request.accelerator_policy is AcceleratorPolicy.REQUIRED and selected not in _HARDWARE_BACKENDS:
+        raise ContractError("an accelerator was required, but only CPU/MPI task backends are available")
+
+    devices = detected.devices_for(selected)
+    if selected in _HARDWARE_BACKENDS:
+        count = request.accelerator_count or 1
+        eligible = tuple(
+            device
+            for device in devices
+            if request.minimum_vram_gib is None
+            or (device.memory_gib is not None and device.memory_gib >= request.minimum_vram_gib)
+        )
+        if len(eligible) < count:
+            if request.accelerator_policy is AcceleratorPolicy.REQUIRED or not request.allow_fallback:
+                raise ContractError("detected accelerator devices do not satisfy count or VRAM requirements")
+            selected = AcceleratorBackend.CPU
+            devices = ()
+            fallback = True
+        else:
+            devices = eligible[:count]
+
+    cpu_cores = request.cpu_cores or detected.logical_cpu_count
+    mpi_ranks = request.mpi_ranks or (1 if selected is not AcceleratorBackend.MPI else min(4, cpu_cores))
+    threads = request.threads_per_rank or max(1, cpu_cores // max(1, mpi_ranks))
+    environment: dict[str, str] = {}
+    if selected is AcceleratorBackend.CUDA and devices:
+        environment["CUDA_VISIBLE_DEVICES"] = ",".join(str(item.index) for item in devices)
+    if selected in {AcceleratorBackend.OPENMP, AcceleratorBackend.MPI}:
+        environment["OMP_NUM_THREADS"] = str(threads)
+
+    profile_libraries = tuple(str(item) for item in record.get("library_candidates", []))
+    known = {item.slug for item in recommend_acceleration_libraries(backend=selected)}
+    libraries = tuple(item for item in profile_libraries if item in known or not known)
+    reason = (
+        f"selected {selected.value} for {adapter_slug}; supported={sorted(item.value for item in supported)}; "
+        f"detected={sorted(item.value for item in detected.backends)}"
+    )
+    return AccelerationPlan(
+        adapter_slug=adapter_slug,
+        workflow=str(record.get("workflow", "")),
+        backend=selected,
+        placement=placement,
+        execution_mode=str(record.get("execution_mode", "solver-native")),
+        mpi_ranks=mpi_ranks,
+        threads_per_rank=threads,
+        device_indices=tuple(item.index for item in devices),
+        library_candidates=libraries,
+        environment=environment,
+        fallback_used=fallback,
+        reason=reason,
+        claim_boundary=str(
+            record.get(
+                "claim_boundary",
+                "Planning metadata only; live execution and scientific validity are unverified.",
+            )
+        ),
+    )
+
+
+acceleration_plan = plan_acceleration

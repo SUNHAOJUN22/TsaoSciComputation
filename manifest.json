@@ -41,6 +41,11 @@
       "sha256": "f08351b45cfe8a5049885e1b064971ad545a95eee93135cc388ea3bc0f1e7f03"
     },
     {
+      "bytes": 15829,
+      "path": ".github/workflows/apply-acceleration-foundation-v2.yml",
+      "sha256": "fc1c4132bb9ee3e106530775aa0fcb4a38eeb3345dfd6fcd3aae3ac2b5ebf4f9"
+    },
+    {
       "bytes": 3622,
       "path": ".github/workflows/ci.yml",
       "sha256": "8f8d16528675a831aa2f679268212770ba12383414ae6f635abacdcf20b07f29"
@@ -1711,6 +1716,31 @@
       "sha256": "211c09f91d4360102c120887969b17fb9a8dfe87b07f2e5d8903f20569fa8617"
     },
     {
+      "bytes": 1383,
+      "path": "native/CMakeLists.txt",
+      "sha256": "8e11ea5a4deb00c8c169beadc371c6d2af6d154ccf775fbf081b79155b96d910"
+    },
+    {
+      "bytes": 1141,
+      "path": "native/README.md",
+      "sha256": "42bcf4283a08d9e04f7c2dc9d4a69b28f845ab64bebc4e56adbefd4d0e8dc817"
+    },
+    {
+      "bytes": 945,
+      "path": "native/include/tsao/capi.h",
+      "sha256": "7caa614877bc094e5fe92cd6e8d50a3e691cbe9768a1730a3c5146a1cf810c0c"
+    },
+    {
+      "bytes": 888,
+      "path": "native/src/capi.cpp",
+      "sha256": "8d5e126c295578281aa7ec49cdfb482464a08a683c6632eda07e89597f7c5197"
+    },
+    {
+      "bytes": 609,
+      "path": "native/tests/native_smoke.cpp",
+      "sha256": "b5938bd3121da2db9aa042e892686baa67fe9d6aecb4ecd52df35cfdb1bb5d26"
+    },
+    {
       "bytes": 2425,
       "path": "pyproject.toml",
       "sha256": "bfe4817c7a44f9bf14425f118118c6db7a7e6b694cf1489672ab3c8ac0d8c9a6"
@@ -1719,6 +1749,16 @@
       "bytes": 195,
       "path": "pytest.ini",
       "sha256": "6cba91532911b93f1e29db7b76d6e188c3d8817da9571a89cbb60523d67b3f6d"
+    },
+    {
+      "bytes": 5745,
+      "path": "references/accelerated-computing.md",
+      "sha256": "9ca136e460295cd73197e48e37a2b40f63af3dc1966e02aa2978f53a0e5a6584"
+    },
+    {
+      "bytes": 27940,
+      "path": "registry/accelerators.json",
+      "sha256": "f3bf7752e55d15a28d685ecbe575da189fc455716de6fee3bef1b0bfe55789b9"
     },
     {
       "bytes": 33889,
@@ -1741,9 +1781,9 @@
       "sha256": "4b1ea5595c760a27cc64a959eee5de1ae0574967d01a86e740ab0d56cf2412b3"
     },
     {
-      "bytes": 1749,
+      "bytes": 18864,
       "path": "reports/ACCELERATION_FOUNDATION_V1_BLOCKED.json",
-      "sha256": "62a53e54c479db039fbdc89dd7814fc178dfde01467e9597e2c4f57ae98b842c"
+      "sha256": "224cc11ba4ab9f2187c7fb90f49d9d50b53864f62776e715f314d43b67c9ba1f"
     },
     {
       "bytes": 72345,
@@ -1844,6 +1884,11 @@
       "bytes": 3212,
       "path": "reports/ULTIMATE_SKILL_REPOSITORY_AUDIT_V1.md",
       "sha256": "26575aea175e22b12fec78bc7b9f1be4a5d9dbe782f68b645fcd4bbee23ffc69"
+    },
+    {
+      "bytes": 3228,
+      "path": "schemas/accelerator-profile.schema.json",
+      "sha256": "1836ce703c9e7e9121adaa7a7eb0e5fc20ce58d38976e90e21c94e26ddba0dc4"
     },
     {
       "bytes": 4766,
@@ -2071,6 +2116,11 @@
       "sha256": "6366aa53e9f5628d2862cb39d0b3810b093e5d2da1f7848ee8a057e98fcc3869"
     },
     {
+      "bytes": 4544,
+      "path": "scripts/validate_accelerator_metadata.py",
+      "sha256": "ef9a7cf32604e3d521d73fe50bb313d412c0ea01d8a68b0e2fc968b2293f3f6b"
+    },
+    {
       "bytes": 4436,
       "path": "scripts/validate_adapter_metadata.py",
       "sha256": "85cab5cc1d7eca12804cce4212b2590b26748fea965e29064cc02677b26e7728"
@@ -2216,6 +2266,21 @@
       "sha256": "d0a5179e44e0206108b1fd09e2ecc8c792aae09903c85a3cd4cbf4aaf2335bd9"
     },
     {
+      "bytes": 1296,
+      "path": "tests/test_acceleration_batch.py",
+      "sha256": "1e772b2b1c1a44a085af660f9fbebe8754d72c8979c5dd40d36712f6637b0b63"
+    },
+    {
+      "bytes": 7421,
+      "path": "tests/test_acceleration_foundation.py",
+      "sha256": "d8add49aec14022423415ca5776a0c997dacad20709191c0b1ede1812e837950"
+    },
+    {
+      "bytes": 711,
+      "path": "tests/test_acceleration_repository_integration.py",
+      "sha256": "5f162b6f733a140d5d8fee7d9fa47e82eeb8593394b6758c380ab2826a70de27"
+    },
+    {
       "bytes": 2050,
       "path": "tests/test_adapter_certification.py",
       "sha256": "73dc4ca7d1c9bbeba8430918943b307b947b3ad208ec080c671707c96636455a"
@@ -2294,6 +2359,11 @@
       "bytes": 2946,
       "path": "tests/test_maintenance_governance.py",
       "sha256": "0f3d1a24995be25b7220d59dea4dedf383f18a83bb29272079fdbc1a37b2fb48"
+    },
+    {
+      "bytes": 867,
+      "path": "tests/test_native_acceleration_contract.py",
+      "sha256": "c03a47d9455286adb22b6b4d1bd1f251207968874d61cfc18aeb26b8cfbdd7cc"
     },
     {
       "bytes": 8957,
@@ -2411,6 +2481,26 @@
       "sha256": "2099b9db2c1d2649b4052254e08c370509c028ea4caa97d7ee8363eac42485bc"
     },
     {
+      "bytes": 4001,
+      "path": "tools/acceleration-foundation-v2-bz2.part-00.b85",
+      "sha256": "163f54c0e0179174e5e7b2397490aa12666cbb83014805e3f95e50799bb98225"
+    },
+    {
+      "bytes": 4001,
+      "path": "tools/acceleration-foundation-v2-bz2.part-01.b85",
+      "sha256": "2f80f64b4ace9c292292a58d3f58e426dc30395490cb72ef7d8347bd6ab9d031"
+    },
+    {
+      "bytes": 4001,
+      "path": "tools/acceleration-foundation-v2-bz2.part-02.b85",
+      "sha256": "eb7d14c169a86ac4720d79ab55fbbd76b1ea04b376503f7f5cada9c575e6900f"
+    },
+    {
+      "bytes": 3650,
+      "path": "tools/acceleration-foundation-v2-bz2.part-03.b85",
+      "sha256": "3d846de1c3a145eee382bfd918a64507c27df2105a99e2a534d0a77b9bb6ada5"
+    },
+    {
       "bytes": 353,
       "path": "tsao_computation/__init__.py",
       "sha256": "a0e149d9ad37de6d95a40e765888329138a085aa8030d4ee5a0688d90455083c"
@@ -2419,6 +2509,36 @@
       "bytes": 48,
       "path": "tsao_computation/__main__.py",
       "sha256": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d"
+    },
+    {
+      "bytes": 42,
+      "path": "tsao_computation/acceleration.py",
+      "sha256": "e1483930a7675fc72757990e460e9b9d4e68d60f054ac5789b7faa68f330c9b1"
+    },
+    {
+      "bytes": 1099,
+      "path": "tsao_computation/accelerators/__init__.py",
+      "sha256": "49e1697700cf0951aca650bd53330b906d9cb5a248533fb2bffb87c6d6edf364"
+    },
+    {
+      "bytes": 7459,
+      "path": "tsao_computation/accelerators/catalog.py",
+      "sha256": "a92c6feb4f13445e1b8cd72bb7f9b1bec763d03fdfa9769b8b86d7b5722fc2ea"
+    },
+    {
+      "bytes": 8530,
+      "path": "tsao_computation/accelerators/model.py",
+      "sha256": "eee4e2683ce09eceedcad046ef53f18c8334aac042b2c22fc3d4c75480b9cfaf"
+    },
+    {
+      "bytes": 6877,
+      "path": "tsao_computation/accelerators/planner.py",
+      "sha256": "215bb4aab0530883e059b6012189070e0f756b75ec066791830c2f5b99c86f53"
+    },
+    {
+      "bytes": 4750,
+      "path": "tsao_computation/accelerators/probe.py",
+      "sha256": "44f8d91a6a5efc1e93252b8cfe61b5aa001848560ee9f895463bce2de59efc6f"
     },
     {
       "bytes": 212,
@@ -2494,6 +2614,11 @@
       "bytes": 89,
       "path": "tsao_computation/execution/__init__.py",
       "sha256": "9c5a09dbbe6b6747299746a19f35276ad7922089dec8707f0b99e696ef66c6b3"
+    },
+    {
+      "bytes": 1300,
+      "path": "tsao_computation/execution/batch.py",
+      "sha256": "0f03d83166bb589fd58e67c6ae6cd0bb95eacbdab493bd95e6530463c532ac33"
     },
     {
       "bytes": 978,
