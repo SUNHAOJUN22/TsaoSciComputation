@@ -503,8 +503,10 @@
     "claim_boundary": "Same-host repository orchestration, parsing and verification only; no external solver or production-HPC speedup is claimed.",
     "cli_import_speedup": 0.9948104715715583,
     "execution_baseline_limitation": "The execution-time main contained interrupted audit transport/state files and failed its own repository Manifest gate, so it was recorded but not used as the executable A/B product baseline.",
+    "execution_baseline_profile_process_status": "PASS",
     "execution_baseline_sha": "05525a859481237b9fb443a664e1d8b5849efb83",
-    "execution_baseline_status": "PASS",
+    "execution_baseline_status": "NON_EXECUTABLE_MANIFEST_FAIL",
+    "execution_baseline_usable_for_ab": false,
     "measurement_status": "PASS",
     "parser_cases": {
       "1kib_crlf": 0.991409170128329,
@@ -569,8 +571,17 @@
   "remaining_non_code_admin_actions": [
     "Confirm or enable private vulnerability reporting in repository settings.",
     "Confirm or enable the desired main-branch repository ruleset in repository settings.",
-    "Review the newest CodeQL and OpenSSF Scorecard remote run conclusions after this evidence commit."
+    "Review the newest CodeQL and OpenSSF Scorecard remote run conclusions after this evidence commit.",
+    "A pre-existing remote branch refresh-readme-visuals-uiux-pro-max remains. It was not created or modified by this audit because the user prohibited operations on non-main branches."
   ],
+  "remote_branch_governance": {
+    "branches": [
+      "main",
+      "refresh-readme-visuals-uiux-pro-max"
+    ],
+    "created_by_this_audit": false,
+    "status": "PRE_EXISTING_NON_MAIN_BRANCH_REPORTED_NOT_MODIFIED"
+  },
   "remote_branches": [
     "main",
     "refresh-readme-visuals-uiux-pro-max"

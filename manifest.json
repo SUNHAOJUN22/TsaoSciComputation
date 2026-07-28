@@ -1736,9 +1736,9 @@
       "sha256": "4b1ea5595c760a27cc64a959eee5de1ae0574967d01a86e740ab0d56cf2412b3"
     },
     {
-      "bytes": 5235,
+      "bytes": 5586,
       "path": "reports/CURRENT_MAIN_VERIFICATION.json",
-      "sha256": "fdc1d8ec34772c3d8cccfbef2e2e13058b7bf1a39f76909c2427bdb93d372ccf"
+      "sha256": "dd8e9249d67a703de42e131ba1ae3efb9b27c5b833179fdc4a11227d163742e6"
     },
     {
       "bytes": 3115,
@@ -1816,9 +1816,9 @@
       "sha256": "6a70f52615a2a8d2eb164b704487e8b7d9fc9109a9861fd4c175b29bb0d1a265"
     },
     {
-      "bytes": 17498,
+      "bytes": 18036,
       "path": "reports/ULTIMATE_SKILL_REPOSITORY_AUDIT_V1.json",
-      "sha256": "3af1a147f710113279a8f141f89c6722038f4cc634aae68f9e3e74b43985f981"
+      "sha256": "0c6cddb78af3ad713823cf4e214566440081c8c6ecee577ec14257989c581747"
     },
     {
       "bytes": 3212,
