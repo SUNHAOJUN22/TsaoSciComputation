@@ -1,2 +1,0 @@
-mode=full-release-gates-and-six-platform-matrix
-windows_coverage_fix=posix-memory-probe-deterministic-tests

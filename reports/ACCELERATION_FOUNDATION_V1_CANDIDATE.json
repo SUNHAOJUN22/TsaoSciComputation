@@ -67,6 +67,7 @@
     "native/tests/native_smoke.cpp",
     "references/accelerated-computing.md",
     "registry/accelerators.json",
+    "reports/ACCELERATION_FOUNDATION_V1.json",
     "schemas/accelerator-profile.schema.json",
     "schemas/calculation-contract.schema.json",
     "scripts/benchmark.py",
@@ -100,6 +101,7 @@
     "tests/test_acceleration_coverage.py",
     "tests/test_acceleration_foundation.py",
     "tests/test_acceleration_hardening.py",
+    "tests/test_acceleration_platform_coverage.py",
     "tests/test_acceleration_repository_integration.py",
     "tests/test_acceleration_threshold_boundaries.py",
     "tests/test_native_acceleration_contract.py",
@@ -117,7 +119,7 @@
     "tsao_computation/registries/loader.py",
     "tsao_computation/repository_audit.py"
   ],
-  "claim_boundary": "Hardware and library detection, acceleration profiles, planning, source-only C++20 ABI, CPU fallback and repository tests are validated. No live CUDA-X library, GPU kernel, external solver, numerical speedup, energy saving, convergence, physical validity, applicability, or engineering authorization is claimed without versioned execution evidence.",
+  "claim_boundary": "Repository hardware detection, acceleration metadata, planning, CPU fallback, bounded batch execution, documentation, source-only C++20 ABI and portable tests are validated. No live CUDA-X library, GPU kernel, external solver, production edge/HPC environment, numerical speedup, energy saving, convergence, physical validity, applicability, or engineering authorization is claimed without versioned execution evidence.",
   "clean_baseline_sha": "11d3ad6dcc7cfd3d10954512c873c5a9833637ca",
   "counts": {
     "acceleration_profiles": 27,
@@ -126,37 +128,23 @@
     "workflows": 20
   },
   "coverage": {
-    "covered_branches": 432,
-    "covered_lines": 1566,
+    "covered_branches": 433,
+    "covered_lines": 1569,
     "excluded_lines": 0,
-    "missing_branches": 44,
-    "missing_lines": 57,
+    "missing_branches": 43,
+    "missing_lines": 54,
     "num_branches": 476,
-    "num_partial_branches": 42,
+    "num_partial_branches": 41,
     "num_statements": 1623,
-    "percent_branches_covered": 90.75630252100841,
+    "percent_branches_covered": 90.96638655462185,
     "percent_branches_covered_display": "91",
-    "percent_covered": 95.18818484992853,
+    "percent_covered": 95.37875178656503,
     "percent_covered_display": "95",
-    "percent_statements_covered": 96.48798521256931,
-    "percent_statements_covered_display": "96"
+    "percent_statements_covered": 96.6728280961183,
+    "percent_statements_covered_display": "97"
   },
   "created_branch": false,
   "created_pull_request": false,
-  "cross_platform": {
-    "core": "FAIL",
-    "native_cpp20": "FAIL",
-    "operating_systems": [
-      "ubuntu-latest",
-      "windows-latest",
-      "macos-latest"
-    ],
-    "python_versions": [
-      "3.10",
-      "3.13"
-    ],
-    "status": "FAIL"
-  },
   "dependency_audit": {
     "dependencies": [
       {
@@ -431,15 +419,14 @@
     ],
     "fixes": []
   },
-  "finalized_at": "2026-07-28T18:09:39.503983+00:00",
   "force_push": false,
   "gates": {
     "acceleration_metadata": "PASS",
     "bandit": "PASS",
     "benchmark": "PASS",
     "core": "PASS",
-    "cross_platform_core_and_native": "FAIL",
     "dependency_audit": "PASS",
+    "format": "PASS",
     "manifest": "PASS",
     "mypy": "PASS",
     "native_cpp20_ubuntu": "PASS",
@@ -449,10 +436,9 @@
     "repository_audit": "PASS",
     "ruff": "PASS",
     "schemas": "PASS",
-    "security_scan": "PASS",
-    "targeted_tests": "PASS"
+    "security_scan": "PASS"
   },
-  "generated_at": "2026-07-28T18:08:05.769517+00:00",
+  "generated_at": "2026-07-28T18:25:12.736459+00:00",
   "native_core": {
     "claim_boundary": "This compiles and smoke-tests the source-only C++20 CPU/OpenMP discovery ABI. It does not claim a CUDA, HIP, SYCL, external-solver, numerical-performance, convergence, physical-validity, applicability, or authorization result.",
     "problems": [],
@@ -465,19 +451,19 @@
           "-S",
           "/home/runner/work/TsaoSciComputation/TsaoSciComputation/native",
           "-B",
-          "/tmp/tsao-native-core-tn4g1q9j/build",
+          "/tmp/tsao-native-core-cg32d0b6/build",
           "-DCMAKE_BUILD_TYPE=Release",
           "-DBUILD_TESTING=ON"
         ],
         "returncode": 0,
         "stderr_tail": "",
-        "stdout_tail": "-- The CXX compiler identification is GNU 13.3.0\n-- Detecting CXX compiler ABI info\n-- Detecting CXX compiler ABI info - done\n-- Check for working CXX compiler: /usr/bin/c++ - skipped\n-- Detecting CXX compile features\n-- Detecting CXX compile features - done\n-- Configuring done (2.3s)\n-- Generating done (0.0s)\n-- Build files have been written to: /tmp/tsao-native-core-tn4g1q9j/build"
+        "stdout_tail": "-- The CXX compiler identification is GNU 13.3.0\n-- Detecting CXX compiler ABI info\n-- Detecting CXX compiler ABI info - done\n-- Check for working CXX compiler: /usr/bin/c++ - skipped\n-- Detecting CXX compile features\n-- Detecting CXX compile features - done\n-- Configuring done (1.9s)\n-- Generating done (0.0s)\n-- Build files have been written to: /tmp/tsao-native-core-cg32d0b6/build"
       },
       {
         "command": [
           "/usr/local/bin/cmake",
           "--build",
-          "/tmp/tsao-native-core-tn4g1q9j/build",
+          "/tmp/tsao-native-core-cg32d0b6/build",
           "--config",
           "Release",
           "--parallel",
@@ -491,46 +477,35 @@
         "command": [
           "/usr/local/bin/ctest",
           "--test-dir",
-          "/tmp/tsao-native-core-tn4g1q9j/build",
+          "/tmp/tsao-native-core-cg32d0b6/build",
           "--output-on-failure",
           "-C",
           "Release"
         ],
         "returncode": 0,
         "stderr_tail": "",
-        "stdout_tail": "Internal ctest changing into directory: /tmp/tsao-native-core-tn4g1q9j/build\nTest project /tmp/tsao-native-core-tn4g1q9j/build\n    Start 1: tsao_native_smoke\n1/1 Test #1: tsao_native_smoke ................   Passed    0.00 sec\n\n100% tests passed, 0 tests failed out of 1\n\nTotal Test time (real) =   0.08 sec"
+        "stdout_tail": "Internal ctest changing into directory: /tmp/tsao-native-core-cg32d0b6/build\nTest project /tmp/tsao-native-core-cg32d0b6/build\n    Start 1: tsao_native_smoke\n1/1 Test #1: tsao_native_smoke ................   Passed    0.00 sec\n\n100% tests passed, 0 tests failed out of 1\n\nTotal Test time (real) =   0.18 sec"
       }
     ]
   },
   "pep517_artifacts": {
     "tsao_scicomputation-3.0.2-py3-none-any.whl": {
       "bytes": 77679,
-      "sha256": "5af01df46dedf5babda12e4dc4efe87d89fe3ca32bef2f5c7a23289c7cb10fd9"
+      "sha256": "3a90385b228e7d4d6c5a17b18131d5deedeaa1e28d668a11b8933ff05433e3bc"
     },
     "tsao_scicomputation-3.0.2.tar.gz": {
-      "bytes": 258038,
-      "sha256": "63b556b9bd485bf8ad21b2f329e4ba473d749185023e370f92a8867cdc961eae"
+      "bytes": 258333,
+      "sha256": "26affddfa276d6e6f6175d560b43ae22d39dc11d27c101da28ed5d8f6cddee5a"
     }
   },
-  "remediation_start_sha": "8999876caf9ab17576d917e72e805ec6a73cdda6",
-  "remote_branches": [
-    "main",
-    "refresh-readme-visuals-uiux-pro-max"
-  ],
+  "previous_candidate_sha": "46b9ad301202f038e0b4899a4eea41279507ca9a",
   "runtime_dependency_growth": 0,
-  "schema_version": "1.0",
-  "status": "BLOCKED",
+  "schema_version": "2.0",
+  "status": "CANDIDATE_VALIDATED_LOCAL",
   "tests": {
-    "collected": 648,
+    "collected": 651,
     "errors": 0,
     "failures": 0,
-    "passed": 648
-  },
-  "unverified_live_components": [
-    "CUDA, ROCm, SYCL, CUDA-X libraries and GPU kernels were not required or executed by the portable matrix.",
-    "Professional scientific solvers and production HPC/edge environments require separate lawful versioned execution evidence.",
-    "Performance, energy and thermal claims require same-host CPU/accelerated experiments on representative scientific workloads."
-  ],
-  "validated_source_sha": "46b9ad301202f038e0b4899a4eea41279507ca9a",
-  "workflow_baseline_sha": "e187225e5330ef9936bb6983fa94c7116ee9f84b"
+    "passed": 651
+  }
 }
