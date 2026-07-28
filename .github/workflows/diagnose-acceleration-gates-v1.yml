@@ -1,0 +1,116 @@
+name: Diagnose acceleration foundation gates V1
+
+on:
+  push:
+    branches: [main]
+    paths: [.diagnose-acceleration-gates-v1-trigger]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: diagnose-acceleration-gates-v1-main
+  cancel-in-progress: true
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+          cache: pip
+      - run: python -m pip install -e '.[validation,quality,security]'
+      - name: Run independent prepared-tree gates and publish structured tails
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          ORIGINAL_SHA="$GITHUB_SHA"
+          rm -f reports/ACCELERATION_FOUNDATION_V1_BLOCKED.json
+          rm -f reports/ACCELERATION_FOUNDATION_GATE_DIAGNOSTIC.json
+
+          acceleration_python=(
+            scripts/benchmark.py scripts/build_adapter_docs.py scripts/build_workflow_docs.py
+            scripts/validate_accelerator_metadata.py scripts/validate_schemas.py
+            scripts/verify_native_core.py tests/test_acceleration_batch.py
+            tests/test_acceleration_foundation.py tests/test_acceleration_hardening.py
+            tests/test_acceleration_repository_integration.py tests/test_native_acceleration_contract.py
+            tsao_computation/acceleration.py tsao_computation/accelerators/__init__.py
+            tsao_computation/accelerators/catalog.py tsao_computation/accelerators/model.py
+            tsao_computation/accelerators/planner.py tsao_computation/accelerators/probe.py
+            tsao_computation/cli.py tsao_computation/execution/__init__.py
+            tsao_computation/execution/batch.py tsao_computation/registries/__init__.py
+            tsao_computation/registries/loader.py tsao_computation/repository_audit.py
+          )
+          python -m ruff check --fix "${acceleration_python[@]}"
+          python -m ruff format "${acceleration_python[@]}"
+          python scripts/sync_package_assets.py
+          python scripts/build_adapter_docs.py
+          python scripts/build_workflow_docs.py
+          python scripts/build_examples.py
+          python scripts/build_manifest.py
+
+          mkdir -p /tmp/tsao-acceleration-gates
+          run_gate() {
+            name="$1"; shift
+            set +e
+            "$@" >"/tmp/tsao-acceleration-gates/${name}.log" 2>&1
+            code=$?
+            set -e
+            printf '%s' "$code" >"/tmp/tsao-acceleration-gates/${name}.rc"
+          }
+          run_gate quality python scripts/verify_all.py --profile quality
+          run_gate core python scripts/verify_all.py --profile core
+          run_gate package python scripts/verify_all.py --profile package
+          run_gate benchmark python scripts/verify_all.py --profile benchmark
+          run_gate native python scripts/verify_native_core.py
+          run_gate targeted python -m pytest -q \
+            tests/test_acceleration_foundation.py \
+            tests/test_acceleration_hardening.py \
+            tests/test_acceleration_batch.py \
+            tests/test_acceleration_repository_integration.py \
+            tests/test_native_acceleration_contract.py
+
+          python - <<'PY'
+          import json
+          from datetime import datetime, timezone
+          from pathlib import Path
+          root = Path('/tmp/tsao-acceleration-gates')
+          gates = {}
+          for name in ('quality', 'core', 'package', 'benchmark', 'native', 'targeted'):
+              rc = int((root / f'{name}.rc').read_text())
+              lines = (root / f'{name}.log').read_text(encoding='utf-8', errors='replace').splitlines()
+              gates[name] = {
+                  'status': 'PASS' if rc == 0 else 'FAIL',
+                  'returncode': rc,
+                  'log_tail': lines[-200:],
+              }
+          report = {
+              'schema_version': '1.0',
+              'status': 'PASS' if all(item['returncode'] == 0 for item in gates.values()) else 'BLOCKED',
+              'generated_at': datetime.now(timezone.utc).isoformat(),
+              'gates': gates,
+          }
+          Path('/tmp/ACCELERATION_FOUNDATION_GATE_DIAGNOSTIC.json').write_text(
+              json.dumps(report, indent=2, sort_keys=True) + '\n', encoding='utf-8', newline='\n'
+          )
+          PY
+
+          git reset --hard "$ORIGINAL_SHA"
+          rm -f .github/workflows/diagnose-acceleration-gates-v1.yml
+          rm -f .diagnose-acceleration-gates-v1-trigger
+          rm -f reports/ACCELERATION_FOUNDATION_V1_BLOCKED.json
+          cp /tmp/ACCELERATION_FOUNDATION_GATE_DIAGNOSTIC.json \
+            reports/ACCELERATION_FOUNDATION_GATE_DIAGNOSTIC.json
+          python scripts/build_manifest.py
+          git add -A
+          git commit -m 'Record focused acceleration gate diagnostics'
+          git push origin HEAD:refs/heads/main
