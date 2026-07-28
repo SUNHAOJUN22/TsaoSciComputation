@@ -99,7 +99,11 @@ def validate(root: Path = ROOT) -> list[str]:
             "limitations",
         ):
             values = record.get(key)
-            if not isinstance(values, list) or not values or len(values) != len(set(map(str, values))):
+            if (
+                not isinstance(values, list)
+                or not values
+                or len(values) != len(set(map(str, values)))
+            ):
                 problems.append(f"acceleration profile {slug} has invalid {key}")
         claim_boundary = record.get("claim_boundary")
         if not isinstance(claim_boundary, str) or len(claim_boundary) < 40:

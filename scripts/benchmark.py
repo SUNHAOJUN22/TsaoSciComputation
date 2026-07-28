@@ -11,7 +11,6 @@ from pathlib import Path
 from typing import TypeVar
 
 import _bootstrap  # noqa: F401
-from tsao_computation.adapters import get_adapter
 from tsao_computation.accelerators import (
     AcceleratorBackend,
     AcceleratorInventory,
@@ -19,6 +18,7 @@ from tsao_computation.accelerators import (
     acceleration_libraries,
     plan_acceleration,
 )
+from tsao_computation.adapters import get_adapter
 from tsao_computation.execution.batch import _default_workers
 from tsao_computation.provenance.manifest import iter_repository_entries
 from tsao_computation.registries import (
@@ -133,9 +133,7 @@ def build_result() -> dict[str, object]:
             median_seconds(capabilities, loops=2_000) * 1000, 5
         ),
         "adapter_registry_cold_median_ms": round(cold_registry_seconds(adapters) * 1000, 3),
-        "accelerator_registry_cold_median_ms": round(
-            cold_registry_seconds(accelerators) * 1000, 3
-        ),
+        "accelerator_registry_cold_median_ms": round(cold_registry_seconds(accelerators) * 1000, 3),
         "workflow_registry_cold_median_ms": round(cold_registry_seconds(workflows) * 1000, 3),
         "adapter_lookup_cached_median_us": round(
             median_seconds(lambda: get_adapter("orca"), loops=2_000) * 1_000_000,

@@ -1,2 +1,0 @@
-mode=final-pass-after-strict-coverage-boundary-tests
-coverage_gate=95

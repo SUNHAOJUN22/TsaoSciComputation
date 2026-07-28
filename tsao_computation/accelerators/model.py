@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import math
-from dataclasses import asdict, dataclass, field
+from collections.abc import Mapping
+from dataclasses import asdict, dataclass
 from enum import Enum
-from typing import Any, Mapping
+from typing import Any
 
 from ..errors import ContractError
 
@@ -75,11 +76,15 @@ class AcceleratorInventory:
     )
 
     def has_backend(self, backend: AcceleratorBackend | str) -> bool:
-        normalized = backend if isinstance(backend, AcceleratorBackend) else AcceleratorBackend(backend)
+        normalized = (
+            backend if isinstance(backend, AcceleratorBackend) else AcceleratorBackend(backend)
+        )
         return normalized in self.backends
 
     def devices_for(self, backend: AcceleratorBackend | str) -> tuple[AcceleratorDevice, ...]:
-        normalized = backend if isinstance(backend, AcceleratorBackend) else AcceleratorBackend(backend)
+        normalized = (
+            backend if isinstance(backend, AcceleratorBackend) else AcceleratorBackend(backend)
+        )
         return tuple(device for device in self.devices if device.backend is normalized)
 
     def to_dict(self) -> dict[str, object]:
@@ -172,7 +177,9 @@ class ComputeResourceRequest:
         unknown = sorted(set(value) - allowed)
         if unknown:
             raise ContractError(f"unknown compute resource fields: {unknown}")
-        raw_backends = value.get("preferred_backends", [item.value for item in cls().preferred_backends])
+        raw_backends = value.get(
+            "preferred_backends", [item.value for item in cls().preferred_backends]
+        )
         if isinstance(raw_backends, str) or not isinstance(raw_backends, (list, tuple)):
             raise ContractError("preferred_backends must be an array")
         backends = tuple(
@@ -199,9 +206,7 @@ class ComputeResourceRequest:
             mpi_ranks=_positive_int(value.get("mpi_ranks"), "mpi_ranks"),
             threads_per_rank=_positive_int(value.get("threads_per_rank"), "threads_per_rank"),
             accelerator_count=_positive_int(value.get("accelerator_count"), "accelerator_count"),
-            minimum_vram_gib=_positive_float(
-                value.get("minimum_vram_gib"), "minimum_vram_gib"
-            ),
+            minimum_vram_gib=_positive_float(value.get("minimum_vram_gib"), "minimum_vram_gib"),
             precision=_enum_value(
                 PrecisionPolicy, value.get("precision", PrecisionPolicy.FP64.value), "precision"
             ),
@@ -212,9 +217,7 @@ class ComputeResourceRequest:
             maximum_energy_kwh=_positive_float(
                 value.get("maximum_energy_kwh"), "maximum_energy_kwh"
             ),
-            power_limit_watts=_positive_float(
-                value.get("power_limit_watts"), "power_limit_watts"
-            ),
+            power_limit_watts=_positive_float(value.get("power_limit_watts"), "power_limit_watts"),
             allow_fallback=fallback,
         )
 

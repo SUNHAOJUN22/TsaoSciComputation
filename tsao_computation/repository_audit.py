@@ -272,7 +272,9 @@ def audit_repository(root: Path) -> dict[str, object]:
     if set(accelerator_slugs) != adapter_set:
         missing = sorted(adapter_set - set(accelerator_slugs))
         extra = sorted(set(accelerator_slugs) - adapter_set)
-        problems.append(f"acceleration profiles differ from adapters: missing={missing}, extra={extra}")
+        problems.append(
+            f"acceleration profiles differ from adapters: missing={missing}, extra={extra}"
+        )
     for profile in accelerator_records:
         slug = str(profile.get("slug", ""))
         missing = sorted(ACCELERATOR_REQUIRED - profile.keys())
@@ -286,7 +288,9 @@ def audit_repository(root: Path) -> dict[str, object]:
             problems.append(f"acceleration profile {slug} lacks CPU fallback")
         if not isinstance(preferred, list) or not preferred:
             problems.append(f"acceleration profile {slug} lacks preferred backends")
-        elif isinstance(candidates, list) and not set(map(str, preferred)) <= set(map(str, candidates)):
+        elif isinstance(candidates, list) and not set(map(str, preferred)) <= set(
+            map(str, candidates)
+        ):
             problems.append(f"acceleration profile {slug} prefers undeclared backends")
         boundary = profile.get("claim_boundary")
         if not isinstance(boundary, str) or len(boundary) < 40:

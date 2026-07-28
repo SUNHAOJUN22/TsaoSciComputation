@@ -80,9 +80,7 @@ def test_resource_request_complete_roundtrip() -> None:
         ({"precision": "tf32"}, "precision must be one of"),
     ],
 )
-def test_resource_request_rejects_invalid_boundaries(
-    payload: object, message: str
-) -> None:
+def test_resource_request_rejects_invalid_boundaries(payload: object, message: str) -> None:
     with pytest.raises(ContractError, match=message):
         ComputeResourceRequest.from_mapping(payload)  # type: ignore[arg-type]
 

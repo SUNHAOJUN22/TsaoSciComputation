@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import asdict, dataclass
-from typing import Any, Mapping
+from typing import Any
 
 from ..errors import ContractError
 from ..registries import accelerators as accelerator_records
@@ -127,8 +128,13 @@ def plan_acceleration(
     elif selected is not first_requested:
         fallback = True
 
-    if request.accelerator_policy is AcceleratorPolicy.REQUIRED and selected not in _HARDWARE_BACKENDS:
-        raise ContractError("an accelerator was required, but only CPU/MPI/task/remote backends are available")
+    if (
+        request.accelerator_policy is AcceleratorPolicy.REQUIRED
+        and selected not in _HARDWARE_BACKENDS
+    ):
+        raise ContractError(
+            "an accelerator was required, but only CPU/MPI/task/remote backends are available"
+        )
 
     devices = detected.devices_for(selected)
     if selected in _HARDWARE_BACKENDS:
@@ -140,8 +146,13 @@ def plan_acceleration(
             or (device.memory_gib is not None and device.memory_gib >= request.minimum_vram_gib)
         )
         if len(eligible) < count:
-            if request.accelerator_policy is AcceleratorPolicy.REQUIRED or not request.allow_fallback:
-                raise ContractError("detected accelerator devices do not satisfy count or VRAM requirements")
+            if (
+                request.accelerator_policy is AcceleratorPolicy.REQUIRED
+                or not request.allow_fallback
+            ):
+                raise ContractError(
+                    "detected accelerator devices do not satisfy count or VRAM requirements"
+                )
             selected = AcceleratorBackend.CPU
             devices = ()
             fallback = True
@@ -149,7 +160,9 @@ def plan_acceleration(
             devices = eligible[:count]
 
     cpu_cores = request.cpu_cores or detected.logical_cpu_count
-    mpi_ranks = request.mpi_ranks or (1 if selected is not AcceleratorBackend.MPI else min(4, cpu_cores))
+    mpi_ranks = request.mpi_ranks or (
+        1 if selected is not AcceleratorBackend.MPI else min(4, cpu_cores)
+    )
     threads = request.threads_per_rank or max(1, cpu_cores // max(1, mpi_ranks))
     environment: dict[str, str] = {}
     if selected is AcceleratorBackend.CUDA and devices:

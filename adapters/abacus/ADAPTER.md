@@ -46,6 +46,29 @@ This adapter provides discovery, input/output contracts, conservative parsing, a
 - The user must provide a lawful installation, license where required, version information, and required scientific data files.
 - The calculation contract must identify the observable, method, units, reference state, convergence plan, validation plan, and resource envelope.
 
+## Acceleration and placement
+
+- Interfaces: `cli`
+- Candidate backends: `cpu`, `openmp`, `mpi`, `cuda`
+- Preferred planning order: `cuda`, `mpi`, `openmp`, `cpu`
+- Parallel strategies: `mpi`, `openmp`, `solver-native`
+- Execution mode: `solver-native`
+- Edge suitability: `unsuitable`
+- Candidate libraries: `cublas`, `cusolver`, `cufft`, `nccl`
+
+Probe hints:
+
+- ABACUS --version
+
+Limitations:
+
+- Accelerator coverage is method- and build-dependent.
+- Numerical equivalence, memory, and scaling require a versioned live test.
+
+Candidate ABACUS acceleration metadata only; no installed GPU build or calculation is claimed.
+
+Run `python -m tsao_computation probe-accelerators` and `python -m tsao_computation plan-acceleration abacus` before preparing an accelerated run. A GPU, compiler, Python package, or CUDA-X library detected on the host does not prove that the selected executable was built for that backend. Compare CPU and accelerated results for completion, convergence, observables, precision, determinism, conservation, uncertainty, applicability, wall time, memory, energy, and thermal behavior. Preserve a bounded CPU fallback.
+
 ## Environment probe
 
 Run `python -m tsao_computation probe` and retain the executable path, required-module outcome, version, environment, license outcome, and probe timestamp. Python-library adapters are unavailable unless every declared module is import-discoverable through the selected interpreter. A detected executable is not proof that a scientifically valid run is possible.
@@ -61,9 +84,9 @@ Preserve native stdout/stderr and output files, return code, hashes, parser vers
 ## Preflight
 
 1. Strictly validate the calculation contract.
-2. Probe the executable, required modules, and lawful environment.
-3. Validate files, syntax, units, model consistency, resources, and output paths.
-4. Confirm the convergence and scientific-validation plans before submission.
+2. Probe the executable, required modules, lawful environment, hardware, and requested backend.
+3. Validate files, syntax, units, model consistency, resources, device binding, and output paths.
+4. Confirm convergence, CPU-reference, numerical-equivalence, performance, energy, thermal, and scientific-validation plans before submission.
 
 ## Run guidance
 
@@ -71,7 +94,7 @@ Build an argv list without shell construction, use an explicit working directory
 
 ## Validation
 
-Validate file completeness, exit status, units, conservation or invariants, method-specific physical checks, benchmark/literature/experiment comparison, uncertainty, applicability, and whether the result answers the research question.
+Validate file completeness, exit status, units, conservation or invariants, method-specific physical checks, CPU/accelerated numerical equivalence, benchmark/literature/experiment comparison, uncertainty, applicability, and whether the result answers the research question.
 
 ## Convergence
 
@@ -79,15 +102,15 @@ Require method-appropriate SCF, geometry, force, residual, mesh, time-step, samp
 
 ## Common errors
 
-Environment, module, or license missing; malformed input; unavailable data file; invalid structure or units; numerical nonconvergence; insufficient memory; MPI/GPU/queue failure; parser mismatch; or model inapplicability.
+Environment, module, driver, device, license, or solver-build feature missing; malformed input; unavailable data file; invalid structure or units; numerical nonconvergence; insufficient host or device memory; MPI/GPU/queue failure; parser mismatch; precision drift; thermal throttling; or model inapplicability.
 
 ## Recovery
 
-Recovery is bounded and auditable. Record the original setting, replacement, reason, attempt count, and possible scientific impact. Escalate repeated, unknown, safety, licensing, or model-validity failures.
+Recovery is bounded and auditable. Record the original setting, replacement, reason, attempt count, backend, device binding, precision, and possible scientific impact. Escalate repeated, unknown, safety, licensing, or model-validity failures.
 
 ## Provenance
 
-Record adapter slug, solver/version, executable path, required-module probe, platform, input/output hashes, method fingerprint, parameters and sources, timestamps, resource use, parser version, validation results, and human approvals.
+Record adapter slug, solver/version, executable path, required-module probe, platform, CPU/GPU inventory, driver/runtime, accelerator libraries, device binding, precision, input/output hashes, method fingerprint, parameters and sources, timestamps, resource use, parser version, validation results, and human approvals.
 
 ## Examples
 
@@ -96,6 +119,9 @@ Use the closest workflow example under `examples/`, then replace every system-sp
 ## Scripts
 
 - `python -m tsao_computation probe`
+- `python -m tsao_computation probe-accelerators`
+- `python -m tsao_computation plan-acceleration abacus`
 - `python -m tsao_computation validate-contract <contract.json> --strict`
 - `python scripts/validate_adapter_metadata.py`
+- `python scripts/validate_accelerator_metadata.py`
 - `python scripts/verify_all.py --profile core`

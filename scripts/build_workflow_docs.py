@@ -47,7 +47,9 @@ def render_workflow(
     libraries = sorted(
         {str(item) for profile in profiles for item in profile.get("library_candidates", [])}
     )
-    edge_modes = sorted({str(profile.get("edge_suitability", "unsuitable")) for profile in profiles})
+    edge_modes = sorted(
+        {str(profile.get("edge_suitability", "unsuitable")) for profile in profiles}
+    )
     gates = " → ".join(f"`{item}`" for item in record["required_gates"])
     keywords = ", ".join(f"`{item}`" for item in record.get("keywords", []))
     return f"""---
