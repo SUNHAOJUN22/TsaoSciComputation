@@ -3,9 +3,14 @@ from __future__ import annotations
 import ast
 import json
 import py_compile
+import sys
 from pathlib import Path
 
-from scripts.validate_skill_spec import validate_repository_skills
+REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
+if str(REPOSITORY_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPOSITORY_ROOT))
+
+from scripts.validate_skill_spec import validate_repository_skills  # noqa: E402
 
 ROOTS = (Path("tsao_computation"), Path("scripts"), Path("tests"))
 
