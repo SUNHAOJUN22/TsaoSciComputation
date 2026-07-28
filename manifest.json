@@ -1771,9 +1771,9 @@
       "sha256": "4b1ea5595c760a27cc64a959eee5de1ae0574967d01a86e740ab0d56cf2412b3"
     },
     {
-      "bytes": 16369,
-      "path": "reports/ACCELERATION_FOUNDATION_GATE_DIAGNOSTIC.json",
-      "sha256": "b1085f85b86980238329e52f88cb4d9061382da944cd032a908dcf1b74a0a568"
+      "bytes": 21116,
+      "path": "reports/ACCELERATION_FOUNDATION_V1_BLOCKED.json",
+      "sha256": "5bc036d847e3bf7985a573dc5f481675c470da949139a71054d5b52b615a9467"
     },
     {
       "bytes": 5586,
@@ -2254,6 +2254,11 @@
       "bytes": 1296,
       "path": "tests/test_acceleration_batch.py",
       "sha256": "1e772b2b1c1a44a085af660f9fbebe8754d72c8979c5dd40d36712f6637b0b63"
+    },
+    {
+      "bytes": 8872,
+      "path": "tests/test_acceleration_coverage.py",
+      "sha256": "b01231da248ffe95f4917ce19dde83cd66420fb04892ed0d1d8d32101f0377dc"
     },
     {
       "bytes": 7421,
