@@ -2,8 +2,27 @@
 
 #include <thread>
 
+namespace {
+
+constexpr const char* kCapabilities =
+    "{\"abi_version\":1,\"api_version\":\"1.0.0\","
+    "\"control_plane\":\"python\",\"native_language\":\"c++20\","
+    "\"candidate_backends\":[\"cpu\",\"openmp\",\"cuda\",\"hip\",\"sycl\"],"
+    "\"claim_boundary\":\"Build-time capability metadata only; no GPU device, solver support, "
+    "speedup, convergence, physical validity, applicability, or authorization is claimed.\"}";
+
+}  // namespace
+
 uint32_t tsao_native_abi_version(void) {
     return TSAO_NATIVE_ABI_VERSION;
+}
+
+const char* tsao_native_api_version(void) {
+    return TSAO_NATIVE_API_VERSION;
+}
+
+const char* tsao_native_capabilities_json(void) {
+    return kCapabilities;
 }
 
 int32_t tsao_native_probe(TsaoNativeHardwareSummary* output) {
