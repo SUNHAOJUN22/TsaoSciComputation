@@ -61,6 +61,11 @@
       "sha256": "888504346181e4551dc64fdc32d70698a93079e3fab83ffcd9aeea3e53814392"
     },
     {
+      "bytes": 3795,
+      "path": ".github/workflows/apply-acceleration-foundation-v6.yml",
+      "sha256": "5fb8efc2d1e41397610d410304011b1413441f2a6789cabc23a8e083f4367e72"
+    },
+    {
       "bytes": 3622,
       "path": ".github/workflows/ci.yml",
       "sha256": "8f8d16528675a831aa2f679268212770ba12383414ae6f635abacdcf20b07f29"
@@ -1796,9 +1801,9 @@
       "sha256": "4b1ea5595c760a27cc64a959eee5de1ae0574967d01a86e740ab0d56cf2412b3"
     },
     {
-      "bytes": 22676,
+      "bytes": 20203,
       "path": "reports/ACCELERATION_FOUNDATION_V1_BLOCKED.json",
-      "sha256": "f76ab18a5d9fa5a8a6fdc29f77d051914605720a8344357f55cbdc2ceac0ab87"
+      "sha256": "47edd56ae2022298c1deeb53aaee520b40a5ae079ab22a805ada489f85c95951"
     },
     {
       "bytes": 72345,
@@ -2599,6 +2604,11 @@
       "bytes": 1,
       "path": "tsao_computation/data/__init__.py",
       "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "bytes": 27940,
+      "path": "tsao_computation/data/registry/accelerators.json",
+      "sha256": "f3bf7752e55d15a28d685ecbe575da189fc455716de6fee3bef1b0bfe55789b9"
     },
     {
       "bytes": 33889,
