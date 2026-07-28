@@ -1736,9 +1736,9 @@
       "sha256": "4b1ea5595c760a27cc64a959eee5de1ae0574967d01a86e740ab0d56cf2412b3"
     },
     {
-      "bytes": 2244,
+      "bytes": 5235,
       "path": "reports/CURRENT_MAIN_VERIFICATION.json",
-      "sha256": "c9afcec07f81155e69e8a0bc411c60b50113120718163881c777aa73075e7f47"
+      "sha256": "fdc1d8ec34772c3d8cccfbef2e2e13058b7bf1a39f76909c2427bdb93d372ccf"
     },
     {
       "bytes": 3115,
@@ -1816,19 +1816,14 @@
       "sha256": "6a70f52615a2a8d2eb164b704487e8b7d9fc9109a9861fd4c175b29bb0d1a265"
     },
     {
-      "bytes": 311,
+      "bytes": 17498,
       "path": "reports/ULTIMATE_SKILL_REPOSITORY_AUDIT_V1.json",
-      "sha256": "fd0bdbcff82e86be080140531c9ff2061b0b94dc948ac751fff62b58db89fedb"
+      "sha256": "3af1a147f710113279a8f141f89c6722038f4cc634aae68f9e3e74b43985f981"
     },
     {
-      "bytes": 95,
+      "bytes": 3212,
       "path": "reports/ULTIMATE_SKILL_REPOSITORY_AUDIT_V1.md",
-      "sha256": "d4f4f3fd4f89b31e398b480152c24202cf71276c49078debac5886b5a0ebbbe8"
-    },
-    {
-      "bytes": 509,
-      "path": "reports/ULTIMATE_SKILL_REPOSITORY_AUDIT_V1_BLOCKED.json",
-      "sha256": "9ad3c2dae205026be3bbf83589f2530ccfea1beef31314588ca0784cf1648a1c"
+      "sha256": "26575aea175e22b12fec78bc7b9f1be4a5d9dbe782f68b645fcd4bbee23ffc69"
     },
     {
       "bytes": 4766,
