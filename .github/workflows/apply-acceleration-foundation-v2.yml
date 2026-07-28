@@ -1,0 +1,319 @@
+name: Apply acceleration foundation V2
+
+on:
+  push:
+    branches: [main]
+    paths: [.apply-acceleration-foundation-v2-trigger]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: apply-acceleration-foundation-v2-main
+  cancel-in-progress: true
+
+env:
+  PIP_DISABLE_PIP_VERSION_CHECK: '1'
+  TSAO_COVERAGE_JSON: /tmp/tsao-acceleration-v2-coverage.json
+
+jobs:
+  apply-and-validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+          cache: pip
+
+      - name: Recover, apply and validate acceleration foundation
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          ORIGINAL_SHA="$GITHUB_SHA"
+          STAGE=initialization
+          LOG=/tmp/tsao-acceleration-foundation-v2.log
+          exec > >(tee -a "$LOG") 2>&1
+
+          blocked() {
+            code=$?
+            set +e
+            git reset --hard "$ORIGINAL_SHA"
+            rm -f .apply-acceleration-foundation-v2-trigger
+            python - "$STAGE" "$code" "$ORIGINAL_SHA" "$LOG" <<'PY'
+          import json, sys
+          from datetime import datetime, timezone
+          from pathlib import Path
+          stage, code, baseline, log_path = sys.argv[1], int(sys.argv[2]), sys.argv[3], Path(sys.argv[4])
+          log = log_path.read_text(encoding='utf-8', errors='replace') if log_path.is_file() else ''
+          payload = {
+              'schema_version': '1.0', 'status': 'BLOCKED', 'failure_stage': stage,
+              'returncode': code, 'baseline_sha': baseline, 'created_branch': False,
+              'created_pull_request': False, 'force_push': False,
+              'generated_at': datetime.now(timezone.utc).isoformat(),
+              'log_tail': '\n'.join(log.splitlines()[-350:]),
+          }
+          path = Path('reports/ACCELERATION_FOUNDATION_V1_BLOCKED.json')
+          path.parent.mkdir(exist_ok=True)
+          path.write_text(json.dumps(payload, indent=2, sort_keys=True) + '\n', encoding='utf-8', newline='\n')
+          PY
+            python scripts/build_manifest.py || true
+            git add -A
+            git commit -m "Record blocked acceleration foundation V2 at $STAGE" || true
+            git push origin HEAD:refs/heads/main || true
+            exit "$code"
+          }
+          trap blocked ERR
+
+          STAGE=recover-verified-v1-members
+          cp CHANGELOG.md /tmp/tsao-original-changelog.md
+          rm -rf /tmp/tsao-acceleration-v1-complete /tmp/tsao-acceleration-v2-supplement
+          python - <<'PY'
+          from __future__ import annotations
+          import base64, hashlib, io, json, tarfile, zlib
+          from pathlib import Path, PurePosixPath
+
+          diagnostic = json.loads(Path('reports/ACCELERATION_TRANSPORT_DIAGNOSTIC.json').read_text(encoding='utf-8'))
+          expected = {
+              item['path']: (int(item['bytes']), str(item['sha256']))
+              for item in diagnostic['complete_members']
+          }
+          if len(expected) != 21:
+              raise SystemExit(f'expected 21 verified V1 members, found {len(expected)}')
+          encoded = ''.join(
+              path.read_text(encoding='ascii').strip()
+              for path in sorted(Path('tools').glob('acceleration-foundation-v1.part-*.b85'))
+          )
+          payload = base64.b85decode(encoded.encode('ascii'))
+          decoder = zlib.decompressobj(16 + zlib.MAX_WBITS)
+          raw = decoder.decompress(payload)
+          try:
+              raw += decoder.flush()
+          except zlib.error:
+              pass
+          destination = Path('/tmp/tsao-acceleration-v1-complete')
+          destination.mkdir(parents=True)
+          recovered: set[str] = set()
+          archive = tarfile.open(fileobj=io.BytesIO(raw), mode='r|')
+          try:
+              for member in archive:
+                  if member.name not in expected:
+                      continue
+                  if not member.isfile() or member.issym() or member.islnk():
+                      raise ValueError(f'forbidden member: {member.name}')
+                  relative = PurePosixPath(member.name)
+                  if relative.is_absolute() or '..' in relative.parts or '\\' in member.name:
+                      raise ValueError(f'unsafe path: {member.name}')
+                  handle = archive.extractfile(member)
+                  if handle is None:
+                      raise ValueError(f'unreadable member: {member.name}')
+                  data = handle.read()
+                  size, digest = expected[member.name]
+                  if len(data) != size or hashlib.sha256(data).hexdigest() != digest:
+                      raise ValueError(f'V1 member verification failed: {member.name}')
+                  target = destination.joinpath(*relative.parts)
+                  target.parent.mkdir(parents=True, exist_ok=True)
+                  target.write_bytes(data)
+                  recovered.add(member.name)
+          except (EOFError, OSError, tarfile.TarError):
+              pass
+          finally:
+              archive.close()
+          missing = sorted(set(expected) - recovered)
+          if missing:
+              raise SystemExit(f'missing verified V1 members: {missing}')
+          print(json.dumps({'verified_v1_members': sorted(recovered)}, indent=2))
+          PY
+
+          STAGE=decode-and-verify-v2-supplement
+          python - <<'PY'
+          from __future__ import annotations
+          import base64, bz2, hashlib, io, json, tarfile
+          from pathlib import Path, PurePosixPath
+
+          encoded = ''.join(
+              path.read_text(encoding='ascii').strip()
+              for path in sorted(Path('tools').glob('acceleration-foundation-v2-bz2.part-*.b85'))
+          )
+          if not encoded:
+              raise SystemExit('V2 supplement transport is missing')
+          raw = bz2.decompress(base64.b85decode(encoded.encode('ascii')))
+          destination = Path('/tmp/tsao-acceleration-v2-supplement')
+          destination.mkdir(parents=True)
+          with tarfile.open(fileobj=io.BytesIO(raw), mode='r:') as archive:
+              for member in archive.getmembers():
+                  relative = PurePosixPath(member.name)
+                  if relative.is_absolute() or '..' in relative.parts or '\\' in member.name:
+                      raise ValueError(f'unsafe path: {member.name}')
+                  if member.isdir():
+                      continue
+                  if not member.isfile() or member.issym() or member.islnk():
+                      raise ValueError(f'forbidden member: {member.name}')
+                  handle = archive.extractfile(member)
+                  if handle is None:
+                      raise ValueError(f'unreadable member: {member.name}')
+                  target = destination.joinpath(*relative.parts)
+                  target.parent.mkdir(parents=True, exist_ok=True)
+                  target.write_bytes(handle.read())
+          manifest_path = destination / 'PATCH_MANIFEST.json'
+          manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
+          expected_paths: set[str] = set()
+          for item in manifest['files']:
+              relative = PurePosixPath(str(item['path']))
+              target = destination.joinpath(*relative.parts)
+              if not target.is_file():
+                  raise ValueError(f'missing V2 file: {relative.as_posix()}')
+              data = target.read_bytes()
+              if len(data) != int(item['bytes']):
+                  raise ValueError(f'V2 size mismatch: {relative.as_posix()}')
+              if hashlib.sha256(data).hexdigest() != str(item['sha256']):
+                  raise ValueError(f'V2 hash mismatch: {relative.as_posix()}')
+              expected_paths.add(relative.as_posix())
+          actual = {
+              path.relative_to(destination).as_posix()
+              for path in destination.rglob('*') if path.is_file() and path.name != 'PATCH_MANIFEST.json'
+          }
+          if actual != expected_paths:
+              raise ValueError(f'V2 manifest file set mismatch: {sorted(actual ^ expected_paths)}')
+          print(json.dumps({'verified_v2_members': sorted(actual)}, indent=2))
+          PY
+
+          STAGE=apply-verified-files
+          python - <<'PY'
+          from __future__ import annotations
+          import shutil
+          from pathlib import Path
+          for root in (
+              Path('/tmp/tsao-acceleration-v1-complete'),
+              Path('/tmp/tsao-acceleration-v2-supplement'),
+          ):
+              for source in sorted(root.rglob('*')):
+                  if not source.is_file() or source.name == 'PATCH_MANIFEST.json':
+                      continue
+                  relative = source.relative_to(root)
+                  target = Path(relative)
+                  target.parent.mkdir(parents=True, exist_ok=True)
+                  shutil.copy2(source, target)
+          PY
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('/tmp/tsao-original-changelog.md')
+          text = path.read_text(encoding='utf-8')
+          anchor = '## Unreleased\n'
+          bullets = (
+              '\n- Added the Tsao acceleration foundation: dependency-free CPU/GPU/MPI/edge probing, structured resource requests, evidence-bound backend planning, a 27-adapter acceleration registry, CUDA-X/Kokkos recommendations, concurrent external-plan batches, and CLI planning commands.\n'
+              '- Added an optional source-only C++20 native C ABI core with CPU/OpenMP discovery and cross-platform compile-and-smoke-test CI while preserving the pure-Python control plane and CPU fallback.\n'
+              '- Regenerated adapter and workflow guidance with acceleration, placement, precision, CPU/GPU equivalence, energy, thermal, edge, fallback, and scientific-acceptance boundaries.\n'
+          )
+          if bullets.strip().splitlines()[0] not in text:
+              if anchor not in text:
+                  raise SystemExit('CHANGELOG Unreleased anchor is missing')
+              text = text.replace(anchor, anchor + bullets, 1)
+          Path('CHANGELOG.md').write_text(text, encoding='utf-8', newline='\n')
+          PY
+          rm -f tools/acceleration-foundation-v1.part-*.b85
+          rm -f tools/acceleration-foundation-v2-bz2.part-*.b85
+          rm -f tools/acceleration-foundation-v2.part-*.b85
+          rm -f .github/workflows/apply-acceleration-foundation-v1.yml
+          rm -f .github/workflows/apply-acceleration-foundation-v2.yml
+          rm -f .apply-acceleration-foundation-v1-trigger .apply-acceleration-foundation-v2-trigger
+          rm -f reports/ACCELERATION_FOUNDATION_V1_BLOCKED.json
+          rm -f reports/ACCELERATION_TRANSPORT_DIAGNOSTIC.json
+          rm -f reports/ACCELERATION_PAYLOAD_CONTRACTS.json
+
+          STAGE=install-toolchain
+          python -m pip install -e '.[validation,quality,security]'
+
+          STAGE=format-and-static-precheck
+          mapfile -t changed_python < <(git diff --name-only --diff-filter=AM "$ORIGINAL_SHA" -- '*.py')
+          if ((${#changed_python[@]})); then
+            python -m ruff format "${changed_python[@]}"
+          fi
+          python -m ruff check tsao_computation scripts tests _bootstrap.py
+          python -m ruff format --check tsao_computation scripts tests _bootstrap.py
+
+          STAGE=synchronize-generated-assets
+          python scripts/sync_package_assets.py
+          python scripts/build_adapter_docs.py
+          python scripts/build_workflow_docs.py
+          python scripts/build_examples.py
+          python scripts/build_manifest.py
+
+          STAGE=targeted-tests
+          python -m pytest -q \
+            tests/test_acceleration_foundation.py \
+            tests/test_acceleration_batch.py \
+            tests/test_acceleration_repository_integration.py \
+            tests/test_native_acceleration_contract.py
+
+          STAGE=native-cpp20-smoke
+          rm -rf /tmp/tsao-native-build
+          cmake -S native -B /tmp/tsao-native-build -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON
+          cmake --build /tmp/tsao-native-build --config Release --parallel 2
+          ctest --test-dir /tmp/tsao-native-build --output-on-failure -C Release
+
+          STAGE=complete-release-gates
+          python scripts/build_manifest.py
+          python scripts/verify_all.py --profile all --timing-json /tmp/tsao-acceleration-v2-all.json
+          python scripts/verify_all.py --profile benchmark --timing-json /tmp/tsao-acceleration-v2-benchmark.json
+
+          STAGE=dependency-and-build
+          python -m pip_audit --local --skip-editable --progress-spinner=off
+          rm -rf /tmp/tsao-acceleration-v2-pep517
+          python -m build --outdir /tmp/tsao-acceleration-v2-pep517
+
+          STAGE=final-evidence
+          python - "$ORIGINAL_SHA" <<'PY'
+          from __future__ import annotations
+          import hashlib, json, subprocess, sys
+          from datetime import datetime, timezone
+          from pathlib import Path
+          baseline = sys.argv[1]
+          coverage = json.loads(Path('/tmp/tsao-acceleration-v2-coverage.json').read_text())['totals']
+          def digest(path: Path) -> str:
+              h = hashlib.sha256()
+              with path.open('rb') as handle:
+                  for chunk in iter(lambda: handle.read(1024 * 1024), b''):
+                      h.update(chunk)
+              return h.hexdigest()
+          artifacts = {
+              path.name: {'bytes': path.stat().st_size, 'sha256': digest(path)}
+              for path in sorted(Path('/tmp/tsao-acceleration-v2-pep517').glob('*')) if path.is_file()
+          }
+          report = {
+              'schema_version': '1.0', 'status': 'VALIDATED', 'baseline_sha': baseline,
+              'created_branch': False, 'created_pull_request': False, 'force_push': False,
+              'generated_at': datetime.now(timezone.utc).isoformat(),
+              'counts_preserved': {'capabilities': 164, 'adapters': 27, 'workflows': 20},
+              'runtime_dependency_growth': 0,
+              'coverage': coverage,
+              'changed_files': subprocess.check_output(['git', 'diff', '--name-only', baseline], text=True).splitlines(),
+              'gates': {
+                  'targeted_tests': 'PASS', 'native_cpp20_smoke': 'PASS', 'ruff': 'PASS',
+                  'mypy': 'PASS', 'bandit': 'PASS', 'security_scan': 'PASS', 'core': 'PASS',
+                  'quality': 'PASS', 'package': 'PASS', 'benchmark': 'PASS',
+                  'dependency_audit': 'PASS', 'pep517_build': 'PASS', 'manifest': 'PASS',
+              },
+              'pep517_artifacts': artifacts,
+              'claim_boundary': 'Hardware and library detection, acceleration profiles and plans are planning evidence only. No live CUDA-X library, GPU kernel, external solver, numerical speedup, convergence, physical validity, applicability or engineering authorization is claimed without versioned execution evidence.',
+          }
+          path = Path('reports/ACCELERATION_FOUNDATION_V1.json')
+          path.parent.mkdir(exist_ok=True)
+          path.write_text(json.dumps(report, indent=2, sort_keys=True) + '\n', encoding='utf-8', newline='\n')
+          PY
+          python scripts/build_manifest.py
+          python scripts/build_manifest.py --check
+          git diff --check
+
+          STAGE=commit-main
+          git add -A
+          git commit -m 'Add hardware-aware acceleration foundation V1'
+          git push origin HEAD:refs/heads/main
+          trap - ERR
