@@ -1,9 +1,17 @@
 #include "tsao/capi.h"
 
 #include <cstdlib>
+#include <cstring>
 
 int main() {
     if (tsao_native_abi_version() != TSAO_NATIVE_ABI_VERSION) {
+        return EXIT_FAILURE;
+    }
+    if (std::strcmp(tsao_native_api_version(), TSAO_NATIVE_API_VERSION) != 0) {
+        return EXIT_FAILURE;
+    }
+    const char* capabilities = tsao_native_capabilities_json();
+    if (capabilities == nullptr || std::strstr(capabilities, "\"cpu\"") == nullptr) {
         return EXIT_FAILURE;
     }
     TsaoNativeHardwareSummary summary{};
