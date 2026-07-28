@@ -46,6 +46,11 @@
       "sha256": "fc1c4132bb9ee3e106530775aa0fcb4a38eeb3345dfd6fcd3aae3ac2b5ebf4f9"
     },
     {
+      "bytes": 3020,
+      "path": ".github/workflows/apply-acceleration-foundation-v3.yml",
+      "sha256": "93aab224e9494bd26f4550e4662a87771a9930c9a9f74e40ec240f12b37033da"
+    },
+    {
       "bytes": 3622,
       "path": ".github/workflows/ci.yml",
       "sha256": "8f8d16528675a831aa2f679268212770ba12383414ae6f635abacdcf20b07f29"
@@ -1781,9 +1786,9 @@
       "sha256": "4b1ea5595c760a27cc64a959eee5de1ae0574967d01a86e740ab0d56cf2412b3"
     },
     {
-      "bytes": 18864,
+      "bytes": 18881,
       "path": "reports/ACCELERATION_FOUNDATION_V1_BLOCKED.json",
-      "sha256": "224cc11ba4ab9f2187c7fb90f49d9d50b53864f62776e715f314d43b67c9ba1f"
+      "sha256": "2d10d19721d08b73bd2559e96cdf10349a79f466c168380a99ff617045542d17"
     },
     {
       "bytes": 72345,
