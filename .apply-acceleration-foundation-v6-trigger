@@ -1,0 +1,3 @@
+mode=verified-archives-ordered-safe-fix-format-full-gates
+baseline=f39c0cfc8f4142d9499f6c906d0fb7c1b56fc24b
+no_branch=true
