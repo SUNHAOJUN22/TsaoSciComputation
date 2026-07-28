@@ -105,11 +105,7 @@ def _validate_one(path: Path, root: Path, *, is_root: bool) -> dict[str, object]
         problems.append(f"{relative}: unsupported frontmatter keys: {unknown}")
 
     name = frontmatter.get("name")
-    if (
-        not isinstance(name, str)
-        or not NAME_PATTERN.fullmatch(name)
-        or len(name) > 64
-    ):
+    if not isinstance(name, str) or not NAME_PATTERN.fullmatch(name) or len(name) > 64:
         problems.append(f"{relative}: name must use lowercase letters, digits, and single hyphens")
     elif not is_root and path.parent.name != name:
         problems.append(f"{relative}: name must match its containing directory")
@@ -177,9 +173,7 @@ def validate_repository_skills(root: Path) -> dict[str, object]:
         for path in skill_paths
         if path.is_file()
     ]
-    problems = [
-        problem for record in records for problem in cast(list[str], record["problems"])
-    ]
+    problems = [problem for record in records for problem in cast(list[str], record["problems"])]
     expected = 1 + len(tuple((root / "skills" / "workflows").glob("*/SKILL.md")))
     if len(records) != expected:
         problems.append("Skill discovery did not cover every root and workflow SKILL.md")
