@@ -1,0 +1,12 @@
+{
+  "baseline_sha": "1557d03c0c5b61dbd9a9ebfb306c40a8a99386c3",
+  "created_branch": false,
+  "created_pull_request": false,
+  "failure_stage": "decode-and-audit-payload",
+  "force_push": false,
+  "generated_at": "2026-07-28T14:30:41.578731+00:00",
+  "log_tail": "Traceback (most recent call last):\n  File \"<stdin>\", line 84, in <module>\n  File \"<stdin>\", line 57, in extract_tar\n  File \"/opt/hostedtoolcache/Python/3.13.14/x64/lib/python3.13/tarfile.py\", line 2101, in getmembers\n    self._load()        # all members, we first have to\n    ~~~~~~~~~~^^\n  File \"/opt/hostedtoolcache/Python/3.13.14/x64/lib/python3.13/tarfile.py\", line 2900, in _load\n    while self.next() is not None:\n          ~~~~~~~~~^^\n  File \"/opt/hostedtoolcache/Python/3.13.14/x64/lib/python3.13/tarfile.py\", line 2803, in next\n    self.fileobj.seek(self.offset - 1)\n    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.13.14/x64/lib/python3.13/gzip.py\", line 442, in seek\n    return self._buffer.seek(offset, whence)\n           ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.13.14/x64/lib/python3.13/_compression.py\", line 153, in seek\n    data = self.read(min(io.DEFAULT_BUFFER_SIZE, offset))\n  File \"/opt/hostedtoolcache/Python/3.13.14/x64/lib/python3.13/gzip.py\", line 568, in read\n    raise EOFError(\"Compressed file ended before the \"\n                   \"end-of-stream marker was reached\")\nEOFError: Compressed file ended before the end-of-stream marker was reached\nAcceleration foundation blocked at stage: decode-and-audit-payload (exit 1)\nHEAD is now at 1557d03 Run acceleration foundation V1 validation",
+  "returncode": 1,
+  "schema_version": "1.0",
+  "status": "BLOCKED"
+}
