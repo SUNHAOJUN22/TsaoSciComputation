@@ -4,6 +4,7 @@ import pytest
 
 from tsao_computation.accelerators import (
     AcceleratorBackend,
+    AcceleratorDevice,
     AcceleratorInventory,
     AcceleratorPolicy,
     PlacementTarget,
@@ -18,7 +19,7 @@ from tsao_computation.errors import ContractError
 def _inventory(
     *backends: AcceleratorBackend,
     cpu_count: int = 8,
-    devices: tuple[object, ...] = (),
+    devices: tuple[AcceleratorDevice, ...] = (),
 ) -> AcceleratorInventory:
     return AcceleratorInventory(
         logical_cpu_count=cpu_count,
@@ -26,7 +27,7 @@ def _inventory(
         operating_system="Linux",
         memory_gib=32.0,
         backends=backends,
-        devices=devices,  # type: ignore[arg-type]
+        devices=devices,
         placements=(PlacementTarget.LOCAL, PlacementTarget.WORKSTATION),
     )
 
