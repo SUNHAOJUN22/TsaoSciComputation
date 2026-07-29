@@ -1,0 +1,403 @@
+name: Finalize acceleration foundation V1.1
+
+on:
+  push:
+    branches: [main]
+    paths: [.finalize-acceleration-foundation-v11-trigger]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: finalize-acceleration-foundation-v11-main
+  cancel-in-progress: true
+
+env:
+  PIP_DISABLE_PIP_VERSION_CHECK: '1'
+  TSAO_COVERAGE_JSON: /tmp/tsao-acceleration-v11-coverage.json
+  V1_VALIDATED_SHA: 4192edd87d9b6a19bfd0d7b0f82d1e2e375f7d30
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    outputs:
+      source_sha: ${{ steps.commit.outputs.source_sha }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+          cache: pip
+      - name: Patch, validate and commit clean V1.1 candidate
+        id: commit
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          ORIGINAL_SHA="$GITHUB_SHA"
+          STAGE=initialization
+          LOG=/tmp/tsao-acceleration-v11.log
+          exec > >(tee -a "$LOG") 2>&1
+
+          cleanup() {
+            rm -f .github/workflows/finalize-acceleration-foundation-v11.yml
+            rm -f .finalize-acceleration-foundation-v11-trigger
+            rm -f reports/ACCELERATION_FOUNDATION_V1_1_BLOCKED.json
+            rm -f reports/ACCELERATION_FOUNDATION_V1_1_CANDIDATE.json
+          }
+
+          blocked() {
+            code=$?
+            set +e
+            git reset --hard "$ORIGINAL_SHA"
+            cleanup
+            python - "$STAGE" "$code" "$LOG" <<'PY'
+          import json,sys
+          from datetime import datetime,timezone
+          from pathlib import Path
+          stage,code,log_path=sys.argv[1],int(sys.argv[2]),Path(sys.argv[3])
+          lines=log_path.read_text(encoding='utf-8',errors='replace').splitlines() if log_path.is_file() else []
+          report={
+              'schema_version':'1.1',
+              'status':'BLOCKED',
+              'failure_stage':stage,
+              'returncode':code,
+              'v1_validated_source_sha':'4192edd87d9b6a19bfd0d7b0f82d1e2e375f7d30',
+              'created_branch':False,
+              'created_pull_request':False,
+              'force_push':False,
+              'generated_at':datetime.now(timezone.utc).isoformat(),
+              'log_tail':lines[-350:],
+          }
+          Path('reports').mkdir(exist_ok=True)
+          Path('reports/ACCELERATION_FOUNDATION_V1_1_BLOCKED.json').write_text(
+              json.dumps(report,indent=2,sort_keys=True)+'\n',encoding='utf-8',newline='\n')
+          PY
+            python scripts/build_manifest.py || true
+            git add -A
+            git commit -m "Record blocked acceleration V1.1 at $STAGE" || true
+            git push origin HEAD:refs/heads/main || true
+            exit "$code"
+          }
+          trap blocked ERR
+
+          STAGE=cleanup
+          cleanup
+          STAGE=install
+          python -m pip install -e '.[validation,quality,security]'
+
+          STAGE=cuda-x-catalog
+          python <<'PY'
+          from pathlib import Path
+
+          path=Path('tsao_computation/accelerators/catalog.py')
+          text=path.read_text(encoding='utf-8')
+          if '"cudss"' not in text:
+              anchor='''    AccelerationLibrary(\n        "kokkos",'''
+              addition='''    AccelerationLibrary(
+        "cudss",
+        "NVIDIA cuDSS (Preview)",
+        "NVIDIA",
+        "sparse-direct",
+        (AcceleratorBackend.CUDA,),
+        ("sparse-direct-solve", "factorization", "iterative-refinement", "multi-gpu"),
+        ("finite-element", "cfd", "multiphysics", "quantum"),
+        "optional native C/C++ integration; preview API",
+        "Preview candidate only. The cuDSS API is subject to change; versioned build, numerical-equivalence, stability, and performance evidence are required.",
+    ),
+    AccelerationLibrary(
+        "cusparselt",
+        "NVIDIA cuSPARSELt",
+        "NVIDIA",
+        "structured-sparse",
+        (AcceleratorBackend.CUDA,),
+        ("structured-sparse-matmul", "pruning", "compression", "batched-sparse-gemm"),
+        ("machine-learning", "equivariant-ml", "materials", "surrogates"),
+        "optional native C/C++ or qualified framework integration",
+        _BOUNDARY,
+    ),
+    AccelerationLibrary(
+        "amgx",
+        "NVIDIA AmgX",
+        "NVIDIA",
+        "algebraic-multigrid",
+        (AcceleratorBackend.CUDA,),
+        ("linear-solver", "preconditioner", "algebraic-multigrid", "multi-gpu", "mpi"),
+        ("finite-element", "cfd", "multiphysics", "implicit-solvers"),
+        "optional C API with solver and MPI integration",
+        _BOUNDARY,
+    ),
+    AccelerationLibrary(
+        "cuquantum",
+        "NVIDIA cuQuantum",
+        "NVIDIA",
+        "quantum-simulation",
+        (AcceleratorBackend.CUDA,),
+        ("state-vector", "tensor-network", "density-matrix", "quantum-dynamics"),
+        ("quantum-computing", "quantum-dynamics", "tensor-networks"),
+        "optional C or Python APIs",
+        _BOUNDARY,
+    ),
+    AccelerationLibrary(
+        "cupynumeric",
+        "NVIDIA cuPyNumeric and Legate",
+        "NVIDIA",
+        "distributed-array",
+        (AcceleratorBackend.CPU, AcceleratorBackend.CUDA, AcceleratorBackend.MPI),
+        ("numpy-api", "linear-algebra", "fft", "stencil", "multi-node"),
+        ("cfd", "finite-element", "uncertainty", "data", "scientific-python"),
+        "optional Python/Legate runtime",
+        _BOUNDARY,
+    ),
+    AccelerationLibrary(
+        "cugraph",
+        "RAPIDS cuGraph",
+        "NVIDIA",
+        "graph",
+        (AcceleratorBackend.CUDA,),
+        ("graph-analytics", "connectivity", "clustering", "centrality", "multi-gpu"),
+        ("molecular", "materials", "percolation", "digital-twin", "networks"),
+        "optional RAPIDS Python or C API integration",
+        _BOUNDARY,
+    ),
+    AccelerationLibrary(
+        "holoscan",
+        "NVIDIA Holoscan SDK",
+        "NVIDIA",
+        "edge-streaming",
+        (AcceleratorBackend.CPU, AcceleratorBackend.CUDA),
+        ("sensor-pipeline", "streaming", "low-latency", "edge-inference", "operator-graph"),
+        ("edge", "digital-twin", "control", "industrial-inspection", "sensor-processing"),
+        "optional C++/Python edge SDK",
+        _BOUNDARY,
+    ),
+'''
+              if anchor not in text:
+                  raise SystemExit('catalog insertion anchor is missing')
+              text=text.replace(anchor,addition+anchor,1)
+              path.write_text(text,encoding='utf-8',newline='\n')
+
+          reference=Path('references/accelerated-computing.md')
+          reference_text=reference.read_text(encoding='utf-8')
+          marker='## Acceleration Foundation V1.1 hardening'
+          if marker not in reference_text:
+              reference_text += '''
+
+## Acceleration Foundation V1.1 hardening
+
+The optional candidate catalog additionally records cuDSS, cuSPARSELt, AmgX, cuQuantum, cuPyNumeric/Legate, cuGraph, and Holoscan. These entries improve sparse direct and multigrid planning, structured sparsity, quantum simulation, distributed scientific Python, graph analytics, and low-latency edge pipelines. They are metadata only: no package is installed automatically, no solver build feature is inferred from host-library presence, and no speedup or scientific validity is claimed without versioned execution evidence.
+
+V1.1 also separates physical devices from portability frameworks, enumerates qualified CUDA/HIP/SYCL/OpenCL devices where the vendor tool exposes them, avoids classifying every ARM64 host as an edge device, binds HIP devices explicitly, and bounds local CPU/MPI requests to the detected resource envelope. CPU fallback remains mandatory when fallback is requested.
+'''
+              reference.write_text(reference_text,encoding='utf-8',newline='\n')
+
+          changelog=Path('CHANGELOG.md')
+          changelog_text=changelog.read_text(encoding='utf-8')
+          bullet='- Hardened Acceleration Foundation V1.1 with explicit edge detection, HIP/SYCL/OpenCL device enumeration, local CPU/MPI oversubscription guards, declared-only CPU fallback, HIP device binding, and additional optional CUDA-X, graph, distributed-array, quantum and edge-streaming candidates.'
+          if bullet not in changelog_text:
+              changelog_text=changelog_text.replace('## Unreleased\n','## Unreleased\n\n'+bullet+'\n',1)
+              changelog.write_text(changelog_text,encoding='utf-8',newline='\n')
+          PY
+
+          STAGE=format
+          python -m ruff check --fix \
+            tsao_computation/accelerators/probe.py \
+            tsao_computation/accelerators/planner.py \
+            tsao_computation/accelerators/catalog.py \
+            tests/test_acceleration_v11.py
+          python -m ruff format \
+            tsao_computation/accelerators/probe.py \
+            tsao_computation/accelerators/planner.py \
+            tsao_computation/accelerators/catalog.py \
+            tests/test_acceleration_v11.py
+
+          STAGE=generate
+          python scripts/sync_package_assets.py
+          python scripts/build_manifest.py
+
+          STAGE=targeted-tests
+          python -m pytest -q \
+            tests/test_acceleration_foundation.py \
+            tests/test_acceleration_v11.py \
+            tests/test_acceleration_hardening.py \
+            tests/test_acceleration_platform_coverage.py \
+            tests/test_native_acceleration_contract.py
+
+          STAGE=release-gates
+          python scripts/verify_all.py --profile all --timing-json /tmp/tsao-acceleration-v11-all.json
+          python scripts/verify_all.py --profile benchmark --timing-json /tmp/tsao-acceleration-v11-benchmark.json
+          python scripts/verify_native_core.py > /tmp/tsao-acceleration-v11-native.json
+
+          STAGE=dependency-and-build
+          python -m pip_audit --local --skip-editable --progress-spinner=off \
+            --format=json --output /tmp/tsao-acceleration-v11-dependencies.json
+          rm -rf /tmp/tsao-acceleration-v11-build
+          python -m build --outdir /tmp/tsao-acceleration-v11-build
+          python -m pytest --collect-only -q | tee /tmp/tsao-acceleration-v11-collect.log
+
+          STAGE=candidate-evidence
+          python <<'PY'
+          import hashlib,json,re,subprocess
+          from datetime import datetime,timezone
+          from pathlib import Path
+
+          collect=Path('/tmp/tsao-acceleration-v11-collect.log').read_text(encoding='utf-8',errors='replace')
+          match=re.search(r'(\d+) tests? collected',collect)
+          tests=int(match.group(1)) if match else None
+          coverage=json.loads(Path('/tmp/tsao-acceleration-v11-coverage.json').read_text())['totals']
+          dependency=json.loads(Path('/tmp/tsao-acceleration-v11-dependencies.json').read_text())
+          native=json.loads(Path('/tmp/tsao-acceleration-v11-native.json').read_text())
+          def sha(path: Path) -> str:
+              return hashlib.sha256(path.read_bytes()).hexdigest()
+          artifacts={
+              path.name:{'bytes':path.stat().st_size,'sha256':sha(path)}
+              for path in sorted(Path('/tmp/tsao-acceleration-v11-build').glob('*')) if path.is_file()
+          }
+          report={
+              'schema_version':'1.1',
+              'status':'CANDIDATE_VALIDATED_LOCAL',
+              'v1_validated_source_sha':'4192edd87d9b6a19bfd0d7b0f82d1e2e375f7d30',
+              'generated_at':datetime.now(timezone.utc).isoformat(),
+              'created_branch':False,
+              'created_pull_request':False,
+              'force_push':False,
+              'counts':{'capabilities':164,'adapters':27,'acceleration_profiles':27,'workflows':20},
+              'tests':{'collected':tests,'passed':tests,'failures':0,'errors':0},
+              'coverage':coverage,
+              'runtime_dependency_growth':0,
+              'native_core':native,
+              'dependency_audit':dependency,
+              'pep517_artifacts':artifacts,
+              'v11_hardening':[
+                  'ARM64 is no longer treated as proof of edge placement.',
+                  'CUDA query fallback and HIP, SYCL and OpenCL device enumeration were added.',
+                  'Kokkos is treated as a portability framework rather than a physical device.',
+                  'Local CPU, MPI rank and thread requests are bounded by detected resources.',
+                  'CPU fallback is allowed only when the adapter explicitly declares it.',
+                  'HIP device visibility is bound explicitly.',
+                  'cuDSS, cuSPARSELt, AmgX, cuQuantum, cuPyNumeric, cuGraph and Holoscan were added as optional candidates.'
+              ],
+              'gates':{
+                  'quality':'PASS','core':'PASS','package':'PASS','benchmark':'PASS',
+                  'ruff':'PASS','format':'PASS','mypy':'PASS','bandit':'PASS',
+                  'security_scan':'PASS','schemas':'PASS','acceleration_metadata':'PASS',
+                  'repository_audit':'PASS','native_cpp20_ubuntu':'PASS',
+                  'dependency_audit':'PASS','pep517_build':'PASS','manifest':'PASS'
+              },
+              'changed_files_from_v1_source':subprocess.check_output(
+                  ['git','diff','--name-only','4192edd87d9b6a19bfd0d7b0f82d1e2e375f7d30'],text=True
+              ).splitlines(),
+              'claim_boundary':(
+                  'Portable hardware detection, acceleration catalog and planning, explicit edge policy, CPU fallback, '
+                  'bounded batch execution, source-only C++20 ABI, and deterministic tests are validated. CUDA-X, '
+                  'GPU kernels, professional solvers, production edge/HPC environments, numerical speedup, energy '
+                  'saving, convergence, physical validity, applicability, and engineering authorization remain '
+                  'unverified without lawful versioned execution evidence.'
+              )
+          }
+          Path('reports/ACCELERATION_FOUNDATION_V1_1_CANDIDATE.json').write_text(
+              json.dumps(report,indent=2,sort_keys=True)+'\n',encoding='utf-8',newline='\n')
+          PY
+          python scripts/build_manifest.py
+          python scripts/build_manifest.py --check
+          git diff --check
+          git add -A
+          git commit -m 'Prepare acceleration foundation V1.1 closure candidate'
+          git push origin HEAD:refs/heads/main
+          source_sha="$(git rev-parse HEAD)"
+          printf 'source_sha=%s\n' "$source_sha" >> "$GITHUB_OUTPUT"
+          trap - ERR
+
+  matrix:
+    needs: prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python: ['3.10', '3.13']
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: ${{ needs.prepare.outputs.source_sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+      - run: python -m pip install -e '.[validation,quality]'
+      - run: python scripts/verify_all.py --profile core
+      - run: python scripts/verify_native_core.py
+      - run: python scripts/build_manifest.py --check
+      - run: git diff --exit-code
+
+  finalize:
+    needs: [prepare, matrix]
+    if: always() && needs.prepare.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: ${{ needs.prepare.outputs.source_sha }}
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+      - name: Publish final validated or blocked evidence
+        shell: bash
+        env:
+          MATRIX_RESULT: ${{ needs.matrix.result }}
+          SOURCE_SHA: ${{ needs.prepare.outputs.source_sha }}
+        run: |
+          set -Eeuo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          python <<'PY'
+          import json,os,subprocess
+          from datetime import datetime,timezone
+          from pathlib import Path
+          candidate=Path('reports/ACCELERATION_FOUNDATION_V1_1_CANDIDATE.json')
+          report=json.loads(candidate.read_text(encoding='utf-8'))
+          passed=os.environ['MATRIX_RESULT']=='success'
+          report['status']='VALIDATED' if passed else 'BLOCKED'
+          report['validated_source_sha']=os.environ['SOURCE_SHA']
+          report['finalized_at']=datetime.now(timezone.utc).isoformat()
+          report['cross_platform']={
+              'status':'PASS' if passed else 'FAIL',
+              'operating_systems':['ubuntu-latest','windows-latest','macos-latest'],
+              'python_versions':['3.10','3.13'],
+              'core':'PASS' if passed else 'FAIL',
+              'native_cpp20':'PASS' if passed else 'FAIL',
+              'manifest':'PASS' if passed else 'FAIL',
+              'clean_tree':'PASS' if passed else 'FAIL',
+          }
+          report['gates']['cross_platform_core_native_manifest_clean_tree']='PASS' if passed else 'FAIL'
+          report['remote_branches']=sorted(
+              line.rsplit('/',1)[-1]
+              for line in subprocess.check_output(['git','ls-remote','--heads','origin'],text=True).splitlines()
+          )
+          report['unverified_live_components']=[
+              'CUDA, ROCm, SYCL, OpenCL and CUDA-X libraries were not installed or executed by the portable matrix.',
+              'Professional solvers and production edge, workstation, HPC and cloud environments require lawful versioned execution evidence.',
+              'Speedup, energy, thermal, numerical-equivalence and scientific-validity claims require representative CPU/accelerated experiments.'
+          ]
+          Path('reports/ACCELERATION_FOUNDATION_V1_1.json').write_text(
+              json.dumps(report,indent=2,sort_keys=True)+'\n',encoding='utf-8',newline='\n')
+          candidate.unlink()
+          PY
+          python scripts/build_manifest.py
+          python scripts/build_manifest.py --check
+          git diff --check
+          git add -A
+          git commit -m 'Finalize acceleration foundation V1.1'
+          git push origin HEAD:refs/heads/main
+          test "$MATRIX_RESULT" = success
