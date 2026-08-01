@@ -36,12 +36,19 @@ def assess(
         raise ValueError("benchmark values and tolerance must be finite")
     if tolerance < 0:
         raise ValueError("benchmark tolerance must be non-negative")
-    absolute_error = abs(observed - expected)
+    try:
+        absolute_error = abs(math.fsum((observed, -expected)))
+    except OverflowError as error:
+        raise ValueError("benchmark error overflowed finite arithmetic") from error
+    if not math.isfinite(absolute_error):
+        raise ValueError("benchmark absolute error is not finite")
     if expected == 0.0:
         relative_error = absolute_error
         passed = absolute_error <= tolerance
     else:
         relative_error = absolute_error / abs(expected)
+        if not math.isfinite(relative_error):
+            raise ValueError("benchmark relative error is not finite")
         passed = relative_error <= tolerance
     return BenchmarkResult(
         benchmark_id=benchmark_id,
