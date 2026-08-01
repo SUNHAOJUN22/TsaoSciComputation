@@ -1,10 +1,10 @@
 {
-  "audit_generation": "ultimate-code-quality-finalization-v4",
+  "audit_generation": "ultimate-code-quality-finalization-v5",
   "branch": "main",
   "canonical_checkout_lf": true,
-  "canonical_ci_evidence": "The accepted final-commit CI run is recorded in the closing comment of GitHub Issue #44.",
+  "canonical_ci_evidence": "The accepted final-commit CI run is recorded in the closing comment of GitHub Issue #47.",
   "canonical_generated_text_lf": true,
-  "canonical_text_parent_commit": "e1b0dd4cd3b4efd1acba7e35bf640925fddf1fc2",
+  "canonical_text_parent_commit": "07a46aad2e5d7439658e8f52c2b00064375ce9df",
   "claim_boundary": "Validated for repository orchestration, contracts, routing, deterministic fixtures, packaging, documentation and cross-platform CI. No live third-party solver or production HPC execution is claimed.",
   "controlled_mutants": "64/64",
   "counts": {
@@ -18,6 +18,7 @@
     "statement_percent": 97.8015448603684
   },
   "cross_platform_core": {
+    "evidence": "GitHub Issue #47 closing comment",
     "os": [
       "ubuntu-latest",
       "windows-latest",
@@ -27,12 +28,11 @@
       "3.10",
       "3.13"
     ],
-    "source_sha": "6681c08677d30231c321e898c9cb9ed34496b128",
-    "status": "PASS"
+    "status": "POST_COMMIT_EVIDENCE"
   },
   "cross_platform_manifest_stability": "PASS",
   "dependency_vulnerabilities": 0,
-  "deterministic_finalization_run_id": 30694348089,
+  "deterministic_finalization_run_id": 30695085308,
   "performance_audit": {
     "acceptance": {
       "cli_no_material_regression": true,
@@ -96,11 +96,10 @@
   },
   "remote_branch_governance": {
     "branches": [
-      "main",
-      "refresh-readme-visuals-uiux-pro-max"
+      "main"
     ],
     "created_by_this_audit": false,
-    "status": "PRE_EXISTING_NON_MAIN_BRANCH_REPORTED_NOT_MODIFIED"
+    "status": "PASS_MAIN_ONLY"
   },
   "remote_branches": [
     "main"
@@ -121,12 +120,10 @@
     "failed": 0,
     "passed": 679
   },
-  "ultimate_audit_issue": 44,
-  "validated_source_sha": "6681c08677d30231c321e898c9cb9ed34496b128",
-  "verified_at_utc": "2026-08-01T09:45:47.886218+00:00",
+  "ultimate_audit_issue": 47,
+  "validated_source_sha": "07a46aad2e5d7439658e8f52c2b00064375ce9df",
+  "verified_at_utc": "2026-08-01T10:08:06.615573+00:00",
   "version": "3.0.2",
   "visual_atlas_version": 13,
-  "wheel_reproducible_and_isolated_install": true,
-  "windows_python_310_core": "PASS",
-  "windows_python_313_core": "PASS"
+  "wheel_reproducible_and_isolated_install": true
 }
