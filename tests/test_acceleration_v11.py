@@ -10,9 +10,9 @@ from tsao_computation.accelerators import (
     PlacementTarget,
     acceleration_libraries,
     plan_acceleration,
+    planner,
     probe_accelerators,
 )
-from tsao_computation.accelerators import planner
 from tsao_computation.errors import ContractError
 
 
