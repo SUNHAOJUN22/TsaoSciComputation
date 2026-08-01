@@ -34,6 +34,10 @@ def _tokens(text: str) -> set[str]:
     return _tokens_from_folded(text.casefold())
 
 
+def _canonical_question(question: str) -> str:
+    return " ".join(question.casefold().split())
+
+
 @cache
 def _routing_index() -> tuple[_RouteWorkflow, ...]:
     indexed: list[_RouteWorkflow] = []
@@ -56,7 +60,7 @@ def _routing_index() -> tuple[_RouteWorkflow, ...]:
 
 @lru_cache(maxsize=_ROUTE_CACHE_SIZE)
 def _route_cached(question: str) -> RouteDecision:
-    text = question.casefold()
+    text = question
     tokens = _tokens_from_folded(text)
     scored: list[tuple[str, float, tuple[str, ...]]] = []
     for workflow in _routing_index():
@@ -87,12 +91,18 @@ def _route_cached(question: str) -> RouteDecision:
     )
 
 
+@lru_cache(maxsize=_ROUTE_CACHE_SIZE)
+def _route_alias_cached(question: str) -> RouteDecision:
+    return _route_cached(_canonical_question(question))
+
+
 def route_question(question: str) -> RouteDecision:
     if not question.strip():
         raise ValueError("question must be non-empty")
-    return _route_cached(question)
+    return _route_alias_cached(question)
 
 
 def clear_routing_caches() -> None:
+    _route_alias_cached.cache_clear()
     _route_cached.cache_clear()
     _routing_index.cache_clear()
