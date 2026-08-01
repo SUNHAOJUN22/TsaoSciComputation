@@ -21,7 +21,10 @@ def balance_check(
     input_value, output_value, accumulation_value, tolerance_value = values
     if tolerance_value < 0:
         raise ValueError("tolerance must be non-negative")
-    residual = input_value - output_value - accumulation_value
+    try:
+        residual = math.fsum((input_value, -output_value, -accumulation_value))
+    except OverflowError as error:
+        raise ValueError("balance residual must be finite") from error
     if not math.isfinite(residual):
         raise ValueError("balance residual must be finite")
     scale = max(abs(input_value), abs(output_value), abs(accumulation_value), 1.0)
