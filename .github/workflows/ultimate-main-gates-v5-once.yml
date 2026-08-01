@@ -1,0 +1,127 @@
+name: Ultimate main gates v5 once
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: ultimate-main-gates-v5-once
+  cancel-in-progress: false
+
+jobs:
+  gates:
+    if: >-
+      github.repository == 'SUNHAOJUN22/TsaoSciComputation' &&
+      github.event.issue.user.login == 'SUNHAOJUN22' &&
+      github.event.issue.title == 'Run ultimate main gates v5'
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      GH_TOKEN: ${{ github.token }}
+      ISSUE_NUMBER: ${{ github.event.issue.number }}
+      TSAO_COVERAGE_JSON: /tmp/ultimate-main-v5-coverage.json
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+          cache: pip
+
+      - name: Remove temporary files and enforce main only
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          rm -f .github/workflows/ultimate-main-gates-v5-once.yml
+          rm -f .github/workflows/ultimate-main-audit-v4-once.yml
+          rm -f .github/workflows/ultimate-main-audit-v3-once.yml
+          rm -f .github/workflows/ultimate-main-audit-v2-once.yml
+          rm -f .github/workflows/ultimate-main-audit-once.yml
+          rm -f .github/workflows/fix-acceleration-v11-once.yml
+          rm -f .github/workflows/apply-acceleration-v11-fix.yml
+          rm -f .github/workflows/finalize-acceleration-foundation-v11.yml
+          rm -f .apply-acceleration-v11-fix
+          rm -f .finalize-acceleration-foundation-v11-trigger
+          rm -f docs/ULTIMATE_FINALIZATION_AUDIT.md
+          rm -f docs/assets/.gitkeep
+          rmdir docs/assets 2>/dev/null || true
+          rm -f reports/ACCELERATION_FOUNDATION_V1_1_BLOCKED.json
+          rm -f reports/ACCELERATION_FOUNDATION_V1_1_CANDIDATE.json
+          mapfile -t branches < <(gh api --paginate "repos/$GITHUB_REPOSITORY/branches?per_page=100" --jq '.[].name' | sort -u)
+          for branch in "${branches[@]}"; do
+            if [[ "$branch" != main ]]; then
+              gh api -X DELETE "repos/$GITHUB_REPOSITORY/git/refs/heads/$branch"
+            fi
+          done
+          mapfile -t remaining < <(gh api --paginate "repos/$GITHUB_REPOSITORY/branches?per_page=100" --jq '.[].name' | sort -u)
+          test "${#remaining[@]}" -eq 1
+          test "${remaining[0]}" = main
+
+      - name: Install full validation environment
+        run: python -m pip install -e '.[validation,quality,security]'
+
+      - name: Generate canonical files
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python -m ruff check --fix tsao_computation/accelerators/catalog.py
+          python -m ruff format tsao_computation/accelerators/catalog.py
+          python scripts/sync_package_assets.py
+          python scripts/build_adapter_docs.py
+          python scripts/build_workflow_docs.py
+          python scripts/build_examples.py
+          python scripts/build_manifest.py
+
+      - name: Run all automated gates
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python scripts/run_tests.py --coverage
+          python scripts/verify_all.py --profile all --timing-json /tmp/ultimate-main-v5-all.json
+          python scripts/verify_all.py --profile benchmark --timing-json /tmp/ultimate-main-v5-benchmark.json
+          python -m pip_audit --local --skip-editable --progress-spinner=off --format=json --output /tmp/ultimate-main-v5-dependencies.json
+          rm -rf /tmp/ultimate-main-v5-build
+          python -m build --outdir /tmp/ultimate-main-v5-build
+          python -m pytest --collect-only -q
+          python -m pytest -q
+
+      - name: Run final repository checks
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          test "$(find assets/visuals -maxdepth 1 -type f -name '*.svg' | wc -l)" -eq 42
+          test "$(find .github/workflows -maxdepth 1 -type f -name '*.yml' | wc -l)" -eq 4
+          python scripts/build_manifest.py
+          python scripts/build_manifest.py --check
+          python scripts/validate_repository.py
+          python scripts/validate_schemas.py
+          python scripts/validate_adapter_metadata.py
+          python scripts/check_critical_coverage.py
+          python -m pytest -q
+
+      - name: Commit validated cleanup directly to main
+        id: commit
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git add -A
+          git commit -m 'Complete ultimate main gates and cleanup'
+          git push origin HEAD:refs/heads/main
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Report success
+        run: gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body "Ultimate main gates v5 passed: coverage, all deterministic gates, benchmark telemetry, final pytest, dependency audit, package build, Manifest validation, 42 SVG assets, temporary-artifact cleanup and single-main enforcement succeeded. Commit: ${{ steps.commit.outputs.sha }}. No branch or PR was created."
+
+      - name: Report failure
+        if: ${{ failure() }}
+        run: gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body "Ultimate main gates v5 failed. No successful completion is being claimed. Inspect Actions run $GITHUB_RUN_ID; no branch or PR was created." || true
