@@ -36,6 +36,18 @@ def _inputs(root: Path) -> dict[str, Path]:
                     "visual_assets": 30,
                     "workflows": 20,
                 },
+                "remote_branches": ["main", "stale-branch"],
+                "remote_branch_governance": {
+                    "branches": ["main", "stale-branch"],
+                    "status": "STALE",
+                },
+                "validated_source_sha": "stale-source",
+                "cross_platform_core": {
+                    "source_sha": "stale-source",
+                    "status": "PASS",
+                },
+                "windows_python_310_core": "PASS",
+                "windows_python_313_core": "PASS",
             }
         ),
     )
@@ -58,7 +70,7 @@ def _inputs(root: Path) -> dict[str, Path]:
     }
 
 
-def test_update_evidence_is_parameterized_and_bilingual(tmp_path: Path) -> None:
+def test_update_evidence_is_parameterized_bilingual_and_current(tmp_path: Path) -> None:
     inputs = _inputs(tmp_path)
     evidence = update_evidence(
         root=tmp_path,
@@ -81,6 +93,20 @@ def test_update_evidence_is_parameterized_and_bilingual(tmp_path: Path) -> None:
     assert evidence["tests"] == {"failed": 0, "passed": 563}
     assert evidence["counts"]["visual_assets"] == 36
     assert evidence["remote_branches"] == ["main"]
+    assert evidence["remote_branch_governance"] == {
+        "branches": ["main"],
+        "created_by_this_audit": False,
+        "status": "PASS_MAIN_ONLY",
+    }
+    assert evidence["validated_source_sha"] == "abc123"
+    assert evidence["cross_platform_core"] == {
+        "os": ["ubuntu-latest", "windows-latest", "macos-latest"],
+        "python": ["3.10", "3.13"],
+        "evidence": "GitHub Issue #26 closing comment",
+        "status": "POST_COMMIT_EVIDENCE",
+    }
+    assert "windows_python_310_core" not in evidence
+    assert "windows_python_313_core" not in evidence
     assert evidence["audit_generation"] == "ultimate-main-audit-v6"
     assert evidence["visual_atlas_version"] == 6
     assert "563 passed, 0 failed" in (tmp_path / "README.md").read_text(encoding="utf-8")
