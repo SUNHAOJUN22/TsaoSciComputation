@@ -56,9 +56,9 @@
       "sha256": "b0ebf6572cd48fb93dd5f3c16f235e299fe865dd4779aa45dd561f18c295eb8f"
     },
     {
-      "bytes": 1226,
+      "bytes": 1247,
       "path": ".github/workflows/scorecard.yml",
-      "sha256": "cf053aa179273da22211f8a1a2e0118360190cb9eb99394690f8ab7c4831c935"
+      "sha256": "d417b0168cae2784a72af945b869295f1bd2936df2e5f1edc296dd19bcc8738e"
     },
     {
       "bytes": 193,
