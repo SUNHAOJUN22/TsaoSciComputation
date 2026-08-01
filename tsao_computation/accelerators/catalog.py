@@ -375,7 +375,7 @@ def recommend_acceleration_libraries(
         else AcceleratorBackend(backend)
     )
     normalized_workload = workload.casefold() if workload else None
-    return tuple(
+    matches = tuple(
         item
         for item in _LIBRARIES
         if (normalized_backend is None or normalized_backend in item.backends)
@@ -384,6 +384,9 @@ def recommend_acceleration_libraries(
             or any(normalized_workload in candidate.casefold() for candidate in item.workloads)
         )
     )
+    if normalized_backend is None:
+        return matches
+    return tuple(sorted(matches, key=lambda item: len(item.backends)))
 
 
 library_catalog = acceleration_libraries
