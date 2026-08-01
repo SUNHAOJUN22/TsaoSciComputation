@@ -23,13 +23,27 @@ def convergence_check(
 ) -> dict[str, float | bool]:
     absolute = _finite_non_negative(absolute_tolerance, name="absolute_tolerance")
     relative = _finite_non_negative(relative_tolerance, name="relative_tolerance")
+    count = 0
+    previous = 0.0
+    current = 0.0
     try:
-        seq = tuple(float(value) for value in values)
+        for value in values:
+            converted = float(value)
+            if not math.isfinite(converted):
+                return {"passed": False, "delta": float("inf"), "threshold": absolute}
+            previous, current = current, converted
+            count += 1
     except (TypeError, ValueError, OverflowError):
-        seq = ()
-    if len(seq) < 2 or not finite_values(seq):
         return {"passed": False, "delta": float("inf"), "threshold": absolute}
-    delta = abs(seq[-1] - seq[-2])
-    scale = max(abs(seq[-1]), abs(seq[-2]), 1.0)
-    threshold = max(absolute, relative * scale)
+    if count < 2:
+        return {"passed": False, "delta": float("inf"), "threshold": absolute}
+
+    delta = abs(current - previous)
+    if not math.isfinite(delta):
+        return {"passed": False, "delta": float("inf"), "threshold": absolute}
+    scale = max(abs(current), abs(previous), 1.0)
+    relative_threshold = relative * scale
+    if not math.isfinite(relative_threshold):
+        raise ValueError("relative tolerance produces a non-finite convergence threshold")
+    threshold = max(absolute, relative_threshold)
     return {"passed": delta <= threshold, "delta": delta, "threshold": threshold}
