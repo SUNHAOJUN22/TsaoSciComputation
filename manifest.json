@@ -56,11 +56,6 @@
       "sha256": "b0ebf6572cd48fb93dd5f3c16f235e299fe865dd4779aa45dd561f18c295eb8f"
     },
     {
-      "bytes": 1226,
-      "path": ".github/workflows/scorecard.yml",
-      "sha256": "cf053aa179273da22211f8a1a2e0118360190cb9eb99394690f8ab7c4831c935"
-    },
-    {
       "bytes": 193,
       "path": ".gitignore",
       "sha256": "41921195cf7559c3e08c29f18ce376c2b2a5cbbd7c69176e3f43f1db376d2e97"
@@ -2286,6 +2281,11 @@
       "sha256": "4c1cba05f4bf1a4899e468e3c568a8e5e259025427ff8764f18b65f4313e3713"
     },
     {
+      "bytes": 4761,
+      "path": "tests/test_acceleration_v11.py",
+      "sha256": "1343cc7f752e278394b04553164a19fa7513ffa62829b55123a9d79e625c9328"
+    },
+    {
       "bytes": 2050,
       "path": "tests/test_adapter_certification.py",
       "sha256": "73dc4ca7d1c9bbeba8430918943b307b947b3ad208ec080c671707c96636455a"
@@ -2486,9 +2486,9 @@
       "sha256": "49e1697700cf0951aca650bd53330b906d9cb5a248533fb2bffb87c6d6edf364"
     },
     {
-      "bytes": 9722,
+      "bytes": 12830,
       "path": "tsao_computation/accelerators/catalog.py",
-      "sha256": "ee21120abdf8f7a15ebdc80d76173611662c5fe7a4e333fda1672e62b8174998"
+      "sha256": "c4111fec5d1ab1d9ce29daba3bdb5fdfa186071bd8fcff33bd5e04c15a23ca1e"
     },
     {
       "bytes": 8553,
@@ -2496,14 +2496,14 @@
       "sha256": "98a742a283efc238756b27c2836405651654a4a15f8921284d8833e311d58eb5"
     },
     {
-      "bytes": 7409,
+      "bytes": 8986,
       "path": "tsao_computation/accelerators/planner.py",
-      "sha256": "58d3ff1458abce8dda5fe0335aa7db3a4ac1bb6128b06a35e6e24056f58d9c5c"
+      "sha256": "5ae386d89d2811d4a2b900c65c7ec26e3421c6810265cd1e2b80f5e28b2bfe47"
     },
     {
-      "bytes": 4938,
+      "bytes": 8219,
       "path": "tsao_computation/accelerators/probe.py",
-      "sha256": "5ea461fc61453fffc665d8b573ce5334c4470f944389a88723ab28b1d4118d99"
+      "sha256": "561d3d09e5ec801eca89c5f3ab9cf18db4f2d840719bee3d57645223f337486b"
     },
     {
       "bytes": 212,
