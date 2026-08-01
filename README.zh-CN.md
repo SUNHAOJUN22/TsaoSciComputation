@@ -201,15 +201,15 @@ python scripts/verify_all.py --profile benchmark
 ### 当前 `main` 验证状态
 
 <!-- CURRENT_MAIN_VERIFICATION:START -->
-已于 `2026-08-01T10:08:06.615573+00:00` 由确定性终验运行 `30695085308` 完成验证。
+已于 `2026-08-01T18:03:21.268828+00:00` 由确定性终验运行 `30711632952` 完成验证。
 
 | 当前主线项目 | 结果 |
 |---|---:|
 | 版本 | 3.0.2 |
 | 能力 / 适配器 / 工作流 | 164 / 27 / 20 |
-| 自动测试 | 679 通过，0 失败 |
-| 语句 / 分支覆盖率 | 97.80% / 94.44% |
-| Windows core | Python 3.10 与 3.13；最终结果记录于 Issue #47 |
+| 自动测试 | 687 通过，0 失败 |
+| 语句 / 分支覆盖率 | 97.60% / 93.80% |
+| Windows core | Python 3.10 与 3.13；最终结果记录于 Issue #48 |
 | 受控变异探针 | 64/64 被识别 |
 | 科学参考基准 | 8/8 通过 |
 | 仓库 / 依赖安全发现 | 0 / 0 |
@@ -218,7 +218,7 @@ python scripts/verify_all.py --profile benchmark
 | 科研视觉资产 | 42 幅自包含 SVG |
 | 远程分支 | 仅 `main` |
 
-V13-definitive-final 最终提交只有在 [Issue #47](../../issues/47) 记录 Ubuntu/Windows/macOS × Python 3.10/3.13 正式 CI 成功后才被接受。机器可读证据：[`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json)。
+V10-math-performance 最终提交只有在 [Issue #48](../../issues/48) 记录 Ubuntu/Windows/macOS × Python 3.10/3.13 正式 CI 成功后才被接受。机器可读证据：[`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json)。
 <!-- CURRENT_MAIN_VERIFICATION:END -->
 
 ### v3.0.2 已验证发布基线
@@ -267,3 +267,13 @@ completed ≠ parsed ≠ converged ≠ validated ≠ accepted
 ## 仓库策略
 
 `main` 是上游唯一权威分支。外部贡献使用 fork 内分支，上游仓库不保留功能分支。历史版本使用不可变标签保存。生成环境和缓存统一排除，源码、配置、测试、证据与发布元数据保持可审计。
+
+<!-- MATH_PERFORMANCE_V10:START -->
+### 数理正确性与性能 V10
+
+当前主线采用稳定不确定度合成、O(1) 内存收敛判定、补偿式守恒残差、有限数基准误差计算和加速库推荐缓存。候选“编译正则解析预筛选”实测解析比值仅为 `0.30×`，因此已拒绝并回退。
+
+相对于此前已认证主线的隔离同机结果：重复加速规划 **1.06×**、收敛判定 **1.24×**、不确定度合成 **1.57×**，收敛判定峰值跟踪内存为基线的 **0.006%**。8 项科学参考基准和完整确定性门禁全部通过。上述数据仅针对仓库内 Python 数理内核与编排逻辑，不代表外部求解器、GPU 内核或生产 HPC 加速。
+
+机器证据：[`reports/MATH_PERFORMANCE_AUDIT_V10.json`](reports/MATH_PERFORMANCE_AUDIT_V10.json)。
+<!-- MATH_PERFORMANCE_V10:END -->

@@ -201,15 +201,15 @@ python scripts/verify_all.py --profile benchmark
 ### Current `main` verification
 
 <!-- CURRENT_MAIN_VERIFICATION:START -->
-Validated on `2026-08-01T10:08:06.615573+00:00` by deterministic finalization run `30695085308`.
+Validated on `2026-08-01T18:03:21.268828+00:00` by deterministic finalization run `30711632952`.
 
 | Current-main item | Result |
 |---|---:|
 | Version | 3.0.2 |
 | Capabilities / adapters / workflows | 164 / 27 / 20 |
-| Tests | 679 passed, 0 failed |
-| Statement / branch coverage | 97.80% / 94.44% |
-| Windows core | Python 3.10 and 3.13; final result recorded in Issue #47 |
+| Tests | 687 passed, 0 failed |
+| Statement / branch coverage | 97.60% / 93.80% |
+| Windows core | Python 3.10 and 3.13; final result recorded in Issue #48 |
 | Controlled mutation probes | 64/64 killed |
 | Scientific reference benchmarks | 8/8 passed |
 | Repository / dependency findings | 0 / 0 |
@@ -218,7 +218,7 @@ Validated on `2026-08-01T10:08:06.615573+00:00` by deterministic finalization ru
 | Scientific visual assets | 42 self-contained SVGs |
 | Remote branches | `main` only |
 
-The final V13-definitive-final commit is accepted only after canonical Ubuntu/Windows/macOS × Python 3.10/3.13 CI is recorded in [Issue #47](../../issues/47). Machine-readable evidence: [`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json).
+The final V10-math-performance commit is accepted only after canonical Ubuntu/Windows/macOS × Python 3.10/3.13 CI is recorded in [Issue #48](../../issues/48). Machine-readable evidence: [`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json).
 <!-- CURRENT_MAIN_VERIFICATION:END -->
 
 ### v3.0.2 verified release baseline
@@ -267,3 +267,13 @@ The 42 illustrations in `assets/visuals/` are original explanatory diagrams gene
 ## Repository policy
 
 `main` is the sole authoritative upstream branch. External contributions use fork branches; the canonical repository does not retain feature branches. Historical releases are immutable tags. Generated environments and caches are excluded, while source, configuration, tests, evidence and release metadata remain auditable.
+
+<!-- MATH_PERFORMANCE_V10:START -->
+### Mathematical correctness and performance V10
+
+The current main line uses stable uncertainty propagation, O(1)-memory convergence checks, compensated conservation residuals, finite benchmark-error arithmetic and cached acceleration-library recommendations. A proposed compiled-regex parser prefilter was rejected and reverted after measuring a `0.30×` parser ratio.
+
+Isolated same-host results versus the previously certified main: repeated acceleration planning **1.06×**, convergence evaluation **1.24×**, uncertainty propagation **1.57×**, and convergence peak traced memory **0.006%** of baseline. All eight scientific reference benchmarks and the complete deterministic gate passed. These figures cover repository-local Python kernels and orchestration only; they do not claim external-solver, GPU-kernel or production-HPC speedup.
+
+Machine evidence: [`reports/MATH_PERFORMANCE_AUDIT_V10.json`](reports/MATH_PERFORMANCE_AUDIT_V10.json).
+<!-- MATH_PERFORMANCE_V10:END -->

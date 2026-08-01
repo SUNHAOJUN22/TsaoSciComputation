@@ -1,12 +1,12 @@
-# Ultimate main audit V13-definitive-final
+# Ultimate main audit V10-math-performance
 
 - Repository: `SUNHAOJUN22/TsaoSciComputation`
-- Issue: `#47`
+- Issue: `#48`
 - Branch policy: `main` only; no branch or pull request created
 - Version: `3.0.2`
-- Deterministic finalization run: `30695085308`
-- Tests: `679 passed, 0 failed`
-- Coverage: `97.80%` statement / `94.44%` branch
+- Deterministic finalization run: `30711632952`
+- Tests: `687 passed, 0 failed`
+- Coverage: `97.60%` statement / `93.80%` branch
 - Scientific benchmarks: `8/8`
 - Controlled mutation probes: `64/64`
 - Capabilities / adapters / workflows: `164 / 27 / 20`
