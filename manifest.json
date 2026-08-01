@@ -1796,6 +1796,11 @@
       "sha256": "2e57461a0149808817e43cc5a229f137484ccbcfb2894e730509a001d404ebba"
     },
     {
+      "bytes": 210,
+      "path": "reports/MATH_PERFORMANCE_AUDIT_V10_FAILURE.json",
+      "sha256": "450f114c230c7bd082bed259e76d21a7ac1c792b40cecb1337e5e8914a8d6605"
+    },
+    {
       "bytes": 4414,
       "path": "reports/MUTATION_REPORT.json",
       "sha256": "52f7f5c3360f7b6b49bc754f55be0581dabbf1b0d05851b87ba01e6cad9c9461"
@@ -2381,6 +2386,11 @@
       "sha256": "0f3d1a24995be25b7220d59dea4dedf383f18a83bb29272079fdbc1a37b2fb48"
     },
     {
+      "bytes": 2886,
+      "path": "tests/test_math_performance_v10.py",
+      "sha256": "e62fea6f662d75798c77fcb8e3b46a035aa92e3087bbf4915103822122561754"
+    },
+    {
       "bytes": 867,
       "path": "tests/test_native_acceleration_contract.py",
       "sha256": "c03a47d9455286adb22b6b4d1bd1f251207968874d61cfc18aeb26b8cfbdd7cc"
@@ -2706,9 +2716,9 @@
       "sha256": "028a7fa3a5a20cb059f5b0e2ee41264c18e061a945240b964f9ae3f3d0a3b4c1"
     },
     {
-      "bytes": 604,
+      "bytes": 598,
       "path": "tsao_computation/uncertainty/model.py",
-      "sha256": "20748ab24f9aa99099188f9ad6be46d33bd88713d7304eae387798c361cb0723"
+      "sha256": "48c48d2dd841e3bb91b0914381593f9c6f5470a5f7ec3c0817364a35fa88acb1"
     },
     {
       "bytes": 384,
@@ -2726,14 +2736,14 @@
       "sha256": "164f7c317289138a21f7b9eb17d23d50b7fb0bceaf9e157cadddc9ede8cfe249"
     },
     {
-      "bytes": 1308,
+      "bytes": 1906,
       "path": "tsao_computation/validation/numerical.py",
-      "sha256": "8919c9dd37c8bd48d2c07fbdc58e62d05d6b684a95b854688a29cde9ec8691ad"
+      "sha256": "5abb214e9173ed7d2501e00a5c415a909fc2d651645158a7f8793792a7a7cdc0"
     },
     {
-      "bytes": 1283,
+      "bytes": 1415,
       "path": "tsao_computation/validation/physical.py",
-      "sha256": "dd9d05e7522e7a6ecfce1a0cc15c6e906771ce7d60a4d1c92d5d00156e4d7674"
+      "sha256": "c255d5ce9787890a92281ddd057097c05dc704614f26291a55f7e620647da3ad"
     },
     {
       "bytes": 8518,
