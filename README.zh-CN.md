@@ -201,15 +201,15 @@ python scripts/verify_all.py --profile benchmark
 ### 当前 `main` 验证状态
 
 <!-- CURRENT_MAIN_VERIFICATION:START -->
-已于 `2026-07-27T06:00:27.484071+00:00` 由确定性终验运行 `30241324041` 完成验证。
+已于 `2026-08-01T09:19:02.646543+00:00` 由确定性终验运行 `30693474890` 完成验证。
 
 | 当前主线项目 | 结果 |
 |---|---:|
 | 版本 | 3.0.2 |
 | 能力 / 适配器 / 工作流 | 164 / 27 / 20 |
-| 自动测试 | 586 通过，0 失败 |
-| 语句 / 分支覆盖率 | 97.44% / 93.57% |
-| Windows core | Python 3.10 与 3.13；最终结果记录于 Issue #32 |
+| 自动测试 | 656 通过，0 失败 |
+| 语句 / 分支覆盖率 | 96.61% / 91.87% |
+| Windows core | Python 3.10 与 3.13；最终结果记录于 Issue #40 |
 | 受控变异探针 | 64/64 被识别 |
 | 科学参考基准 | 8/8 通过 |
 | 仓库 / 依赖安全发现 | 0 / 0 |
@@ -218,7 +218,7 @@ python scripts/verify_all.py --profile benchmark
 | 科研视觉资产 | 42 幅自包含 SVG |
 | 远程分支 | 仅 `main` |
 
-V12 最终提交只有在 [Issue #32](../../issues/32) 记录 Ubuntu/Windows/macOS × Python 3.10/3.13 正式 CI 成功后才被接受。机器可读证据：[`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json)。
+V13-final 最终提交只有在 [Issue #40](../../issues/40) 记录 Ubuntu/Windows/macOS × Python 3.10/3.13 正式 CI 成功后才被接受。机器可读证据：[`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json)。
 <!-- CURRENT_MAIN_VERIFICATION:END -->
 
 ### v3.0.2 已验证发布基线
