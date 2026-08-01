@@ -125,7 +125,9 @@ def _amd_devices(
     runner: Callable[[str, tuple[str, ...]], str],
 ) -> tuple[AcceleratorDevice, ...]:
     output = runner(executable, ())
-    architectures = tuple(dict.fromkeys(re.findall(r"^\s*Name:\s*(gfx[0-9A-Za-z]+)\s*$", output, re.M)))
+    architectures = tuple(
+        dict.fromkeys(re.findall(r"^\s*Name:\s*(gfx[0-9A-Za-z]+)\s*$", output, re.M))
+    )
     marketing_names = tuple(
         dict.fromkeys(
             match.strip()
@@ -151,12 +153,22 @@ def _sycl_devices(
 ) -> tuple[AcceleratorDevice, ...]:
     output = runner(executable, ())
     lines = tuple(
-        dict.fromkeys(line.strip() for line in output.splitlines() if re.search(r"\bgpu\b", line, re.I))
+        dict.fromkeys(
+            line.strip() for line in output.splitlines() if re.search(r"\bgpu\b", line, re.I)
+        )
     )
     devices: list[AcceleratorDevice] = []
     for index, line in enumerate(lines):
         folded = line.casefold()
-        vendor = "Intel" if "intel" in folded else "NVIDIA" if "nvidia" in folded else "AMD" if "amd" in folded else None
+        vendor = (
+            "Intel"
+            if "intel" in folded
+            else "NVIDIA"
+            if "nvidia" in folded
+            else "AMD"
+            if "amd" in folded
+            else None
+        )
         devices.append(
             AcceleratorDevice(
                 backend=AcceleratorBackend.SYCL,
