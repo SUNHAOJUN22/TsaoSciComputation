@@ -131,6 +131,26 @@ def update_evidence(
             "visual_atlas_version": visual_atlas_version,
         }
     )
+
+    # Replace audit-sensitive fields instead of inheriting stale values from an
+    # earlier generation. Exact post-commit workflow evidence remains bound by
+    # the closing GitHub Issue comment because a commit cannot contain its own SHA.
+    evidence["branch"] = "main"
+    evidence["validated_source_sha"] = parent_commit
+    evidence["remote_branch_governance"] = {
+        "branches": remote_branches,
+        "created_by_this_audit": False,
+        "status": "PASS_MAIN_ONLY",
+    }
+    evidence["cross_platform_core"] = {
+        "os": ["ubuntu-latest", "windows-latest", "macos-latest"],
+        "python": ["3.10", "3.13"],
+        "evidence": f"GitHub Issue #{issue_number} closing comment",
+        "status": "POST_COMMIT_EVIDENCE",
+    }
+    evidence.pop("windows_python_310_core", None)
+    evidence.pop("windows_python_313_core", None)
+
     counts = cast(dict[str, Any], evidence["counts"])
     counts["visual_assets"] = visual_count
     evidence["coverage"] = {
