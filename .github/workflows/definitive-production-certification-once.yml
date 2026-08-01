@@ -1,0 +1,250 @@
+name: Definitive production certification once
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  actions: write
+  contents: write
+  issues: write
+
+concurrency:
+  group: definitive-production-certification-main
+  cancel-in-progress: false
+
+env:
+  GH_TOKEN: ${{ github.token }}
+  PIP_DISABLE_PIP_VERSION_CHECK: '1'
+  TSAO_COVERAGE_JSON: /tmp/definitive-production-coverage.json
+
+jobs:
+  certify:
+    if: >-
+      github.repository == 'SUNHAOJUN22/TsaoSciComputation' &&
+      github.event.issue.user.login == 'SUNHAOJUN22' &&
+      github.event.issue.title == 'Run definitive production certification'
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+          cache: pip
+
+      - name: Initialize clean candidate
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo "ORIGINAL_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+          echo "CLEAN_SOURCE_SHA=$(git rev-parse HEAD^)" >> "$GITHUB_ENV"
+          echo "FINAL_PUSHED=false" >> "$GITHUB_ENV"
+          echo initialize > /tmp/definitive-production-stage
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          rm -f .github/workflows/definitive-production-certification-once.yml
+          rm -f reports/ULTIMATE_FINALIZATION_FAILURE.json
+          rm -f reports/EVIDENCE_GENERATOR_FIX_FAILURE.json
+
+      - name: Install complete validation environment
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo install > /tmp/definitive-production-stage
+          python -m pip install -e '.[validation,quality,security]'
+
+      - name: Normalize source documentation and assets
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo normalize > /tmp/definitive-production-stage
+          python -m ruff check --fix tsao_computation scripts tests _bootstrap.py
+          python -m ruff format tsao_computation scripts tests _bootstrap.py
+          python scripts/regenerate_readme_visuals_v13.py
+          python scripts/sync_package_assets.py
+          python scripts/build_adapter_docs.py
+          python scripts/build_workflow_docs.py
+          python scripts/build_examples.py
+          python scripts/build_manifest.py
+          python scripts/regenerate_readme_visuals_v13.py --check
+
+      - name: Run complete deterministic benchmark coverage and native gates
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo deterministic-gates > /tmp/definitive-production-stage
+          python scripts/run_tests.py --coverage | tee /tmp/definitive-production-tests.log
+          python scripts/verify_all.py --profile all --timing-json /tmp/definitive-production-all.json
+          python scripts/verify_all.py --profile benchmark --timing-json /tmp/definitive-production-benchmark.json
+          python scripts/verify_native_core.py > /tmp/definitive-production-native.json
+
+      - name: Run independent security dependency package Wheel and pytest checks
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo independent-gates > /tmp/definitive-production-stage
+          python scripts/security_scan.py
+          python -m pip_audit --local --skip-editable --progress-spinner=off \
+            --format=json --output /tmp/definitive-production-dependencies.json
+          rm -rf /tmp/definitive-production-build /tmp/definitive-production-venv
+          python -m build --outdir /tmp/definitive-production-build
+          python -m venv /tmp/definitive-production-venv
+          /tmp/definitive-production-venv/bin/python -m pip install --no-deps \
+            /tmp/definitive-production-build/*.whl
+          /tmp/definitive-production-venv/bin/python -c \
+            'import tsao_computation; print(tsao_computation.__version__)'
+          python -m pytest -q | tee /tmp/definitive-production-pytest.log
+          git ls-remote --heads origin | sort > /tmp/definitive-production-remote-heads.txt
+          test "$(awk '{print $2}' /tmp/definitive-production-remote-heads.txt | sed 's#refs/heads/##' | paste -sd ' ' -)" = main
+
+      - name: Synchronize README and normalized machine evidence
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo evidence > /tmp/definitive-production-stage
+          python scripts/update_main_audit_evidence.py \
+            --root . \
+            --run-id "$GITHUB_RUN_ID" \
+            --issue "${{ github.event.issue.number }}" \
+            --test-log /tmp/definitive-production-pytest.log \
+            --coverage-json /tmp/definitive-production-coverage.json \
+            --dependency-json /tmp/definitive-production-dependencies.json \
+            --security-json evidence/security-scan.json \
+            --remote-heads /tmp/definitive-production-remote-heads.txt \
+            --parent-commit "$CLEAN_SOURCE_SHA" \
+            --audit-generation ultimate-code-quality-finalization-v5 \
+            --audit-label V13-definitive-final \
+            --visual-count 42 \
+            --visual-atlas-version 13 \
+            --report-path reports/ULTIMATE_CODE_QUALITY_FINALIZATION.md \
+            --visual-families 'Electronic structure and molecular simulation; materials and interfaces; continuum and process engineering; evidence governance and HPC.'
+          python scripts/build_manifest.py
+
+      - name: Validate exact final tree
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo exact-final-tree > /tmp/definitive-production-stage
+          python scripts/sync_version_metadata.py --check
+          python scripts/regenerate_readme_visuals_v13.py --check
+          python scripts/validate_schemas.py
+          python scripts/validate_adapter_metadata.py
+          python scripts/validate_repository.py
+          python scripts/build_manifest.py --check
+          python scripts/verify_all.py --profile all --timing-json /tmp/definitive-production-exact-all.json
+          python scripts/build_manifest.py
+          python scripts/build_manifest.py --check
+          python -m pytest -q
+          test "$(find assets/visuals -maxdepth 1 -type f -name '*.svg' | wc -l)" -eq 42
+          mapfile -t workflows < <(find .github/workflows -maxdepth 1 -type f -name '*.yml' -printf '%f\n' | sort)
+          expected=(ci.yml codeql.yml dependency-audit.yml release.yml scorecard.yml)
+          test "${workflows[*]}" = "${expected[*]}"
+
+      - name: Commit clean verified tree to main
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo final-commit > /tmp/definitive-production-stage
+          git add -A
+          if git diff --cached --quiet; then
+            git commit --allow-empty -m 'Ultimate code quality finalization'
+          else
+            git commit -m 'Ultimate code quality finalization'
+          fi
+          git push origin HEAD:refs/heads/main
+          FINAL_SHA="$(git rev-parse HEAD)"
+          echo "FINAL_SHA=$FINAL_SHA" >> "$GITHUB_ENV"
+          echo "FINAL_PUSHED=true" >> "$GITHUB_ENV"
+
+      - name: Dispatch production workflows for exact SHA
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo dispatch-production > /tmp/definitive-production-stage
+          gh workflow run ci.yml --repo "$GITHUB_REPOSITORY" --ref main
+          gh workflow run codeql.yml --repo "$GITHUB_REPOSITORY" --ref main
+          gh workflow run scorecard.yml --repo "$GITHUB_REPOSITORY" --ref main
+
+      - name: Require CI CodeQL and Scorecard success
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo production-workflows > /tmp/definitive-production-stage
+          : > /tmp/definitive-production-runs.md
+          wait_for_workflow() {
+            local workflow="$1"
+            local line run_id status conclusion url
+            for _ in $(seq 1 180); do
+              line="$(gh run list --repo "$GITHUB_REPOSITORY" \
+                --workflow "$workflow" --branch main --event workflow_dispatch \
+                --commit "$FINAL_SHA" --limit 1 \
+                --json databaseId,status,conclusion,url \
+                --jq '.[0] | [.databaseId,.status,.conclusion,.url] | @tsv' 2>/dev/null || true)"
+              if [[ -n "$line" ]]; then
+                IFS=$'\t' read -r run_id status conclusion url <<< "$line"
+                if [[ "$status" == completed ]]; then
+                  printf -- '- `%s`: **%s** — %s\n' "$workflow" "$conclusion" "$url" \
+                    >> /tmp/definitive-production-runs.md
+                  [[ "$conclusion" == success ]]
+                  return
+                fi
+              fi
+              sleep 10
+            done
+            return 1
+          }
+          wait_for_workflow ci.yml
+          wait_for_workflow codeql.yml
+          wait_for_workflow scorecard.yml
+
+      - name: Close certification issue
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          {
+            echo "Definitive finalization passed on commit \`$FINAL_SHA\`."
+            echo
+            echo 'All code, tests, coverage, security, dependencies, package, Wheel, Manifest, README, normalized machine evidence, 42 SVGs and main-only branch checks passed.'
+            echo
+            echo 'Production workflows:'
+            cat /tmp/definitive-production-runs.md
+            echo
+            echo 'No branch or pull request was created.'
+          } > /tmp/definitive-production-success.md
+          gh issue close "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" \
+            --reason completed --comment "$(cat /tmp/definitive-production-success.md)"
+
+      - name: Report exact failure and clean temporary workflow
+        if: ${{ failure() }}
+        shell: bash
+        run: |
+          set +e
+          stage="$(cat /tmp/definitive-production-stage 2>/dev/null || echo unknown)"
+          if [[ "$FINAL_PUSHED" != true ]]; then
+            git reset --hard "$ORIGINAL_SHA"
+            rm -f .github/workflows/definitive-production-certification-once.yml
+            python scripts/build_manifest.py || true
+            git add -A
+            git commit -m "Remove failed definitive certification at $stage" || true
+            git push origin HEAD:refs/heads/main || true
+          fi
+          {
+            echo "Definitive certification failed at stage: \`$stage\`."
+            echo
+            echo "Actions run: \`$GITHUB_RUN_ID\`."
+            echo
+            if [[ -s /tmp/definitive-production-runs.md ]]; then
+              cat /tmp/definitive-production-runs.md
+            fi
+            echo
+            echo 'No branch or pull request was created.'
+          } > /tmp/definitive-production-failure.md
+          gh issue comment "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" \
+            --body-file /tmp/definitive-production-failure.md || true
+          exit 1
