@@ -1,0 +1,97 @@
+name: Coverage gap analysis once
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: coverage-gap-analysis-main
+  cancel-in-progress: false
+
+env:
+  GH_TOKEN: ${{ github.token }}
+  PIP_DISABLE_PIP_VERSION_CHECK: '1'
+  TSAO_COVERAGE_JSON: /tmp/coverage-gap-analysis.json
+
+jobs:
+  analyze:
+    if: >-
+      github.repository == 'SUNHAOJUN22/TsaoSciComputation' &&
+      github.event.issue.user.login == 'SUNHAOJUN22' &&
+      github.event.issue.title == 'Analyze current coverage gaps'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+          cache: pip
+
+      - name: Run coverage and build exact gap report
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          rm -f .github/workflows/coverage-gap-analysis-once.yml
+          python -m pip install -e '.[validation,quality]'
+          python scripts/run_tests.py --coverage
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          payload=json.loads(Path('/tmp/coverage-gap-analysis.json').read_text(encoding='utf-8'))
+          rows=[]
+          for path,data in payload.get('files',{}).items():
+              if not path.startswith('tsao_computation/'):
+                  continue
+              summary=data['summary']
+              missing_lines=data.get('missing_lines',[])
+              missing_branches=data.get('missing_branches',[])
+              if not missing_lines and not missing_branches:
+                  continue
+              rows.append({
+                  'path':path,
+                  'statement':summary.get('percent_statements_covered',100.0),
+                  'branch':summary.get('percent_branches_covered',100.0),
+                  'missing_lines':missing_lines,
+                  'missing_branches':missing_branches,
+                  'gap_score':len(missing_lines)+2*len(missing_branches),
+              })
+          rows.sort(key=lambda item:(-item['gap_score'],item['path']))
+          totals=payload['totals']
+          lines=[
+              '# Current coverage gap analysis',
+              '',
+              f"Overall statement coverage: **{totals['percent_statements_covered']:.4f}%**",
+              f"Overall branch coverage: **{totals['percent_branches_covered']:.4f}%**",
+              '',
+              '| File | Statement | Branch | Missing lines | Missing branches |',
+              '|---|---:|---:|---|---|',
+          ]
+          for item in rows[:30]:
+              branch_text=', '.join(f'{src}->{dst}' for src,dst in item['missing_branches']) or '—'
+              line_text=', '.join(map(str,item['missing_lines'])) or '—'
+              lines.append(
+                  f"| `{item['path']}` | {item['statement']:.2f}% | {item['branch']:.2f}% | "
+                  f"{line_text} | {branch_text} |"
+              )
+          Path('/tmp/coverage-gap-analysis.md').write_text('\n'.join(lines)+'\n',encoding='utf-8')
+          PY
+          gh issue comment "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" \
+            --body-file /tmp/coverage-gap-analysis.md
+          python scripts/build_manifest.py
+          git add -A
+          git commit -m 'Remove completed coverage gap analysis' || true
+          git push origin HEAD:refs/heads/main
+          gh issue close "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --reason completed
