@@ -4,24 +4,12 @@ import argparse
 import json
 import math
 import statistics
+import sys
 import time
 import tracemalloc
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
-
-import _bootstrap  # noqa: F401
-from tsao_computation.accelerators import (
-    AcceleratorBackend,
-    AcceleratorInventory,
-    PlacementTarget,
-    plan_acceleration,
-)
-from tsao_computation.adapters import get_adapter
-from tsao_computation.uncertainty.model import combine_independent
-from tsao_computation.validation.numerical import convergence_check
-from tsao_computation.validation.physical import balance_check
-from tsao_computation.validation.scientific_benchmarks import run_all
 
 
 def _median_seconds(
@@ -42,7 +30,22 @@ def _median_seconds(
     return statistics.median(samples)
 
 
-def measure() -> dict[str, object]:
+def measure(source_root: Path) -> dict[str, object]:
+    root = source_root.resolve()
+    sys.path.insert(0, str(root))
+
+    from tsao_computation.accelerators import (
+        AcceleratorBackend,
+        AcceleratorInventory,
+        PlacementTarget,
+        plan_acceleration,
+    )
+    from tsao_computation.adapters import get_adapter
+    from tsao_computation.uncertainty.model import combine_independent
+    from tsao_computation.validation.numerical import convergence_check
+    from tsao_computation.validation.physical import balance_check
+    from tsao_computation.validation.scientific_benchmarks import run_all
+
     payload = ("iteration converged completed\n" * 800_000)[: 20 * 1024 * 1024]
     adapter = get_adapter("orca")
     parser_seconds = _median_seconds(lambda: adapter.parse(payload), repeats=7)
@@ -98,6 +101,7 @@ def measure() -> dict[str, object]:
 
     return {
         "schema_version": "1.0",
+        "source_root": str(root),
         "parser_20mib_throughput_mib_s": parser_mib_s,
         "acceleration_plan_seconds": plan_seconds,
         "convergence_250k_seconds": convergence_seconds,
@@ -118,9 +122,10 @@ def main() -> int:
     parser = argparse.ArgumentParser(
         description="Measure repository-local mathematical and orchestration kernels."
     )
+    parser.add_argument("--source-root", type=Path, default=Path("."))
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
-    payload = measure()
+    payload = measure(args.source_root)
     serialized = json.dumps(payload, indent=2, sort_keys=True, allow_nan=False) + "\n"
     if args.output is not None:
         args.output.parent.mkdir(parents=True, exist_ok=True)
