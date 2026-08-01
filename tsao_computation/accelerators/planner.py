@@ -159,7 +159,10 @@ def plan_acceleration(
             or (device.memory_gib is not None and device.memory_gib >= request.minimum_vram_gib)
         )
         if len(eligible) < count:
-            if request.accelerator_policy is AcceleratorPolicy.REQUIRED or not request.allow_fallback:
+            if (
+                request.accelerator_policy is AcceleratorPolicy.REQUIRED
+                or not request.allow_fallback
+            ):
                 raise ContractError(
                     "detected accelerator devices do not satisfy count or VRAM requirements"
                 )
