@@ -1798,7 +1798,7 @@
     {
       "bytes": 214,
       "path": "reports/MATH_PERFORMANCE_AUDIT_V10_FAILURE.json",
-      "sha256": "d6e66164978a09624dee26f3726a91b4f641302ffe581b267bb62f2b5958437f"
+      "sha256": "948932dfdf6bcc275e9d582ee8afe9c200e9b1bee527d07323ce0f4f37a7384e"
     },
     {
       "bytes": 4414,
@@ -2049,6 +2049,11 @@
       "bytes": 1033,
       "path": "scripts/run_large_parser_regression.py",
       "sha256": "27e908e86fb4a8f5fb034b147aee72bc8c18937b25b8134116a2d86efdf9af3d"
+    },
+    {
+      "bytes": 4413,
+      "path": "scripts/run_math_performance_v10.py",
+      "sha256": "8601dee78901579e85d1091368adba37ed8f710c046236c9951bde4a9484d152"
     },
     {
       "bytes": 8769,
@@ -2536,9 +2541,9 @@
       "sha256": "6542cd8dc08a11c66071363040eb2ec8b663f068c32ed767aaf8959226328fd1"
     },
     {
-      "bytes": 6982,
+      "bytes": 6986,
       "path": "tsao_computation/adapters/base.py",
-      "sha256": "e1f28de5ab3b3441722b4cf12eef5d2caa7e24ea688e6b02bf1240dfd01af05d"
+      "sha256": "c5ef54d6abd4cdeac731bd1bdbe4cc264c412231b0bbbe075f13feb6d7b5ac58"
     },
     {
       "bytes": 1073,
