@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
+from functools import lru_cache
 
 from .model import AcceleratorBackend
 
@@ -362,6 +363,25 @@ def get_acceleration_library(slug: str) -> AccelerationLibrary:
     raise KeyError(f"unknown acceleration library: {slug}")
 
 
+@lru_cache(maxsize=256)
+def _recommend_acceleration_libraries_cached(
+    backend: AcceleratorBackend | None,
+    workload: str | None,
+) -> tuple[AccelerationLibrary, ...]:
+    matches = tuple(
+        item
+        for item in _LIBRARIES
+        if (backend is None or backend in item.backends)
+        and (
+            workload is None
+            or any(workload in candidate.casefold() for candidate in item.workloads)
+        )
+    )
+    if backend is None:
+        return matches
+    return tuple(sorted(matches, key=lambda item: len(item.backends)))
+
+
 def recommend_acceleration_libraries(
     *,
     backend: AcceleratorBackend | str | None = None,
@@ -375,18 +395,10 @@ def recommend_acceleration_libraries(
         else AcceleratorBackend(backend)
     )
     normalized_workload = workload.casefold() if workload else None
-    matches = tuple(
-        item
-        for item in _LIBRARIES
-        if (normalized_backend is None or normalized_backend in item.backends)
-        and (
-            normalized_workload is None
-            or any(normalized_workload in candidate.casefold() for candidate in item.workloads)
-        )
+    return _recommend_acceleration_libraries_cached(
+        normalized_backend,
+        normalized_workload,
     )
-    if normalized_backend is None:
-        return matches
-    return tuple(sorted(matches, key=lambda item: len(item.backends)))
 
 
 library_catalog = acceleration_libraries

@@ -1796,11 +1796,6 @@
       "sha256": "2e57461a0149808817e43cc5a229f137484ccbcfb2894e730509a001d404ebba"
     },
     {
-      "bytes": 210,
-      "path": "reports/MATH_PERFORMANCE_AUDIT_V10_FAILURE.json",
-      "sha256": "450f114c230c7bd082bed259e76d21a7ac1c792b40cecb1337e5e8914a8d6605"
-    },
-    {
       "bytes": 4414,
       "path": "reports/MUTATION_REPORT.json",
       "sha256": "52f7f5c3360f7b6b49bc754f55be0581dabbf1b0d05851b87ba01e6cad9c9461"
@@ -2511,9 +2506,9 @@
       "sha256": "49e1697700cf0951aca650bd53330b906d9cb5a248533fb2bffb87c6d6edf364"
     },
     {
-      "bytes": 12830,
+      "bytes": 13099,
       "path": "tsao_computation/accelerators/catalog.py",
-      "sha256": "c4111fec5d1ab1d9ce29daba3bdb5fdfa186071bd8fcff33bd5e04c15a23ca1e"
+      "sha256": "59a6b3413970c9be67b5fe487d804be8ab83b687b5d2df11f52558257401a91b"
     },
     {
       "bytes": 8553,
@@ -2536,9 +2531,9 @@
       "sha256": "6542cd8dc08a11c66071363040eb2ec8b663f068c32ed767aaf8959226328fd1"
     },
     {
-      "bytes": 6986,
+      "bytes": 6982,
       "path": "tsao_computation/adapters/base.py",
-      "sha256": "c5ef54d6abd4cdeac731bd1bdbe4cc264c412231b0bbbe075f13feb6d7b5ac58"
+      "sha256": "e1f28de5ab3b3441722b4cf12eef5d2caa7e24ea688e6b02bf1240dfd01af05d"
     },
     {
       "bytes": 1073,
@@ -2746,9 +2741,9 @@
       "sha256": "c255d5ce9787890a92281ddd057097c05dc704614f26291a55f7e620647da3ad"
     },
     {
-      "bytes": 8518,
+      "bytes": 8889,
       "path": "tsao_computation/validation/scientific_benchmarks.py",
-      "sha256": "88197142ca18c26582c182a21fdb24f1a83388d356be3ba30d96729b99297e42"
+      "sha256": "15192a44012d2f3f51f2ac49d673c128a2fcc01104f667164040eb38c3d1b18a"
     },
     {
       "bytes": 91,
