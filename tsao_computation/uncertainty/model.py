@@ -17,6 +17,6 @@ class UncertaintyBudget:
 
 
 def combine_independent(*components: float) -> float:
-    if any(x < 0 or not math.isfinite(x) for x in components):
+    if any(value < 0 or not math.isfinite(value) for value in components):
         raise ValueError("uncertainty components must be finite and non-negative")
-    return math.sqrt(sum(x * x for x in components))
+    return math.hypot(*components)
