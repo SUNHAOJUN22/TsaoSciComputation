@@ -1,10 +1,10 @@
 {
-  "audit_generation": "ultimate-code-quality-finalization-v3",
+  "audit_generation": "ultimate-code-quality-finalization-v4",
   "branch": "main",
   "canonical_checkout_lf": true,
-  "canonical_ci_evidence": "The accepted final-commit CI run is recorded in the closing comment of GitHub Issue #40.",
+  "canonical_ci_evidence": "The accepted final-commit CI run is recorded in the closing comment of GitHub Issue #44.",
   "canonical_generated_text_lf": true,
-  "canonical_text_parent_commit": "1f298d77d9febada6fb7151d27dc30fc76115284",
+  "canonical_text_parent_commit": "e1b0dd4cd3b4efd1acba7e35bf640925fddf1fc2",
   "claim_boundary": "Validated for repository orchestration, contracts, routing, deterministic fixtures, packaging, documentation and cross-platform CI. No live third-party solver or production HPC execution is claimed.",
   "controlled_mutants": "64/64",
   "counts": {
@@ -14,8 +14,8 @@
     "workflows": 20
   },
   "coverage": {
-    "branch_percent": 91.86507936507937,
-    "statement_percent": 96.61319073083779
+    "branch_percent": 94.44444444444444,
+    "statement_percent": 97.8015448603684
   },
   "cross_platform_core": {
     "os": [
@@ -32,7 +32,7 @@
   },
   "cross_platform_manifest_stability": "PASS",
   "dependency_vulnerabilities": 0,
-  "deterministic_finalization_run_id": 30693474890,
+  "deterministic_finalization_run_id": 30694348089,
   "performance_audit": {
     "acceptance": {
       "cli_no_material_regression": true,
@@ -119,11 +119,11 @@
   "temporary_branch_created": false,
   "tests": {
     "failed": 0,
-    "passed": 656
+    "passed": 679
   },
-  "ultimate_audit_issue": 40,
+  "ultimate_audit_issue": 44,
   "validated_source_sha": "6681c08677d30231c321e898c9cb9ed34496b128",
-  "verified_at_utc": "2026-08-01T09:19:02.646543+00:00",
+  "verified_at_utc": "2026-08-01T09:45:47.886218+00:00",
   "version": "3.0.2",
   "visual_atlas_version": 13,
   "wheel_reproducible_and_isolated_install": true,
