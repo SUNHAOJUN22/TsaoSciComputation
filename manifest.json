@@ -2361,6 +2361,11 @@
       "sha256": "2e065aabfc73921004c5609a6a12acac24a7a37459624933af01d223ee13d4f0"
     },
     {
+      "bytes": 8320,
+      "path": "tests/test_fail_closed_coverage_regressions.py",
+      "sha256": "01a0594d0aca8c348c0c35a4ae7b6caa637737558bea69f57718fe85bb37c17a"
+    },
+    {
       "bytes": 2126,
       "path": "tests/test_generated_path_policy.py",
       "sha256": "0d520e20029e18776bd99a119987ca05aeeeb18628456484bd8d4006c1319c1e"
