@@ -41,9 +41,8 @@ _FAILURE_STATUS = re.compile(
     rf"(?P<convergence>{_CONVERGENCE_FAILURE_PATTERN})"
 )
 # Every accepted failure expression contains at least one of these folded literals.
-# The inexpensive C-level substring prefilter avoids a full multi-alternative regex
-# scan for the overwhelmingly common success/no-status logs without changing the
-# authoritative failure regex or its fail-closed precedence.
+# A single compiled search avoids repeatedly scanning large solver logs while the
+# authoritative failure expression retains fail-closed precedence.
 _FAILURE_CUES = (
     "not",
     "fail",
@@ -56,6 +55,7 @@ _FAILURE_CUES = (
     "non ",
     "unconverged",
 )
+_FAILURE_CUE = re.compile("|".join(re.escape(cue) for cue in _FAILURE_CUES))
 
 
 @dataclass(frozen=True, slots=True)
@@ -185,7 +185,7 @@ class Adapter:
         folded = output.casefold()
         completion_failed = False
         convergence_failed = False
-        if any(cue in folded for cue in _FAILURE_CUES):
+        if _FAILURE_CUE.search(folded) is not None:
             for match in _FAILURE_STATUS.finditer(folded):
                 if match.lastgroup == "completion":
                     completion_failed = True
