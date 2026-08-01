@@ -1,0 +1,637 @@
+name: Mathematical and performance audit V10 once
+
+on:
+  push:
+    branches: [main]
+    paths: [.run-math-performance-audit-v10]
+
+permissions:
+  actions: write
+  contents: write
+  issues: write
+
+concurrency:
+  group: math-performance-audit-v10-main
+  cancel-in-progress: false
+
+env:
+  GH_TOKEN: ${{ github.token }}
+  PIP_DISABLE_PIP_VERSION_CHECK: '1'
+  TSAO_COVERAGE_JSON: /tmp/math-v10-coverage.json
+  ISSUE_NUMBER: '48'
+  BASELINE_SHA: f405ed6ea9e1aa964ddc8aee24c955cd7526bb44
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+          cache: pip
+
+      - name: Initialize clean candidate
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo "ORIGINAL_SHA=$GITHUB_SHA" >> "$GITHUB_ENV"
+          echo "FINAL_PUSHED=false" >> "$GITHUB_ENV"
+          echo initialize > /tmp/math-v10-stage
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          rm -f .github/workflows/math-performance-audit-v10-once.yml
+          rm -f .run-math-performance-audit-v10
+          rm -f reports/MATH_PERFORMANCE_AUDIT_V10_FAILURE.json
+          rm -rf /tmp/math-v10-baseline
+          git worktree add --detach /tmp/math-v10-baseline "$BASELINE_SHA"
+
+      - name: Install validation environment
+        run: |
+          echo install > /tmp/math-v10-stage
+          python -m pip install -e '.[validation,quality,security]'
+
+      - name: Create deterministic benchmark harness
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          cat > /tmp/math_v10_bench.py <<'PY'
+          from __future__ import annotations
+
+          import json
+          import math
+          import statistics
+          import time
+          import tracemalloc
+
+          from tsao_computation.accelerators import (
+              AcceleratorBackend,
+              AcceleratorInventory,
+              PlacementTarget,
+              plan_acceleration,
+          )
+          from tsao_computation.adapters import get_adapter
+          from tsao_computation.uncertainty.model import combine_independent
+          from tsao_computation.validation.numerical import convergence_check
+          from tsao_computation.validation.scientific_benchmarks import run_all
+
+
+          def median(operation, *, repeats=7, loops=1, warmups=2):
+              for _ in range(warmups):
+                  operation()
+              samples = []
+              for _ in range(repeats):
+                  started = time.perf_counter()
+                  for _ in range(loops):
+                      operation()
+                  samples.append((time.perf_counter() - started) / loops)
+              return statistics.median(samples)
+
+
+          payload = ("iteration converged completed\n" * 800_000)[: 20 * 1024 * 1024]
+          adapter = get_adapter("orca")
+          parser_seconds = median(lambda: adapter.parse(payload), repeats=5, warmups=1)
+          parser_mib_s = (len(payload.encode("utf-8")) / (1024 * 1024)) / parser_seconds
+
+          inventory = AcceleratorInventory(
+              logical_cpu_count=16,
+              architecture="benchmark",
+              operating_system="benchmark",
+              memory_gib=64.0,
+              backends=(
+                  AcceleratorBackend.CPU,
+                  AcceleratorBackend.OPENMP,
+                  AcceleratorBackend.TASK_PARALLEL,
+              ),
+              placements=(PlacementTarget.LOCAL,),
+          )
+          resources = {
+              "preferred_backends": ["cuda", "openmp", "cpu"],
+              "accelerator_policy": "preferred",
+              "cpu_cores": 8,
+          }
+          plan_seconds = median(
+              lambda: plan_acceleration("gromacs", resources, inventory=inventory),
+              repeats=9,
+              loops=500,
+              warmups=2,
+          )
+
+          def convergence_operation():
+              return convergence_check(
+                  (1.0 + 1.0 / (index + 2) for index in range(250_000)),
+                  absolute_tolerance=1.0e-8,
+                  relative_tolerance=1.0e-8,
+              )
+
+          convergence_seconds = median(convergence_operation, repeats=5, warmups=1)
+          tracemalloc.start()
+          convergence_result = convergence_operation()
+          _, convergence_peak = tracemalloc.get_traced_memory()
+          tracemalloc.stop()
+
+          uncertainty_seconds = median(
+              lambda: combine_independent(0.12, 0.08, 0.04),
+              repeats=9,
+              loops=20_000,
+              warmups=2,
+          )
+          extreme_uncertainty = combine_independent(1.0e308, 1.0e308)
+
+          benchmark_seconds = median(run_all, repeats=7, warmups=1)
+          benchmark_results = run_all()
+
+          result = {
+              "schema_version": "1.0",
+              "parser_20mib_throughput_mib_s": parser_mib_s,
+              "acceleration_plan_seconds": plan_seconds,
+              "convergence_250k_seconds": convergence_seconds,
+              "convergence_250k_peak_bytes": convergence_peak,
+              "convergence_result": convergence_result,
+              "uncertainty_seconds": uncertainty_seconds,
+              "extreme_uncertainty_finite": math.isfinite(extreme_uncertainty),
+              "extreme_uncertainty": extreme_uncertainty if math.isfinite(extreme_uncertainty) else None,
+              "scientific_benchmarks_seconds": benchmark_seconds,
+              "scientific_benchmarks_passed": sum(item.passed for item in benchmark_results),
+          }
+          print(json.dumps(result, indent=2, sort_keys=True, allow_nan=False))
+          PY
+
+      - name: Measure baseline
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo baseline > /tmp/math-v10-stage
+          (
+            cd /tmp/math-v10-baseline
+            PYTHONPATH=/tmp/math-v10-baseline python /tmp/math_v10_bench.py \
+              > /tmp/math-v10-baseline.json
+          )
+          cat /tmp/math-v10-baseline.json
+
+      - name: Apply benchmark-gated parser, planning and benchmark arithmetic improvements
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo patch > /tmp/math-v10-stage
+          python - <<'PY'
+          from pathlib import Path
+
+          catalog = Path("tsao_computation/accelerators/catalog.py")
+          text = catalog.read_text(encoding="utf-8")
+          if "from functools import lru_cache\n" not in text:
+              text = text.replace(
+                  "from dataclasses import asdict, dataclass\n",
+                  "from dataclasses import asdict, dataclass\nfrom functools import lru_cache\n",
+                  1,
+              )
+          old = '''def recommend_acceleration_libraries(
+              *,
+              backend: AcceleratorBackend | str | None = None,
+              workload: str | None = None,
+          ) -> tuple[AccelerationLibrary, ...]:
+              normalized_backend = (
+                  None
+                  if backend is None
+                  else backend
+                  if isinstance(backend, AcceleratorBackend)
+                  else AcceleratorBackend(backend)
+              )
+              normalized_workload = workload.casefold() if workload else None
+              matches = tuple(
+                  item
+                  for item in _LIBRARIES
+                  if (normalized_backend is None or normalized_backend in item.backends)
+                  and (
+                      normalized_workload is None
+                      or any(normalized_workload in candidate.casefold() for candidate in item.workloads)
+                  )
+              )
+              if normalized_backend is None:
+                  return matches
+              return tuple(sorted(matches, key=lambda item: len(item.backends)))
+          '''
+          new = '''@lru_cache(maxsize=256)
+          def _recommend_acceleration_libraries_cached(
+              backend: AcceleratorBackend | None,
+              workload: str | None,
+          ) -> tuple[AccelerationLibrary, ...]:
+              matches = tuple(
+                  item
+                  for item in _LIBRARIES
+                  if (backend is None or backend in item.backends)
+                  and (
+                      workload is None
+                      or any(workload in candidate.casefold() for candidate in item.workloads)
+                  )
+              )
+              if backend is None:
+                  return matches
+              return tuple(sorted(matches, key=lambda item: len(item.backends)))
+
+
+          def recommend_acceleration_libraries(
+              *,
+              backend: AcceleratorBackend | str | None = None,
+              workload: str | None = None,
+          ) -> tuple[AccelerationLibrary, ...]:
+              normalized_backend = (
+                  None
+                  if backend is None
+                  else backend
+                  if isinstance(backend, AcceleratorBackend)
+                  else AcceleratorBackend(backend)
+              )
+              normalized_workload = workload.casefold() if workload else None
+              return _recommend_acceleration_libraries_cached(
+                  normalized_backend,
+                  normalized_workload,
+              )
+          '''
+          if old not in text:
+              raise SystemExit("catalog recommendation block not found")
+          catalog.write_text(text.replace(old, new, 1), encoding="utf-8", newline="\n")
+
+          adapter = Path("tsao_computation/adapters/base.py")
+          text = adapter.read_text(encoding="utf-8")
+          cue_anchor = '''_FAILURE_CUES = (
+              "not",
+              "fail",
+              "error",
+              "fatal",
+              "abnormal",
+              "abort",
+              "never",
+              "non-",
+              "non ",
+              "unconverged",
+          )
+          '''
+          cue_replacement = cue_anchor + '''_FAILURE_CUE = re.compile(
+              "|".join(re.escape(cue) for cue in _FAILURE_CUES)
+          )
+          '''
+          if cue_anchor not in text:
+              raise SystemExit("failure cue block not found")
+          text = text.replace(cue_anchor, cue_replacement, 1)
+          old_condition = "        if any(cue in folded for cue in _FAILURE_CUES):\n"
+          if old_condition not in text:
+              raise SystemExit("failure cue condition not found")
+          adapter.write_text(
+              text.replace(
+                  old_condition,
+                  "        if _FAILURE_CUE.search(folded) is not None:\n",
+                  1,
+              ),
+              encoding="utf-8",
+              newline="\n",
+          )
+
+          benchmarks = Path("tsao_computation/validation/scientific_benchmarks.py")
+          text = benchmarks.read_text(encoding="utf-8")
+          old_error = "    absolute_error = abs(observed - expected)\n"
+          new_error = '''    try:
+              absolute_error = abs(math.fsum((observed, -expected)))
+          except OverflowError as error:
+              raise ValueError("benchmark error overflowed finite arithmetic") from error
+          '''
+          if old_error not in text:
+              raise SystemExit("benchmark absolute-error line not found")
+          text = text.replace(old_error, new_error, 1)
+          old_relative = '''        relative_error = absolute_error / abs(expected)
+              passed = relative_error <= tolerance
+          '''
+          new_relative = '''        relative_error = absolute_error / abs(expected)
+              if not math.isfinite(relative_error):
+                  raise ValueError("benchmark relative error is not finite")
+              passed = relative_error <= tolerance
+          '''
+          if old_relative not in text:
+              raise SystemExit("benchmark relative-error block not found")
+          benchmarks.write_text(
+              text.replace(old_relative, new_relative, 1),
+              encoding="utf-8",
+              newline="\n",
+          )
+          PY
+          python -m ruff check --fix tsao_computation tests/test_math_performance_v10.py
+          python -m ruff format tsao_computation tests/test_math_performance_v10.py
+
+      - name: Run targeted numerical and semantic tests
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo targeted > /tmp/math-v10-stage
+          python -m pytest -q \
+            tests/test_math_performance_v10.py \
+            tests/test_performance_optimizations.py \
+            tests/test_validation_fail_closed.py \
+            tests/test_scientific_benchmarks.py \
+            tests/test_acceleration_foundation.py \
+            tests/test_acceleration_v11.py
+          python -m mypy --python-version 3.13 tsao_computation scripts
+          python -m ruff check tsao_computation scripts tests _bootstrap.py
+          python -m ruff format --check tsao_computation scripts tests _bootstrap.py
+
+      - name: Measure candidate and enforce acceptance
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo performance > /tmp/math-v10-stage
+          PYTHONPATH="$GITHUB_WORKSPACE" python /tmp/math_v10_bench.py \
+            > /tmp/math-v10-candidate.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          baseline = json.loads(Path("/tmp/math-v10-baseline.json").read_text(encoding="utf-8"))
+          candidate = json.loads(Path("/tmp/math-v10-candidate.json").read_text(encoding="utf-8"))
+          speedups = {
+              "parser": candidate["parser_20mib_throughput_mib_s"]
+              / baseline["parser_20mib_throughput_mib_s"],
+              "acceleration_plan": baseline["acceleration_plan_seconds"]
+              / candidate["acceleration_plan_seconds"],
+              "convergence_time": baseline["convergence_250k_seconds"]
+              / candidate["convergence_250k_seconds"],
+              "uncertainty": baseline["uncertainty_seconds"]
+              / candidate["uncertainty_seconds"],
+              "scientific_benchmarks": baseline["scientific_benchmarks_seconds"]
+              / candidate["scientific_benchmarks_seconds"],
+          }
+          memory_ratio = (
+              candidate["convergence_250k_peak_bytes"]
+              / baseline["convergence_250k_peak_bytes"]
+          )
+          acceptance = {
+              "parser_speedup_at_least_1_10": speedups["parser"] >= 1.10,
+              "acceleration_plan_speedup_at_least_1_05": speedups["acceleration_plan"] >= 1.05,
+              "convergence_speedup_at_least_1_20": speedups["convergence_time"] >= 1.20,
+              "convergence_peak_memory_at_most_25_percent": memory_ratio <= 0.25,
+              "scientific_benchmark_no_material_regression": speedups["scientific_benchmarks"] >= 0.90,
+              "all_scientific_benchmarks_pass": candidate["scientific_benchmarks_passed"] == 8,
+              "extreme_uncertainty_is_finite": candidate["extreme_uncertainty_finite"] is True,
+          }
+          report = {
+              "schema_version": "1.0",
+              "baseline_sha": "f405ed6ea9e1aa964ddc8aee24c955cd7526bb44",
+              "baseline": baseline,
+              "candidate": candidate,
+              "speedups": speedups,
+              "convergence_peak_memory_ratio": memory_ratio,
+              "acceptance": acceptance,
+              "status": "PASS" if all(acceptance.values()) else "FAIL",
+              "claim_boundary": (
+                  "Same-host Python mathematical kernels, orchestration parser and acceleration "
+                  "planning only; no external solver, GPU kernel or production-HPC speedup is claimed."
+              ),
+          }
+          Path("/tmp/math-v10-comparison.json").write_text(
+              json.dumps(report, indent=2, sort_keys=True, allow_nan=False) + "\n",
+              encoding="utf-8",
+              newline="\n",
+          )
+          print(json.dumps(report, sort_keys=True))
+          if report["status"] != "PASS":
+              raise SystemExit("performance acceptance failed")
+          PY
+
+      - name: Run complete deterministic security and package gates
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo full-gates > /tmp/math-v10-stage
+          python scripts/run_tests.py --coverage | tee /tmp/math-v10-pytest.log
+          python scripts/verify_all.py --profile all --timing-json /tmp/math-v10-all-timing.json
+          python scripts/verify_all.py --profile benchmark --timing-json /tmp/math-v10-benchmark-timing.json
+          python scripts/verify_native_core.py > /tmp/math-v10-native-core.json
+          python scripts/security_scan.py
+          python -m pip_audit --local --skip-editable --progress-spinner=off \
+            --format=json --output /tmp/math-v10-dependencies.json
+          rm -rf /tmp/math-v10-build
+          python -m build --outdir /tmp/math-v10-build
+          python -m pytest -q
+          git ls-remote --heads origin | sort > /tmp/math-v10-remote-heads.txt
+          test "$(awk '{print $2}' /tmp/math-v10-remote-heads.txt | sed 's#refs/heads/##' | paste -sd ' ' -)" = main
+
+      - name: Update README and machine evidence
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo evidence > /tmp/math-v10-stage
+          python scripts/update_main_audit_evidence.py \
+            --root . \
+            --run-id "$GITHUB_RUN_ID" \
+            --issue "$ISSUE_NUMBER" \
+            --test-log /tmp/math-v10-pytest.log \
+            --coverage-json /tmp/math-v10-coverage.json \
+            --dependency-json /tmp/math-v10-dependencies.json \
+            --security-json evidence/security-scan.json \
+            --remote-heads /tmp/math-v10-remote-heads.txt \
+            --parent-commit "$ORIGINAL_SHA" \
+            --audit-generation math-performance-audit-v10 \
+            --audit-label V10-math-performance \
+            --visual-count 42 \
+            --visual-atlas-version 13 \
+            --report-path reports/ULTIMATE_CODE_QUALITY_FINALIZATION.md \
+            --visual-families 'Electronic structure and molecular simulation; materials and interfaces; continuum and process engineering; evidence governance and HPC.'
+          python - <<'PY'
+          import json
+          import re
+          import textwrap
+          from pathlib import Path
+
+          comparison = json.loads(Path("/tmp/math-v10-comparison.json").read_text(encoding="utf-8"))
+          timing = json.loads(Path("/tmp/math-v10-all-timing.json").read_text(encoding="utf-8"))
+          report = {
+              **comparison,
+              "audit_generation": "math-performance-audit-v10",
+              "issue": 48,
+              "full_verification": {
+                  "profile": timing["profile"],
+                  "status": timing["status"],
+                  "total_seconds": timing["total_seconds"],
+              },
+              "changes": [
+                  "Stable root-sum-square uncertainty propagation via math.hypot.",
+                  "O(1)-memory streaming convergence evaluation with overflow-safe thresholds.",
+                  "Compensated mass and energy balance residuals via math.fsum.",
+                  "Fail-closed finite scientific benchmark error arithmetic.",
+                  "Bounded acceleration-library recommendation cache.",
+                  "Single-pass compiled parser failure-cue prefilter.",
+              ],
+          }
+          Path("reports/MATH_PERFORMANCE_AUDIT_V10.json").write_text(
+              json.dumps(report, indent=2, sort_keys=True, allow_nan=False) + "\n",
+              encoding="utf-8",
+              newline="\n",
+          )
+          speedups = comparison["speedups"]
+          memory = comparison["convergence_peak_memory_ratio"]
+          english = textwrap.dedent(
+              f"""\
+              <!-- MATH_PERFORMANCE_V10:START -->
+              ### Mathematical correctness and performance V10
+
+              The current main line uses stable root-sum-square uncertainty propagation, streaming convergence checks, compensated balance residuals, finite benchmark-error arithmetic, cached acceleration-library recommendations and a single-pass parser failure prefilter.
+
+              Same-host measured results: parser **{speedups['parser']:.2f}×**, repeated acceleration planning **{speedups['acceleration_plan']:.2f}×**, convergence evaluation **{speedups['convergence_time']:.2f}×**, with convergence peak traced memory reduced to **{memory:.1%}** of the baseline. All eight scientific reference benchmarks and the complete deterministic gate passed. These measurements cover repository-local Python kernels and orchestration only; they do not claim external solver, GPU-kernel or production-HPC speedup.
+
+              Machine evidence: [`reports/MATH_PERFORMANCE_AUDIT_V10.json`](reports/MATH_PERFORMANCE_AUDIT_V10.json).
+              <!-- MATH_PERFORMANCE_V10:END -->
+              """
+          ).strip()
+          chinese = textwrap.dedent(
+              f"""\
+              <!-- MATH_PERFORMANCE_V10:START -->
+              ### 数理正确性与性能 V10
+
+              当前主线采用稳定的独立不确定度平方和开方算法、流式收敛判定、补偿式守恒残差、有限数科学基准误差计算、加速库推荐缓存，以及单次扫描的解析失败提示预筛选。
+
+              同机实测结果：解析热路径 **{speedups['parser']:.2f}×**、重复加速规划 **{speedups['acceleration_plan']:.2f}×**、收敛判定 **{speedups['convergence_time']:.2f}×**；收敛判定的峰值跟踪内存降至基线的 **{memory:.1%}**。8 项科学参考基准与完整确定性门禁全部通过。上述数据仅针对仓库内 Python 数理内核与编排逻辑，不代表外部求解器、GPU 内核或生产 HPC 加速。
+
+              机器证据：[`reports/MATH_PERFORMANCE_AUDIT_V10.json`](reports/MATH_PERFORMANCE_AUDIT_V10.json)。
+              <!-- MATH_PERFORMANCE_V10:END -->
+              """
+          ).strip()
+
+          def update(path: str, block: str) -> None:
+              target = Path(path)
+              text = target.read_text(encoding="utf-8")
+              pattern = re.compile(
+                  r"<!-- MATH_PERFORMANCE_V10:START -->.*?<!-- MATH_PERFORMANCE_V10:END -->",
+                  re.DOTALL,
+              )
+              if pattern.search(text):
+                  text = pattern.sub(block, text, count=1)
+              else:
+                  text = text.rstrip() + "\n\n" + block + "\n"
+              target.write_text(text, encoding="utf-8", newline="\n")
+
+          update("README.md", english)
+          update("README.zh-CN.md", chinese)
+          PY
+          python scripts/build_manifest.py
+          python scripts/build_manifest.py --check
+
+      - name: Validate exact final candidate
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo final-candidate > /tmp/math-v10-stage
+          python -m pytest -q
+          python scripts/sync_version_metadata.py --check
+          python scripts/regenerate_readme_visuals_v13.py --check
+          python scripts/validate_schemas.py
+          python scripts/validate_adapter_metadata.py
+          python scripts/validate_repository.py
+          python scripts/build_manifest.py --check
+          mapfile -t workflows < <(find .github/workflows -maxdepth 1 -type f -name '*.yml' -printf '%f\n' | sort)
+          expected=(ci.yml codeql.yml dependency-audit.yml release.yml scorecard.yml)
+          test "${workflows[*]}" = "${expected[*]}"
+          test "$(git ls-remote --heads origin | awk '{print $2}' | sed 's#refs/heads/##' | paste -sd ' ' -)" = main
+
+      - name: Commit verified optimization directly to main
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo commit > /tmp/math-v10-stage
+          git add -A
+          git commit -m 'Improve mathematical stability and performance'
+          git push origin HEAD:refs/heads/main
+          FINAL_SHA="$(git rev-parse HEAD)"
+          echo "FINAL_SHA=$FINAL_SHA" >> "$GITHUB_ENV"
+          echo "FINAL_PUSHED=true" >> "$GITHUB_ENV"
+
+      - name: Dispatch and require production workflows on exact commit
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo production-ci > /tmp/math-v10-stage
+          test "$(git ls-remote origin refs/heads/main | awk '{print $1}')" = "$FINAL_SHA"
+          gh workflow run ci.yml --ref main
+          gh workflow run codeql.yml --ref main
+          gh workflow run scorecard.yml --ref main
+
+          wait_for_workflow() {
+            local workflow="$1"
+            local line status conclusion url
+            for _ in $(seq 1 180); do
+              line="$(gh run list --repo "$GITHUB_REPOSITORY" \
+                --workflow "$workflow" --branch main --event workflow_dispatch --limit 10 \
+                --json headSha,status,conclusion,url \
+                --jq ".[] | select(.headSha == \"$FINAL_SHA\") | [.status,.conclusion,.url] | @tsv" \
+                | head -n 1)"
+              if [[ -n "$line" ]]; then
+                IFS=$'\t' read -r status conclusion url <<< "$line"
+                if [[ "$status" == completed ]]; then
+                  echo "$workflow: $conclusion ($url)"
+                  [[ "$conclusion" == success ]]
+                  return
+                fi
+              fi
+              sleep 10
+            done
+            return 1
+          }
+          wait_for_workflow ci.yml
+          wait_for_workflow codeql.yml
+          wait_for_workflow scorecard.yml
+
+      - name: Close successful audit
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          gh issue close "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --reason completed \
+            --comment "Mathematical and performance audit V10 passed on commit $FINAL_SHA. Numerical stability, parser, acceleration planning, convergence memory, complete tests, coverage, security, dependency, package, Manifest, CI, CodeQL and OpenSSF Scorecard checks all passed. No branch or pull request was created."
+
+      - name: Fail closed and remove temporary automation
+        if: ${{ failure() }}
+        shell: bash
+        run: |
+          set +e
+          stage="$(cat /tmp/math-v10-stage 2>/dev/null || echo unknown)"
+          if [[ "$FINAL_PUSHED" != true ]]; then
+            git reset --hard "$ORIGINAL_SHA"
+            rm -f .github/workflows/math-performance-audit-v10-once.yml
+            rm -f .run-math-performance-audit-v10
+            mkdir -p reports
+            python - "$stage" "$GITHUB_RUN_ID" <<'PY'
+          import json
+          import sys
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          stage, run_id = sys.argv[1], int(sys.argv[2])
+          Path("reports/MATH_PERFORMANCE_AUDIT_V10_FAILURE.json").write_text(
+              json.dumps(
+                  {
+                      "schema_version": "1.0",
+                      "status": "FAILED",
+                      "stage": stage,
+                      "run_id": run_id,
+                      "branch": "main",
+                      "temporary_branch_created": False,
+                      "created_at_utc": datetime.now(timezone.utc).isoformat(),
+                  },
+                  indent=2,
+                  sort_keys=True,
+              )
+              + "\n",
+              encoding="utf-8",
+              newline="\n",
+          )
+          PY
+            python scripts/build_manifest.py || true
+            git add -A
+            git commit -m "Record math performance audit failure at $stage" || true
+            git push origin HEAD:refs/heads/main || true
+          fi
+          gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" \
+            --body "Math/performance audit did not complete at stage: $stage. Actions run: $GITHUB_RUN_ID. No branch or PR was created; temporary automation was removed when possible." || true
+          exit 1
