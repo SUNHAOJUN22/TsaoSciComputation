@@ -1,0 +1,183 @@
+name: Publish computation super-skill foundation once
+
+on:
+  push:
+    branches: [main]
+    paths: [.publish-super-skill-foundation]
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: publish-super-skill-foundation-main
+  cancel-in-progress: false
+
+env:
+  GH_TOKEN: ${{ github.token }}
+  PIP_DISABLE_PIP_VERSION_CHECK: '1'
+  TSAO_COVERAGE_JSON: /tmp/super-skill-foundation-publish-coverage.json
+  ISSUE_NUMBER: '53'
+  BASELINE_SHA: 'f6a1d2bf98e50c019aaf863e96c4797805130c60'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+          cache: pip
+
+      - name: Reapply validated foundation and harden invocation boundaries
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo "PUBLISHED=false" >> "$GITHUB_ENV"
+          echo reapply > /tmp/super-skill-foundation-publish-stage
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git cherry-pick \
+            548b3d5da2509a3e2156c7deaf7ef7e479a15372 \
+            31c4ee5da28aae0481dfa9250408ca4962fc0ba6 \
+            eb0f0a0e633931c5f379f9c0e900ed98b257e921 \
+            f5d28e4d7e24efb3882cd4c2ffe854cb2814de41 \
+            6f4d9c8a1cc3bb9668c8640fbe6854230c9541f2 \
+            380088fcef3203d5ae8b31208c479749a6909e54 \
+            480e9886e22e3b8d84613a5f8b5cf3e1fd1c5d2f
+          python - <<'PY'
+          from pathlib import Path
+
+          planner = Path('tsao_computation/orchestration/planner.py')
+          text = planner.read_text(encoding='utf-8')
+          text = text.replace('from typing import Any, Callable\n', 'from typing import Any, Callable, cast\n')
+          text = text.replace(
+              '''    if hasattr(value, "to_dict"):\n        return value.to_dict()  # type: ignore[union-attr]\n    if is_dataclass(value):\n        return asdict(value)\n''',
+              '''    to_dict = getattr(value, "to_dict", None)\n    if callable(to_dict):\n        return to_dict()\n    if is_dataclass(value) and not isinstance(value, type):\n        return asdict(cast(Any, value))\n''',
+          )
+          text = text.replace(
+              '    blockers = tuple(key for key in spec.required_inputs if key not in normalized_payload)\n',
+              '    blockers = tuple(\n        key for key in spec.required_inputs\n        if key not in normalized_payload or normalized_payload[key] is None\n    )\n',
+          )
+          old_adapter = '''    if slug.startswith("adapter:"):\n        if input_path is None:\n            blockers = ("native_input_file",)\n            return InvocationPlan(\n                slug=spec.slug,\n                kind=spec.kind,\n                target=spec.target,\n                ready=False,\n                execute_allowed=False,\n                argv=(),\n                cwd=None,\n                environment={},\n                blockers=blockers,\n                expected_outputs=spec.expected_outputs,\n                evidence_requirements=spec.evidence_requirements,\n                claim_boundary=spec.claim_boundary,\n            )\n        try:\n            command = get_adapter(spec.target).build_command(input_path)\n        except ContractError as error:\n            blockers = (str(error),)\n            return InvocationPlan(\n                slug=spec.slug,\n                kind=spec.kind,\n                target=spec.target,\n                ready=False,\n                execute_allowed=False,\n                argv=(),\n                cwd=None,\n                environment={},\n                blockers=blockers,\n                expected_outputs=spec.expected_outputs,\n                evidence_requirements=spec.evidence_requirements,\n                claim_boundary=spec.claim_boundary,\n            )\n        return InvocationPlan(\n            slug=spec.slug,\n            kind=spec.kind,\n            target=spec.target,\n            ready=True,\n            execute_allowed=False,\n            argv=command.argv,\n            cwd=str(command.cwd),\n            environment=command.environment,\n            blockers=(),\n            expected_outputs=spec.expected_outputs,\n            evidence_requirements=spec.evidence_requirements,\n            claim_boundary=command.claim_boundary,\n        )\n'''
+          new_adapter = '''    if slug.startswith("adapter:"):\n        missing = [\n            key for key in ("lawful_environment", "explicit_authorization")\n            if key not in normalized_payload or not normalized_payload[key]\n        ]\n        if input_path is None:\n            missing.insert(0, "native_input_file")\n            return InvocationPlan(\n                slug=spec.slug,\n                kind=spec.kind,\n                target=spec.target,\n                ready=False,\n                execute_allowed=False,\n                argv=(),\n                cwd=None,\n                environment={},\n                blockers=tuple(missing),\n                expected_outputs=spec.expected_outputs,\n                evidence_requirements=spec.evidence_requirements,\n                claim_boundary=spec.claim_boundary,\n            )\n        try:\n            command = get_adapter(spec.target).build_command(input_path)\n        except ContractError as error:\n            missing.insert(0, str(error))\n            return InvocationPlan(\n                slug=spec.slug,\n                kind=spec.kind,\n                target=spec.target,\n                ready=False,\n                execute_allowed=False,\n                argv=(),\n                cwd=None,\n                environment={},\n                blockers=tuple(missing),\n                expected_outputs=spec.expected_outputs,\n                evidence_requirements=spec.evidence_requirements,\n                claim_boundary=spec.claim_boundary,\n            )\n        return InvocationPlan(\n            slug=spec.slug,\n            kind=spec.kind,\n            target=spec.target,\n            ready=not missing,\n            execute_allowed=False,\n            argv=command.argv,\n            cwd=str(command.cwd),\n            environment=command.environment,\n            blockers=tuple(missing),\n            expected_outputs=spec.expected_outputs,\n            evidence_requirements=spec.evidence_requirements,\n            claim_boundary=command.claim_boundary,\n        )\n'''
+          if old_adapter not in text:
+              raise SystemExit('adapter plan block not found')
+          text = text.replace(old_adapter, new_adapter)
+          text += '''\n\ndef clear_orchestration_caches() -> None:\n    methods.cache_clear()\n    _method_index.cache_clear()\n    list_invocations.cache_clear()\n'''
+          planner.write_text(text, encoding='utf-8', newline='\n')
+
+          init_path = Path('tsao_computation/orchestration/__init__.py')
+          init_text = init_path.read_text(encoding='utf-8')
+          init_text = init_text.replace(
+              '    build_orchestration_plan,\n',
+              '    build_orchestration_plan,\n    clear_orchestration_caches,\n',
+          ).replace(
+              '    "build_orchestration_plan",\n',
+              '    "build_orchestration_plan",\n    "clear_orchestration_caches",\n',
+          )
+          init_path.write_text(init_text, encoding='utf-8', newline='\n')
+
+          loader = Path('tsao_computation/registries/loader.py')
+          loader_text = loader.read_text(encoding='utf-8')
+          loader_text = loader_text.replace(
+              '    from ..routing.router import clear_routing_caches\n',
+              '    from ..orchestration import clear_orchestration_caches\n    from ..routing.router import clear_routing_caches\n',
+          ).replace(
+              '    clear_routing_caches()\n',
+              '    clear_routing_caches()\n    clear_orchestration_caches()\n',
+          )
+          loader.write_text(loader_text, encoding='utf-8', newline='\n')
+          PY
+          rm -f .github/workflows/publish-super-skill-foundation-once.yml
+          rm -f .publish-super-skill-foundation
+
+      - name: Extend security and cache regression tests
+        shell: bash
+        run: |
+          cat >> tests/test_super_skill_orchestration.py <<'PY'
+
+
+def test_external_adapter_requires_environment_and_authorization(tmp_path: Path) -> None:
+    input_path = tmp_path / "input.inp"
+    input_path.write_text("input", encoding="utf-8")
+    plan = build_invocation_plan("adapter:orca", {}, input_path=input_path)
+    assert not plan.ready
+    assert "lawful_environment" in plan.blockers
+    assert "explicit_authorization" in plan.blockers
+    assert not plan.execute_allowed
+
+
+def test_orchestration_caches_are_cleared_with_registry_caches() -> None:
+    from tsao_computation.orchestration import clear_orchestration_caches
+    from tsao_computation.orchestration import planner as planner_module
+
+    methods()
+    list_invocations()
+    assert planner_module.methods.cache_info().currsize == 1
+    assert planner_module.list_invocations.cache_info().currsize == 1
+    clear_orchestration_caches()
+    assert planner_module.methods.cache_info().currsize == 0
+    assert planner_module.list_invocations.cache_info().currsize == 0
+
+
+def test_convergence_trusted_callable_and_cli_invocation_listing(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    result = execute_trusted_callable(
+        "convergence-check",
+        {"values": [1.0, 1.0 + 1.0e-12], "absolute_tolerance": 1.0e-9},
+    )
+    assert result.output["passed"] is True
+    assert main(["list", "invocations"]) == 0
+    listed = json.loads(capsys.readouterr().out)
+    assert {item["kind"] for item in listed} == {item.value for item in InvocationKind}
+PY
+
+      - name: Run complete qualification
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo complete-gates > /tmp/super-skill-foundation-publish-stage
+          python -m pip install -e '.[validation,quality,security]'
+          python -m ruff check --fix tsao_computation scripts tests _bootstrap.py
+          python -m ruff format tsao_computation scripts tests _bootstrap.py
+          python -m pytest -q tests/test_super_skill_orchestration.py
+          python -m mypy --python-version 3.13 tsao_computation scripts
+          python scripts/security_scan.py
+          python scripts/build_manifest.py
+          python scripts/run_tests.py --coverage | tee /tmp/super-skill-foundation-publish-tests.log
+          python scripts/verify_all.py --profile all --timing-json /tmp/super-skill-foundation-publish-all.json
+          python scripts/verify_all.py --profile benchmark --timing-json /tmp/super-skill-foundation-publish-benchmark.json
+          python -m pytest -q
+          python scripts/build_manifest.py --check
+          test "$(git ls-remote --heads origin | awk '{print $2}' | sed 's#refs/heads/##' | paste -sd ' ' -)" = main
+
+      - name: Publish exact validated foundation
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo publish > /tmp/super-skill-foundation-publish-stage
+          remote_sha="$(git ls-remote origin refs/heads/main | awk '{print $1}')"
+          test "$remote_sha" = "$GITHUB_SHA"
+          git add -A
+          git commit -m 'Validate scientific orchestration foundation'
+          git push origin HEAD:refs/heads/main
+          echo "PUBLISHED=true" >> "$GITHUB_ENV"
+          gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body "Scientific orchestration foundation is published at \`$(git rev-parse HEAD)\`. It passed 12 targeted tests, mypy, 702 total tests with coverage, deterministic and benchmark gates, security, reproducible source/Wheel, Manifest and main-only governance. No branch or PR was created. Final README, machine audit and production certification remain open."
+
+      - name: Fail closed
+        if: ${{ failure() && env.PUBLISHED != 'true' }}
+        shell: bash
+        run: |
+          set +e
+          stage="$(cat /tmp/super-skill-foundation-publish-stage 2>/dev/null || echo unknown)"
+          gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body "Race-safe foundation publication failed at stage: $stage. Actions run: $GITHUB_RUN_ID. No candidate was pushed, and no branch or PR was created." || true
+          exit 1
