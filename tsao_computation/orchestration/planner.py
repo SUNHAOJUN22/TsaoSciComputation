@@ -14,13 +14,7 @@ from ..contracts import CalculationContract
 from ..errors import ContractError
 from ..registries import workflows
 from ..uncertainty import combine_independent
-from ..validation import (
-    acceptance_gate,
-    assess_confidence,
-    balance_check,
-    convergence_check,
-    unit_known,
-)
+from ..validation import balance_check, convergence_check
 from ..validation.scientific_benchmarks import run_all
 from .model import (
     AccelerationAdvice,
@@ -228,36 +222,12 @@ def methods() -> tuple[MethodSpec, ...]:
             ("surrogate inference", "streaming", "edge placement"),
         ),
         _method(
-            "surrogate-model",
-            "Surrogate model",
-            "reduced-order-modeling",
-            ("data", "all"),
-            local + service,
-            ("batched inference", "reduced-order model", "validated caching"),
-        ),
-        _method(
-            "machine-learning",
-            "Machine learning",
+            "surrogate-machine-learning",
+            "Surrogate and machine learning",
             "machine-learning",
             ("data", "all"),
             local + service,
             ("batched training", "GPU tensor cores", "quantized inference"),
-        ),
-        _method(
-            "data-processing",
-            "Scientific data processing",
-            "data-processing",
-            ("data", "all"),
-            local + service,
-            ("streaming", "columnar data", "parallel transforms"),
-        ),
-        _method(
-            "hpc-execution",
-            "HPC execution",
-            "execution",
-            ("all",),
-            solver + service,
-            ("scheduler arrays", "checkpoint restart", "hybrid MPI and threads"),
         ),
     )
 
@@ -268,10 +238,8 @@ def _method_index() -> dict[str, MethodSpec]:
 
 
 def get_method(slug: str) -> MethodSpec:
-    normalized = slug.strip().casefold().replace("_", "-").replace(" ", "-")
-    normalized = {"surrogate-machine-learning": "surrogate-model"}.get(normalized, normalized)
     try:
-        return _method_index()[normalized]
+        return _method_index()[slug.strip().casefold().replace("_", "-")]
     except KeyError as error:
         raise KeyError(f"unknown computation method: {slug}") from error
 
@@ -297,21 +265,6 @@ def _invoke_benchmarks(payload: Mapping[str, Any]) -> object:
     return [item.to_dict() for item in run_all()]
 
 
-def _invoke_unit_known(payload: Mapping[str, Any]) -> object:
-    unit = payload.get("unit")
-    if not isinstance(unit, str) or not unit.strip():
-        raise ContractError("unit must be a non-empty string")
-    return {"unit": unit, "known": unit_known(unit)}
-
-
-def _invoke_acceptance(payload: Mapping[str, Any]) -> object:
-    return acceptance_gate(dict(payload))
-
-
-def _invoke_confidence(payload: Mapping[str, Any]) -> object:
-    return assess_confidence(payload).to_dict()
-
-
 _TRUSTED_CALLABLES: dict[
     str, tuple[str, Callable[[Mapping[str, Any]], object], tuple[str, ...]]
 ] = {
@@ -329,13 +282,6 @@ _TRUSTED_CALLABLES: dict[
     "scientific-benchmarks": (
         "Deterministic scientific reference benchmarks",
         _invoke_benchmarks,
-        (),
-    ),
-    "unit-known": ("Scientific unit registry lookup", _invoke_unit_known, ("unit",)),
-    "acceptance-gate": ("Fail-closed scientific acceptance gate", _invoke_acceptance, ()),
-    "confidence-assessment": (
-        "Scientific confidence ladder assessment",
-        _invoke_confidence,
         (),
     ),
 }
@@ -460,11 +406,7 @@ def build_invocation_plan(
 ) -> InvocationPlan:
     spec = get_invocation_spec(slug)
     normalized_payload = {} if payload is None else dict(payload)
-    blockers = tuple(
-        key
-        for key in spec.required_inputs
-        if key not in normalized_payload or normalized_payload[key] is None
-    )
+    blockers = tuple(key for key in spec.required_inputs if key not in normalized_payload)
     if spec.trusted_local_execution:
         return InvocationPlan(
             slug=spec.slug,
@@ -481,13 +423,8 @@ def build_invocation_plan(
             claim_boundary=spec.claim_boundary,
         )
     if slug.startswith("adapter:"):
-        missing = [
-            key
-            for key in ("lawful_environment", "explicit_authorization")
-            if key not in normalized_payload or not normalized_payload[key]
-        ]
         if input_path is None:
-            missing.insert(0, "native_input_file")
+            blockers = ("native_input_file",)
             return InvocationPlan(
                 slug=spec.slug,
                 kind=spec.kind,
@@ -497,7 +434,7 @@ def build_invocation_plan(
                 argv=(),
                 cwd=None,
                 environment={},
-                blockers=tuple(missing),
+                blockers=blockers,
                 expected_outputs=spec.expected_outputs,
                 evidence_requirements=spec.evidence_requirements,
                 claim_boundary=spec.claim_boundary,
@@ -505,7 +442,7 @@ def build_invocation_plan(
         try:
             command = get_adapter(spec.target).build_command(input_path)
         except ContractError as error:
-            missing.insert(0, str(error))
+            blockers = (str(error),)
             return InvocationPlan(
                 slug=spec.slug,
                 kind=spec.kind,
@@ -515,7 +452,7 @@ def build_invocation_plan(
                 argv=(),
                 cwd=None,
                 environment={},
-                blockers=tuple(missing),
+                blockers=blockers,
                 expected_outputs=spec.expected_outputs,
                 evidence_requirements=spec.evidence_requirements,
                 claim_boundary=spec.claim_boundary,
@@ -524,12 +461,12 @@ def build_invocation_plan(
             slug=spec.slug,
             kind=spec.kind,
             target=spec.target,
-            ready=not missing,
+            ready=True,
             execute_allowed=False,
             argv=command.argv,
             cwd=str(command.cwd),
             environment=command.environment,
-            blockers=tuple(missing),
+            blockers=(),
             expected_outputs=spec.expected_outputs,
             evidence_requirements=spec.evidence_requirements,
             claim_boundary=command.claim_boundary,
@@ -756,10 +693,6 @@ _STRATEGIES: tuple[tuple[AccelerationAdvice, tuple[str, ...]], ...] = tuple(
 )
 
 
-def acceleration_strategies() -> tuple[AccelerationAdvice, ...]:
-    return tuple(item[0] for item in _STRATEGIES)
-
-
 def recommend_acceleration(
     workload: Mapping[str, object] | None = None,
     *,
@@ -806,9 +739,8 @@ def _default_method_slugs(workflow: str) -> tuple[str, ...]:
         ("process", ("process-simulation", "nonlinear-optimization")),
         ("reactor", ("numerical-integration", "process-simulation")),
         ("control", ("dynamic-control", "nonlinear-optimization")),
-        ("digital", ("digital-twin", "surrogate-model")),
-        ("hpc", ("hpc-execution", "sparse-linear-algebra", "monte-carlo")),
-        ("data", ("data-processing", "statistical-inference")),
+        ("digital", ("digital-twin", "surrogate-machine-learning")),
+        ("hpc", ("sparse-linear-algebra", "monte-carlo")),
         ("polymer", ("molecular-dynamics", "mesoscale-simulation")),
     )
     for token, result in mapping:
@@ -1022,9 +954,3 @@ def build_orchestration_plan(contract: CalculationContract) -> OrchestrationPlan
         ready_for_preflight=not blockers,
         claim_boundary=_CLAIM_BOUNDARY,
     )
-
-
-def clear_orchestration_caches() -> None:
-    methods.cache_clear()
-    _method_index.cache_clear()
-    list_invocations.cache_clear()

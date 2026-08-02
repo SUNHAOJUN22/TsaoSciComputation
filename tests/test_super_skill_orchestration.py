@@ -48,7 +48,7 @@ def complete_contract() -> CalculationContract:
 
 def test_method_catalog_is_complete_unique_and_invocable() -> None:
     catalog = methods()
-    assert len(catalog) == 23
+    assert len(catalog) == 20
     assert len({item.slug for item in catalog}) == len(catalog)
     assert get_method("molecular_dynamics").slug == "molecular-dynamics"
     kinds = {kind for item in catalog for kind in item.invocation_kinds}
@@ -108,11 +108,7 @@ def test_external_invocation_targets_are_plan_only(tmp_path: Path) -> None:
     assert "authorization" in abstract.blockers[0]
 
     missing_input = build_invocation_plan("adapter:orca", {})
-    assert set(missing_input.blockers) == {
-        "native_input_file",
-        "lawful_environment",
-        "explicit_authorization",
-    }
+    assert missing_input.blockers == ("native_input_file",)
     unavailable = build_invocation_plan("adapter:orca", {}, input_path=tmp_path / "missing.inp")
     assert not unavailable.ready
     assert "input file does not exist" in unavailable.blockers[0]
@@ -176,7 +172,7 @@ def test_cli_exposes_methods_plans_advice_and_trusted_invocation(
 ) -> None:
     assert main(["list", "methods"]) == 0
     listed = json.loads(capsys.readouterr().out)
-    assert len(listed) == 23
+    assert len(listed) == 20
 
     contract_path = tmp_path / "contract.json"
     contract_path.write_text(json.dumps(complete_contract().to_dict()), encoding="utf-8")

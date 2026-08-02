@@ -9,10 +9,8 @@ from .model import (
     OrchestrationStep,
 )
 from .planner import (
-    acceleration_strategies,
     build_invocation_plan,
     build_orchestration_plan,
-    clear_orchestration_caches,
     execute_trusted_callable,
     get_invocation_spec,
     get_method,
@@ -30,10 +28,8 @@ __all__ = [
     "MethodSpec",
     "OrchestrationPlan",
     "OrchestrationStep",
-    "acceleration_strategies",
     "build_invocation_plan",
     "build_orchestration_plan",
-    "clear_orchestration_caches",
     "execute_trusted_callable",
     "get_invocation_spec",
     "get_method",

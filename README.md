@@ -38,28 +38,6 @@ question → contract → route → preflight → execute → parse
 
 It is an **orchestration and governance layer**. It does not bundle, redistribute, unlock, or impersonate external solvers, licenses, databases, basis sets, pseudopotentials, private data, or production HPC infrastructure.
 
-<!-- SUPER_SKILL_ORCHESTRATION:START -->
-## Scientific computation super-skill
-
-TsaoSciComputation acts as both a scientific Skill and a fail-closed intermediary platform. It exposes **23 computation methods**, **9 invocation types**, **7 trusted local scientific functions**, **27 external adapters**, **20 governed workflows**, **13 acceleration strategies**, and a **9-stage orchestration plan**.
-
-| Invocation mode | Default behavior |
-|---|---|
-| Registered trusted Python callable | May execute locally with validated payloads, duration and request/result hashes |
-| External adapter or commercial solver | Probe and command-plan only; execution remains separately authorized |
-| Python module, CLI, API, container, scheduler or other Skill | Declarative plan/handoff only until a runtime, identity, authorization and evidence policy are supplied |
-
-```bash
-python -m tsao_computation list methods
-python -m tsao_computation list invocations
-python -m tsao_computation plan templates/calculation-contract.json --strict
-python -m tsao_computation recommend-acceleration --method finite-element
-python -m tsao_computation invoke balance-check --payload balance.json --execute
-```
-
-Acceleration guidance covers algorithm, memory, backend, execution and model-reduction choices. A recommendation is not presented as measured speedup unless isolated machine evidence says so. See [`docs/orchestration.md`](docs/orchestration.md) and [`reports/ULTIMATE_COMPUTATION_SUPER_SKILL_AUDIT.json`](reports/ULTIMATE_COMPUTATION_SUPER_SKILL_AUDIT.json).
-<!-- SUPER_SKILL_ORCHESTRATION:END -->
-
 ## Scientific capability atlas
 
 Only two compact architecture overviews remain inline. Detailed workflows, loops and risk maps are full width and grouped by domain to reduce scrolling while keeping all 42 assets discoverable.

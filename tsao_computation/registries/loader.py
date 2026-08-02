@@ -41,11 +41,9 @@ def units() -> dict[str, Any]:
 def clear_registry_caches() -> None:
     from ..accelerators.planner import clear_acceleration_caches
     from ..adapters.registry import clear_adapter_caches
-    from ..orchestration import clear_orchestration_caches
     from ..routing.router import clear_routing_caches
 
     clear_acceleration_caches()
     clear_adapter_caches()
     clear_routing_caches()
-    clear_orchestration_caches()
     _load.cache_clear()
