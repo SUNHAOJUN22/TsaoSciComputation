@@ -128,6 +128,31 @@ def _validated_executable(executable: str) -> Path:
     return resolved
 
 
+def _run_prepared(
+    argv: Sequence[str],
+    *,
+    cwd: Path,
+    timeout: float,
+    environment: Mapping[str, str],
+) -> subprocess.CompletedProcess[str]:
+    if not argv or any(not isinstance(item, str) or not item or "\x00" in item for item in argv):
+        raise SecurityError("argv must be a non-empty sequence of non-empty strings")
+    if timeout <= 0 or timeout > 86400:
+        raise SecurityError("timeout must be within (0, 86400] seconds")
+    if any(not key or not value or "\x00" in key or "\x00" in value for key, value in environment.items()):
+        raise SecurityError("prepared subprocess environment contains invalid entries")
+    return subprocess.run(
+        tuple(argv),
+        cwd=_validated_cwd(cwd),
+        env=dict(environment),
+        text=True,
+        capture_output=True,
+        timeout=timeout,
+        check=False,
+        shell=False,  # nosec B603
+    )
+
+
 def _run_sanitized(
     argv: Sequence[str],
     *,
@@ -135,19 +160,11 @@ def _run_sanitized(
     timeout: float,
     env: Mapping[str, str] | None = None,
 ) -> subprocess.CompletedProcess[str]:
-    if not argv or any(not isinstance(item, str) or not item or "\x00" in item for item in argv):
-        raise SecurityError("argv must be a non-empty sequence of non-empty strings")
-    if timeout <= 0 or timeout > 86400:
-        raise SecurityError("timeout must be within (0, 86400] seconds")
-    return subprocess.run(
-        tuple(argv),
-        cwd=_validated_cwd(cwd),
-        env=_subprocess_environment(env),
-        text=True,
-        capture_output=True,
+    return _run_prepared(
+        argv,
+        cwd=cwd,
         timeout=timeout,
-        check=False,
-        shell=False,  # nosec B603
+        environment=_subprocess_environment(env),
     )
 
 
@@ -162,7 +179,7 @@ def safe_run(
     """Compatibility entrypoint that always denies direct process execution.
 
     External computation must use :func:`tsao_computation.execution.run_plan` with a
-    matching hash-bound authorization.  The legacy boolean is intentionally ignored
+    matching hash-bound authorization. The legacy boolean is intentionally ignored
     as an authorization mechanism.
     """
 
@@ -183,12 +200,17 @@ def _authorized_run(
     *,
     cwd: Path,
     timeout: float = 300.0,
-    env: Mapping[str, str] | None = None,
+    environment: Mapping[str, str],
     permit: object,
 ) -> subprocess.CompletedProcess[str]:
     if permit is not _PROCESS_EXECUTION_PERMIT:
         raise SecurityError("internal process execution permit is invalid")
-    return _run_sanitized(argv, cwd=cwd, timeout=timeout, env=env)
+    return _run_prepared(
+        argv,
+        cwd=cwd,
+        timeout=timeout,
+        environment=environment,
+    )
 
 
 def probe_command_output(executable: str, arguments: tuple[str, ...]) -> str:
