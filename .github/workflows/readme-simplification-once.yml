@@ -1,0 +1,235 @@
+name: README simplification and full audit
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  actions: read
+  contents: write
+  issues: write
+  security-events: read
+
+concurrency:
+  group: readme-simplification-main
+  cancel-in-progress: false
+
+env:
+  GH_TOKEN: ${{ github.token }}
+  PIP_DISABLE_PIP_VERSION_CHECK: '1'
+  TSAO_COVERAGE_JSON: /tmp/readme-simplification-coverage.json
+  CLEAN_BASELINE_SHA: '55689254d56dfee198d8a7463a5d3fcf0bdba9f4'
+
+jobs:
+  simplify-and-certify:
+    if: ${{ github.event.issue.title == 'SIMPLIFY_README_AND_AUDIT_V1' && github.event.issue.user.login == github.repository_owner }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+          cache: pip
+
+      - name: Apply simplification
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo apply > /tmp/readme-simplification-stage
+          ORIGINAL_SHA="$(git rev-parse HEAD)"
+          echo "ORIGINAL_SHA=$ORIGINAL_SHA" >> "$GITHUB_ENV"
+          echo "AUDIT_ISSUE=${{ github.event.issue.number }}" >> "$GITHUB_ENV"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          python scripts/apply_readme_simplification_once.py
+          python scripts/sync_version_metadata.py --release-date 2026-08-03
+          python scripts/build_manifest.py
+
+      - name: Focused validation
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo focused > /tmp/readme-simplification-stage
+          python -m pip install -e '.[validation,quality,security]'
+          python -m ruff check --fix tsao_computation scripts tests _bootstrap.py
+          python -m ruff format tsao_computation scripts tests _bootstrap.py
+          python -m pytest -q \
+            tests/test_readme_visuals.py \
+            tests/test_super_skill_documentation.py \
+            tests/test_supported_platform_policy.py \
+            tests/test_version_metadata.py \
+            tests/test_update_main_audit_evidence.py
+
+      - name: Complete local validation
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo complete > /tmp/readme-simplification-stage
+          python scripts/run_tests.py --coverage | tee /tmp/readme-simplification-tests.log
+          python scripts/verify_all.py --profile all --timing-json /tmp/readme-simplification-all.json
+          python scripts/verify_all.py --profile benchmark --timing-json /tmp/readme-simplification-benchmark.json
+          python scripts/verify_native_core.py > /tmp/readme-simplification-native.json
+          python scripts/security_scan.py
+          python -m pip_audit --local --skip-editable --progress-spinner=off \
+            --format=json --output /tmp/readme-simplification-dependencies.json
+          python -m pytest -q | tee /tmp/readme-simplification-pytest.log
+          git ls-remote --heads origin | sort > /tmp/readme-simplification-heads.txt
+          test "$(awk '{print $2}' /tmp/readme-simplification-heads.txt | sed 's#refs/heads/##' | paste -sd ' ' -)" = main
+
+      - name: Refresh machine evidence
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo evidence > /tmp/readme-simplification-stage
+          python scripts/build_super_skill_audit.py \
+            --test-log /tmp/readme-simplification-pytest.log \
+            --coverage-json /tmp/readme-simplification-coverage.json \
+            --dependency-json /tmp/readme-simplification-dependencies.json \
+            --security-json evidence/security-scan.json \
+            --verification-json /tmp/readme-simplification-all.json
+          python scripts/update_main_audit_evidence.py \
+            --root . \
+            --run-id "$GITHUB_RUN_ID" \
+            --issue "$AUDIT_ISSUE" \
+            --test-log /tmp/readme-simplification-pytest.log \
+            --coverage-json /tmp/readme-simplification-coverage.json \
+            --dependency-json /tmp/readme-simplification-dependencies.json \
+            --security-json evidence/security-scan.json \
+            --remote-heads /tmp/readme-simplification-heads.txt \
+            --parent-commit "$ORIGINAL_SHA" \
+            --audit-generation readme-simplification-v1 \
+            --audit-label readme-simplification-v1 \
+            --visual-count 42 \
+            --visual-atlas-version 13 \
+            --report-path reports/README_SIMPLIFICATION_AUDIT_V1.md \
+            --visual-families 'The complete validated V13 visual atlas remains in assets/visuals; the landing page embeds only the hero and two architecture overviews.'
+          python scripts/sync_version_metadata.py --release-date 2026-08-03
+          python scripts/security_scan.py
+          python scripts/build_manifest.py
+
+      - name: Exact final-tree gates
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo exact-tree > /tmp/readme-simplification-stage
+          python -m ruff check tsao_computation scripts tests _bootstrap.py
+          python -m ruff format --check tsao_computation scripts tests _bootstrap.py
+          python -m mypy --python-version 3.13 tsao_computation scripts
+          python -m bandit -q -r tsao_computation scripts -x tests
+          python -m pytest -q
+          python scripts/verify_all.py --profile core
+          python scripts/sync_version_metadata.py --check
+          python scripts/build_manifest.py --check
+          mapfile -t workflows < <(find .github/workflows -maxdepth 1 -type f -name '*.yml' -printf '%f\n' | sort)
+          expected=(ci.yml codeql.yml dependency-audit.yml release.yml scorecard.yml)
+          test "${workflows[*]}" = "${expected[*]}"
+          test "$(awk '{print $2}' /tmp/readme-simplification-heads.txt | sed 's#refs/heads/##' | paste -sd ' ' -)" = main
+
+      - name: Commit directly to main
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo commit > /tmp/readme-simplification-stage
+          test "$(git ls-remote origin refs/heads/main | awk '{print $1}')" = "$ORIGINAL_SHA"
+          git add -A
+          git commit -m 'Simplify README and retire obsolete visual migrations'
+          git push origin HEAD:refs/heads/main
+          FINAL_SHA="$(git rev-parse HEAD)"
+          echo "FINAL_SHA=$FINAL_SHA" >> "$GITHUB_ENV"
+
+      - name: Require exact-final production workflows
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo production > /tmp/readme-simplification-stage
+          : > /tmp/readme-simplification-runs.txt
+          wait_for() {
+            local workflow="$1" line status conclusion url
+            for _ in $(seq 1 180); do
+              line="$(gh run list \
+                --repo "$GITHUB_REPOSITORY" \
+                --workflow "$workflow" \
+                --branch main \
+                --limit 30 \
+                --json headSha,status,conclusion,url,event \
+                --jq ".[] | select(.headSha == \"$FINAL_SHA\" and .event == \"push\") | [.status,.conclusion,.url] | @tsv" \
+                | head -n 1)"
+              if [[ -n "$line" ]]; then
+                IFS=$'\t' read -r status conclusion url <<< "$line"
+                if [[ "$status" == completed ]]; then
+                  [[ "$conclusion" == success ]]
+                  printf '%s: %s\n' "$workflow" "$url" >> /tmp/readme-simplification-runs.txt
+                  return 0
+                fi
+              fi
+              sleep 10
+            done
+            return 1
+          }
+          wait_for ci.yml
+          wait_for codeql.yml
+          wait_for scorecard.yml
+
+      - name: Record completion
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo complete-record > /tmp/readme-simplification-stage
+          metrics="$(python - <<'PY'
+          import json
+          from pathlib import Path
+          audit = json.loads(Path('reports/ULTIMATE_COMPUTATION_SUPER_SKILL_AUDIT.json').read_text())
+          quality = audit['quality']
+          print(
+              f"tests={quality['tests_passed']}; "
+              f"statement-coverage={quality['statement_coverage_percent']:.2f}%; "
+              f"branch-coverage={quality['branch_coverage_percent']:.2f}%"
+          )
+          PY
+          )"
+          sizes="$(python - <<'PY'
+          from pathlib import Path
+          print(
+              f"README.md={Path('README.md').stat().st_size} bytes; "
+              f"README.zh-CN.md={Path('README.zh-CN.md').stat().st_size} bytes"
+          )
+          PY
+          )"
+          runs="$(cat /tmp/readme-simplification-runs.txt)"
+          gh issue close "$AUDIT_ISSUE" \
+            --repo "$GITHUB_REPOSITORY" \
+            --reason completed \
+            --comment "README simplification and full audit passed on commit \`$FINAL_SHA\`. $metrics. $sizes. The landing page now embeds 3 core diagrams while all 42 SVGs remain fully validated. Eight obsolete one-time visual migration scripts/tests were removed. Full deterministic, benchmark, security, dependency, reproducible build, Manifest, CI, CodeQL and Scorecard gates passed. Remote branches remain main only; no branch or pull request was created.\n\n$runs"
+
+      - name: Fail closed
+        if: ${{ failure() }}
+        shell: bash
+        run: |
+          set +e
+          stage="$(cat /tmp/readme-simplification-stage 2>/dev/null || echo unknown)"
+          expected="${FINAL_SHA:-${ORIGINAL_SHA:-}}"
+          remote="$(git ls-remote origin refs/heads/main | awk '{print $1}')"
+          if [[ -n "$expected" && "$remote" == "$expected" ]]; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git fetch origin main
+            git reset --hard origin/main
+            git read-tree --reset -u "$CLEAN_BASELINE_SHA"
+            git clean -fd
+            python scripts/security_scan.py || true
+            python scripts/build_manifest.py || true
+            git add -A
+            git commit -m "Restore certified baseline after README simplification $stage" || true
+            git push origin HEAD:refs/heads/main || true
+          fi
+          gh issue close "${AUDIT_ISSUE:-${{ github.event.issue.number }}}" \
+            --repo "$GITHUB_REPOSITORY" \
+            --reason "not planned" \
+            --comment "README simplification failed closed at stage: $stage. Actions run: $GITHUB_RUN_ID. The certified baseline was restored when no concurrent main update was present. No branch or pull request was created." || true
+          exit 1
