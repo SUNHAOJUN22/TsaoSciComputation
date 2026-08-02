@@ -23,7 +23,6 @@ from tsao_computation.accelerators import probe as accelerator_probe
 from tsao_computation.adapters.base import CommandPlan
 from tsao_computation.errors import SecurityError
 from tsao_computation.execution import authorize_plan, run_plan
-from tsao_computation.execution import runner as execution_runner
 from tsao_computation.security import process as process_security
 
 
@@ -189,7 +188,7 @@ def test_run_plan_rejects_missing_mismatched_and_environment_stale_authorization
     forged = replace(authorization, plan_sha256="0" * 64)
     with pytest.raises(SecurityError, match="does not match"):
         run_plan(plan, authorization=forged)
-    monkeypatch.setenv("TSAO_ENVIRONMENT_BINDING", "changed-after-authorization")
+    monkeypatch.setenv("PATH", os.environ.get("PATH", "") + os.pathsep + str(tmp_path))
     with pytest.raises(SecurityError, match="does not match"):
         run_plan(plan, authorization=authorization)
 
