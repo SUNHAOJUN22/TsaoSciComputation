@@ -27,10 +27,7 @@ def _read_json(path: Path | None) -> Any:
 def _passed_tests(path: Path | None) -> int | None:
     if path is None:
         return None
-    values = [
-        int(value)
-        for value in re.findall(r"(\d+) passed", path.read_text(encoding="utf-8"))
-    ]
+    values = [int(value) for value in re.findall(r"(\d+) passed", path.read_text(encoding="utf-8"))]
     return max(values) if values else None
 
 
@@ -161,9 +158,7 @@ def build(
             "branch_coverage_percent": totals.get("percent_branches_covered"),
             "controlled_mutation": "64/64",
             "scientific_benchmarks": "8/8",
-            "repository_security_findings": (
-                len(findings) if isinstance(findings, list) else None
-            ),
+            "repository_security_findings": (len(findings) if isinstance(findings, list) else None),
             "dependency_vulnerabilities": vulnerabilities,
             "source_and_wheel_reproducible": True if validated else None,
         },
