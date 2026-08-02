@@ -1,0 +1,151 @@
+name: Adversarial computation super-skill phase A V6 once
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: adversarial-super-skill-phase-a-v6-main
+  cancel-in-progress: false
+
+env:
+  GH_TOKEN: ${{ github.token }}
+  PIP_DISABLE_PIP_VERSION_CHECK: '1'
+  TSAO_COVERAGE_JSON: /tmp/adversarial-phase-a-v6-coverage.json
+  AUDIT_ISSUE: '61'
+  CLEAN_BASELINE_SHA: 'bda22b06fdeed73b481637db2ea67ad7b77c78c6'
+
+jobs:
+  validate:
+    if: ${{ github.event.issue.title == 'ADVERSARIAL_COMPUTATION_SUPER_SKILL_PHASE_A_V6' && github.event.issue.user.login == github.repository_owner }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+          cache: pip
+
+      - name: Apply candidate and exact type corrections
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo "ORIGINAL_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+          echo "PUBLISHED=false" >> "$GITHUB_ENV"
+          echo apply > /tmp/adversarial-phase-a-v6-stage
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git cherry-pick \
+            484ec16dd90120cfd3ab913c52f2660fa5900af3 \
+            fc6f5b2e131afd9d3077aab46ac327480b7c73c5
+          python scripts/apply_adversarial_super_skill_phase_a.py
+          python scripts/fix_adversarial_phase_a_typing.py
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('tsao_computation/immutable.py')
+          text = path.read_text(encoding='utf-8')
+          text = text.replace(
+              'from collections.abc import Mapping\nfrom typing import Any, NoReturn\n',
+              'from collections.abc import Iterable, Mapping\nfrom typing import Any, NoReturn, SupportsIndex\n',
+              1,
+          )
+          replacements = {
+              '    def __ior__(self, value: Mapping[str, Any]) -> NoReturn:\n':
+                  '    def __ior__(self, value: Any) -> FrozenDict:  # type: ignore[override,misc]\n',
+              '    def __iadd__(self, value: Any) -> NoReturn:\n':
+                  '    def __iadd__(self, value: Iterable[Any]) -> FrozenList:  # type: ignore[misc]\n',
+              '    def __imul__(self, value: Any) -> NoReturn:\n':
+                  '    def __imul__(self, value: SupportsIndex) -> FrozenList:\n',
+              '    def insert(self, index: int, value: Any) -> NoReturn:\n':
+                  '    def insert(self, index: SupportsIndex, value: Any) -> NoReturn:\n',
+              '    def pop(self, index: int = -1) -> NoReturn:\n':
+                  '    def pop(self, index: SupportsIndex = -1) -> NoReturn:\n',
+          }
+          for old, new in replacements.items():
+              if text.count(old) != 1:
+                  raise SystemExit(f'immutable signature not found exactly once: {old!r}')
+              text = text.replace(old, new, 1)
+          path.write_text(text, encoding='utf-8', newline='\n')
+          PY
+          rm -f scripts/apply_adversarial_super_skill_phase_a.py
+          rm -f scripts/fix_adversarial_phase_a_typing.py
+          rm -f .github/workflows/adversarial-super-skill-phase-a-v6-once.yml
+
+      - name: Normalize and run targeted gates
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo targeted > /tmp/adversarial-phase-a-v6-stage
+          python -m pip install -e '.[validation,quality,security]'
+          python -m ruff check --fix tsao_computation scripts tests _bootstrap.py
+          python -m ruff format tsao_computation scripts tests _bootstrap.py
+          python -m pytest -q \
+            tests/test_adversarial_super_skill_phase_a.py \
+            tests/test_super_skill_orchestration.py \
+            tests/test_super_skill_hardening.py \
+            tests/test_adapter_fail_closed.py \
+            tests/test_acceleration_batch.py \
+            tests/test_validation_fail_closed.py
+          python -m mypy --python-version 3.13 tsao_computation scripts
+          python scripts/security_scan.py
+          python scripts/build_manifest.py
+
+      - name: Run complete deterministic and benchmark gates
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo complete-gates > /tmp/adversarial-phase-a-v6-stage
+          python scripts/run_tests.py --coverage | tee /tmp/adversarial-phase-a-v6-tests.log
+          python scripts/verify_all.py --profile all --timing-json /tmp/adversarial-phase-a-v6-all.json
+          python scripts/verify_all.py --profile benchmark --timing-json /tmp/adversarial-phase-a-v6-benchmark.json
+          python -m pytest -q
+          python scripts/build_manifest.py --check
+          test "$(git ls-remote --heads origin | awk '{print $2}' | sed 's#refs/heads/##' | paste -sd ' ' -)" = main
+
+      - name: Publish validated phase A
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo publish > /tmp/adversarial-phase-a-v6-stage
+          test "$(git ls-remote origin refs/heads/main | awk '{print $1}')" = "$ORIGINAL_SHA"
+          git add -A
+          git commit -m 'Harden computation orchestration and execution authorization'
+          git push origin HEAD:refs/heads/main
+          echo "PUBLISHED=true" >> "$GITHUB_ENV"
+          FINAL_SHA="$(git rev-parse HEAD)"
+          gh issue comment "$AUDIT_ISSUE" --repo "$GITHUB_REPOSITORY" \
+            --body "Adversarial phase A passed at \`$FINAL_SHA\`: external execution is hash-authorized/default-deny; unknown methods and Skills fail closed; ambiguous routing is blocked; false-string authorization is rejected; contracts/registries are immutable snapshots; generic completion parsing is stricter. Targeted tests, mypy, complete tests/coverage, deterministic/benchmark profiles, security, Manifest and main-only gates passed. No branch or PR was created."
+          gh issue close "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --reason completed \
+            --comment "Validated phase A published at \`$FINAL_SHA\`."
+
+      - name: Fail closed
+        if: ${{ failure() && env.PUBLISHED != 'true' }}
+        shell: bash
+        run: |
+          set +e
+          stage="$(cat /tmp/adversarial-phase-a-v6-stage 2>/dev/null || echo unknown)"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git fetch origin main
+          git checkout -B main origin/main
+          git read-tree --reset -u "$CLEAN_BASELINE_SHA"
+          git clean -fd
+          python scripts/security_scan.py || true
+          python scripts/build_manifest.py || true
+          git add -A
+          git commit -m "Restore clean computation skill at $stage" || true
+          git push origin HEAD:refs/heads/main || true
+          gh issue comment "$AUDIT_ISSUE" --repo "$GITHUB_REPOSITORY" \
+            --body "Adversarial phase A V6 failed closed at stage: $stage. Actions run: $GITHUB_RUN_ID. The tree was restored to $CLEAN_BASELINE_SHA. No branch or PR was created." || true
+          gh issue close "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --reason "not planned" \
+            --comment "Fail-closed at stage: $stage. See Issue #$AUDIT_ISSUE." || true
+          exit 1
