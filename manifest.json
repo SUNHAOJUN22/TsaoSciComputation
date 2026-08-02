@@ -51,6 +51,11 @@
       "sha256": "15d510e1f5228c7de316c385f6ae91044ce9fa30cbced49a30a85f6a21e9a1bb"
     },
     {
+      "bytes": 10376,
+      "path": ".github/workflows/execution-integrity-v13e-once.yml",
+      "sha256": "6bb746adce436330b49286348c32c3a671490b2cb9e1a545fb768b0e999e9302"
+    },
+    {
       "bytes": 5555,
       "path": ".github/workflows/release.yml",
       "sha256": "b0ebf6572cd48fb93dd5f3c16f235e299fe865dd4779aa45dd561f18c295eb8f"
@@ -1588,7 +1593,7 @@
     {
       "bytes": 72,
       "path": "evidence/security-scan.json",
-      "sha256": "299aa66decf45e55ed34069b830901189a6416a7111c3db2f4c85ff70ed535a4"
+      "sha256": "9e977846c7e5d3adf484ab8d0f59c49abd751d8955e8735b861ff6f2ded1f423"
     },
     {
       "bytes": 573,
@@ -2034,6 +2039,11 @@
       "bytes": 3984,
       "path": "scripts/package_release.py",
       "sha256": "d8dd53ab3fcca3c5e504c20d275c6c75638f2ada934dc34aba64c0d85f1270ed"
+    },
+    {
+      "bytes": 6827,
+      "path": "scripts/prepare_execution_integrity_v13e.py",
+      "sha256": "40b4d6be49fbcd8dcb5ee4566e8d08b92d1d95eb8d845747b41778255b9ccb49"
     },
     {
       "bytes": 863,
