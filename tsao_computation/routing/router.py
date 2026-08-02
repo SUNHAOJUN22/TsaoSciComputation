@@ -34,10 +34,6 @@ def _tokens(text: str) -> set[str]:
     return _tokens_from_folded(text.casefold())
 
 
-def _canonical_route_text(question: str) -> str:
-    return " ".join(question.split()).casefold()
-
-
 @cache
 def _routing_index() -> tuple[_RouteWorkflow, ...]:
     indexed: list[_RouteWorkflow] = []
@@ -91,7 +87,7 @@ def _route_cached(text: str) -> RouteDecision:
 
 
 def route_question(question: str) -> RouteDecision:
-    normalized = _canonical_route_text(question)
+    normalized = question.strip().casefold()
     if not normalized:
         raise ValueError("question must be non-empty")
     return _route_cached(normalized)

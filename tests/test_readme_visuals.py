@@ -10,6 +10,8 @@ ENTRY = re.compile(r"^- `([^`]+\.svg)` — ", re.MULTILINE)
 FONT_SIZE = re.compile(r"font-size:\s*([0-9]+)px")
 HEX_COLOR = re.compile(r"#[0-9A-Fa-f]{6}")
 LAYOUT = re.compile(r'data-layout="([a-z]+)"')
+DETAILS_TAG = re.compile(r"^<details(?: open)?>$", re.MULTILINE)
+SUMMARY_TAG = re.compile(r"^<summary>.*</summary>$", re.MULTILINE)
 DESIGN_SYSTEM = "uiux-pro-max-scientific-console-v4"
 ICON_SYSTEM = "uiux-pro-max-line-v1"
 EXPECTED_LAYOUTS = {
@@ -19,11 +21,7 @@ EXPECTED_LAYOUTS = {
     "loop": 5,
     "risk": 6,
 }
-OVERVIEW_FILES = {
-    "hero-multiscale.svg",
-    "agent-orchestration.svg",
-    "capability-landscape.svg",
-}
+OVERVIEW_FILES = {"agent-orchestration.svg", "capability-landscape.svg"}
 ALLOWED_COLORS = {
     "#07111F",
     "#0F1B2D",
@@ -50,7 +48,7 @@ def _inventory_names() -> tuple[str, ...]:
     return names
 
 
-def test_readme_keeps_only_compact_overviews_and_links_full_atlas() -> None:
+def test_readme_uses_progressive_disclosure_at_github_scale() -> None:
     names = _inventory_names()
     readmes = [
         (ROOT / "README.md").read_text(encoding="utf-8"),
@@ -61,16 +59,15 @@ def test_readme_keeps_only_compact_overviews_and_links_full_atlas() -> None:
         assert "V12_VISUAL_SYSTEM" not in readme
         assert "V11_VISUAL_SYSTEM" not in readme
         assert "VISUAL_SYSTEM_V10" not in readme
-        assert readme.count("assets/visuals/hero-multiscale.svg") == 1
+        assert len(DETAILS_TAG.findall(readme)) == 4
+        assert len(SUMMARY_TAG.findall(readme)) == 4
         assert readme.count('<td width="50%"><img src="assets/visuals/') == 2
-        assert "assets/visuals/README.md" in readme
         assert "assets/visuals/DESIGN_SYSTEM.md" in readme
         for name in names:
             relative = f"assets/visuals/{name}"
-            if name in OVERVIEW_FILES:
-                assert readme.count(relative) == 1
-            else:
-                assert relative not in readme
+            assert readme.count(relative) == 1
+            if name not in OVERVIEW_FILES:
+                assert f'<td width="50%"><img src="{relative}"' not in readme
 
 
 def test_readme_visuals_are_readable_accessible_and_self_contained() -> None:
@@ -97,6 +94,7 @@ def test_readme_visuals_are_readable_accessible_and_self_contained() -> None:
     layouts: Counter[str] = Counter()
     namespace = {"svg": "http://www.w3.org/2000/svg"}
     for name in names:
+        relative = f"assets/visuals/{name}"
         text = (visual_root / name).read_text(encoding="utf-8")
         lowered = text.lower()
         assert text.startswith('<svg xmlns="http://www.w3.org/2000/svg"')
@@ -150,10 +148,6 @@ def test_readme_visuals_are_readable_accessible_and_self_contained() -> None:
         titles.add(title.text.strip())
         descriptions.add(description.text.strip())
 
-        relative = f"assets/visuals/{name}"
-        if name in OVERVIEW_FILES:
-            assert all(relative in readme for readme in readmes)
-        else:
-            assert all(relative not in readme for readme in readmes)
+        assert all(relative in readme for readme in readmes)
 
     assert dict(layouts) == EXPECTED_LAYOUTS

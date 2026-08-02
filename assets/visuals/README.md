@@ -1,26 +1,29 @@
 # README visual assets
 
-This directory contains the complete visual atlas for TsaoSciComputation. The root READMEs keep only the hero and two architecture overviews; all detailed diagrams remain discoverable here.
+This directory contains original, repository-local SVG illustrations created for the TsaoSciComputation documentation.
 
 ## Design and trust policy
 
-- Every asset is a self-contained SVG with an accessible `<title>` and `<desc>`.
-- Assets use no external fonts, scripts, raster images, network resources, event handlers or tracking elements.
+- Every asset is self-contained SVG with an accessible `<title>` and `<desc>`.
+- Assets use no external fonts, scripts, raster images, network resources, event handlers, or tracking elements.
 - Diagrams explain architecture and scientific boundaries; they are not solver screenshots or claims of live third-party execution.
-- Text labels remain consistent with registries, workflows and machine-readable evidence.
-- Relative paths keep visuals available in repository clones and source archives.
+- Text labels are intentionally concise and must remain consistent with registries, workflows, and machine-readable evidence.
+- README references use relative paths so visuals remain available in repository clones and source archives.
 
-## Scientific Research Console V13
+## UI/UX Pro Max design system
 
-All 42 assets declare `data-design-system="uiux-pro-max-scientific-console-v4"`.
+All 42 assets use **Scientific Research Console V13** and declare
+`data-design-system="uiux-pro-max-scientific-console-v4"`.
 
-- Five information layouts are used: Hero, Bento, Workflow, Loop and Risk.
+- The design follows the upstream UI/UX Pro Max priority model and its Chinese tutorial adaptation.
+- Five information layouts remain: Hero, Bento, Workflow, Loop and Risk.
 - One line-icon system and explicit labels reinforce meaning beyond color.
-- SVG body text is at least 16 px.
-- No external fonts, scripts, raster images, gradients, filters, event handlers or tracking are permitted.
-- The root READMEs show three overview images and link to this complete inventory to minimize scrolling.
+- SVG body text is at least 16 px and stage details are capped at two concise lines.
+- The bilingual README keeps detailed diagrams full width under progressive-disclosure groups.
+- No external fonts, scripts, raster images, gradients, filters, event handlers or tracking.
+- Diagrams are explanatory evidence maps, not solver screenshots or live-execution claims.
 
-See [`DESIGN_SYSTEM.md`](DESIGN_SYSTEM.md) for the complete specification.
+See [`DESIGN_SYSTEM.md`](DESIGN_SYSTEM.md) for the complete V13 specification.
 
 ## Asset set
 
@@ -67,4 +70,4 @@ See [`DESIGN_SYSTEM.md`](DESIGN_SYSTEM.md) for the complete specification.
 - `dynamic-control-estimation.svg` — dynamic control, disturbances, state estimation and safety boundaries
 - `hpc-failure-recovery.svg` — checkpoints, failure classification and bounded recovery
 
-Run `python -m pytest tests/test_readme_visuals.py -q` to validate the asset inventory, design metadata and compact bilingual README references.
+Run `python -m pytest tests/test_readme_visuals.py -q` to validate the asset inventory and bilingual README references.
