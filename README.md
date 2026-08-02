@@ -40,7 +40,7 @@ External tools are optional and remain separately installed, licensed, authorize
 <!-- SUPER_SKILL_ORCHESTRATION:START -->
 ## Capability and execution model
 
-The repository exposes **23 computation methods**, **9 invocation types**, **7 trusted local functions**, **27 external adapters**, **20 workflows**, **13 acceleration strategies** and a **9-stage orchestration plan**.
+The repository exposes **164 capabilities**, **23 computation methods**, **9 invocation types**, **7 trusted local functions**, **27 external adapters**, **20 workflows**, **13 acceleration strategies** and a **9-stage orchestration plan**.
 
 | Invocation mode | Default behavior |
 |---|---|
@@ -71,7 +71,7 @@ The 42 self-contained SVGs use **Scientific Research Console V13**. The root REA
 ## Verification
 
 ```bash
-python -m pip install -e '.[validation,quality]'
+python -m pip install -e '.[validation,quality,security]'
 python scripts/verify_all.py --profile all
 python scripts/verify_all.py --profile benchmark
 ```
@@ -128,7 +128,6 @@ A successful command or benchmark does not prove live third-party solver validit
 
 - **Windows:** core supported workflow.
 - **Linux:** compatible and CI-validated.
-- **macOS:** not supported or release-qualified.
 - **Repository:** `main` is the sole authoritative upstream branch; no retained feature branches.
 - **Release:** governed tags include reproducible artifacts, SPDX/CycloneDX SBOMs, SHA-256 checksums and provenance evidence.
 
