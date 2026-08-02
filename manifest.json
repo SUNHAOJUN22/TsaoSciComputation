@@ -1583,7 +1583,7 @@
     {
       "bytes": 72,
       "path": "evidence/security-scan.json",
-      "sha256": "a6b1750a3342941a738be288a518b9f4f39b02c811c75ae2f62552ccc3ba21da"
+      "sha256": "c5abff3c24caad077cd63baa8c2daf97ee33365ab4ff48d7b792798310c2ea45"
     },
     {
       "bytes": 573,
@@ -1799,6 +1799,11 @@
       "bytes": 3310,
       "path": "reports/MATH_PERFORMANCE_AUDIT_V10.json",
       "sha256": "e745c29b7375bf8954cd0397178c8fb8c5ae0def0abfa5faa67e7c0fbd8b3d5e"
+    },
+    {
+      "bytes": 277,
+      "path": "reports/MATH_PERFORMANCE_AUDIT_V11_FAILURE.json",
+      "sha256": "75e16232b2f340e8a4fddbe61ee472d6967cec287c5918313d7d58fc564e6be3"
     },
     {
       "bytes": 4414,

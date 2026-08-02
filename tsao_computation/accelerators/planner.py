@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from dataclasses import asdict, dataclass
-from functools import cache
 from typing import Any
 
 from ..errors import ContractError
@@ -55,7 +54,6 @@ class AccelerationPlan:
         return payload
 
 
-@cache
 def _profile(slug: str) -> dict[str, Any]:
     for record in accelerator_records():
         if str(record.get("slug")) == slug:
@@ -236,10 +234,6 @@ def plan_acceleration(
             )
         ),
     )
-
-
-def clear_acceleration_caches() -> None:
-    _profile.cache_clear()
 
 
 acceleration_plan = plan_acceleration

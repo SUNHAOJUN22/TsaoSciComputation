@@ -1,0 +1,9 @@
+{
+  "baseline_sha": "4fe936e9446bebd81c0e7b1c1d5c3bd0e403f385",
+  "created_at_utc": "2026-08-02T06:11:59.024098+00:00",
+  "run_id": 30735454184,
+  "schema_version": "1.0",
+  "stage": "complete-gates",
+  "status": "FAILED_REVERTED_TO_V10",
+  "temporary_branch_created": false
+}
