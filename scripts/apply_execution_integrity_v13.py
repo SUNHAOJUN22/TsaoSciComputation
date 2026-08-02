@@ -198,7 +198,83 @@ def normalize_core_test() -> None:
     path.write_text(text, encoding="utf-8", newline="\n")
 
 
+def patch_audit_generator() -> None:
+    path = ROOT / "scripts/build_super_skill_audit.py"
+    text = path.read_text(encoding="utf-8")
+    replacements = {
+        '"schema_version": "1.1"': '"schema_version": "1.2"',
+        '"audit_generation": "adversarial-computation-super-skill-v2"': '"audit_generation": "execution-integrity-v13"',
+        '"commit_binding": "Exact final commit and production workflows are recorded in GitHub Issue #61."': '"commit_binding": "Exact final commit and production workflows are recorded in GitHub Issue #85."',
+    }
+    for old, new in replacements.items():
+        if text.count(old) != 1:
+            raise SystemExit(f"audit replacement anchor mismatch: {old}")
+        text = text.replace(old, new, 1)
+    anchor = '            "external_process_execution_requires_hash_bound_authorization": True,\n'
+    addition = anchor + (
+        '            "direct_low_level_process_execution_disabled": True,\n'
+        '            "read_only_probe_commands_allowlisted": True,\n'
+        '            "authorization_binds_executable_sha256": True,\n'
+        '            "authorization_binds_input_sha256": True,\n'
+        '            "python_module_probes_use_sanitized_environment": True,\n'
+    )
+    if text.count(anchor) != 1:
+        raise SystemExit("execution-policy audit anchor mismatch")
+    path.write_text(text.replace(anchor, addition, 1), encoding="utf-8", newline="\n")
+
+
+def patch_documentation() -> None:
+    english_path = ROOT / "README.md"
+    english = english_path.read_text(encoding="utf-8")
+    english_anchor = (
+        "Acceleration guidance covers algorithm, memory, backend, execution and model-reduction choices. "
+        "A recommendation is not presented as measured speedup unless isolated machine evidence says so."
+    )
+    english_note = (
+        "\n\nExecution integrity is fail-closed: the legacy low-level process API never executes, "
+        "hardware probes are restricted to fixed read-only commands, and every authorized external run "
+        "is rebound to the current executable and declared input SHA-256 before launch."
+    )
+    if english_note.strip() not in english:
+        if english_anchor not in english:
+            raise SystemExit("English README execution-integrity anchor missing")
+        english = english.replace(english_anchor, english_anchor + english_note, 1)
+        english_path.write_text(english, encoding="utf-8", newline="\n")
+
+    chinese_path = ROOT / "README.zh-CN.md"
+    chinese = chinese_path.read_text(encoding="utf-8")
+    chinese_anchor = "加速建议覆盖算法、内存、后端、执行方式和降阶模型；只有隔离机器证据明确标注实测时，才会表述为实测加速。"
+    chinese_note = (
+        "\n\n执行完整性采用缺项拒绝推进：旧低层进程接口永久禁止直接执行，硬件探测仅允许固定只读命令；"
+        "每次外部执行在启动前都会重新绑定当前可执行文件与声明输入文件的 SHA-256。"
+    )
+    if chinese_note.strip() not in chinese:
+        if chinese_anchor not in chinese:
+            raise SystemExit("Chinese README execution-integrity anchor missing")
+        chinese = chinese.replace(chinese_anchor, chinese_anchor + chinese_note, 1)
+        chinese_path.write_text(chinese, encoding="utf-8", newline="\n")
+
+    skill_path = ROOT / "SKILL.md"
+    skill = skill_path.read_text(encoding="utf-8")
+    skill_anchor = (
+        "Only registered trusted repository-local callables may execute through this interface. "
+        "Adapters, modules, CLI tools, APIs, containers, schedulers, commercial solvers and other Skills "
+        "remain plan-only until availability, authorization, input/output contracts and evidence requirements are satisfied."
+    )
+    skill_note = (
+        "\n\nDirect low-level subprocess execution is disabled. Read-only hardware discovery is command-allowlisted, "
+        "and authorized external execution must revalidate the executable and declared input content hashes immediately before launch."
+    )
+    if skill_note.strip() not in skill:
+        if skill_anchor not in skill:
+            raise SystemExit("SKILL execution-integrity anchor missing")
+        skill = skill.replace(skill_anchor, skill_anchor + skill_note, 1)
+        skill_path.write_text(skill, encoding="utf-8", newline="\n")
+
+
 if __name__ == "__main__":
     patch_extended_tests()
     write_execution_integrity_tests()
     normalize_core_test()
+    patch_audit_generator()
+    patch_documentation()
