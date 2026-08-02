@@ -46,21 +46,16 @@
     "trusted_local_callables": 7,
     "workflows": 20
   },
-  "audit_generation": "execution-integrity-v13",
+  "audit_generation": "adversarial-computation-super-skill-v2",
   "branch": "main",
   "claim_boundary": "The Skill computes with registered trusted local functions and plans, routes, probes, configures and evidences external functions, tools, solvers and Skills. External execution and scientific acceptance remain separate, explicit and fail-closed.",
-  "commit_binding": "Exact final commit and production workflows are recorded in GitHub Issue #85.",
+  "commit_binding": "Exact final commit and production workflows are recorded in GitHub Issue #61.",
   "created_pull_request": false,
   "execution_policy": {
     "arbitrary_python_import_execution": false,
     "arbitrary_shell_execution": false,
-    "authorization_binds_executable_sha256": true,
-    "authorization_binds_input_sha256": true,
-    "direct_low_level_process_execution_disabled": true,
     "external_process_execution_requires_hash_bound_authorization": true,
     "external_targets_default_to_plan_only": true,
-    "python_module_probes_use_sanitized_environment": true,
-    "read_only_probe_commands_allowlisted": true,
     "remote_api_contact_by_registration": false,
     "skill_handoff_requires_available_authorized_runtime": true,
     "trusted_local_callables_may_execute": true
@@ -92,15 +87,15 @@
     }
   },
   "quality": {
-    "branch_coverage_percent": 90.98591549295774,
+    "branch_coverage_percent": 91.26506024096386,
     "controlled_mutation": "PASS",
     "dependency_vulnerabilities": 0,
     "repository_security_findings": 0,
     "scientific_benchmarks": "PASS",
     "source_and_wheel_reproducible": true,
-    "statement_coverage_percent": 96.62786029706945,
+    "statement_coverage_percent": 96.845694799659,
     "tests_failed": 0,
-    "tests_passed": 778,
+    "tests_passed": 747,
     "verification_profile_passed": true
   },
   "remaining_limitations": [
@@ -109,7 +104,7 @@
     "Acceleration recommendations are guidance unless cited isolated evidence explicitly marks them measured.",
     "High-risk engineering or safety decisions still require expert, approval and independent-reproduction gates."
   ],
-  "schema_version": "1.2",
+  "schema_version": "1.1",
   "status": "VALIDATED",
   "supported_platforms": {
     "linux": "compatible",
@@ -118,11 +113,11 @@
   },
   "telemetry": {
     "claim_boundary": "Same-host repository-local orchestration latency only; no external solver or GPU speedup is measured.",
-    "orchestration_plan_median_seconds": 0.00011848243999992291,
-    "trusted_balance_invocation_median_seconds": 3.302488600002107e-05
+    "orchestration_plan_median_seconds": 0.0001157502050000403,
+    "trusted_balance_invocation_median_seconds": 3.365429400000153e-05
   },
   "temporary_branch_created": false,
   "validation_failures": [],
   "validation_missing_evidence": [],
-  "version": "3.0.4"
+  "version": "3.0.3"
 }

@@ -542,7 +542,7 @@ def build_invocation_plan(
             execute_allowed=False,
             argv=command.argv,
             cwd=str(command.cwd),
-            environment=dict(command.environment),
+            environment=command.environment,
             blockers=tuple(missing),
             expected_outputs=spec.expected_outputs,
             evidence_requirements=spec.evidence_requirements,

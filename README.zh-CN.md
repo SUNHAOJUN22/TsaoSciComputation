@@ -6,7 +6,7 @@
 
 **从电子尺度到工业流程尺度的证据约束型科学计算编排系统。**
 
-![version](https://img.shields.io/badge/version-3.0.4-2563eb) ![capabilities](https://img.shields.io/badge/capabilities-164-7c3aed) ![adapters](https://img.shields.io/badge/adapters-27-ea580c) ![workflows](https://img.shields.io/badge/workflows-20-0891b2)
+![version](https://img.shields.io/badge/version-3.0.3-2563eb) ![capabilities](https://img.shields.io/badge/capabilities-164-7c3aed) ![adapters](https://img.shields.io/badge/adapters-27-ea580c) ![workflows](https://img.shields.io/badge/workflows-20-0891b2)
 
 [English](README.md) · [根技能](SKILL.md) · [能力索引](capability-index/README.md) · [覆盖矩阵](docs/coverage-matrix.md) · [科学验证](docs/scientific-validation.md) · [可信等级](docs/scientific-confidence.md) · [架构](docs/architecture.md) · [发布治理](docs/release.md) · [安全](SECURITY.md)
 
@@ -57,9 +57,7 @@ python -m tsao_computation recommend-acceleration --method finite-element
 python -m tsao_computation invoke balance-check --payload balance.json --execute
 ```
 
-加速建议覆盖算法、内存、后端、执行方式和降阶模型；只有隔离机器证据明确标注实测时，才会表述为实测加速。
-
-执行完整性采用缺项拒绝推进：旧低层进程接口永久禁止直接执行，硬件探测仅允许固定只读命令；每次外部执行在启动前都会重新绑定当前可执行文件与声明输入文件的 SHA-256。详见 [`docs/orchestration.md`](docs/orchestration.md) 与 [`reports/ULTIMATE_COMPUTATION_SUPER_SKILL_AUDIT.json`](reports/ULTIMATE_COMPUTATION_SUPER_SKILL_AUDIT.json)。
+加速建议覆盖算法、内存、后端、执行方式和降阶模型；只有隔离机器证据明确标注实测时，才会表述为实测加速。详见 [`docs/orchestration.md`](docs/orchestration.md) 与 [`reports/ULTIMATE_COMPUTATION_SUPER_SKILL_AUDIT.json`](reports/ULTIMATE_COMPUTATION_SUPER_SKILL_AUDIT.json)。
 <!-- SUPER_SKILL_ORCHESTRATION:END -->
 
 ## 科研能力图谱
@@ -225,16 +223,16 @@ python scripts/verify_all.py --profile benchmark
 ### 当前 `main` 验证状态
 
 <!-- CURRENT_MAIN_VERIFICATION:START -->
-已于 `2026-08-02T18:11:05.443230+00:00` 由确定性终验运行 `30760494523` 完成验证。
+已于 `2026-08-02T16:37:12.500249+00:00` 由确定性终验运行 `30756995636` 完成验证。
 
 | 当前主线项目 | 结果 |
 |---|---:|
-| 版本 | 3.0.4 |
+| 版本 | 3.0.3 |
 | 能力 / 适配器 / 工作流 | 164 / 27 / 20 |
-| 自动测试 | 778 通过，0 失败 |
-| 语句 / 分支覆盖率 | 96.63% / 90.99% |
-| Windows 核心支持 | Python 3.10 与 3.13；最终结果记录于 Issue #85 |
-| Linux 兼容支持 | Ubuntu 验证；最终结果记录于 Issue #85 |
+| 自动测试 | 747 通过，0 失败 |
+| 语句 / 分支覆盖率 | 96.85% / 91.27% |
+| Windows 核心支持 | Python 3.10 与 3.13；最终结果记录于 Issue #61 |
+| Linux 兼容支持 | Ubuntu 验证；最终结果记录于 Issue #61 |
 | 受控变异探针 | 64/64 被识别 |
 | 科学参考基准 | 8/8 通过 |
 | 仓库 / 依赖安全发现 | 0 / 0 |
@@ -243,7 +241,7 @@ python scripts/verify_all.py --profile benchmark
 | 科研视觉资产 | 42 幅自包含 SVG |
 | 远程分支 | 仅 `main` |
 
-execution-integrity 最终提交只有在 [Issue #85](../../issues/85) 记录 Ubuntu/Windows × Python 3.10/3.13 正式 CI 成功后才被接受。机器可读证据：[`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json)。
+adversarial-computation-super-skill 最终提交只有在 [Issue #61](../../issues/61) 记录 Ubuntu/Windows × Python 3.10/3.13 正式 CI 成功后才被接受。机器可读证据：[`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json)。
 <!-- CURRENT_MAIN_VERIFICATION:END -->
 
 ### v3.0.2 已验证发布基线

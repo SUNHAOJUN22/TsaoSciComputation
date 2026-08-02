@@ -97,43 +97,24 @@ def test_execution_plan_success_and_failure(tmp_path: Path) -> None:
 
 
 @pytest.mark.parametrize("argv", [[], [""], [sys.executable, 3]])
-def test_safe_run_rejects_direct_execution(tmp_path: Path, argv: list[object]) -> None:
-    with pytest.raises(SecurityError, match="direct process execution is disabled"):
+def test_safe_run_rejects_invalid_argv(tmp_path: Path, argv: list[object]) -> None:
+    with pytest.raises(SecurityError):
         safe_run(argv, cwd=tmp_path, allow_process_execution=True)
 
 
-def test_authorized_plan_validates_timeout_cwd_and_environment(tmp_path: Path) -> None:
-    with pytest.raises(SecurityError, match="direct process execution is disabled"):
+def test_safe_run_validates_timeout_cwd_and_environment(tmp_path: Path) -> None:
+    with pytest.raises(SecurityError):
         safe_run([sys.executable], cwd=tmp_path, timeout=0, allow_process_execution=True)
-    with pytest.raises(SecurityError, match="direct process execution is disabled"):
+    with pytest.raises(SecurityError):
         safe_run([sys.executable], cwd=tmp_path / "missing", allow_process_execution=True)
-    with pytest.raises(SecurityError, match="unsafe subprocess environment"):
-        safe_run(
-            [sys.executable],
-            cwd=tmp_path,
-            env={"PYTHONPATH": "attacker"},
-            allow_process_execution=True,
-        )
-
-    plan = CommandPlan(
-        (
-            sys.executable,
-            "-c",
-            "import os; from pathlib import Path; Path('env.txt').write_text(os.environ['TSAO_TEST'])",
-        ),
-        tmp_path,
-        {"TSAO_TEST": "yes"},
-        "test",
+    result = safe_run(
+        [sys.executable, "-c", "import os; print(os.environ['TSAO_TEST'])"],
+        cwd=tmp_path,
+        timeout=5,
+        env={"TSAO_TEST": "yes"},
+        allow_process_execution=True,
     )
-    authorization = authorize_plan(
-        plan,
-        authorized_by="pytest",
-        purpose="authorized environment regression",
-        explicit_authorization=True,
-    )
-    record = run_plan(plan, authorization=authorization, timeout=5)
-    assert record.completed is True
-    assert (tmp_path / "env.txt").read_text(encoding="utf-8") == "yes"
+    assert result.stdout.strip() == "yes"
 
 
 def test_subprocess_environment_is_minimal_on_posix() -> None:

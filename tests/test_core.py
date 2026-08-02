@@ -6,15 +6,13 @@ from pathlib import Path
 import pytest
 
 from tsao_computation.adapters import get_adapter, probe_all
-from tsao_computation.adapters.base import CommandPlan
 from tsao_computation.contracts import CalculationContract, HandoffRecord
 from tsao_computation.errors import ContractError, SecurityError, StateTransitionError
-from tsao_computation.execution import authorize_plan, run_plan
 from tsao_computation.project import initialize_project, validate_project
 from tsao_computation.provenance import append_event, read_events
 from tsao_computation.repository_audit import audit_repository
 from tsao_computation.routing import route_question
-from tsao_computation.security import atomic_write_text, confined_path
+from tsao_computation.security import atomic_write_text, confined_path, safe_run
 from tsao_computation.state import ScientificStateMachine
 from tsao_computation.uncertainty import combine_independent
 from tsao_computation.validation import (
@@ -182,16 +180,13 @@ def test_022_atomic_write(tmp_path):
 
 @pytest.mark.durability
 def test_023_safe_process(tmp_path):
-    plan = CommandPlan((sys.executable, "-c", "print(7)"), tmp_path, {}, "test")
-    authorization = authorize_plan(
-        plan,
-        authorized_by="pytest",
-        purpose="core authorized execution regression",
-        explicit_authorization=True,
+    r = safe_run(
+        [sys.executable, "-c", "print(7)"],
+        cwd=tmp_path,
+        timeout=5,
+        allow_process_execution=True,
     )
-    record = run_plan(plan, authorization=authorization, timeout=5)
-    assert record.returncode == 0 and record.completed is True
-    assert len(record.executable_sha256) == 64
+    assert r.returncode == 0 and r.stdout.strip() == "7"
 
 
 @pytest.mark.durability

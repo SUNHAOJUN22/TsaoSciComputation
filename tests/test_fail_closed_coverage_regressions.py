@@ -20,7 +20,6 @@ from tsao_computation.contracts.handoff import HandoffRecord
 from tsao_computation.errors import ContractError
 from tsao_computation.provenance import manifest
 from tsao_computation.routing import router
-from tsao_computation.security import process as process_security
 from tsao_computation.validation import physical, scientific_benchmarks
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -199,8 +198,7 @@ def test_module_probe_returns_declared_modules_when_process_cannot_start(
     def fail_to_start(*_args: object, **_kwargs: object) -> subprocess.CompletedProcess[str]:
         raise OSError("unavailable interpreter")
 
-    monkeypatch.setattr(process_security, "_run_sanitized", fail_to_start)
-    assert process_security.probe_python_modules(sys.executable, modules) == modules
+    monkeypatch.setattr(adapter_base.subprocess, "run", fail_to_start)
     assert adapter_base._missing_python_modules(sys.executable, modules) == modules
 
 
@@ -213,8 +211,7 @@ def test_module_probe_fails_closed_on_malformed_output(
     def malformed(*_args: object, **_kwargs: object) -> subprocess.CompletedProcess[str]:
         return subprocess.CompletedProcess([], 1, stdout=stdout, stderr="")
 
-    monkeypatch.setattr(process_security, "_run_sanitized", malformed)
-    assert process_security.probe_python_modules(sys.executable, modules) == modules
+    monkeypatch.setattr(adapter_base.subprocess, "run", malformed)
     assert adapter_base._missing_python_modules(sys.executable, modules) == modules
 
 
