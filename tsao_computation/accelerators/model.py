@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 import math
-from collections.abc import Mapping
+from collections.abc import Iterable, Mapping
 from dataclasses import asdict, dataclass
 from enum import Enum
-from typing import Any
+from typing import TypeVar
 
 from ..errors import ContractError
 
@@ -44,6 +44,76 @@ class PrecisionPolicy(str, Enum):
     FP16 = "fp16"
 
 
+E = TypeVar("E", bound=Enum)
+
+
+def _required_string(value: object, field_name: str) -> str:
+    if not isinstance(value, str) or not value.strip():
+        raise ContractError(f"{field_name} must be a non-empty string")
+    return value.strip()
+
+
+def _optional_string(value: object, field_name: str) -> str | None:
+    return None if value is None else _required_string(value, field_name)
+
+
+def _positive_int(value: object, field_name: str) -> int | None:
+    if value is None:
+        return None
+    if isinstance(value, bool) or not isinstance(value, int) or value < 1:
+        raise ContractError(f"{field_name} must be a positive integer")
+    return value
+
+
+def _non_negative_int(value: object, field_name: str) -> int:
+    if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+        raise ContractError(f"{field_name} must be a non-negative integer")
+    return value
+
+
+def _positive_float(value: object, field_name: str) -> float | None:
+    if value is None:
+        return None
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise ContractError(f"{field_name} must be a positive finite number")
+    parsed = float(value)
+    if not math.isfinite(parsed) or parsed <= 0:
+        raise ContractError(f"{field_name} must be a positive finite number")
+    return parsed
+
+
+def _enum_value(enum_type: type[E], value: object, field_name: str) -> E:
+    if isinstance(value, enum_type):
+        return value
+    if not isinstance(value, str):
+        raise ContractError(f"{field_name} must be a string")
+    try:
+        return enum_type(value)
+    except ValueError as error:
+        choices = [item.value for item in enum_type]
+        raise ContractError(f"{field_name} must be one of {choices}") from error
+
+
+def _enum_tuple(
+    enum_type: type[E], value: object, field_name: str, *, non_empty: bool = True
+) -> tuple[E, ...]:
+    if isinstance(value, str) or not isinstance(value, Iterable):
+        raise ContractError(f"{field_name} must be an array")
+    parsed = tuple(_enum_value(enum_type, item, field_name) for item in value)
+    if (non_empty and not parsed) or len(set(parsed)) != len(parsed):
+        raise ContractError(f"{field_name} must be non-empty and unique")
+    return parsed
+
+
+def _string_tuple(value: object, field_name: str) -> tuple[str, ...]:
+    if isinstance(value, str) or not isinstance(value, Iterable):
+        raise ContractError(f"{field_name} must be an array")
+    parsed = tuple(_required_string(item, field_name) for item in value)
+    if len(set(parsed)) != len(parsed):
+        raise ContractError(f"{field_name} must be unique")
+    return parsed
+
+
 @dataclass(frozen=True, slots=True)
 class AcceleratorDevice:
     backend: AcceleratorBackend
@@ -52,6 +122,18 @@ class AcceleratorDevice:
     memory_gib: float | None = None
     architecture: str | None = None
     vendor: str | None = None
+
+    def __post_init__(self) -> None:
+        object.__setattr__(
+            self, "backend", _enum_value(AcceleratorBackend, self.backend, "backend")
+        )
+        object.__setattr__(self, "index", _non_negative_int(self.index, "index"))
+        object.__setattr__(self, "name", _required_string(self.name, "name"))
+        object.__setattr__(self, "memory_gib", _positive_float(self.memory_gib, "memory_gib"))
+        object.__setattr__(
+            self, "architecture", _optional_string(self.architecture, "architecture")
+        )
+        object.__setattr__(self, "vendor", _optional_string(self.vendor, "vendor"))
 
     def to_dict(self) -> dict[str, object]:
         payload = asdict(self)
@@ -75,17 +157,55 @@ class AcceleratorInventory:
         "compatibility, numerical speedup, convergence, physical validity, or authorization."
     )
 
-    def has_backend(self, backend: AcceleratorBackend | str) -> bool:
-        normalized = (
-            backend if isinstance(backend, AcceleratorBackend) else AcceleratorBackend(backend)
+    def __post_init__(self) -> None:
+        cpu_count = _positive_int(self.logical_cpu_count, "logical_cpu_count")
+        if cpu_count is None:
+            raise ContractError("logical_cpu_count must be a positive integer")
+        object.__setattr__(self, "logical_cpu_count", cpu_count)
+        object.__setattr__(
+            self, "architecture", _required_string(self.architecture, "architecture")
         )
+        object.__setattr__(
+            self,
+            "operating_system",
+            _required_string(self.operating_system, "operating_system"),
+        )
+        object.__setattr__(self, "memory_gib", _positive_float(self.memory_gib, "memory_gib"))
+        backends = _enum_tuple(AcceleratorBackend, self.backends, "backends")
+        object.__setattr__(self, "backends", backends)
+        if isinstance(self.devices, (str, bytes)) or not isinstance(self.devices, Iterable):
+            raise ContractError("devices must be an array")
+        devices = tuple(self.devices)
+        if any(not isinstance(item, AcceleratorDevice) for item in devices):
+            raise ContractError("devices must contain AcceleratorDevice records")
+        if any(item.backend not in backends for item in devices):
+            raise ContractError("device backends must be declared in inventory backends")
+        keys = tuple((item.backend, item.index) for item in devices)
+        if len(set(keys)) != len(keys):
+            raise ContractError("device backend/index pairs must be unique")
+        object.__setattr__(self, "devices", devices)
+        object.__setattr__(self, "tools", _string_tuple(self.tools, "tools"))
+        object.__setattr__(
+            self, "python_modules", _string_tuple(self.python_modules, "python_modules")
+        )
+        object.__setattr__(
+            self,
+            "placements",
+            _enum_tuple(PlacementTarget, self.placements, "placements"),
+        )
+        object.__setattr__(
+            self,
+            "claim_boundary",
+            _required_string(self.claim_boundary, "claim_boundary"),
+        )
+
+    def has_backend(self, backend: AcceleratorBackend | str) -> bool:
+        normalized = _enum_value(AcceleratorBackend, backend, "backend")
         return normalized in self.backends
 
     def devices_for(self, backend: AcceleratorBackend | str) -> tuple[AcceleratorDevice, ...]:
-        normalized = (
-            backend if isinstance(backend, AcceleratorBackend) else AcceleratorBackend(backend)
-        )
-        return tuple(device for device in self.devices if device.backend is normalized)
+        normalized = _enum_value(AcceleratorBackend, backend, "backend")
+        return tuple(device for device in self.devices if device.backend == normalized)
 
     def to_dict(self) -> dict[str, object]:
         payload = asdict(self)
@@ -93,35 +213,6 @@ class AcceleratorInventory:
         payload["placements"] = [item.value for item in self.placements]
         payload["devices"] = [item.to_dict() for item in self.devices]
         return payload
-
-
-def _positive_int(value: object, field_name: str) -> int | None:
-    if value is None:
-        return None
-    if isinstance(value, bool) or not isinstance(value, int) or value < 1:
-        raise ContractError(f"{field_name} must be a positive integer")
-    return value
-
-
-def _positive_float(value: object, field_name: str) -> float | None:
-    if value is None:
-        return None
-    if isinstance(value, bool) or not isinstance(value, (int, float)):
-        raise ContractError(f"{field_name} must be a positive finite number")
-    parsed = float(value)
-    if not math.isfinite(parsed) or parsed <= 0:
-        raise ContractError(f"{field_name} must be a positive finite number")
-    return parsed
-
-
-def _enum_value(enum_type: type[Enum], value: object, field_name: str) -> Any:
-    if not isinstance(value, str):
-        raise ContractError(f"{field_name} must be a string")
-    try:
-        return enum_type(value)
-    except ValueError as error:
-        choices = [item.value for item in enum_type]
-        raise ContractError(f"{field_name} must be one of {choices}") from error
 
 
 @dataclass(frozen=True, slots=True)
@@ -150,6 +241,45 @@ class ComputeResourceRequest:
     maximum_energy_kwh: float | None = None
     power_limit_watts: float | None = None
     allow_fallback: bool = True
+
+    def __post_init__(self) -> None:
+        object.__setattr__(
+            self, "placement", _enum_value(PlacementTarget, self.placement, "placement")
+        )
+        object.__setattr__(
+            self,
+            "accelerator_policy",
+            _enum_value(AcceleratorPolicy, self.accelerator_policy, "accelerator_policy"),
+        )
+        object.__setattr__(
+            self,
+            "preferred_backends",
+            _enum_tuple(AcceleratorBackend, self.preferred_backends, "preferred_backends"),
+        )
+        for field_name in (
+            "cpu_cores",
+            "mpi_ranks",
+            "threads_per_rank",
+            "accelerator_count",
+        ):
+            object.__setattr__(
+                self, field_name, _positive_int(getattr(self, field_name), field_name)
+            )
+        for field_name in (
+            "memory_gib",
+            "minimum_vram_gib",
+            "maximum_wall_seconds",
+            "maximum_energy_kwh",
+            "power_limit_watts",
+        ):
+            object.__setattr__(
+                self, field_name, _positive_float(getattr(self, field_name), field_name)
+            )
+        object.__setattr__(
+            self, "precision", _enum_value(PrecisionPolicy, self.precision, "precision")
+        )
+        if not isinstance(self.deterministic, bool) or not isinstance(self.allow_fallback, bool):
+            raise ContractError("deterministic and allow_fallback must be booleans")
 
     @classmethod
     def from_mapping(cls, value: Mapping[str, object] | None) -> ComputeResourceRequest:
@@ -182,25 +312,20 @@ class ComputeResourceRequest:
         )
         if isinstance(raw_backends, str) or not isinstance(raw_backends, (list, tuple)):
             raise ContractError("preferred_backends must be an array")
-        backends = tuple(
-            _enum_value(AcceleratorBackend, item, "preferred_backends") for item in raw_backends
-        )
-        if not backends or len(set(backends)) != len(backends):
-            raise ContractError("preferred_backends must be non-empty and unique")
-        deterministic = value.get("deterministic", True)
-        fallback = value.get("allow_fallback", True)
-        if not isinstance(deterministic, bool) or not isinstance(fallback, bool):
-            raise ContractError("deterministic and allow_fallback must be booleans")
         return cls(
             placement=_enum_value(
-                PlacementTarget, value.get("placement", PlacementTarget.LOCAL.value), "placement"
+                PlacementTarget,
+                value.get("placement", PlacementTarget.LOCAL.value),
+                "placement",
             ),
             accelerator_policy=_enum_value(
                 AcceleratorPolicy,
                 value.get("accelerator_policy", AcceleratorPolicy.PREFERRED.value),
                 "accelerator_policy",
             ),
-            preferred_backends=backends,
+            preferred_backends=tuple(
+                _enum_value(AcceleratorBackend, item, "preferred_backends") for item in raw_backends
+            ),
             cpu_cores=_positive_int(value.get("cpu_cores"), "cpu_cores"),
             memory_gib=_positive_float(value.get("memory_gib"), "memory_gib"),
             mpi_ranks=_positive_int(value.get("mpi_ranks"), "mpi_ranks"),
@@ -208,9 +333,11 @@ class ComputeResourceRequest:
             accelerator_count=_positive_int(value.get("accelerator_count"), "accelerator_count"),
             minimum_vram_gib=_positive_float(value.get("minimum_vram_gib"), "minimum_vram_gib"),
             precision=_enum_value(
-                PrecisionPolicy, value.get("precision", PrecisionPolicy.FP64.value), "precision"
+                PrecisionPolicy,
+                value.get("precision", PrecisionPolicy.FP64.value),
+                "precision",
             ),
-            deterministic=deterministic,
+            deterministic=value.get("deterministic", True),  # type: ignore[arg-type]
             maximum_wall_seconds=_positive_float(
                 value.get("maximum_wall_seconds"), "maximum_wall_seconds"
             ),
@@ -218,7 +345,7 @@ class ComputeResourceRequest:
                 value.get("maximum_energy_kwh"), "maximum_energy_kwh"
             ),
             power_limit_watts=_positive_float(value.get("power_limit_watts"), "power_limit_watts"),
-            allow_fallback=fallback,
+            allow_fallback=value.get("allow_fallback", True),  # type: ignore[arg-type]
         )
 
     def to_dict(self) -> dict[str, object]:

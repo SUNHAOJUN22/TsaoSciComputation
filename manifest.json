@@ -1578,7 +1578,7 @@
     {
       "bytes": 152,
       "path": "evidence/quality-check.json",
-      "sha256": "17a50b3cb463e3d6df189cfa31d3aed40543cbe2517e5ac8f46fc71ae7ba7133"
+      "sha256": "5efc4dde766faceae8dc57c6ca8194df5715407dfd7808ef7e51754561a74558"
     },
     {
       "bytes": 3174,
@@ -1588,7 +1588,7 @@
     {
       "bytes": 72,
       "path": "evidence/security-scan.json",
-      "sha256": "9eb0cf98a1d39977034d155825d6d9692ba17a6eea71212f942d2f23639e4b8e"
+      "sha256": "35bc225d7292ef806bfbbff3f83f00ffc965784d9d21ce7a194140622d23f138"
     },
     {
       "bytes": 573,
@@ -2346,6 +2346,11 @@
       "sha256": "ce72f0911aef8eb2ccfb6b7fbb5103dbba461cbcf9d2085654106817831f4816"
     },
     {
+      "bytes": 5044,
+      "path": "tests/test_adversarial_acceleration_contract.py",
+      "sha256": "91002e2b25f17565c42b99d28e9d3702b1e672d420c588046633d789cee9e06b"
+    },
+    {
       "bytes": 5812,
       "path": "tests/test_adversarial_phase_a_coverage.py",
       "sha256": "6359f00224611dc69add131bfb4875460976ef9838d6a5bc45ccd43402d553e8"
@@ -2576,14 +2581,14 @@
       "sha256": "59a6b3413970c9be67b5fe487d804be8ab83b687b5d2df11f52558257401a91b"
     },
     {
-      "bytes": 8553,
+      "bytes": 13880,
       "path": "tsao_computation/accelerators/model.py",
-      "sha256": "98a742a283efc238756b27c2836405651654a4a15f8921284d8833e311d58eb5"
+      "sha256": "2ff2c9b14788c0f6a0d4bfff9fabc5b0bb984f2366e393122f9771a6611f6307"
     },
     {
-      "bytes": 9091,
+      "bytes": 11589,
       "path": "tsao_computation/accelerators/planner.py",
-      "sha256": "722dfa3c2a9d4499b14f5556c08dd3881761eccd42a5c72bea1e88cd6bce8b0d"
+      "sha256": "9f2651cdd3797bbd7fa1efa7c0c609d00e29463bed29c2c3da596f78b321b387"
     },
     {
       "bytes": 8219,

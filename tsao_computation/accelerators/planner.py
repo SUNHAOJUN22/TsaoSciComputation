@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+import hashlib
+import json
 from collections.abc import Mapping
 from dataclasses import asdict, dataclass
 from functools import cache
 from typing import Any
 
 from ..errors import ContractError
+from ..immutable import freeze_json, thaw_json
 from ..registries import accelerators as accelerator_records
 from .catalog import recommend_acceleration_libraries
 from .model import (
@@ -14,6 +17,7 @@ from .model import (
     AcceleratorPolicy,
     ComputeResourceRequest,
     PlacementTarget,
+    PrecisionPolicy,
 )
 from .probe import probe_accelerators
 
@@ -30,6 +34,11 @@ _LOCAL_PLACEMENTS = {
 }
 
 
+def _request_sha256(request: ComputeResourceRequest) -> str:
+    encoded = json.dumps(request.to_dict(), sort_keys=True, separators=(",", ":"), allow_nan=False)
+    return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
+
+
 @dataclass(frozen=True, slots=True)
 class AccelerationPlan:
     adapter_slug: str
@@ -37,21 +46,34 @@ class AccelerationPlan:
     backend: AcceleratorBackend
     placement: PlacementTarget
     execution_mode: str
+    cpu_cores: int
     mpi_ranks: int
     threads_per_rank: int
     device_indices: tuple[int, ...]
     library_candidates: tuple[str, ...]
     environment: dict[str, str]
+    precision: PrecisionPolicy
+    deterministic: bool
+    allow_fallback: bool
+    resource_request: dict[str, object]
+    resource_request_sha256: str
     fallback_used: bool
     reason: str
     claim_boundary: str
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "environment", freeze_json(dict(self.environment)))
+        object.__setattr__(self, "resource_request", freeze_json(dict(self.resource_request)))
 
     def to_dict(self) -> dict[str, object]:
         payload = asdict(self)
         payload["backend"] = self.backend.value
         payload["placement"] = self.placement.value
+        payload["precision"] = self.precision.value
         payload["device_indices"] = list(self.device_indices)
         payload["library_candidates"] = list(self.library_candidates)
+        payload["environment"] = thaw_json(self.environment)
+        payload["resource_request"] = thaw_json(self.resource_request)
         return payload
 
 
@@ -76,11 +98,7 @@ def _record_backends(record: Mapping[str, object], key: str) -> tuple[Accelerato
     return tuple(result)
 
 
-def _cpu_fallback(
-    *,
-    supported: set[AcceleratorBackend],
-    adapter_slug: str,
-) -> AcceleratorBackend:
+def _cpu_fallback(*, supported: set[AcceleratorBackend], adapter_slug: str) -> AcceleratorBackend:
     if AcceleratorBackend.CPU not in supported:
         raise ContractError(f"adapter {adapter_slug} does not declare a CPU fallback")
     return AcceleratorBackend.CPU
@@ -103,13 +121,30 @@ def plan_acceleration(
     preferred = _record_backends(record, "preferred_backends")
     order = tuple(item for item in request.preferred_backends if item in supported)
     if not order:
+        if (
+            not request.allow_fallback
+            and request.accelerator_policy is not AcceleratorPolicy.DISABLED
+        ):
+            raise ContractError(
+                f"none of the requested backends are supported by adapter {adapter_slug}"
+            )
         order = tuple(item for item in preferred if item in supported)
-    if AcceleratorBackend.CPU in supported and AcceleratorBackend.CPU not in order:
+    if (
+        (request.allow_fallback or request.accelerator_policy is AcceleratorPolicy.DISABLED)
+        and AcceleratorBackend.CPU in supported
+        and AcceleratorBackend.CPU not in order
+    ):
         order += (AcceleratorBackend.CPU,)
+    if not order:
+        raise ContractError(f"adapter {adapter_slug} has no usable backend candidates")
 
     fallback = False
     if request.placement not in detected.placements:
-        if request.allow_fallback and request.placement is not PlacementTarget.EDGE:
+        if (
+            request.allow_fallback
+            and request.placement is not PlacementTarget.EDGE
+            and PlacementTarget.LOCAL in detected.placements
+        ):
             placement = PlacementTarget.LOCAL
             fallback = True
         else:
@@ -129,7 +164,7 @@ def plan_acceleration(
             selected = candidate
             break
 
-    first_requested = order[0] if order else AcceleratorBackend.CPU
+    first_requested = order[0]
     if request.accelerator_policy is AcceleratorPolicy.DISABLED:
         selected = _cpu_fallback(supported=supported, adapter_slug=adapter_slug)
         fallback = fallback or first_requested is not AcceleratorBackend.CPU
@@ -141,6 +176,10 @@ def plan_acceleration(
         selected = _cpu_fallback(supported=supported, adapter_slug=adapter_slug)
         fallback = True
     elif selected is not first_requested:
+        if not request.allow_fallback:
+            raise ContractError(
+                f"preferred backend {first_requested.value} is unavailable and fallback is disabled"
+            )
         fallback = True
 
     if (
@@ -173,6 +212,14 @@ def plan_acceleration(
             fallback = True
         else:
             devices = eligible[:count]
+
+    if placement in _LOCAL_PLACEMENTS and request.memory_gib is not None:
+        if detected.memory_gib is None:
+            raise ContractError(
+                "detected local memory is unknown; requested memory cannot be verified"
+            )
+        if request.memory_gib > detected.memory_gib:
+            raise ContractError("requested memory exceeds the detected local resource envelope")
 
     cpu_cores = request.cpu_cores or detected.logical_cpu_count
     if placement in _LOCAL_PLACEMENTS and cpu_cores > detected.logical_cpu_count:
@@ -210,11 +257,15 @@ def plan_acceleration(
     profile_libraries = tuple(str(item) for item in record.get("library_candidates", []))
     compatible = {item.slug for item in recommend_acceleration_libraries(backend=selected)}
     libraries = tuple(item for item in profile_libraries if item in compatible)
+    request_payload = request.to_dict()
+    request_digest = _request_sha256(request)
     reason = (
         f"selected {selected.value} for {adapter_slug}; "
         f"supported={sorted(item.value for item in supported)}; "
         f"detected={sorted(item.value for item in detected.backends)}; "
-        f"cpu_cores={cpu_cores}; mpi_ranks={mpi_ranks}; threads_per_rank={threads}"
+        f"cpu_cores={cpu_cores}; mpi_ranks={mpi_ranks}; threads_per_rank={threads}; "
+        f"precision={request.precision.value}; deterministic={request.deterministic}; "
+        f"request_sha256={request_digest}"
     )
     return AccelerationPlan(
         adapter_slug=adapter_slug,
@@ -222,11 +273,17 @@ def plan_acceleration(
         backend=selected,
         placement=placement,
         execution_mode=str(record.get("execution_mode", "solver-native")),
+        cpu_cores=cpu_cores,
         mpi_ranks=mpi_ranks,
         threads_per_rank=threads,
         device_indices=tuple(item.index for item in devices),
         library_candidates=libraries,
         environment=environment,
+        precision=request.precision,
+        deterministic=request.deterministic,
+        allow_fallback=request.allow_fallback,
+        resource_request=request_payload,
+        resource_request_sha256=request_digest,
         fallback_used=fallback,
         reason=reason,
         claim_boundary=str(
