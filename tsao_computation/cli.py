@@ -25,7 +25,10 @@ def build_parser() -> argparse.ArgumentParser:
     route.add_argument("question")
 
     listing = subparsers.add_parser("list")
-    listing.add_argument("kind", choices=("capabilities", "adapters", "accelerators", "workflows"))
+    listing.add_argument(
+        "kind",
+        choices=("capabilities", "adapters", "accelerators", "workflows", "methods", "invocations"),
+    )
 
     probe = subparsers.add_parser("probe")
     probe.add_argument("--workers", type=int, default=8)
@@ -53,6 +56,30 @@ def build_parser() -> argparse.ArgumentParser:
         help="JSON resource request; omitted means the conservative default request",
     )
 
+    advice = subparsers.add_parser(
+        "recommend-acceleration",
+        help="recommend algorithm, memory, execution and backend acceleration strategies",
+    )
+    advice.add_argument("--workload", type=Path)
+    advice.add_argument("--method", action="append", default=[])
+    advice.add_argument("--limit", type=int, default=8)
+
+    orchestrate = subparsers.add_parser(
+        "plan",
+        help="build a complete evidence-bound orchestration plan from a calculation contract",
+    )
+    orchestrate.add_argument("path", type=Path)
+    orchestrate.add_argument("--strict", action="store_true")
+
+    invocation = subparsers.add_parser(
+        "invoke",
+        help="plan an invocation or execute a registered trusted repository-local callable",
+    )
+    invocation.add_argument("target")
+    invocation.add_argument("--payload", type=Path)
+    invocation.add_argument("--input", type=Path)
+    invocation.add_argument("--execute", action="store_true")
+
     initialize = subparsers.add_parser("init")
     initialize.add_argument("--root", type=Path, default=Path("."))
     initialize.add_argument("--name", required=True)
@@ -71,6 +98,15 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def _read_mapping(path: Path | None) -> dict[str, object]:
+    if path is None:
+        return {}
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        raise ValueError(f"JSON payload must be an object: {path}")
+    return payload
+
+
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     try:
@@ -80,6 +116,7 @@ def main(argv: list[str] | None = None) -> int:
             decision = route_question(args.question)
             _json(asdict(decision) if is_dataclass(decision) else decision)
         elif args.command == "list":
+            from .orchestration import list_invocations, methods
             from .registries import accelerators, adapters, capabilities, workflows
 
             loaders = {
@@ -87,6 +124,8 @@ def main(argv: list[str] | None = None) -> int:
                 "adapters": adapters,
                 "accelerators": accelerators,
                 "workflows": workflows,
+                "methods": lambda: [item.to_dict() for item in methods()],
+                "invocations": lambda: [item.to_dict() for item in list_invocations()],
             }
             _json(loaders[args.kind]())
         elif args.command == "probe":
@@ -112,12 +151,37 @@ def main(argv: list[str] | None = None) -> int:
         elif args.command == "plan-acceleration":
             from .accelerators import plan_acceleration
 
-            resources = (
-                None
-                if args.resources is None
-                else json.loads(args.resources.read_text(encoding="utf-8"))
-            )
+            resources = None if args.resources is None else _read_mapping(args.resources)
             _json(plan_acceleration(args.adapter, resources).to_dict())
+        elif args.command == "recommend-acceleration":
+            from .orchestration import recommend_acceleration
+
+            _json(
+                [
+                    item.to_dict()
+                    for item in recommend_acceleration(
+                        _read_mapping(args.workload),
+                        method_slugs=tuple(args.method),
+                        limit=args.limit,
+                    )
+                ]
+            )
+        elif args.command == "plan":
+            from .contracts import CalculationContract
+            from .workflows import WorkflowEngine
+
+            parsed = CalculationContract.from_dict(_read_mapping(args.path))
+            if args.strict:
+                parsed.assert_ready_for_preflight()
+            _json(WorkflowEngine().plan(parsed).to_dict())
+        elif args.command == "invoke":
+            from .orchestration import build_invocation_plan, execute_trusted_callable
+
+            payload = _read_mapping(args.payload)
+            if args.execute:
+                _json(execute_trusted_callable(args.target, payload).to_dict())
+            else:
+                _json(build_invocation_plan(args.target, payload, input_path=args.input).to_dict())
         elif args.command == "init":
             from .project import initialize_project
 
@@ -125,8 +189,7 @@ def main(argv: list[str] | None = None) -> int:
         elif args.command == "validate-contract":
             from .contracts import CalculationContract
 
-            payload = json.loads(args.path.read_text(encoding="utf-8"))
-            parsed = CalculationContract.from_dict(payload)
+            parsed = CalculationContract.from_dict(_read_mapping(args.path))
             if args.strict:
                 parsed.assert_ready_for_preflight()
             _json(parsed.to_dict())
