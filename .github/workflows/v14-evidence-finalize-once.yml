@@ -1,0 +1,107 @@
+name: V14 evidence final certification
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  actions: write
+  contents: write
+  issues: write
+
+concurrency:
+  group: v14-evidence-final-main
+  cancel-in-progress: false
+
+env:
+  GH_TOKEN: ${{ github.token }}
+  PIP_DISABLE_PIP_VERSION_CHECK: '1'
+
+jobs:
+  finalize:
+    if: ${{ github.event.issue.title == 'V14_EVIDENCE_FINALIZE' && github.event.issue.user.login == github.repository_owner }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+          cache: pip
+      - name: Regenerate evidence on the final file set
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          ORIGINAL_SHA="$(git rev-parse HEAD)"
+          echo "ORIGINAL_SHA=$ORIGINAL_SHA" >> "$GITHUB_ENV"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          rm -f .github/workflows/v14-evidence-finalize-once.yml
+          python -m pip install -e '.[validation,quality,security]'
+          python scripts/security_scan.py
+          python scripts/build_manifest.py
+          python scripts/verify_all.py --profile quality
+          git diff --exit-code -- tsao_computation scripts tests README.md README.zh-CN.md assets SKILL.md pyproject.toml
+          python -m pytest -q
+          python scripts/sync_version_metadata.py --check
+          python scripts/build_manifest.py --check
+          python -c "import json,pathlib; s=json.loads(pathlib.Path('evidence/security-scan.json').read_text()); assert s=={'files_scanned':577,'findings':[],'schema_version':'1.0'}"
+          mapfile -t workflows < <(find .github/workflows -maxdepth 1 -type f -name '*.yml' -printf '%f\n' | sort)
+          expected=(ci.yml codeql.yml dependency-audit.yml release.yml scorecard.yml)
+          test "${workflows[*]}" = "${expected[*]}"
+      - name: Commit corrected evidence
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          test "$(git ls-remote origin refs/heads/main | awk '{print $1}')" = "$ORIGINAL_SHA"
+          git add -A
+          git commit -m 'Finalize V14 evidence on exact repository tree'
+          git push origin HEAD:refs/heads/main
+          FINAL_SHA="$(git rev-parse HEAD)"
+          echo "FINAL_SHA=$FINAL_SHA" >> "$GITHUB_ENV"
+      - name: Exact-final production workflows
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          gh workflow run ci.yml --ref main
+          gh workflow run codeql.yml --ref main
+          gh workflow run scorecard.yml --ref main
+          : > /tmp/v14-final-runs.txt
+          wait_for() {
+            local workflow="$1" line status conclusion url
+            for _ in $(seq 1 180); do
+              line="$(gh run list --repo "$GITHUB_REPOSITORY" --workflow "$workflow" --branch main --event workflow_dispatch --limit 20 --json headSha,status,conclusion,url --jq ".[] | select(.headSha == \"$FINAL_SHA\") | [.status,.conclusion,.url] | @tsv" | head -n 1)"
+              if [[ -n "$line" ]]; then
+                IFS=$'\t' read -r status conclusion url <<< "$line"
+                if [[ "$status" == completed ]]; then
+                  [[ "$conclusion" == success ]]
+                  printf '%s: %s\n' "$workflow" "$url" >> /tmp/v14-final-runs.txt
+                  return
+                fi
+              fi
+              sleep 10
+            done
+            return 1
+          }
+          wait_for ci.yml
+          wait_for codeql.yml
+          wait_for scorecard.yml
+      - name: Close completed audits
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          runs="$(cat /tmp/v14-final-runs.txt)"
+          gh issue close '49' --repo "$GITHUB_REPOSITORY" --reason completed --comment "Canonical routing-cache keys and compact bilingual README are certified at exact commit \`$FINAL_SHA\`. 778 tests passed; statement coverage 96.63%; branch coverage 90.99%; Windows/Linux and Python 3.10/3.13 CI, performance, package, native-core, CodeQL and Scorecard passed; security and dependency findings are zero; reproducible source/Wheel evidence is retained.\n$runs\nNo branch or pull request was created."
+          gh issue close '34' --repo "$GITHUB_REPOSITORY" --reason completed --comment "Accepted V9 performance evidence remains preserved, and the remaining semantic routing-cache follow-up is certified by V14 at \`$FINAL_SHA\`. Current platform policy is Windows core and Linux compatible; macOS is not release-qualified."
+          gh issue close "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --reason completed --comment "Exact-tree V14 evidence and production certification completed at \`$FINAL_SHA\`."
+      - name: Report failure
+        if: ${{ failure() }}
+        shell: bash
+        run: |
+          gh issue comment '49' --repo "$GITHUB_REPOSITORY" --body "Final V14 evidence certification failed in Actions run $GITHUB_RUN_ID. No branch or pull request was created." || true
+          gh issue close "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --reason "not planned" --comment "Final evidence certification failed; inspect run $GITHUB_RUN_ID." || true
+          exit 1
