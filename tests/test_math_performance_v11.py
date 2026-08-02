@@ -36,10 +36,11 @@ def test_semantically_equivalent_route_questions_share_one_cache_key() -> None:
     assert cache.misses == 1
     assert cache.hits == 2
 
-    cjk = route_question("聚合物，分子动力学")
-    cjk_variant = route_question("聚合物，\n\t分子动力学")
+    cjk = route_question("聚合物 分子动力学")
+    cjk_variant = route_question("聚合物\n\t分子动力学")
     assert cjk is cjk_variant
     assert router._route_cached.cache_info().currsize == 2
+    assert router._canonical_route_text("聚合物，分子动力学") == "聚合物，分子动力学"
 
 
 def test_optimized_scientific_kernels_preserve_equations_and_acceptance() -> None:
