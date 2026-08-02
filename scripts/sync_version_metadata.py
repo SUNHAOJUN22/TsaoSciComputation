@@ -55,9 +55,24 @@ def rendered_metadata(root: Path, release_date: str) -> dict[Path, str]:
     chinese = chinese_path.read_text(encoding="utf-8")
     chinese = replace_once(
         chinese,
+        r"(?<=badge/version-)[0-9]+\.[0-9]+\.[0-9]+(?=-2563eb)",
+        version,
+        "Chinese README version badge",
+    )
+    chinese = replace_once(
+        chinese,
         r"^\| 版本 \| [^|]+ \|$",
         f"| 版本 | {version} |",
         "Chinese README version table",
+    )
+
+    skill_path = root / "SKILL.md"
+    skill = skill_path.read_text(encoding="utf-8")
+    skill = replace_once(
+        skill,
+        r'^  version:\s*["\']?[^"\'\n]+["\']?\s*$',
+        f'  version: "{version}"',
+        "root Skill metadata version",
     )
 
     citation_path = root / "CITATION.cff"
@@ -74,7 +89,12 @@ def rendered_metadata(root: Path, release_date: str) -> dict[Path, str]:
         f"date-released: {release_date}",
         "CITATION release date",
     )
-    return {readme_path: readme, chinese_path: chinese, citation_path: citation}
+    return {
+        readme_path: readme,
+        chinese_path: chinese,
+        skill_path: skill,
+        citation_path: citation,
+    }
 
 
 def consistency_problems(root: Path = ROOT, release_date: str | None = None) -> list[str]:
