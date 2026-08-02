@@ -61,13 +61,17 @@ def verification_workers(task_count: int) -> int:
     return min(task_count, max(1, min(3, os.cpu_count() or 1)))
 
 
-def _record_timing(label: str, command: Sequence[str], elapsed: float, mode: str) -> None:
+def _record_timing(
+    label: str, command: Sequence[str], elapsed: float, mode: str, returncode: int
+) -> None:
     _TIMING_RECORDS.append(
         {
             "label": label,
             "command": list(command),
             "elapsed_seconds": round(elapsed, 6),
             "mode": mode,
+            "returncode": returncode,
+            "status": "PASS" if returncode == 0 else "FAIL",
         }
     )
 
@@ -76,10 +80,19 @@ def run(label: str, command: Sequence[str], *, env: dict[str, str] | None = None
     print(f"\n==> {label}", flush=True)
     print("    " + " ".join(command), flush=True)
     started = time.perf_counter()
-    returncode = subprocess.run(  # nosec B603
-        list(command), cwd=ROOT, env=env, check=False
-    ).returncode
-    _record_timing(label, command, time.perf_counter() - started, "sequential")
+    try:
+        returncode = subprocess.run(  # nosec B603
+            list(command), cwd=ROOT, env=env, check=False
+        ).returncode
+    except OSError:
+        returncode = 127
+    _record_timing(
+        label,
+        command,
+        time.perf_counter() - started,
+        "sequential",
+        returncode,
+    )
     return returncode
 
 
@@ -159,7 +172,13 @@ def run_commands_parallel(
         if result.output:
             print(result.output, end="" if result.output.endswith("\n") else "\n")
         print(f"    elapsed={result.elapsed_seconds:.3f}s", flush=True)
-        _record_timing(result.label, result.command, result.elapsed_seconds, "parallel")
+        _record_timing(
+            result.label,
+            result.command,
+            result.elapsed_seconds,
+            "parallel",
+            result.returncode,
+        )
         if result.returncode and not first_failure:
             first_failure = result.returncode
             print(

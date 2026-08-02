@@ -26,17 +26,15 @@ def test_rendered_metadata_is_idempotent() -> None:
 def test_rendered_metadata_updates_root_skill_and_both_readmes(tmp_path: Path) -> None:
     (tmp_path / "VERSION").write_text("3.0.3\n", encoding="utf-8")
     (tmp_path / "README.md").write_text(
-        "![version](https://img.shields.io/badge/version-3.0.2-2563eb)\n"
-        "| Version | 3.0.2 |\n",
+        "![version](https://img.shields.io/badge/version-3.0.2-2563eb)\n| Version | 3.0.2 |\n",
         encoding="utf-8",
     )
     (tmp_path / "README.zh-CN.md").write_text(
-        "![version](https://img.shields.io/badge/version-3.0.2-2563eb)\n"
-        "| 版本 | 3.0.2 |\n",
+        "![version](https://img.shields.io/badge/version-3.0.2-2563eb)\n| 版本 | 3.0.2 |\n",
         encoding="utf-8",
     )
     (tmp_path / "SKILL.md").write_text(
-        "---\nmetadata:\n  author: owner\n  version: \"3.0.2\"\n---\n",
+        '---\nmetadata:\n  author: owner\n  version: "3.0.2"\n---\n',
         encoding="utf-8",
     )
     (tmp_path / "CITATION.cff").write_text(

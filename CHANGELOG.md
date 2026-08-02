@@ -2,8 +2,16 @@
 
 ## Unreleased
 
+## 3.0.3 — 2026-08-02
+
+- Added hash-bound, explicit authorization for all external process execution while retaining plan-only defaults for solvers, APIs, containers, schedulers and Skills.
+- Made calculation contracts and registry snapshots deeply immutable and fail-closed for unknown methods, workflows, adapters and ambiguous routing.
+- Bound acceleration plans to validated resource, precision, determinism, device, memory, fallback and request-hash contracts.
+- Hardened audit certification so only complete zero-defect evidence can produce VALIDATED status.
+- Restricted release qualification to Windows and Linux; macOS is not a supported platform or release gate.
+
 - Added the Tsao accelerated-computing foundation: dependency-free CPU/GPU/MPI/edge probing, structured resource requests, evidence-bound backend planning, a 27-adapter acceleration registry, CUDA-X/cuTENSOR/cuEquivariance/nvmath/Kokkos candidate guidance, bounded concurrent external-plan batches, and CLI planning commands.
-- Added an optional source-only C++20 native C ABI core with CPU/OpenMP discovery and Linux, Windows, and macOS compile-and-smoke-test CI while preserving the pure-Python control plane, zero mandatory runtime dependencies, professional-solver native acceleration priority, and CPU fallback.
+- Added an optional source-only C++20 native C ABI core with CPU/OpenMP discovery and Windows and Linux compile-and-smoke-test CI while preserving the pure-Python control plane, zero mandatory runtime dependencies, professional-solver native acceleration priority, and CPU fallback.
 - Added acceleration, placement, precision, numerical-equivalence, transfer, communication, memory, energy, thermal, edge, fallback, and scientific-acceptance boundaries to the root Skill and generated adapter/workflow guidance.
 - Regenerated all 42 README illustrations as Scientific Research Console V13 using the UI/UX Pro Max upstream and Chinese tutorial rules: accessible contrast, one line-icon grammar and GitHub-scale progressive disclosure.
 - Regenerated all 42 README visuals for GitHub-scale readability with 16 px minimum diagram text, full-width detailed workflows and progressive-disclosure domain groups.
@@ -17,7 +25,7 @@
 - Added a tested current-main evidence updater so test counts, coverage, audit issue, bilingual README records and machine-readable evidence are generated through one reviewable implementation.
 - Preserved the minimum secure Windows subprocess bootstrap environment while continuing to block arbitrary host-variable and secret leakage.
 - Normalized coverage paths across operating systems so critical-file policies remain fail-closed on Windows and POSIX runners.
-- Enforced LF checkout and runtime text generation, added AST governance for every production `Path.write_text`, and made the byte-level Manifest stable across Ubuntu, Windows and macOS.
+- Enforced LF checkout and runtime text generation, added AST governance for every production `Path.write_text`, and made the byte-level Manifest stable across Ubuntu and Windows.
 - Separated immutable v3.0.2 release evidence from current-main verification and added machine-readable final-audit records.
 
 ## 3.0.2 — 2026-07-24

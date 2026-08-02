@@ -6,7 +6,7 @@
 
 **Evidence-bound scientific-computation orchestration from electrons to industrial processes.**
 
-![version](https://img.shields.io/badge/version-3.0.2-2563eb) ![capabilities](https://img.shields.io/badge/capabilities-164-7c3aed) ![adapters](https://img.shields.io/badge/adapters-27-ea580c) ![workflows](https://img.shields.io/badge/workflows-20-0891b2)
+![version](https://img.shields.io/badge/version-3.0.3-2563eb) ![capabilities](https://img.shields.io/badge/capabilities-164-7c3aed) ![adapters](https://img.shields.io/badge/adapters-27-ea580c) ![workflows](https://img.shields.io/badge/workflows-20-0891b2)
 
 [中文说明](README.zh-CN.md) · [Root Skill](SKILL.md) · [Capabilities](capability-index/README.md) · [Coverage](docs/coverage-matrix.md) · [Scientific validation](docs/scientific-validation.md) · [Confidence](docs/scientific-confidence.md) · [Architecture](docs/architecture.md) · [Releases](docs/release.md) · [Security](SECURITY.md)
 
@@ -223,15 +223,16 @@ python scripts/verify_all.py --profile benchmark
 ### Current `main` verification
 
 <!-- CURRENT_MAIN_VERIFICATION:START -->
-Validated on `2026-08-02T07:11:43.608569+00:00` by deterministic finalization run `30737299629`.
+Validated on `2026-08-02T15:58:39.090115+00:00` by deterministic finalization run `30755520232`.
 
 | Current-main item | Result |
 |---|---:|
-| Version | 3.0.2 |
+| Version | 3.0.3 |
 | Capabilities / adapters / workflows | 164 / 27 / 20 |
-| Tests | 704 passed, 0 failed |
-| Statement / branch coverage | 97.30% / 92.66% |
-| Windows core | Python 3.10 and 3.13; final result recorded in Issue #53 |
+| Tests | 747 passed, 0 failed |
+| Statement / branch coverage | 96.85% / 91.27% |
+| Windows core | Python 3.10 and 3.13; final result recorded in Issue #61 |
+| Linux compatibility | Ubuntu validation; final result recorded in Issue #61 |
 | Controlled mutation probes | 64/64 killed |
 | Scientific reference benchmarks | 8/8 passed |
 | Repository / dependency findings | 0 / 0 |
@@ -240,7 +241,7 @@ Validated on `2026-08-02T07:11:43.608569+00:00` by deterministic finalization ru
 | Scientific visual assets | 42 self-contained SVGs |
 | Remote branches | `main` only |
 
-The final ultimate-computation-super-skill commit is accepted only after canonical Ubuntu/Windows/macOS × Python 3.10/3.13 CI is recorded in [Issue #53](../../issues/53). Machine-readable evidence: [`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json).
+The final adversarial-computation-super-skill commit is accepted only after canonical Ubuntu/Windows × Python 3.10/3.13 CI is recorded in [Issue #61](../../issues/61). Machine-readable evidence: [`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json).
 <!-- CURRENT_MAIN_VERIFICATION:END -->
 
 ### v3.0.2 verified release baseline
@@ -264,7 +265,7 @@ This table reports the immutable v3.0.2 verification evidence dated 2026-07-24. 
 
 ## CI, release and installation
 
-CI runs the core matrix on Python 3.10 and 3.13 across Ubuntu, Windows and macOS. A read-only weekly dependency audit records vulnerability evidence without creating an upstream branch. Third-party Actions are pinned to immutable commits.
+CI runs the core matrix on Python 3.10 and 3.13 across Ubuntu and Windows. A read-only weekly dependency audit records vulnerability evidence without creating an upstream branch. Third-party Actions are pinned to immutable commits.
 
 Formal releases are produced only by the governed Release workflow after all deterministic gates pass. Each immutable `vX.Y.Z` release contains reproducible source archives and Wheel, SPDX and CycloneDX SBOMs, `SHA256SUMS`, a release Manifest, final verification evidence and GitHub/Sigstore provenance bundles.
 
