@@ -1,24 +1,44 @@
 from __future__ import annotations
 
 import math
+from functools import cache
+from typing import Any, cast
 
 from ..registries import units
 
 
+@cache
+def _accepted_units() -> frozenset[str]:
+    return frozenset(str(item) for record in units().values() for item in record["accepted"])
+
+
+def clear_unit_cache() -> None:
+    _accepted_units.cache_clear()
+
+
 def unit_known(unit: str) -> bool:
-    if not isinstance(unit, str) or not unit.strip():
-        return False
-    candidate = unit.strip()
-    return any(candidate in record["accepted"] for record in units().values())
+    return isinstance(unit, str) and bool(unit.strip()) and unit.strip() in _accepted_units()
+
+
+def _number(value: object, *, name: str) -> float:
+    if isinstance(value, bool):
+        raise ValueError(f"{name} must be a finite number, not a boolean")
+    try:
+        converted = float(cast(Any, value))
+    except (TypeError, ValueError, OverflowError) as error:
+        raise ValueError(f"{name} must be a finite number") from error
+    if not math.isfinite(converted):
+        raise ValueError(f"{name} must be a finite number")
+    return converted
 
 
 def balance_check(
     inputs: float, outputs: float, accumulation: float = 0.0, *, tolerance: float = 1e-08
 ) -> dict[str, float | bool]:
-    values = tuple(float(value) for value in (inputs, outputs, accumulation, tolerance))
-    if not all(math.isfinite(value) for value in values):
-        raise ValueError("balance inputs and tolerance must be finite")
-    input_value, output_value, accumulation_value, tolerance_value = values
+    input_value = _number(inputs, name="inputs")
+    output_value = _number(outputs, name="outputs")
+    accumulation_value = _number(accumulation, name="accumulation")
+    tolerance_value = _number(tolerance, name="tolerance")
     if tolerance_value < 0:
         raise ValueError("tolerance must be non-negative")
     try:

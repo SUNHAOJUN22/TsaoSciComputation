@@ -97,7 +97,9 @@ def test_authorization_validation_and_plan_hash_changes(tmp_path: Path) -> None:
     assert run_plan_batch([], authorizations=[]).completed
 
 
-def test_non_executable_relative_solver_is_rejected(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_non_executable_relative_solver_is_rejected(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     executable = tmp_path / "solver"
     executable.write_text("fixture", encoding="utf-8")
     monkeypatch.chdir(tmp_path)

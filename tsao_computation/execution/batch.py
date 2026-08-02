@@ -4,7 +4,8 @@ import os
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 
-from .runner import ExecutionRecord, run_plan
+from ..errors import SecurityError
+from .runner import ExecutionAuthorization, ExecutionRecord, run_plan
 from .typing_compat import CommandPlanLike
 
 _DEFAULT_MAX_EXTERNAL_PLANS = 4
@@ -24,18 +25,25 @@ def _default_workers(plan_count: int) -> int:
 def run_plan_batch(
     plans: tuple[CommandPlanLike, ...] | list[CommandPlanLike],
     *,
+    authorizations: tuple[ExecutionAuthorization, ...] | list[ExecutionAuthorization] | None = None,
     timeout: float = 300.0,
     max_workers: int | None = None,
 ) -> BatchExecutionResult:
     items = tuple(plans)
     if not items:
         return BatchExecutionResult((), True, ())
+    if authorizations is None or len(authorizations) != len(items):
+        raise SecurityError("each external command plan requires one matching authorization")
+    auth_items = tuple(authorizations)
     workers = _default_workers(len(items)) if max_workers is None else max_workers
     if workers < 1:
         raise ValueError("max_workers must be positive")
     workers = min(workers, len(items))
     with ThreadPoolExecutor(max_workers=workers, thread_name_prefix="tsao-external-plan") as pool:
-        futures = [pool.submit(run_plan, plan, timeout=timeout) for plan in items]
+        futures = [
+            pool.submit(run_plan, plan, authorization=authorization, timeout=timeout)
+            for plan, authorization in zip(items, auth_items, strict=True)
+        ]
         records = tuple(future.result() for future in futures)
     failed = tuple(index for index, record in enumerate(records) if not record.completed)
     return BatchExecutionResult(records, not failed, failed)

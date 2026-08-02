@@ -341,6 +341,24 @@ _TRUSTED_CALLABLES: dict[
 }
 
 
+def _required_value_present(value: object) -> bool:
+    if value is None:
+        return False
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, str):
+        return bool(value.strip())
+    if isinstance(value, Mapping | list | tuple | set | frozenset):
+        return bool(value)
+    return True
+
+
+def _missing_required_inputs(spec: InvocationSpec, payload: Mapping[str, Any]) -> tuple[str, ...]:
+    return tuple(
+        key for key in spec.required_inputs if not _required_value_present(payload.get(key))
+    )
+
+
 def _trusted_spec(slug: str) -> InvocationSpec:
     name, _, required = _TRUSTED_CALLABLES[slug]
     return InvocationSpec(
@@ -426,28 +444,28 @@ def list_invocations() -> tuple[InvocationSpec, ...]:
 
 
 def get_invocation_spec(slug: str) -> InvocationSpec:
-    if slug.startswith("skill:"):
-        workflow = slug.partition(":")[2]
+    if not isinstance(slug, str) or not slug.strip():
+        raise KeyError("invocation target must be a non-empty string")
+    normalized = slug.strip().casefold()
+    if normalized.startswith("skill:"):
+        workflow = normalized.partition(":")[2]
         if not workflow:
             raise KeyError("skill invocation requires a workflow slug")
+        _workflow_record(workflow)
         return InvocationSpec(
-            slug=slug,
+            slug=normalized,
             name=f"Workflow Skill: {workflow}",
             kind=InvocationKind.SKILL,
             target=workflow,
             workflow=workflow,
             trusted_local_execution=False,
-            required_inputs=(
-                "calculation contract",
-                "Skill availability",
-                "explicit authorization",
-            ),
+            required_inputs=("calculation_contract", "skill_available", "explicit_authorization"),
             expected_outputs=("handoff record", "artifacts", "evidence"),
             evidence_requirements=("Skill identifier", "version", "input hash", "output hash"),
             claim_boundary="Skill handoff plan only; execution depends on an available authorized Skill runtime.",
         )
     for item in list_invocations():
-        if item.slug == slug:
+        if item.slug == normalized:
             return item
     raise KeyError(f"unknown invocation target: {slug}")
 
@@ -460,11 +478,7 @@ def build_invocation_plan(
 ) -> InvocationPlan:
     spec = get_invocation_spec(slug)
     normalized_payload = {} if payload is None else dict(payload)
-    blockers = tuple(
-        key
-        for key in spec.required_inputs
-        if key not in normalized_payload or normalized_payload[key] is None
-    )
+    blockers = _missing_required_inputs(spec, normalized_payload)
     if spec.trusted_local_execution:
         return InvocationPlan(
             slug=spec.slug,
@@ -480,14 +494,15 @@ def build_invocation_plan(
             evidence_requirements=spec.evidence_requirements,
             claim_boundary=spec.claim_boundary,
         )
-    if slug.startswith("adapter:"):
-        missing = [
-            key
-            for key in ("lawful_environment", "explicit_authorization")
-            if key not in normalized_payload or not normalized_payload[key]
-        ]
+    if spec.slug.startswith("adapter:"):
+        missing: list[str] = []
         if input_path is None:
-            missing.insert(0, "native_input_file")
+            missing.append("native_input_file")
+        if not _required_value_present(normalized_payload.get("lawful_environment")):
+            missing.append("lawful_environment")
+        if normalized_payload.get("explicit_authorization") is not True:
+            missing.append("explicit_authorization")
+        if input_path is None:
             return InvocationPlan(
                 slug=spec.slug,
                 kind=spec.kind,
@@ -505,7 +520,6 @@ def build_invocation_plan(
         try:
             command = get_adapter(spec.target).build_command(input_path)
         except ContractError as error:
-            missing.insert(0, str(error))
             return InvocationPlan(
                 slug=spec.slug,
                 kind=spec.kind,
@@ -515,7 +529,7 @@ def build_invocation_plan(
                 argv=(),
                 cwd=None,
                 environment={},
-                blockers=tuple(missing),
+                blockers=(str(error), *missing),
                 expected_outputs=spec.expected_outputs,
                 evidence_requirements=spec.evidence_requirements,
                 claim_boundary=spec.claim_boundary,
@@ -543,7 +557,8 @@ def build_invocation_plan(
         argv=(),
         cwd=None,
         environment={},
-        blockers=("runtime target, availability probe and explicit authorization are required",),
+        blockers=blockers
+        or ("runtime execution remains disabled until a dedicated authorized executor is bound",),
         expected_outputs=spec.expected_outputs,
         evidence_requirements=spec.evidence_requirements,
         claim_boundary=spec.claim_boundary,
@@ -768,17 +783,33 @@ def recommend_acceleration(
 ) -> tuple[AccelerationAdvice, ...]:
     if limit < 1:
         raise ValueError("limit must be positive")
+    selected_methods = tuple(get_method(slug) for slug in method_slugs)
+    external_kinds = {
+        InvocationKind.LOCAL_SOLVER,
+        InvocationKind.REMOTE_API,
+        InvocationKind.CONTAINER,
+        InvocationKind.SCHEDULER_JOB,
+        InvocationKind.COMMERCIAL_ADAPTER,
+        InvocationKind.SKILL,
+    }
+    supports_external_solver = any(
+        external_kinds.intersection(method.invocation_kinds) for method in selected_methods
+    )
     source = {} if workload is None else dict(workload)
     text = " ".join(
         [
-            *(str(item) for item in method_slugs),
+            *(item.slug for item in selected_methods),
             *(f"{key} {value}" for key, value in source.items()),
         ]
     ).casefold()
     ranked: list[tuple[int, str, AccelerationAdvice]] = []
     for advice, tags in _STRATEGIES:
         score = sum(tag in text for tag in tags)
-        if advice.slug in {"profiling-first", "native-solver-backend"}:
+        if advice.slug == "profiling-first":
+            score += 1
+        if advice.slug == "native-solver-backend":
+            if not supports_external_solver:
+                continue
             score += 1
         if score:
             ranked.append((score, advice.slug, advice))
@@ -818,22 +849,22 @@ def _default_method_slugs(workflow: str) -> tuple[str, ...]:
 
 
 def _resolve_methods(contract: CalculationContract, workflow: str) -> tuple[MethodSpec, ...]:
-    selected: list[MethodSpec] = []
-    for raw in contract.methods:
-        normalized = raw.strip().casefold().replace("_", "-").replace(" ", "-")
-        if normalized in _method_index():
-            selected.append(_method_index()[normalized])
-    if not selected:
-        selected.extend(get_method(slug) for slug in _default_method_slugs(workflow))
+    if contract.methods:
+        selected = tuple(get_method(raw) for raw in contract.methods)
+    else:
+        selected = tuple(get_method(slug) for slug in _default_method_slugs(workflow))
     return tuple(dict.fromkeys(selected))
 
 
 def build_orchestration_plan(contract: CalculationContract) -> OrchestrationPlan:
     workflow = contract.workflow
+    route_requires_clarification = False
     if workflow is None:
         from ..routing import route_question
 
-        workflow = route_question(contract.question).workflow
+        decision = route_question(contract.question)
+        workflow = decision.workflow
+        route_requires_clarification = decision.score <= 0
     record = _workflow_record(workflow)
     selected_methods = _resolve_methods(contract, workflow)
     capability_ids = tuple(str(item) for item in record.get("capability_ids", []))
@@ -972,7 +1003,10 @@ def build_orchestration_plan(contract: CalculationContract) -> OrchestrationPlan
             _CLAIM_BOUNDARY,
         ),
     )
-    blockers = contract.specification_gaps()
+    blocker_list = list(contract.specification_gaps())
+    if route_requires_clarification:
+        blocker_list.append("workflow_clarification_required")
+    blockers = tuple(dict.fromkeys(blocker_list))
     return OrchestrationPlan(
         scientific_objective=contract.question,
         workflow=workflow,

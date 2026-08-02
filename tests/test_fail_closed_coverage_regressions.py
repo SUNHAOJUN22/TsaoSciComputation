@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import importlib.metadata
+import os
 import runpy
+import stat
 import subprocess
 import sys
 from collections.abc import Iterator
@@ -178,6 +180,8 @@ def test_relative_nested_executable_is_resolved(
     executable = tmp_path / "bin" / "solver"
     executable.parent.mkdir()
     executable.write_text("fixture", encoding="utf-8")
+    if os.name != "nt":
+        executable.chmod(executable.stat().st_mode | stat.S_IXUSR)
     monkeypatch.chdir(tmp_path)
     assert adapter_base._resolve_executable("bin/solver") == str(executable.resolve())
 

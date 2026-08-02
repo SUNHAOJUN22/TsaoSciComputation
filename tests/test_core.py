@@ -180,7 +180,12 @@ def test_022_atomic_write(tmp_path):
 
 @pytest.mark.durability
 def test_023_safe_process(tmp_path):
-    r = safe_run([sys.executable, "-c", "print(7)"], cwd=tmp_path, timeout=5)
+    r = safe_run(
+        [sys.executable, "-c", "print(7)"],
+        cwd=tmp_path,
+        timeout=5,
+        allow_process_execution=True,
+    )
     assert r.returncode == 0 and r.stdout.strip() == "7"
 
 

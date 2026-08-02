@@ -75,11 +75,13 @@ def test_negative_convergence_language_overrides_positive_substrings() -> None:
 
 
 def test_explicit_positive_convergence_is_recognized_but_not_validated() -> None:
-    parsed = Adapter({"slug": "generic"}).parse("SCF converged after 12 cycles; completed")
+    parsed = Adapter({"slug": "generic"}).parse(
+        "SCF converged after 12 cycles; calculation completed"
+    )
     assert parsed == {
         "completed": True,
         "converged": True,
-        "raw_length": len("SCF converged after 12 cycles; completed"),
+        "raw_length": len("SCF converged after 12 cycles; calculation completed"),
         "validated": False,
     }
 

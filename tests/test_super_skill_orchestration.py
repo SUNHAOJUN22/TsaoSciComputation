@@ -105,7 +105,7 @@ def test_trusted_callables_fail_closed() -> None:
 def test_external_invocation_targets_are_plan_only(tmp_path: Path) -> None:
     abstract = build_invocation_plan("remote-api-template", {})
     assert not abstract.ready and not abstract.execute_allowed
-    assert "authorization" in abstract.blockers[0]
+    assert {"target", "input schema", "authorization", "evidence policy"} <= set(abstract.blockers)
 
     missing_input = build_invocation_plan("adapter:orca", {})
     assert set(missing_input.blockers) == {

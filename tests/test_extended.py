@@ -12,7 +12,7 @@ from tsao_computation.adapters import get_adapter, probe_all
 from tsao_computation.adapters.base import Adapter, CommandPlan
 from tsao_computation.contracts import CalculationContract
 from tsao_computation.errors import ContractError, SecurityError, StateTransitionError
-from tsao_computation.execution import run_plan
+from tsao_computation.execution import authorize_plan, run_plan
 from tsao_computation.project import initialize_project, validate_project
 from tsao_computation.provenance import read_events
 from tsao_computation.provenance.manifest import file_manifest
@@ -30,9 +30,10 @@ from tsao_computation.workflows import WorkflowEngine
 def test_adapter_build_command_and_parse(tmp_path: Path) -> None:
     source = tmp_path / "input.inp"
     source.write_text("data", encoding="utf-8")
-    adapter = get_adapter("orca")
+    adapter = Adapter({"slug": "test-python", "executables": [sys.executable]})
     plan = adapter.build_command(source, executable=sys.executable)
-    assert plan.argv == (sys.executable, "input.inp")
+    assert Path(plan.argv[0]).resolve() == Path(sys.executable).resolve()
+    assert plan.argv[1:] == ("input.inp",)
     assert plan.cwd == tmp_path.resolve()
     parsed = adapter.parse("Normal termination; converged")
     assert parsed["completed"] is True
@@ -76,12 +77,21 @@ def test_contract_rejects_invalid_fields(kwargs: dict[str, object], message: str
 
 def test_execution_plan_success_and_failure(tmp_path: Path) -> None:
     ok = CommandPlan((sys.executable, "-c", "print('ok')"), tmp_path, {}, "test")
-    record = run_plan(ok, timeout=5)
+    ok_authorization = authorize_plan(
+        ok, authorized_by="pytest", purpose="execution success test", explicit_authorization=True
+    )
+    record = run_plan(ok, authorization=ok_authorization, timeout=5)
     assert record.completed is True
     assert record.returncode == 0
     assert len(record.stdout_sha256) == 64
     failed = CommandPlan((sys.executable, "-c", "raise SystemExit(3)"), tmp_path, {}, "test")
-    failed_record = run_plan(failed, timeout=5)
+    failed_authorization = authorize_plan(
+        failed,
+        authorized_by="pytest",
+        purpose="execution failure test",
+        explicit_authorization=True,
+    )
+    failed_record = run_plan(failed, authorization=failed_authorization, timeout=5)
     assert failed_record.completed is False
     assert failed_record.returncode == 3
 
@@ -89,19 +99,20 @@ def test_execution_plan_success_and_failure(tmp_path: Path) -> None:
 @pytest.mark.parametrize("argv", [[], [""], [sys.executable, 3]])
 def test_safe_run_rejects_invalid_argv(tmp_path: Path, argv: list[object]) -> None:
     with pytest.raises(SecurityError):
-        safe_run(argv, cwd=tmp_path)
+        safe_run(argv, cwd=tmp_path, allow_process_execution=True)
 
 
 def test_safe_run_validates_timeout_cwd_and_environment(tmp_path: Path) -> None:
     with pytest.raises(SecurityError):
-        safe_run([sys.executable], cwd=tmp_path, timeout=0)
+        safe_run([sys.executable], cwd=tmp_path, timeout=0, allow_process_execution=True)
     with pytest.raises(SecurityError):
-        safe_run([sys.executable], cwd=tmp_path / "missing")
+        safe_run([sys.executable], cwd=tmp_path / "missing", allow_process_execution=True)
     result = safe_run(
         [sys.executable, "-c", "import os; print(os.environ['TSAO_TEST'])"],
         cwd=tmp_path,
         timeout=5,
         env={"TSAO_TEST": "yes"},
+        allow_process_execution=True,
     )
     assert result.stdout.strip() == "yes"
 
