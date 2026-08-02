@@ -55,8 +55,7 @@ def _routing_index() -> tuple[_RouteWorkflow, ...]:
 
 
 @lru_cache(maxsize=_ROUTE_CACHE_SIZE)
-def _route_cached(question: str) -> RouteDecision:
-    text = question.casefold()
+def _route_cached(text: str) -> RouteDecision:
     tokens = _tokens_from_folded(text)
     scored: list[tuple[str, float, tuple[str, ...]]] = []
     for workflow in _routing_index():
@@ -88,9 +87,10 @@ def _route_cached(question: str) -> RouteDecision:
 
 
 def route_question(question: str) -> RouteDecision:
-    if not question.strip():
+    normalized = question.strip().casefold()
+    if not normalized:
         raise ValueError("question must be non-empty")
-    return _route_cached(question)
+    return _route_cached(normalized)
 
 
 def clear_routing_caches() -> None:
