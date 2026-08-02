@@ -1,18 +1,19 @@
 from __future__ import annotations
 
 import hashlib
-import json
 import os
 import re
 import shutil
-import subprocess  # nosec B404
 import sys
+from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
+from types import MappingProxyType
 from typing import Any
 
-from ..errors import ContractError
+from ..errors import ContractError, SecurityError
 from ..immutable import freeze_json
+from ..security.process import probe_python_modules
 
 _COMPLETION_SUCCESS = re.compile(
     r"\bnormal\s+termination\b|"
@@ -63,17 +64,31 @@ class AdapterProbe:
 class CommandPlan:
     argv: tuple[str, ...]
     cwd: Path
-    environment: dict[str, str]
+    environment: Mapping[str, str]
     claim_boundary: str
     adapter_slug: str | None = None
     input_sha256: str | None = None
     execute_allowed: bool = False
+    input_path: Path | None = None
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "argv", tuple(str(item) for item in self.argv))
+        object.__setattr__(self, "cwd", Path(self.cwd))
+        object.__setattr__(
+            self,
+            "environment",
+            MappingProxyType({str(key): str(value) for key, value in self.environment.items()}),
+        )
+        if self.input_path is not None:
+            object.__setattr__(self, "input_path", Path(self.input_path))
 
 
 def _resolve_executable(candidate: str) -> str | None:
     path = Path(candidate).expanduser()
     resolved: str | None
-    if path.is_absolute() and path.is_file() or path.parent != Path(".") and path.is_file():
+    if (path.is_absolute() and path.is_file()) or (
+        path.parent != Path(".") and path.is_file()
+    ):
         resolved = str(path.resolve())
     else:
         resolved = shutil.which(candidate)
@@ -88,30 +103,10 @@ def _module_probe_interpreter(candidate: str, found: str) -> str:
 
 
 def _missing_python_modules(executable: str, modules: tuple[str, ...]) -> tuple[str, ...]:
-    if not modules:
-        return ()
-    script = (
-        "import importlib.util,json,sys;"
-        "missing=[name for name in sys.argv[1:] if importlib.util.find_spec(name) is None];"
-        "print(json.dumps(missing));raise SystemExit(bool(missing))"
-    )
     try:
-        result = subprocess.run(  # nosec B603
-            [executable, "-c", script, *modules],
-            check=False,
-            capture_output=True,
-            text=True,
-            timeout=10,
-        )
-    except (OSError, subprocess.SubprocessError):
+        return probe_python_modules(executable, modules)
+    except SecurityError:
         return modules
-    if result.returncode == 0:
-        return ()
-    try:
-        payload = json.loads(result.stdout.strip() or "[]")
-    except json.JSONDecodeError:
-        return modules
-    return tuple(str(item) for item in payload) if isinstance(payload, list) else modules
 
 
 def _sha256(path: Path) -> str:
@@ -199,13 +194,14 @@ class Adapter:
                 f"adapter {self.slug} is not runnable in the current environment: {probe.reason}"
             )
         return CommandPlan(
-            (probe.executable, source.name),
-            source.parent,
-            {},
-            "Command prepared only; execution requires hash-bound authorization and scientific acceptance requires separate evidence.",
+            argv=(probe.executable, source.name),
+            cwd=source.parent,
+            environment={},
+            claim_boundary="Command prepared only; execution requires hash-bound authorization and scientific acceptance requires separate evidence.",
             adapter_slug=self.slug,
             input_sha256=_sha256(source),
             execute_allowed=False,
+            input_path=source,
         )
 
     def parse(self, output: str) -> dict[str, Any]:
