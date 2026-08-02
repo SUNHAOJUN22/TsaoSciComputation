@@ -38,6 +38,28 @@ question → contract → route → preflight → execute → parse
 
 It is an **orchestration and governance layer**. It does not bundle, redistribute, unlock, or impersonate external solvers, licenses, databases, basis sets, pseudopotentials, private data, or production HPC infrastructure.
 
+<!-- SUPER_SKILL_ORCHESTRATION:START -->
+## Scientific computation super-skill
+
+TsaoSciComputation acts as both a scientific Skill and a fail-closed intermediary platform. It exposes **23 computation methods**, **9 invocation types**, **7 trusted local scientific functions**, **27 external adapters**, **20 governed workflows**, **13 acceleration strategies**, and a **9-stage orchestration plan**.
+
+| Invocation mode | Default behavior |
+|---|---|
+| Registered trusted Python callable | May execute locally with validated payloads, duration and request/result hashes |
+| External adapter or commercial solver | Probe and command-plan only; execution remains separately authorized |
+| Python module, CLI, API, container, scheduler or other Skill | Declarative plan/handoff only until a runtime, identity, authorization and evidence policy are supplied |
+
+```bash
+python -m tsao_computation list methods
+python -m tsao_computation list invocations
+python -m tsao_computation plan templates/calculation-contract.json --strict
+python -m tsao_computation recommend-acceleration --method finite-element
+python -m tsao_computation invoke balance-check --payload balance.json --execute
+```
+
+Acceleration guidance covers algorithm, memory, backend, execution and model-reduction choices. A recommendation is not presented as measured speedup unless isolated machine evidence says so. See [`docs/orchestration.md`](docs/orchestration.md) and [`reports/ULTIMATE_COMPUTATION_SUPER_SKILL_AUDIT.json`](reports/ULTIMATE_COMPUTATION_SUPER_SKILL_AUDIT.json).
+<!-- SUPER_SKILL_ORCHESTRATION:END -->
+
 ## Scientific capability atlas
 
 Only two compact architecture overviews remain inline. Detailed workflows, loops and risk maps are full width and grouped by domain to reduce scrolling while keeping all 42 assets discoverable.
@@ -201,15 +223,15 @@ python scripts/verify_all.py --profile benchmark
 ### Current `main` verification
 
 <!-- CURRENT_MAIN_VERIFICATION:START -->
-Validated on `2026-08-02T06:16:01.127780+00:00` by deterministic finalization run `30735557078`.
+Validated on `2026-08-02T07:11:43.608569+00:00` by deterministic finalization run `30737299629`.
 
 | Current-main item | Result |
 |---|---:|
 | Version | 3.0.2 |
 | Capabilities / adapters / workflows | 164 / 27 / 20 |
-| Tests | 690 passed, 0 failed |
-| Statement / branch coverage | 97.61% / 93.80% |
-| Windows core | Python 3.10 and 3.13; final result recorded in Issue #52 |
+| Tests | 704 passed, 0 failed |
+| Statement / branch coverage | 97.30% / 92.66% |
+| Windows core | Python 3.10 and 3.13; final result recorded in Issue #53 |
 | Controlled mutation probes | 64/64 killed |
 | Scientific reference benchmarks | 8/8 passed |
 | Repository / dependency findings | 0 / 0 |
@@ -218,7 +240,7 @@ Validated on `2026-08-02T06:16:01.127780+00:00` by deterministic finalization ru
 | Scientific visual assets | 42 self-contained SVGs |
 | Remote branches | `main` only |
 
-The final V11-math-performance commit is accepted only after canonical Ubuntu/Windows/macOS × Python 3.10/3.13 CI is recorded in [Issue #52](../../issues/52). Machine-readable evidence: [`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json).
+The final ultimate-computation-super-skill commit is accepted only after canonical Ubuntu/Windows/macOS × Python 3.10/3.13 CI is recorded in [Issue #53](../../issues/53). Machine-readable evidence: [`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json).
 <!-- CURRENT_MAIN_VERIFICATION:END -->
 
 ### v3.0.2 verified release baseline

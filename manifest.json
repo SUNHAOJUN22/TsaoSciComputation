@@ -101,14 +101,14 @@
       "sha256": "530cbaaba03418ba3a06c6fb591a94ce67b1338dc8b87c1b76d95481741fbaee"
     },
     {
-      "bytes": 17453,
+      "bytes": 19049,
       "path": "README.md",
-      "sha256": "d85c55a59ce92de55faeb823806dd2385b11866254cc1e06c8a7873963c52310"
+      "sha256": "5e278d557b6d469ac52ba1f36d01c2f691f1c18b330c3b91f6b2ff854604479d"
     },
     {
-      "bytes": 16414,
+      "bytes": 17947,
       "path": "README.zh-CN.md",
-      "sha256": "9ecbee84ea0d21f3be1ddf35f71f9d6f454517af8009088588941c46fbdacbb6"
+      "sha256": "bee0724498b06798d5e1cce37f1a5e7d90f05c7979798867745baead3ee62c24"
     },
     {
       "bytes": 3578,
@@ -116,9 +116,9 @@
       "sha256": "71d1a9d46399a071060fe13d115d1d470cc4309504a6e03e164e50134b600e64"
     },
     {
-      "bytes": 16582,
+      "bytes": 17444,
       "path": "SKILL.md",
-      "sha256": "22cba946d2cde951a18377d1db3b3c83127aaa69ddb3dee36c9d81bf41a10c4f"
+      "sha256": "2b5fd4f437d9b5a9db2b6e29a1a09d56be45fc5d37de75942d3bf3719eb7303a"
     },
     {
       "bytes": 1130,
@@ -1578,7 +1578,7 @@
     {
       "bytes": 152,
       "path": "evidence/quality-check.json",
-      "sha256": "644701b4b1c4ae104603a7ad4a116e6deefbc1784be63edec6b60259fc5e60eb"
+      "sha256": "b882ffe7c9c02954f4fc6aeedd1fea800edac26412e260a85dbfd8feeb4335de"
     },
     {
       "bytes": 3174,
@@ -1588,7 +1588,7 @@
     {
       "bytes": 72,
       "path": "evidence/security-scan.json",
-      "sha256": "517469fa21be5bda5f2afbba42b1f6bc7793c849eaf1a6a71c28559857df77db"
+      "sha256": "e9df0ccfe9804a831dbd2495224c4a974b74101697af06ebe7f49692cde772f6"
     },
     {
       "bytes": 573,
@@ -1781,9 +1781,9 @@
       "sha256": "06c63ceb866c0853965bdc1154473e756f0a7a95de14419fe854ce981da0c9ac"
     },
     {
-      "bytes": 4934,
+      "bytes": 4944,
       "path": "reports/CURRENT_MAIN_VERIFICATION.json",
-      "sha256": "57e677bd1bf8436d461146c3edd3601539b77edf7e06c41e50a39816010f84b5"
+      "sha256": "051d8dde83b2203ad5f3285471a2a8559c240297bfd5680d2dd654d9286ca238"
     },
     {
       "bytes": 3115,
@@ -1871,9 +1871,14 @@
       "sha256": "6a70f52615a2a8d2eb164b704487e8b7d9fc9109a9861fd4c175b29bb0d1a265"
     },
     {
-      "bytes": 1127,
+      "bytes": 1139,
       "path": "reports/ULTIMATE_CODE_QUALITY_FINALIZATION.md",
-      "sha256": "6dc3648187595a07da705a80ad2405b050f42d3f16f5f9fb6f4403bd8699c903"
+      "sha256": "b174b81ebc8f923fc05d3a9025a98e88604dc1fb3f5f325ef64f10a80ae944d0"
+    },
+    {
+      "bytes": 4496,
+      "path": "reports/ULTIMATE_COMPUTATION_SUPER_SKILL_AUDIT.json",
+      "sha256": "21e7088f4f2fbc8c878256a47aad906d3c21ad2526f7af225fe0ddc097c520f2"
     },
     {
       "bytes": 18036,
@@ -1974,6 +1979,11 @@
       "bytes": 9508,
       "path": "scripts/build_sbom.py",
       "sha256": "c948965d573ee84bdda4fc200f44c15d8b9f7689db33ef2762b6720a3748bf08"
+    },
+    {
+      "bytes": 8658,
+      "path": "scripts/build_super_skill_audit.py",
+      "sha256": "913663d9a747b88b55b50a5dea9ecaec6e76124756923361bf0cc6681834f2d5"
     },
     {
       "bytes": 8104,
@@ -2476,9 +2486,19 @@
       "sha256": "e828065ea2f6737ae45dc4f6568e01e57a1ab8f09a5d5599e4fd31cf19ccb75b"
     },
     {
-      "bytes": 8514,
+      "bytes": 1626,
+      "path": "tests/test_super_skill_documentation.py",
+      "sha256": "27bc3def3b5eccfc4e27963b53beb1e70f2db433501435f005d1760f10155138"
+    },
+    {
+      "bytes": 1807,
+      "path": "tests/test_super_skill_hardening.py",
+      "sha256": "0199f64ab5c1d34483998a2bc8ef47334a0e59473028d3588db9ff564e59926a"
+    },
+    {
+      "bytes": 8597,
       "path": "tests/test_super_skill_orchestration.py",
-      "sha256": "f3f6569b69c6a407ca4c07ef1cf9702a0758b544453290266b40ddc9a0af8795"
+      "sha256": "71771fe87820e3a3f4dbd3f95ed643464995d5e55daa5aa488a52c605ce90937"
     },
     {
       "bytes": 2872,
@@ -2656,9 +2676,9 @@
       "sha256": "1537697da71581bf47fe275c762f850b4cfa2b8dd10c103bcb1c8d6c2513a10b"
     },
     {
-      "bytes": 813,
+      "bytes": 939,
       "path": "tsao_computation/orchestration/__init__.py",
-      "sha256": "8ee77ab0d1e26e8febe071ee6b02a8b6fbbb57da148966ce0a03acaff526eeba"
+      "sha256": "36b339257f9cb8bd6053e476311fe4e2b7274fb5ff232d7aff65c783e0fc206f"
     },
     {
       "bytes": 4946,
@@ -2666,9 +2686,9 @@
       "sha256": "3a31e0d5872a958b005998b75a6dff40ef6f8d4bcc7f3b09b00a75773cf88197"
     },
     {
-      "bytes": 34015,
+      "bytes": 36385,
       "path": "tsao_computation/orchestration/planner.py",
-      "sha256": "66a0ecad42cd89f1d881af777c5c01cc67c88eaab38a94be108200083a530750"
+      "sha256": "20617f4aa6b9e47aa79bb9d8fa82a1f696c71fd89fbc34168f021f391f6885a8"
     },
     {
       "bytes": 250,
@@ -2711,9 +2731,9 @@
       "sha256": "311b9d379a2ebb2ca5a1fbbd07a12c429efe8cd16ae3b2c316ece60b924c42ac"
     },
     {
-      "bytes": 1408,
+      "bytes": 1500,
       "path": "tsao_computation/registries/loader.py",
-      "sha256": "5e6a053661fa742d4f467fe4e5238cead20089d434f67d4995a29b7f3754762a"
+      "sha256": "908d41ab7c08436a35ff43eacec4e61de9f68ce156afdac57b5c17a43e043503"
     },
     {
       "bytes": 13374,

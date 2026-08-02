@@ -64,6 +64,20 @@ Before preparing native inputs or accelerated execution, require or explicitly m
 
 Missing release-blocking information is a failure condition, not permission to guess.
 
+<!-- SUPER_SKILL_ORCHESTRATION:START -->
+## Super-skill orchestration API
+
+Use the unified API for method selection, external function/tool/Skill handoff, acceleration guidance or a complete evidence plan:
+
+- `python -m tsao_computation list methods`
+- `python -m tsao_computation list invocations`
+- `python -m tsao_computation plan <contract.json> --strict`
+- `python -m tsao_computation recommend-acceleration --method <method>`
+- `python -m tsao_computation invoke <trusted-target> --payload <payload.json> --execute`
+
+Only registered trusted repository-local callables may execute through this interface. Adapters, modules, CLI tools, APIs, containers, schedulers, commercial solvers and other Skills remain plan-only until availability, authorization, input/output contracts and evidence requirements are satisfied.
+<!-- SUPER_SKILL_ORCHESTRATION:END -->
+
 ## Execution procedure
 
 1. Create a bounded calculation contract and validate it strictly.

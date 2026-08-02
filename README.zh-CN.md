@@ -38,6 +38,28 @@ TsaoSciComputation 将科学问题转化为可追溯的计算程序：显式定�
 
 它是**科学计算编排与治理层**，不打包、再分发、解锁或冒充外部求解器、许可证、数据库、基组、赝势、私有数据及生产级 HPC 基础设施。
 
+<!-- SUPER_SKILL_ORCHESTRATION:START -->
+## 科学计算超级 Skill
+
+TsaoSciComputation 同时具备“强科学计算 Skill”和“缺项拒绝推进的中介编排平台”两种角色：提供 **23 类计算方法**、**9 类调用方式**、**7 个可信本地科学函数**、**27 个外部适配器**、**20 条治理工作流**、**13 类加速策略**以及完整的 **9 阶段编排计划**。
+
+| 调用模式 | 默认行为 |
+|---|---|
+| 已注册可信 Python 函数 | 可在校验输入后本地执行，并记录耗时及请求/结果哈希 |
+| 外部适配器或商业求解器 | 默认只探测和生成命令计划；执行仍需独立授权 |
+| Python 模块、CLI、API、容器、调度任务或其他 Skill | 在提供运行时、身份、授权和证据策略前，只生成声明式计划或 handoff |
+
+```bash
+python -m tsao_computation list methods
+python -m tsao_computation list invocations
+python -m tsao_computation plan templates/calculation-contract.json --strict
+python -m tsao_computation recommend-acceleration --method finite-element
+python -m tsao_computation invoke balance-check --payload balance.json --execute
+```
+
+加速建议覆盖算法、内存、后端、执行方式和降阶模型；只有隔离机器证据明确标注实测时，才会表述为实测加速。详见 [`docs/orchestration.md`](docs/orchestration.md) 与 [`reports/ULTIMATE_COMPUTATION_SUPER_SKILL_AUDIT.json`](reports/ULTIMATE_COMPUTATION_SUPER_SKILL_AUDIT.json)。
+<!-- SUPER_SKILL_ORCHESTRATION:END -->
+
 ## 科研能力图谱
 
 首屏只展示两幅紧凑架构总览图；详细工作流、闭环和风险图采用全宽显示，并按领域折叠，减少滚动负担，同时保留全部 42 幅图的可发现性。
@@ -201,15 +223,15 @@ python scripts/verify_all.py --profile benchmark
 ### 当前 `main` 验证状态
 
 <!-- CURRENT_MAIN_VERIFICATION:START -->
-已于 `2026-08-02T06:16:01.127780+00:00` 由确定性终验运行 `30735557078` 完成验证。
+已于 `2026-08-02T07:11:43.608569+00:00` 由确定性终验运行 `30737299629` 完成验证。
 
 | 当前主线项目 | 结果 |
 |---|---:|
 | 版本 | 3.0.2 |
 | 能力 / 适配器 / 工作流 | 164 / 27 / 20 |
-| 自动测试 | 690 通过，0 失败 |
-| 语句 / 分支覆盖率 | 97.61% / 93.80% |
-| Windows core | Python 3.10 与 3.13；最终结果记录于 Issue #52 |
+| 自动测试 | 704 通过，0 失败 |
+| 语句 / 分支覆盖率 | 97.30% / 92.66% |
+| Windows core | Python 3.10 与 3.13；最终结果记录于 Issue #53 |
 | 受控变异探针 | 64/64 被识别 |
 | 科学参考基准 | 8/8 通过 |
 | 仓库 / 依赖安全发现 | 0 / 0 |
@@ -218,7 +240,7 @@ python scripts/verify_all.py --profile benchmark
 | 科研视觉资产 | 42 幅自包含 SVG |
 | 远程分支 | 仅 `main` |
 
-V11-math-performance 最终提交只有在 [Issue #52](../../issues/52) 记录 Ubuntu/Windows/macOS × Python 3.10/3.13 正式 CI 成功后才被接受。机器可读证据：[`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json)。
+ultimate-computation-super-skill 最终提交只有在 [Issue #53](../../issues/53) 记录 Ubuntu/Windows/macOS × Python 3.10/3.13 正式 CI 成功后才被接受。机器可读证据：[`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json)。
 <!-- CURRENT_MAIN_VERIFICATION:END -->
 
 ### v3.0.2 已验证发布基线
