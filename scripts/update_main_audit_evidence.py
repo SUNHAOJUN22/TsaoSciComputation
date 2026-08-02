@@ -65,13 +65,6 @@ def _safe_report_path(root: Path, report_path: Path) -> Path:
     return resolved
 
 
-def _current_version(root: Path) -> str:
-    version = (root / "VERSION").read_text(encoding="utf-8").strip()
-    if not re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+(?:[A-Za-z0-9.-]+)?", version):
-        raise ValueError(f"invalid VERSION value: {version!r}")
-    return version
-
-
 def update_evidence(
     *,
     root: Path,
@@ -96,7 +89,6 @@ def update_evidence(
     if not re.fullmatch(r"[A-Za-z0-9._-]+", audit_label):
         raise ValueError("audit label contains unsupported characters")
 
-    version = _current_version(root)
     passed = _passed_tests(test_log)
     coverage = cast(dict[str, Any], _read_json(coverage_json))
     totals = cast(dict[str, Any], coverage["totals"])
@@ -136,7 +128,6 @@ def update_evidence(
             "tests": {"failed": 0, "passed": passed},
             "ultimate_audit_issue": issue_number,
             "verified_at_utc": verified_at,
-            "version": version,
             "visual_atlas_version": visual_atlas_version,
         }
     )
@@ -152,15 +143,10 @@ def update_evidence(
         "status": "PASS_MAIN_ONLY",
     }
     evidence["cross_platform_core"] = {
-        "os": ["ubuntu-latest", "windows-latest"],
+        "os": ["ubuntu-latest", "windows-latest", "macos-latest"],
         "python": ["3.10", "3.13"],
         "evidence": f"GitHub Issue #{issue_number} closing comment",
         "status": "POST_COMMIT_EVIDENCE",
-    }
-    evidence["supported_platforms"] = {
-        "windows": "core",
-        "linux": "compatible",
-        "macos": "not supported or release-qualified",
     }
     evidence.pop("windows_python_310_core", None)
     evidence.pop("windows_python_313_core", None)
@@ -184,12 +170,11 @@ def update_evidence(
 
         | Current-main item | Result |
         |---|---:|
-        | Version | {version} |
+        | Version | {evidence["version"]} |
         | Capabilities / adapters / workflows | 164 / 27 / 20 |
         | Tests | {passed} passed, 0 failed |
         | Statement / branch coverage | {statement:.2f}% / {branch:.2f}% |
         | Windows core | Python 3.10 and 3.13; final result recorded in Issue #{issue_number} |
-        | Linux compatibility | Ubuntu validation; final result recorded in Issue #{issue_number} |
         | Controlled mutation probes | 64/64 killed |
         | Scientific reference benchmarks | 8/8 passed |
         | Repository / dependency findings | {len(findings)} / {vulnerability_count} |
@@ -198,7 +183,7 @@ def update_evidence(
         | Scientific visual assets | {visual_count} self-contained SVGs |
         | Remote branches | `main` only |
 
-        The final {audit_label} commit is accepted only after canonical Ubuntu/Windows × Python 3.10/3.13 CI is recorded in [Issue #{issue_number}](../../issues/{issue_number}). Machine-readable evidence: [`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json).
+        The final {audit_label} commit is accepted only after canonical Ubuntu/Windows/macOS × Python 3.10/3.13 CI is recorded in [Issue #{issue_number}](../../issues/{issue_number}). Machine-readable evidence: [`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json).
         <!-- CURRENT_MAIN_VERIFICATION:END -->
         """
     ).strip()
@@ -209,12 +194,11 @@ def update_evidence(
 
         | 当前主线项目 | 结果 |
         |---|---:|
-        | 版本 | {version} |
+        | 版本 | {evidence["version"]} |
         | 能力 / 适配器 / 工作流 | 164 / 27 / 20 |
         | 自动测试 | {passed} 通过，0 失败 |
         | 语句 / 分支覆盖率 | {statement:.2f}% / {branch:.2f}% |
-        | Windows 核心支持 | Python 3.10 与 3.13；最终结果记录于 Issue #{issue_number} |
-        | Linux 兼容支持 | Ubuntu 验证；最终结果记录于 Issue #{issue_number} |
+        | Windows core | Python 3.10 与 3.13；最终结果记录于 Issue #{issue_number} |
         | 受控变异探针 | 64/64 被识别 |
         | 科学参考基准 | 8/8 通过 |
         | 仓库 / 依赖安全发现 | {len(findings)} / {vulnerability_count} |
@@ -223,7 +207,7 @@ def update_evidence(
         | 科研视觉资产 | {visual_count} 幅自包含 SVG |
         | 远程分支 | 仅 `main` |
 
-        {audit_label} 最终提交只有在 [Issue #{issue_number}](../../issues/{issue_number}) 记录 Ubuntu/Windows × Python 3.10/3.13 正式 CI 成功后才被接受。机器可读证据：[`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json)。
+        {audit_label} 最终提交只有在 [Issue #{issue_number}](../../issues/{issue_number}) 记录 Ubuntu/Windows/macOS × Python 3.10/3.13 正式 CI 成功后才被接受。机器可读证据：[`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json)。
         <!-- CURRENT_MAIN_VERIFICATION:END -->
         """
     ).strip()
@@ -237,8 +221,7 @@ def update_evidence(
         - Repository: `SUNHAOJUN22/TsaoSciComputation`
         - Issue: `#{issue_number}`
         - Branch policy: `main` only; no branch or pull request created
-        - Version: `{version}`
-        - Supported platforms: Windows core; Linux compatible
+        - Version: `{evidence["version"]}`
         - Deterministic finalization run: `{run_id}`
         - Tests: `{passed} passed, 0 failed`
         - Coverage: `{statement:.2f}%` statement / `{branch:.2f}%` branch
