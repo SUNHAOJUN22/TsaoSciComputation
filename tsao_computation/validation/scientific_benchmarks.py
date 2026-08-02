@@ -100,15 +100,15 @@ def poiseuille_flow() -> BenchmarkResult:
     radius, pressure_drop, viscosity, length = 0.01, 100.0, 1.0e-3, 1.0
     intervals = 4000
     dr = radius / intervals
-
-    def velocity(radial_position: float) -> float:
-        return pressure_drop * (radius**2 - radial_position**2) / (4.0 * viscosity * length)
+    velocity_scale = pressure_drop / (4.0 * viscosity * length)
+    radius_squared = radius * radius
 
     integral = 0.0
     for index in range(intervals + 1):
         radial_position = index * dr
         weight = 0.5 if index in (0, intervals) else 1.0
-        integral += weight * velocity(radial_position) * radial_position
+        velocity = velocity_scale * (radius_squared - radial_position * radial_position)
+        integral += weight * velocity * radial_position
     numerical_flow = 2.0 * math.pi * integral * dr
     analytical_flow = math.pi * pressure_drop * radius**4 / (8.0 * viscosity * length)
     return assess(
@@ -140,16 +140,15 @@ def pfr_first_order() -> BenchmarkResult:
     rate_constant, residence_time, steps = 0.7, 2.0, 1000
     step = residence_time / steps
     concentration = 1.0
-
-    def derivative(value: float) -> float:
-        return -rate_constant * value
+    half_step = 0.5 * step
+    sixth_step = step / 6.0
 
     for _ in range(steps):
-        k1 = derivative(concentration)
-        k2 = derivative(concentration + 0.5 * step * k1)
-        k3 = derivative(concentration + 0.5 * step * k2)
-        k4 = derivative(concentration + step * k3)
-        concentration += step * (k1 + 2.0 * k2 + 2.0 * k3 + k4) / 6.0
+        k1 = -rate_constant * concentration
+        k2 = -rate_constant * (concentration + half_step * k1)
+        k3 = -rate_constant * (concentration + half_step * k2)
+        k4 = -rate_constant * (concentration + step * k3)
+        concentration += sixth_step * (k1 + 2.0 * k2 + 2.0 * k3 + k4)
     return assess(
         "pfr-first-order-rk4",
         "reaction-engineering",
@@ -164,10 +163,12 @@ def harmonic_oscillator() -> BenchmarkResult:
     time_step, steps = 0.002, 5000
     position, velocity, acceleration = 1.0, 0.0, -1.0
     initial_energy, maximum_drift = 0.5, 0.0
+    half_time_step = 0.5 * time_step
+    half_time_step_squared = half_time_step * time_step
     for _ in range(steps):
-        position += velocity * time_step + 0.5 * acceleration * time_step**2
+        position += velocity * time_step + acceleration * half_time_step_squared
         next_acceleration = -position
-        velocity += 0.5 * (acceleration + next_acceleration) * time_step
+        velocity += (acceleration + next_acceleration) * half_time_step
         acceleration = next_acceleration
         energy = 0.5 * (position**2 + velocity**2)
         maximum_drift = max(maximum_drift, abs(energy - initial_energy) / initial_energy)
