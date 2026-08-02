@@ -201,15 +201,15 @@ python scripts/verify_all.py --profile benchmark
 ### Current `main` verification
 
 <!-- CURRENT_MAIN_VERIFICATION:START -->
-Validated on `2026-08-01T18:03:21.268828+00:00` by deterministic finalization run `30711632952`.
+Validated on `2026-08-02T06:16:01.127780+00:00` by deterministic finalization run `30735557078`.
 
 | Current-main item | Result |
 |---|---:|
 | Version | 3.0.2 |
 | Capabilities / adapters / workflows | 164 / 27 / 20 |
-| Tests | 687 passed, 0 failed |
-| Statement / branch coverage | 97.60% / 93.80% |
-| Windows core | Python 3.10 and 3.13; final result recorded in Issue #48 |
+| Tests | 690 passed, 0 failed |
+| Statement / branch coverage | 97.61% / 93.80% |
+| Windows core | Python 3.10 and 3.13; final result recorded in Issue #52 |
 | Controlled mutation probes | 64/64 killed |
 | Scientific reference benchmarks | 8/8 passed |
 | Repository / dependency findings | 0 / 0 |
@@ -218,7 +218,7 @@ Validated on `2026-08-01T18:03:21.268828+00:00` by deterministic finalization ru
 | Scientific visual assets | 42 self-contained SVGs |
 | Remote branches | `main` only |
 
-The final V10-math-performance commit is accepted only after canonical Ubuntu/Windows/macOS × Python 3.10/3.13 CI is recorded in [Issue #48](../../issues/48). Machine-readable evidence: [`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json).
+The final V11-math-performance commit is accepted only after canonical Ubuntu/Windows/macOS × Python 3.10/3.13 CI is recorded in [Issue #52](../../issues/52). Machine-readable evidence: [`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json).
 <!-- CURRENT_MAIN_VERIFICATION:END -->
 
 ### v3.0.2 verified release baseline
@@ -277,3 +277,13 @@ Isolated same-host results versus the previously certified main: repeated accele
 
 Machine evidence: [`reports/MATH_PERFORMANCE_AUDIT_V10.json`](reports/MATH_PERFORMANCE_AUDIT_V10.json).
 <!-- MATH_PERFORMANCE_V10:END -->
+
+<!-- MATH_PERFORMANCE_V11:START -->
+### Mathematical correctness and performance V11
+
+A second-pass audit cached static acceleration-profile parsing, normalized semantically equivalent routing cache keys, and hoisted invariant arithmetic from the deterministic Poiseuille, RK4 and velocity-Verlet benchmark loops. Numerical methods, tolerances and scientific acceptance remain unchanged.
+
+Isolated same-host results versus V10: pre-parsed acceleration planning **1.09×**, semantic route variants **184.03×**, and the eight-benchmark suite **1.37×**. Equivalent route inputs use **1** cached decision instead of **256** entries. Mapping planning, parser, convergence and uncertainty kernels remained within no-material-regression limits. These figures cover repository-local Python kernels only.
+
+Machine evidence: [`reports/MATH_PERFORMANCE_AUDIT_V11.json`](reports/MATH_PERFORMANCE_AUDIT_V11.json).
+<!-- MATH_PERFORMANCE_V11:END -->

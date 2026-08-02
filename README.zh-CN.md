@@ -201,15 +201,15 @@ python scripts/verify_all.py --profile benchmark
 ### 当前 `main` 验证状态
 
 <!-- CURRENT_MAIN_VERIFICATION:START -->
-已于 `2026-08-01T18:03:21.268828+00:00` 由确定性终验运行 `30711632952` 完成验证。
+已于 `2026-08-02T06:16:01.127780+00:00` 由确定性终验运行 `30735557078` 完成验证。
 
 | 当前主线项目 | 结果 |
 |---|---:|
 | 版本 | 3.0.2 |
 | 能力 / 适配器 / 工作流 | 164 / 27 / 20 |
-| 自动测试 | 687 通过，0 失败 |
-| 语句 / 分支覆盖率 | 97.60% / 93.80% |
-| Windows core | Python 3.10 与 3.13；最终结果记录于 Issue #48 |
+| 自动测试 | 690 通过，0 失败 |
+| 语句 / 分支覆盖率 | 97.61% / 93.80% |
+| Windows core | Python 3.10 与 3.13；最终结果记录于 Issue #52 |
 | 受控变异探针 | 64/64 被识别 |
 | 科学参考基准 | 8/8 通过 |
 | 仓库 / 依赖安全发现 | 0 / 0 |
@@ -218,7 +218,7 @@ python scripts/verify_all.py --profile benchmark
 | 科研视觉资产 | 42 幅自包含 SVG |
 | 远程分支 | 仅 `main` |
 
-V10-math-performance 最终提交只有在 [Issue #48](../../issues/48) 记录 Ubuntu/Windows/macOS × Python 3.10/3.13 正式 CI 成功后才被接受。机器可读证据：[`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json)。
+V11-math-performance 最终提交只有在 [Issue #52](../../issues/52) 记录 Ubuntu/Windows/macOS × Python 3.10/3.13 正式 CI 成功后才被接受。机器可读证据：[`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json)。
 <!-- CURRENT_MAIN_VERIFICATION:END -->
 
 ### v3.0.2 已验证发布基线
@@ -277,3 +277,13 @@ completed ≠ parsed ≠ converged ≠ validated ≠ accepted
 
 机器证据：[`reports/MATH_PERFORMANCE_AUDIT_V10.json`](reports/MATH_PERFORMANCE_AUDIT_V10.json)。
 <!-- MATH_PERFORMANCE_V10:END -->
+
+<!-- MATH_PERFORMANCE_V11:START -->
+### 数理正确性与性能 V11
+
+第二轮审计缓存了静态加速配置解析，统一了语义等价问题的路由缓存键，并将 Poiseuille、RK4 与 velocity-Verlet 确定性基准循环中的不变量移出热点循环。数值方法、容差和科学验收标准均未改变。
+
+相对于 V10 的隔离同机结果：预解析请求的加速规划 **1.09×**、语义等价路由输入 **184.03×**、8 项科学基准套件 **1.37×**。等价路由输入由 **256** 个缓存条目收敛为 **1** 个。映射式规划、解析器、收敛判定与不确定度内核均满足无实质回退门槛。上述结果仅针对仓库内 Python 内核。
+
+机器证据：[`reports/MATH_PERFORMANCE_AUDIT_V11.json`](reports/MATH_PERFORMANCE_AUDIT_V11.json)。
+<!-- MATH_PERFORMANCE_V11:END -->
