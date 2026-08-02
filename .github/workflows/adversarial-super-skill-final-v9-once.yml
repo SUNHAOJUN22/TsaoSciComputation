@@ -1,0 +1,275 @@
+name: Corrected candidate tree adversarial computation V9
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  actions: write
+  contents: write
+  issues: write
+
+concurrency:
+  group: adversarial-computation-final-v9-main
+  cancel-in-progress: false
+
+env:
+  GH_TOKEN: ${{ github.token }}
+  PIP_DISABLE_PIP_VERSION_CHECK: '1'
+  TSAO_COVERAGE_JSON: /tmp/adversarial-final-v9-coverage.json
+  AUDIT_ISSUE: '61'
+  CANDIDATE_SHA: 'b2156e7130a285e32e3f0bbbfb509d1109be5ba3'
+  CLEAN_BASELINE_SHA: '72482555ccf2b7008b9fb7a1a891f8531fe1632b'
+
+jobs:
+  certify:
+    if: ${{ github.event.issue.title == 'ADVERSARIAL_COMPUTATION_SUPER_SKILL_FINAL_V9' && github.event.issue.user.login == github.repository_owner }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+          cache: pip
+
+      - name: Materialize validated candidate with current formal workflows
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          ORIGINAL_SHA="$(git rev-parse HEAD)"
+          echo "ORIGINAL_SHA=$ORIGINAL_SHA" >> "$GITHUB_ENV"
+          echo "FINAL_PUSHED=false" >> "$GITHUB_ENV"
+          echo materialize > /tmp/adversarial-final-v9-stage
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git read-tree --reset -u "$CANDIDATE_SHA"
+          git checkout "$ORIGINAL_SHA" -- \
+            .github/workflows/ci.yml \
+            .github/workflows/codeql.yml \
+            .github/workflows/dependency-audit.yml \
+            .github/workflows/release.yml \
+            .github/workflows/scorecard.yml
+          git clean -fd
+          test ! -e .github/workflows/adversarial-super-skill-final-v9-once.yml
+          test ! -e scripts/patch_phase_b2_ci_idempotence.py
+          test ! -e scripts/apply_adversarial_super_skill_phase_b2.py
+
+      - name: Run complete deterministic security dependency and package gates
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo complete-gates > /tmp/adversarial-final-v9-stage
+          python -m pip install -e '.[validation,quality,security]'
+          python -m ruff check tsao_computation scripts tests _bootstrap.py
+          python -m ruff format --check tsao_computation scripts tests _bootstrap.py
+          python -m mypy --python-version 3.13 tsao_computation scripts
+          python -m bandit -q -r tsao_computation scripts -x tests
+          python -m pytest -q \
+            tests/test_adversarial_audit_evidence.py \
+            tests/test_verify_all_timing_evidence.py \
+            tests/test_supported_platform_policy.py \
+            tests/test_super_skill_documentation.py \
+            tests/test_verify_all.py \
+            tests/test_version_metadata.py \
+            tests/test_update_main_audit_evidence.py \
+            tests/test_adversarial_super_skill_phase_a.py \
+            tests/test_adversarial_phase_a_coverage.py \
+            tests/test_adversarial_acceleration_contract.py
+          python scripts/run_tests.py --coverage | tee /tmp/adversarial-final-v9-tests.log
+          python scripts/verify_all.py --profile all --timing-json /tmp/adversarial-final-v9-all.json
+          python scripts/verify_all.py --profile benchmark --timing-json /tmp/adversarial-final-v9-benchmark.json
+          python scripts/verify_native_core.py > /tmp/adversarial-final-v9-native.json
+          python scripts/security_scan.py
+          python -m pip_audit --local --skip-editable --progress-spinner=off --format=json --output /tmp/adversarial-final-v9-dependencies.json
+          rm -rf /tmp/adversarial-final-v9-build /tmp/adversarial-final-v9-venv
+          python -m build --outdir /tmp/adversarial-final-v9-build
+          python -m venv /tmp/adversarial-final-v9-venv
+          /tmp/adversarial-final-v9-venv/bin/python -m pip install --no-deps /tmp/adversarial-final-v9-build/*.whl
+          /tmp/adversarial-final-v9-venv/bin/python -c 'import tsao_computation; assert tsao_computation.__version__ == "3.0.3"'
+          python -m pytest -q | tee /tmp/adversarial-final-v9-pytest.log
+          git ls-remote --heads origin | sort > /tmp/adversarial-final-v9-heads.txt
+          test "$(awk '{print $2}' /tmp/adversarial-final-v9-heads.txt | sed 's#refs/heads/##' | paste -sd ' ' -)" = main
+
+      - name: Refresh and revalidate machine evidence
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo evidence > /tmp/adversarial-final-v9-stage
+          python scripts/build_super_skill_audit.py \
+            --test-log /tmp/adversarial-final-v9-pytest.log \
+            --coverage-json /tmp/adversarial-final-v9-coverage.json \
+            --dependency-json /tmp/adversarial-final-v9-dependencies.json \
+            --security-json evidence/security-scan.json \
+            --verification-json /tmp/adversarial-final-v9-all.json
+          python scripts/update_main_audit_evidence.py \
+            --root . \
+            --run-id "$GITHUB_RUN_ID" \
+            --issue "$AUDIT_ISSUE" \
+            --test-log /tmp/adversarial-final-v9-pytest.log \
+            --coverage-json /tmp/adversarial-final-v9-coverage.json \
+            --dependency-json /tmp/adversarial-final-v9-dependencies.json \
+            --security-json evidence/security-scan.json \
+            --remote-heads /tmp/adversarial-final-v9-heads.txt \
+            --parent-commit "$ORIGINAL_SHA" \
+            --audit-generation adversarial-computation-super-skill-v9 \
+            --audit-label adversarial-computation-super-skill \
+            --visual-count 42 \
+            --visual-atlas-version 13 \
+            --report-path reports/ADVERSARIAL_COMPUTATION_SUPER_SKILL_AUDIT.md \
+            --visual-families 'Electronic structure and molecular simulation; materials and interfaces; continuum and process engineering; evidence governance and HPC.'
+          python scripts/sync_version_metadata.py --release-date 2026-08-02
+          python scripts/security_scan.py
+          python scripts/build_manifest.py
+          python -m pytest -q \
+            tests/test_supported_platform_policy.py \
+            tests/test_version_metadata.py \
+            tests/test_update_main_audit_evidence.py
+
+      - name: Validate exact final tree
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo exact-tree > /tmp/adversarial-final-v9-stage
+          python -m ruff check tsao_computation scripts tests _bootstrap.py
+          python -m ruff format --check tsao_computation scripts tests _bootstrap.py
+          python -m mypy --python-version 3.13 tsao_computation scripts
+          python -m bandit -q -r tsao_computation scripts -x tests
+          python -m pytest -q
+          python scripts/sync_version_metadata.py --check
+          python scripts/build_manifest.py --check
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          audit = json.loads(Path('reports/ULTIMATE_COMPUTATION_SUPER_SKILL_AUDIT.json').read_text())
+          current = json.loads(Path('reports/CURRENT_MAIN_VERIFICATION.json').read_text())
+          assert audit['status'] == 'VALIDATED'
+          assert audit['version'] == '3.0.3'
+          assert audit['validation_missing_evidence'] == []
+          assert audit['validation_failures'] == []
+          assert audit['quality']['tests_failed'] == 0
+          assert audit['quality']['dependency_vulnerabilities'] == 0
+          assert audit['quality']['repository_security_findings'] == 0
+          assert audit['quality']['source_and_wheel_reproducible'] is True
+          assert audit['quality']['verification_profile_passed'] is True
+          assert audit['execution_policy']['external_process_execution_requires_hash_bound_authorization'] is True
+          assert audit['supported_platforms']['windows'] == 'core'
+          assert audit['supported_platforms']['linux'] == 'compatible'
+          assert audit['supported_platforms']['macos'] == 'not supported or release-qualified'
+          assert current['version'] == '3.0.3'
+          assert current['cross_platform_core']['os'] == ['ubuntu-latest', 'windows-latest']
+          assert current['supported_platforms']['windows'] == 'core'
+          assert current['supported_platforms']['linux'] == 'compatible'
+          assert current['supported_platforms']['macos'] == 'not supported or release-qualified'
+          for relative in ('SKILL.md', 'README.md', 'README.zh-CN.md', 'docs/release.md'):
+              assert 'macOS' not in Path(relative).read_text(encoding='utf-8')
+          assert '  version: "3.0.3"' in Path('SKILL.md').read_text(encoding='utf-8')
+          PY
+          mapfile -t workflow_files < <(find .github/workflows -maxdepth 1 -type f -name '*.yml' -printf '%f\n' | sort)
+          expected=(ci.yml codeql.yml dependency-audit.yml release.yml scorecard.yml)
+          test "${workflow_files[*]}" = "${expected[*]}"
+          test "$(git ls-remote --heads origin | awk '{print $2}' | sed 's#refs/heads/##' | paste -sd ' ' -)" = main
+          grep -q 'publish_results: false' .github/workflows/scorecard.yml
+          test -z "$(git diff --name-only "$ORIGINAL_SHA" -- .github/workflows)"
+
+      - name: Commit exact final tree directly to main
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo commit > /tmp/adversarial-final-v9-stage
+          test "$(git ls-remote origin refs/heads/main | awk '{print $1}')" = "$ORIGINAL_SHA"
+          git add -A
+          git commit -m 'Strengthen ultimate scientific computation super-skill'
+          git push origin HEAD:refs/heads/main
+          FINAL_SHA="$(git rev-parse HEAD)"
+          echo "FINAL_SHA=$FINAL_SHA" >> "$GITHUB_ENV"
+          echo "FINAL_PUSHED=true" >> "$GITHUB_ENV"
+
+      - name: Require exact-final production workflows
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo production-ci > /tmp/adversarial-final-v9-stage
+          test "$(git ls-remote origin refs/heads/main | awk '{print $1}')" = "$FINAL_SHA"
+          gh workflow run ci.yml --ref main
+          gh workflow run codeql.yml --ref main
+          gh workflow run scorecard.yml --ref main
+          : > /tmp/adversarial-final-v9-production-runs.txt
+          wait_for_workflow() {
+            local workflow="$1"
+            local line status conclusion url
+            for _ in $(seq 1 180); do
+              line="$(gh run list --repo "$GITHUB_REPOSITORY" --workflow "$workflow" --branch main --event workflow_dispatch --limit 20 --json headSha,status,conclusion,url --jq ".[] | select(.headSha == \"$FINAL_SHA\") | [.status,.conclusion,.url] | @tsv" | head -n 1)"
+              if [[ -n "$line" ]]; then
+                IFS=$'\t' read -r status conclusion url <<< "$line"
+                if [[ "$status" == completed ]]; then
+                  [[ "$conclusion" == success ]]
+                  printf '%s: %s\n' "$workflow" "$url" >> /tmp/adversarial-final-v9-production-runs.txt
+                  return
+                fi
+              fi
+              sleep 10
+            done
+            return 1
+          }
+          wait_for_workflow ci.yml
+          wait_for_workflow codeql.yml
+          wait_for_workflow scorecard.yml
+
+      - name: Close successful audit
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          runs="$(cat /tmp/adversarial-final-v9-production-runs.txt)"
+          metrics="$(python - <<'PY'
+          import json
+          from pathlib import Path
+
+          audit = json.loads(Path('reports/ULTIMATE_COMPUTATION_SUPER_SKILL_AUDIT.json').read_text())
+          architecture = audit['architecture']
+          quality = audit['quality']
+          print(
+              f"version={audit['version']}; methods={architecture['methods']}; "
+              f"invocation-targets={architecture['invocation_targets']}; "
+              f"trusted-callables={architecture['trusted_local_callables']}; "
+              f"adapters={architecture['adapters']}; workflows={architecture['workflows']}; "
+              f"acceleration-strategies={architecture['acceleration_strategies']}; "
+              f"tests={quality['tests_passed']}; "
+              f"statement-coverage={quality['statement_coverage_percent']:.2f}%; "
+              f"branch-coverage={quality['branch_coverage_percent']:.2f}%"
+          )
+          PY
+          )"
+          gh issue close "$AUDIT_ISSUE" --repo "$GITHUB_REPOSITORY" --reason completed \
+            --comment "Adversarial scientific computation super-skill audit passed on commit \`$FINAL_SHA\`. $metrics. External execution is hash-authorized/default-deny; acceleration requests are fully bound; version and current-main evidence writers are platform-aware and idempotent; Windows is core and Linux compatible. Scorecard analysis and SARIF remain enabled while external result publication is non-blocking. All deterministic, benchmark, security, dependency, reproducible source/Wheel, Manifest and main-only gates passed. Production workflows:\n$runs\nNo branch or pull request was created."
+          gh issue close "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --reason completed \
+            --comment "Final V9 certification completed at \`$FINAL_SHA\`. Authoritative evidence is in Issue #$AUDIT_ISSUE."
+
+      - name: Fail closed to Scorecard-governed baseline
+        if: ${{ failure() }}
+        shell: bash
+        run: |
+          set +e
+          stage="$(cat /tmp/adversarial-final-v9-stage 2>/dev/null || echo unknown)"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git fetch origin main
+          git reset --hard origin/main
+          git read-tree --reset -u "$CLEAN_BASELINE_SHA"
+          git clean -fd
+          python scripts/security_scan.py || true
+          python scripts/build_manifest.py || true
+          git add -A
+          git commit -m "Restore Scorecard-governed baseline at $stage" || true
+          git push origin HEAD:refs/heads/main || true
+          gh issue comment "$AUDIT_ISSUE" --repo "$GITHUB_REPOSITORY" \
+            --body "Final V9 certification failed closed at stage: $stage. Actions run: $GITHUB_RUN_ID. The tree was restored to Scorecard-governed baseline $CLEAN_BASELINE_SHA. No branch or PR was created." || true
+          gh issue close "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --reason "not planned" \
+            --comment "Fail-closed at stage: $stage. See audit Issue #$AUDIT_ISSUE." || true
+          exit 1
