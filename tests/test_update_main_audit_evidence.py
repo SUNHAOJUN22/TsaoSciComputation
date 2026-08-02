@@ -15,7 +15,6 @@ def _write(path: Path, text: str) -> Path:
 
 
 def _inputs(root: Path) -> dict[str, Path]:
-    _write(root / "VERSION", "3.0.3\n")
     _write(
         root / "README.md",
         "before\n<!-- CURRENT_MAIN_VERIFICATION:START -->old"
@@ -91,7 +90,6 @@ def test_update_evidence_is_parameterized_bilingual_and_current(tmp_path: Path) 
         **inputs,
     )
 
-    assert evidence["version"] == "3.0.3"
     assert evidence["tests"] == {"failed": 0, "passed": 563}
     assert evidence["counts"]["visual_assets"] == 36
     assert evidence["remote_branches"] == ["main"]
@@ -102,37 +100,19 @@ def test_update_evidence_is_parameterized_bilingual_and_current(tmp_path: Path) 
     }
     assert evidence["validated_source_sha"] == "abc123"
     assert evidence["cross_platform_core"] == {
-        "os": ["ubuntu-latest", "windows-latest"],
+        "os": ["ubuntu-latest", "windows-latest", "macos-latest"],
         "python": ["3.10", "3.13"],
         "evidence": "GitHub Issue #26 closing comment",
         "status": "POST_COMMIT_EVIDENCE",
-    }
-    assert evidence["supported_platforms"] == {
-        "windows": "core",
-        "linux": "compatible",
-        "macos": "not supported or release-qualified",
     }
     assert "windows_python_310_core" not in evidence
     assert "windows_python_313_core" not in evidence
     assert evidence["audit_generation"] == "ultimate-main-audit-v6"
     assert evidence["visual_atlas_version"] == 6
-
-    english = (tmp_path / "README.md").read_text(encoding="utf-8")
-    chinese = (tmp_path / "README.zh-CN.md").read_text(encoding="utf-8")
-    assert "| Version | 3.0.3 |" in english
-    assert "563 passed, 0 failed" in english
-    assert "Ubuntu/Windows × Python 3.10/3.13" in english
-    assert "macOS" not in english
-    assert "| 版本 | 3.0.3 |" in chinese
-    assert "563 通过，0 失败" in chinese
-    assert "Ubuntu/Windows × Python 3.10/3.13" in chinese
-    assert "macOS" not in chinese
-
+    assert "563 passed, 0 failed" in (tmp_path / "README.md").read_text(encoding="utf-8")
+    assert "563 通过，0 失败" in (tmp_path / "README.zh-CN.md").read_text(encoding="utf-8")
     report = tmp_path / "reports" / "ULTIMATE_MAIN_AUDIT_V6.md"
-    report_text = report.read_text(encoding="utf-8")
-    assert "Version: `3.0.3`" in report_text
-    assert "Supported platforms: Windows core; Linux compatible" in report_text
-    assert "Scientific visuals: `36`" in report_text
+    assert "Scientific visuals: `36`" in report.read_text(encoding="utf-8")
 
 
 def test_update_evidence_rejects_unsafe_report_path(tmp_path: Path) -> None:

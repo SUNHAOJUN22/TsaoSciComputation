@@ -1,10 +1,10 @@
 {
-  "audit_generation": "adversarial-computation-super-skill-v7",
+  "audit_generation": "ultimate-computation-super-skill-v1",
   "branch": "main",
   "canonical_checkout_lf": true,
-  "canonical_ci_evidence": "The accepted final-commit CI run is recorded in the closing comment of GitHub Issue #61.",
+  "canonical_ci_evidence": "The accepted final-commit CI run is recorded in the closing comment of GitHub Issue #53.",
   "canonical_generated_text_lf": true,
-  "canonical_text_parent_commit": "b38fc35c6fda4364c3b7e9f49ef4e4602dc08316",
+  "canonical_text_parent_commit": "68f1b808093937b822c49bbd9aec60afd6ba2bab",
   "claim_boundary": "Validated for repository orchestration, contracts, routing, deterministic fixtures, packaging, documentation and cross-platform CI. No live third-party solver or production HPC execution is claimed.",
   "controlled_mutants": "64/64",
   "counts": {
@@ -14,14 +14,15 @@
     "workflows": 20
   },
   "coverage": {
-    "branch_percent": 91.26506024096386,
-    "statement_percent": 96.845694799659
+    "branch_percent": 92.66211604095564,
+    "statement_percent": 97.29860106126387
   },
   "cross_platform_core": {
-    "evidence": "GitHub Issue #61 closing comment",
+    "evidence": "GitHub Issue #53 closing comment",
     "os": [
       "ubuntu-latest",
-      "windows-latest"
+      "windows-latest",
+      "macos-latest"
     ],
     "python": [
       "3.10",
@@ -31,7 +32,7 @@
   },
   "cross_platform_manifest_stability": "PASS",
   "dependency_vulnerabilities": 0,
-  "deterministic_finalization_run_id": 30755520232,
+  "deterministic_finalization_run_id": 30737299629,
   "performance_audit": {
     "acceptance": {
       "cli_no_material_regression": true,
@@ -114,20 +115,15 @@
   },
   "source_archives_reproducible": true,
   "status": "VALIDATED",
-  "supported_platforms": {
-    "linux": "compatible",
-    "macos": "not supported or release-qualified",
-    "windows": "core"
-  },
   "temporary_branch_created": false,
   "tests": {
     "failed": 0,
-    "passed": 747
+    "passed": 704
   },
-  "ultimate_audit_issue": 61,
-  "validated_source_sha": "b38fc35c6fda4364c3b7e9f49ef4e4602dc08316",
-  "verified_at_utc": "2026-08-02T15:58:39.090115+00:00",
-  "version": "3.0.3",
+  "ultimate_audit_issue": 53,
+  "validated_source_sha": "68f1b808093937b822c49bbd9aec60afd6ba2bab",
+  "verified_at_utc": "2026-08-02T07:11:43.608569+00:00",
+  "version": "3.0.2",
   "visual_atlas_version": 13,
   "wheel_reproducible_and_isolated_install": true
 }

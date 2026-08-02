@@ -46,15 +46,14 @@
     "trusted_local_callables": 7,
     "workflows": 20
   },
-  "audit_generation": "adversarial-computation-super-skill-v2",
+  "audit_generation": "ultimate-computation-super-skill-v1",
   "branch": "main",
-  "claim_boundary": "The Skill computes with registered trusted local functions and plans, routes, probes, configures and evidences external functions, tools, solvers and Skills. External execution and scientific acceptance remain separate, explicit and fail-closed.",
-  "commit_binding": "Exact final commit and production workflows are recorded in GitHub Issue #61.",
+  "claim_boundary": "The Skill can compute with registered trusted local functions and can plan, route, probe, configure and evidence external functions, tools, solvers and Skills. External execution and scientific acceptance remain separate, explicit and fail-closed.",
+  "commit_binding": "Exact final commit and production workflow URLs are recorded in GitHub Issue #53.",
   "created_pull_request": false,
   "execution_policy": {
     "arbitrary_python_import_execution": false,
     "arbitrary_shell_execution": false,
-    "external_process_execution_requires_hash_bound_authorization": true,
     "external_targets_default_to_plan_only": true,
     "remote_api_contact_by_registration": false,
     "skill_handoff_requires_available_authorized_runtime": true,
@@ -87,37 +86,29 @@
     }
   },
   "quality": {
-    "branch_coverage_percent": 91.26506024096386,
-    "controlled_mutation": "PASS",
+    "branch_coverage_percent": 92.66211604095564,
+    "controlled_mutation": "64/64",
     "dependency_vulnerabilities": 0,
     "repository_security_findings": 0,
-    "scientific_benchmarks": "PASS",
+    "scientific_benchmarks": "8/8",
     "source_and_wheel_reproducible": true,
-    "statement_coverage_percent": 96.845694799659,
+    "statement_coverage_percent": 97.29860106126387,
     "tests_failed": 0,
-    "tests_passed": 747,
-    "verification_profile_passed": true
+    "tests_passed": 704
   },
   "remaining_limitations": [
     "No external scientific solver, commercial license, remote API, container runtime, scheduler, GPU kernel or production HPC system is bundled or implicitly authorized.",
     "Adapter detection and command construction do not prove solver build features, numerical speedup, convergence or physical validity.",
-    "Acceleration recommendations are guidance unless cited isolated evidence explicitly marks them measured.",
-    "High-risk engineering or safety decisions still require expert, approval and independent-reproduction gates."
+    "Acceleration recommendations are guidance unless a cited isolated benchmark explicitly marks them measured.",
+    "High-risk engineering or safety decisions still require the documented expert, approval and independent-reproduction gates."
   ],
-  "schema_version": "1.1",
+  "schema_version": "1.0",
   "status": "VALIDATED",
-  "supported_platforms": {
-    "linux": "compatible",
-    "macos": "not supported or release-qualified",
-    "windows": "core"
-  },
   "telemetry": {
     "claim_boundary": "Same-host repository-local orchestration latency only; no external solver or GPU speedup is measured.",
-    "orchestration_plan_median_seconds": 0.00012000005000004421,
-    "trusted_balance_invocation_median_seconds": 3.358301000000097e-05
+    "orchestration_plan_median_seconds": 5.649524000006068e-05,
+    "trusted_balance_invocation_median_seconds": 2.1415848000003734e-05
   },
   "temporary_branch_created": false,
-  "validation_failures": [],
-  "validation_missing_evidence": [],
-  "version": "3.0.3"
+  "version": "3.0.2"
 }
