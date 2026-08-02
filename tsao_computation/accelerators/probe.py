@@ -8,8 +8,7 @@ import shutil
 from collections.abc import Callable
 from pathlib import Path
 
-from ..errors import SecurityError
-from ..security.process import probe_command_output
+from ..security.process import safe_run
 from .model import (
     AcceleratorBackend,
     AcceleratorDevice,
@@ -72,10 +71,8 @@ def _memory_gib() -> float | None:
 
 
 def _command_output(executable: str, arguments: tuple[str, ...]) -> str:
-    try:
-        return probe_command_output(executable, arguments)
-    except SecurityError:
-        return ""
+    result = safe_run((executable, *arguments), cwd=Path.cwd(), timeout=8)
+    return result.stdout if result.returncode == 0 else ""
 
 
 def _nvidia_devices(
