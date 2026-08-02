@@ -6,7 +6,7 @@
 
 **从电子尺度到工业流程尺度的证据约束型科学计算编排系统。**
 
-![version](https://img.shields.io/badge/version-3.0.2-2563eb) ![capabilities](https://img.shields.io/badge/capabilities-164-7c3aed) ![adapters](https://img.shields.io/badge/adapters-27-ea580c) ![workflows](https://img.shields.io/badge/workflows-20-0891b2)
+![version](https://img.shields.io/badge/version-3.0.3-2563eb) ![capabilities](https://img.shields.io/badge/capabilities-164-7c3aed) ![adapters](https://img.shields.io/badge/adapters-27-ea580c) ![workflows](https://img.shields.io/badge/workflows-20-0891b2)
 
 [English](README.md) · [根技能](SKILL.md) · [能力索引](capability-index/README.md) · [覆盖矩阵](docs/coverage-matrix.md) · [科学验证](docs/scientific-validation.md) · [可信等级](docs/scientific-confidence.md) · [架构](docs/architecture.md) · [发布治理](docs/release.md) · [安全](SECURITY.md)
 
@@ -223,15 +223,16 @@ python scripts/verify_all.py --profile benchmark
 ### 当前 `main` 验证状态
 
 <!-- CURRENT_MAIN_VERIFICATION:START -->
-已于 `2026-08-02T07:11:43.608569+00:00` 由确定性终验运行 `30737299629` 完成验证。
+已于 `2026-08-02T16:37:12.500249+00:00` 由确定性终验运行 `30756995636` 完成验证。
 
 | 当前主线项目 | 结果 |
 |---|---:|
-| 版本 | 3.0.2 |
+| 版本 | 3.0.3 |
 | 能力 / 适配器 / 工作流 | 164 / 27 / 20 |
-| 自动测试 | 704 通过，0 失败 |
-| 语句 / 分支覆盖率 | 97.30% / 92.66% |
-| Windows core | Python 3.10 与 3.13；最终结果记录于 Issue #53 |
+| 自动测试 | 747 通过，0 失败 |
+| 语句 / 分支覆盖率 | 96.85% / 91.27% |
+| Windows 核心支持 | Python 3.10 与 3.13；最终结果记录于 Issue #61 |
+| Linux 兼容支持 | Ubuntu 验证；最终结果记录于 Issue #61 |
 | 受控变异探针 | 64/64 被识别 |
 | 科学参考基准 | 8/8 通过 |
 | 仓库 / 依赖安全发现 | 0 / 0 |
@@ -240,7 +241,7 @@ python scripts/verify_all.py --profile benchmark
 | 科研视觉资产 | 42 幅自包含 SVG |
 | 远程分支 | 仅 `main` |
 
-ultimate-computation-super-skill 最终提交只有在 [Issue #53](../../issues/53) 记录 Ubuntu/Windows/macOS × Python 3.10/3.13 正式 CI 成功后才被接受。机器可读证据：[`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json)。
+adversarial-computation-super-skill 最终提交只有在 [Issue #61](../../issues/61) 记录 Ubuntu/Windows × Python 3.10/3.13 正式 CI 成功后才被接受。机器可读证据：[`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json)。
 <!-- CURRENT_MAIN_VERIFICATION:END -->
 
 ### v3.0.2 已验证发布基线
@@ -264,7 +265,7 @@ ultimate-computation-super-skill 最终提交只有在 [Issue #53](../../issues/
 
 ## CI、发布与 Skill 安装
 
-CI 在 Ubuntu、Windows、macOS 上验证 Python 3.10 与 3.13。只读的周度依赖审计记录漏洞证据，不会在上游创建分支；第三方 GitHub Actions 均固定到不可变提交。
+CI 在 Ubuntu、Windows 上验证 Python 3.10 与 3.13。只读的周度依赖审计记录漏洞证据，不会在上游创建分支；第三方 GitHub Actions 均固定到不可变提交。
 
 正式版本只能由受控 Release 工作流在全部确定性门禁通过后创建。每个不可变 `vX.Y.Z` Release 均包含可重复构建的源码包和 Wheel、SPDX/CycloneDX SBOM、`SHA256SUMS`、发布 Manifest、最终验证证据以及 GitHub/Sigstore 溯源证明。
 

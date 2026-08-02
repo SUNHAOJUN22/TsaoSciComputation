@@ -2,10 +2,10 @@
 name: tsao-scicomputation
 description: Plan, prepare, validate, and govern evidence-bound scientific-computation workflows across electronic, atomistic, mesoscale, continuum, reactor, process, control, and digital-twin scales. Use when a request needs solver-aware routing, calculation contracts, preflight, convergence, physical validation, uncertainty, provenance, multiscale handoff, accelerated computing, edge placement, or fail-closed scientific acceptance.
 license: MIT
-compatibility: Python 3.10-3.13 on Linux, macOS, or Windows. Network access and external solvers are optional; native C++ compilers, CUDA, ROCm, SYCL, MPI, schedulers, licensed software, databases, basis sets, pseudopotentials, queues, GPUs, and cloud accounts must be lawfully available and independently probed.
+compatibility: Python 3.10-3.13 on Windows or Linux. Network access and external solvers are optional; native C++ compilers, CUDA, ROCm, SYCL, MPI, schedulers, licensed software, databases, basis sets, pseudopotentials, queues, GPUs, and cloud accounts must be lawfully available and independently probed.
 metadata:
   author: SUNHAOJUN22
-  version: "3.0.2"
+  version: "3.0.3"
   repository: https://github.com/SUNHAOJUN22/TsaoSciComputation
 ---
 
