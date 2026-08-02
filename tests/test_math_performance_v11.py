@@ -27,11 +27,19 @@ def test_acceleration_profile_lookup_is_cached_and_clearable() -> None:
 def test_semantically_equivalent_route_questions_share_one_cache_key() -> None:
     router.clear_routing_caches()
     first = route_question("molecular dynamics simulation")
-    second = route_question("  MOLECULAR DYNAMICS SIMULATION\t")
-    third = route_question("molecular dynamics simulation   ")
+    second = route_question("  MOLECULAR\tDYNAMICS\nSIMULATION  ")
+    third = route_question("molecular   dynamics simulation")
 
     assert first is second is third
-    assert router._route_cached.cache_info().currsize == 1
+    cache = router._route_cached.cache_info()
+    assert cache.currsize == 1
+    assert cache.misses == 1
+    assert cache.hits == 2
+
+    cjk = route_question("聚合物，分子动力学")
+    cjk_variant = route_question("聚合物，\n\t分子动力学")
+    assert cjk is cjk_variant
+    assert router._route_cached.cache_info().currsize == 2
 
 
 def test_optimized_scientific_kernels_preserve_equations_and_acceptance() -> None:
