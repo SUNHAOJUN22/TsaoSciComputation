@@ -81,7 +81,7 @@ python scripts/verify_all.py --profile benchmark
 ### Current `main` verification
 
 <!-- CURRENT_MAIN_VERIFICATION:START -->
-Validated on `2026-08-02T18:56:24.533557+00:00` by deterministic finalization run `30762207913`.
+Validated on `2026-08-02T19:04:13.872746+00:00` by deterministic finalization run `30762511647`.
 
 | Current-main item | Result |
 |---|---:|
@@ -99,7 +99,7 @@ Validated on `2026-08-02T18:56:24.533557+00:00` by deterministic finalization ru
 | Scientific visual assets | 42 self-contained SVGs |
 | Remote branches | `main` only |
 
-The final final-simplification-v2 commit is accepted only after canonical Ubuntu/Windows × Python 3.10/3.13 CI is recorded in [Issue #49](../../issues/49). Machine-readable evidence: [`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json).
+The final final-exact-tree-v3 commit is accepted only after canonical Ubuntu/Windows × Python 3.10/3.13 CI is recorded in [Issue #49](../../issues/49). Machine-readable evidence: [`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json).
 <!-- CURRENT_MAIN_VERIFICATION:END -->
 
 ## Performance evidence

@@ -81,7 +81,7 @@ python scripts/verify_all.py --profile benchmark
 ### 当前 `main` 验证状态
 
 <!-- CURRENT_MAIN_VERIFICATION:START -->
-已于 `2026-08-02T18:56:24.533557+00:00` 由确定性终验运行 `30762207913` 完成验证。
+已于 `2026-08-02T19:04:13.872746+00:00` 由确定性终验运行 `30762511647` 完成验证。
 
 | 当前主线项目 | 结果 |
 |---|---:|
@@ -99,7 +99,7 @@ python scripts/verify_all.py --profile benchmark
 | 科研视觉资产 | 42 幅自包含 SVG |
 | 远程分支 | 仅 `main` |
 
-final-simplification-v2 最终提交只有在 [Issue #49](../../issues/49) 记录 Ubuntu/Windows × Python 3.10/3.13 正式 CI 成功后才被接受。机器可读证据：[`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json)。
+final-exact-tree-v3 最终提交只有在 [Issue #49](../../issues/49) 记录 Ubuntu/Windows × Python 3.10/3.13 正式 CI 成功后才被接受。机器可读证据：[`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json)。
 <!-- CURRENT_MAIN_VERIFICATION:END -->
 
 ## 性能证据

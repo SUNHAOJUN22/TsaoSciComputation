@@ -1,11 +1,11 @@
-# Ultimate main audit final-simplification-v2
+# Ultimate main audit final-exact-tree-v3
 
 - Repository: `SUNHAOJUN22/TsaoSciComputation`
 - Issue: `#49`
 - Branch policy: `main` only; no branch or pull request created
 - Version: `3.0.4`
 - Supported platforms: Windows core; Linux compatible
-- Deterministic finalization run: `30762207913`
+- Deterministic finalization run: `30762511647`
 - Tests: `774 passed, 0 failed`
 - Coverage: `96.63%` statement / `90.99%` branch
 - Scientific benchmarks: `8/8`
