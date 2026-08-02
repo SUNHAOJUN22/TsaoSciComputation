@@ -33,6 +33,7 @@ def measure(source_root: Path) -> dict[str, object]:
     sys.path.insert(0, str(root))
 
     from tsao_computation.accelerators import (
+        AccelerationPlan,
         AcceleratorBackend,
         AcceleratorInventory,
         ComputeResourceRequest,
@@ -62,10 +63,10 @@ def measure(source_root: Path) -> dict[str, object]:
     }
     request = ComputeResourceRequest.from_mapping(resource_mapping)
 
-    def plan_preparsed() -> object:
+    def plan_preparsed() -> AccelerationPlan:
         return plan_acceleration("gromacs", request, inventory=inventory)
 
-    def plan_mapping() -> object:
+    def plan_mapping() -> AccelerationPlan:
         return plan_acceleration("gromacs", resource_mapping, inventory=inventory)
 
     preparsed_plan_seconds = _median_seconds(
@@ -80,7 +81,7 @@ def measure(source_root: Path) -> dict[str, object]:
         loops=2_000,
         warmups=4,
     )
-    plan_payload = plan_preparsed().to_dict()  # type: ignore[union-attr]
+    plan_payload = plan_preparsed().to_dict()
 
     route_variants = tuple(
         (" " * (index % 300))
