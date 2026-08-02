@@ -40,7 +40,7 @@ python -m tsao_computation probe
 <!-- SUPER_SKILL_ORCHESTRATION:START -->
 ## 能力与执行模型
 
-仓库提供 **23 类计算方法**、**9 类调用方式**、**7 个可信本地函数**、**27 个外部适配器**、**20 套工作流**、**13 类加速策略**和**9 阶段编排计划**。
+仓库提供 **164 项能力**、**23 类计算方法**、**9 类调用方式**、**7 个可信本地函数**、**27 个外部适配器**、**20 套工作流**、**13 类加速策略**和**9 阶段编排计划**。
 
 | 调用方式 | 默认行为 |
 |---|---|
@@ -71,7 +71,7 @@ python -m tsao_computation probe
 ## 验证
 
 ```bash
-python -m pip install -e '.[validation,quality]'
+python -m pip install -e '.[validation,quality,security]'
 python scripts/verify_all.py --profile all
 python scripts/verify_all.py --profile benchmark
 ```
@@ -128,7 +128,6 @@ python scripts/verify_all.py --profile benchmark
 
 - **Windows：** 核心支持工作流。
 - **Linux：** 兼容并通过 CI 验证。
-- **macOS：** 不支持，也不作为发布资格条件。
 - **仓库：** `main` 是唯一权威上游分支，不保留功能分支。
 - **发布：** 受治理标签包含可重复构建、SPDX/CycloneDX SBOM、SHA-256 校验和与溯源证据。
 
