@@ -187,8 +187,8 @@ def build(
             }
 
     return {
-        "schema_version": "1.1",
-        "audit_generation": "adversarial-computation-super-skill-v2",
+        "schema_version": "1.2",
+        "audit_generation": "execution-integrity-v13",
         "status": status,
         "validation_missing_evidence": sorted(missing),
         "validation_failures": sorted(failures),
@@ -199,7 +199,7 @@ def build(
             "linux": "compatible",
             "macos": "not supported or release-qualified",
         },
-        "commit_binding": "Exact final commit and production workflows are recorded in GitHub Issue #61.",
+        "commit_binding": "Exact final commit and production workflows are recorded in GitHub Issue #85.",
         "architecture": {
             "methods": len(method_catalog),
             "method_slugs": [item.slug for item in method_catalog],
@@ -217,6 +217,11 @@ def build(
             "trusted_local_callables_may_execute": True,
             "external_targets_default_to_plan_only": True,
             "external_process_execution_requires_hash_bound_authorization": True,
+            "direct_low_level_process_execution_disabled": True,
+            "read_only_probe_commands_allowlisted": True,
+            "authorization_binds_executable_sha256": True,
+            "authorization_binds_input_sha256": True,
+            "python_module_probes_use_sanitized_environment": True,
             "arbitrary_python_import_execution": False,
             "arbitrary_shell_execution": False,
             "remote_api_contact_by_registration": False,

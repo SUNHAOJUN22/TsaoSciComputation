@@ -6,7 +6,7 @@
 
 **Evidence-bound scientific-computation orchestration from electrons to industrial processes.**
 
-![version](https://img.shields.io/badge/version-3.0.3-2563eb) ![capabilities](https://img.shields.io/badge/capabilities-164-7c3aed) ![adapters](https://img.shields.io/badge/adapters-27-ea580c) ![workflows](https://img.shields.io/badge/workflows-20-0891b2)
+![version](https://img.shields.io/badge/version-3.0.4-2563eb) ![capabilities](https://img.shields.io/badge/capabilities-164-7c3aed) ![adapters](https://img.shields.io/badge/adapters-27-ea580c) ![workflows](https://img.shields.io/badge/workflows-20-0891b2)
 
 [中文说明](README.zh-CN.md) · [Root Skill](SKILL.md) · [Capabilities](capability-index/README.md) · [Coverage](docs/coverage-matrix.md) · [Scientific validation](docs/scientific-validation.md) · [Confidence](docs/scientific-confidence.md) · [Architecture](docs/architecture.md) · [Releases](docs/release.md) · [Security](SECURITY.md)
 
@@ -57,7 +57,9 @@ python -m tsao_computation recommend-acceleration --method finite-element
 python -m tsao_computation invoke balance-check --payload balance.json --execute
 ```
 
-Acceleration guidance covers algorithm, memory, backend, execution and model-reduction choices. A recommendation is not presented as measured speedup unless isolated machine evidence says so. See [`docs/orchestration.md`](docs/orchestration.md) and [`reports/ULTIMATE_COMPUTATION_SUPER_SKILL_AUDIT.json`](reports/ULTIMATE_COMPUTATION_SUPER_SKILL_AUDIT.json).
+Acceleration guidance covers algorithm, memory, backend, execution and model-reduction choices. A recommendation is not presented as measured speedup unless isolated machine evidence says so.
+
+Execution integrity is fail-closed: the legacy low-level process API never executes, hardware probes are restricted to fixed read-only commands, and every authorized external run is rebound to the current executable and declared input SHA-256 before launch. See [`docs/orchestration.md`](docs/orchestration.md) and [`reports/ULTIMATE_COMPUTATION_SUPER_SKILL_AUDIT.json`](reports/ULTIMATE_COMPUTATION_SUPER_SKILL_AUDIT.json).
 <!-- SUPER_SKILL_ORCHESTRATION:END -->
 
 ## Scientific capability atlas
@@ -223,16 +225,16 @@ python scripts/verify_all.py --profile benchmark
 ### Current `main` verification
 
 <!-- CURRENT_MAIN_VERIFICATION:START -->
-Validated on `2026-08-02T16:37:12.500249+00:00` by deterministic finalization run `30756995636`.
+Validated on `2026-08-02T18:11:05.443230+00:00` by deterministic finalization run `30760494523`.
 
 | Current-main item | Result |
 |---|---:|
-| Version | 3.0.3 |
+| Version | 3.0.4 |
 | Capabilities / adapters / workflows | 164 / 27 / 20 |
-| Tests | 747 passed, 0 failed |
-| Statement / branch coverage | 96.85% / 91.27% |
-| Windows core | Python 3.10 and 3.13; final result recorded in Issue #61 |
-| Linux compatibility | Ubuntu validation; final result recorded in Issue #61 |
+| Tests | 778 passed, 0 failed |
+| Statement / branch coverage | 96.63% / 90.99% |
+| Windows core | Python 3.10 and 3.13; final result recorded in Issue #85 |
+| Linux compatibility | Ubuntu validation; final result recorded in Issue #85 |
 | Controlled mutation probes | 64/64 killed |
 | Scientific reference benchmarks | 8/8 passed |
 | Repository / dependency findings | 0 / 0 |
@@ -241,7 +243,7 @@ Validated on `2026-08-02T16:37:12.500249+00:00` by deterministic finalization ru
 | Scientific visual assets | 42 self-contained SVGs |
 | Remote branches | `main` only |
 
-The final adversarial-computation-super-skill commit is accepted only after canonical Ubuntu/Windows × Python 3.10/3.13 CI is recorded in [Issue #61](../../issues/61). Machine-readable evidence: [`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json).
+The final execution-integrity commit is accepted only after canonical Ubuntu/Windows × Python 3.10/3.13 CI is recorded in [Issue #85](../../issues/85). Machine-readable evidence: [`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json).
 <!-- CURRENT_MAIN_VERIFICATION:END -->
 
 ### v3.0.2 verified release baseline

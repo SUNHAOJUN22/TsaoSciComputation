@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+## 3.0.4 — 2026-08-03
+
+- Disabled direct execution through the legacy low-level process API; external computation now requires a sealed, hash-bound authorization created for the exact command plan.
+- Bound every authorized run to the current executable SHA-256, declared input-file SHA-256 and normalized subprocess environment immediately before launch.
+- Separated fixed, allowlisted read-only hardware discovery from scientific computation execution and repaired default accelerator probing on real systems.
+- Routed Python-module availability probes through the sanitized environment and made adapter command-plan environments immutable.
+- Added execution-integrity fault injection, machine evidence and bilingual documentation for the strengthened boundary.
+
 ## 3.0.3 — 2026-08-02
 
 - Added hash-bound, explicit authorization for all external process execution while retaining plan-only defaults for solvers, APIs, containers, schedulers and Skills.
