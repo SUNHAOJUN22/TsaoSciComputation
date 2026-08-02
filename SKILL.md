@@ -5,7 +5,7 @@ license: MIT
 compatibility: Python 3.10-3.13 on Windows or Linux. Network access and external solvers are optional; native C++ compilers, CUDA, ROCm, SYCL, MPI, schedulers, licensed software, databases, basis sets, pseudopotentials, queues, GPUs, and cloud accounts must be lawfully available and independently probed.
 metadata:
   author: SUNHAOJUN22
-  version: "3.0.3"
+  version: "3.0.4"
   repository: https://github.com/SUNHAOJUN22/TsaoSciComputation
 ---
 
@@ -76,6 +76,8 @@ Use the unified API for method selection, external function/tool/Skill handoff, 
 - `python -m tsao_computation invoke <trusted-target> --payload <payload.json> --execute`
 
 Only registered trusted repository-local callables may execute through this interface. Adapters, modules, CLI tools, APIs, containers, schedulers, commercial solvers and other Skills remain plan-only until availability, authorization, input/output contracts and evidence requirements are satisfied.
+
+Direct low-level subprocess execution is disabled. Read-only hardware discovery is command-allowlisted, and authorized external execution must revalidate the executable and declared input content hashes immediately before launch.
 <!-- SUPER_SKILL_ORCHESTRATION:END -->
 
 ## Execution procedure
