@@ -100,7 +100,7 @@
     "source_and_wheel_reproducible": true,
     "statement_coverage_percent": 96.63056558363418,
     "tests_failed": 0,
-    "tests_passed": 778,
+    "tests_passed": 774,
     "verification_profile_passed": true
   },
   "remaining_limitations": [
@@ -118,8 +118,8 @@
   },
   "telemetry": {
     "claim_boundary": "Same-host repository-local orchestration latency only; no external solver or GPU speedup is measured.",
-    "orchestration_plan_median_seconds": 0.00011505072500000323,
-    "trusted_balance_invocation_median_seconds": 3.273279399999751e-05
+    "orchestration_plan_median_seconds": 9.817627000003881e-05,
+    "trusted_balance_invocation_median_seconds": 3.057811799999399e-05
   },
   "temporary_branch_created": false,
   "validation_failures": [],

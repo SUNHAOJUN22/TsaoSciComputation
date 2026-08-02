@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Simplified the bilingual landing documentation, retired eight superseded one-time visual migration files, and removed stale package-manifest globs that produced false build warnings.
+
 ## 3.0.4 — 2026-08-03
 
 - Disabled direct execution through the legacy low-level process API; external computation now requires a sealed, hash-bound authorization created for the exact command plan.

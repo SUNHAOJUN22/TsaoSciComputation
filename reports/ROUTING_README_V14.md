@@ -1,12 +1,12 @@
-# Ultimate main audit routing-readme
+# Ultimate main audit final-simplification-v2
 
 - Repository: `SUNHAOJUN22/TsaoSciComputation`
 - Issue: `#49`
 - Branch policy: `main` only; no branch or pull request created
 - Version: `3.0.4`
 - Supported platforms: Windows core; Linux compatible
-- Deterministic finalization run: `30761695507`
-- Tests: `778 passed, 0 failed`
+- Deterministic finalization run: `30762207913`
+- Tests: `774 passed, 0 failed`
 - Coverage: `96.63%` statement / `90.99%` branch
 - Scientific benchmarks: `8/8`
 - Controlled mutation probes: `64/64`
@@ -19,7 +19,7 @@
 
 ## Added visual families
 
-Three root overview diagrams; complete 42-asset atlas in assets/visuals/README.md.
+Three root overview diagrams; complete 42-asset atlas remains validated in assets/visuals.
 
 ## Scientific boundary
 

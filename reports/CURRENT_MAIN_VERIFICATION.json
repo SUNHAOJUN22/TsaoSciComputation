@@ -1,10 +1,10 @@
 {
-  "audit_generation": "routing-readme-v14",
+  "audit_generation": "final-simplification-v2",
   "branch": "main",
   "canonical_checkout_lf": true,
   "canonical_ci_evidence": "The accepted final-commit CI run is recorded in the closing comment of GitHub Issue #49.",
   "canonical_generated_text_lf": true,
-  "canonical_text_parent_commit": "e7d34abdb8be92380de1257eaca01dcaee9dbd69",
+  "canonical_text_parent_commit": "21873be05bf02ccb6ba64f05ea9ba6f82462fe38",
   "claim_boundary": "Validated for repository orchestration, contracts, routing, deterministic fixtures, packaging, documentation and cross-platform CI. No live third-party solver or production HPC execution is claimed.",
   "controlled_mutants": "64/64",
   "counts": {
@@ -31,7 +31,7 @@
   },
   "cross_platform_manifest_stability": "PASS",
   "dependency_vulnerabilities": 0,
-  "deterministic_finalization_run_id": 30761695507,
+  "deterministic_finalization_run_id": 30762207913,
   "performance_audit": {
     "acceptance": {
       "cli_no_material_regression": true,
@@ -122,11 +122,11 @@
   "temporary_branch_created": false,
   "tests": {
     "failed": 0,
-    "passed": 778
+    "passed": 774
   },
   "ultimate_audit_issue": 49,
-  "validated_source_sha": "e7d34abdb8be92380de1257eaca01dcaee9dbd69",
-  "verified_at_utc": "2026-08-02T18:47:26.623224+00:00",
+  "validated_source_sha": "21873be05bf02ccb6ba64f05ea9ba6f82462fe38",
+  "verified_at_utc": "2026-08-02T18:56:24.533557+00:00",
   "version": "3.0.4",
   "visual_atlas_version": 13,
   "wheel_reproducible_and_isolated_install": true

@@ -81,13 +81,13 @@ python scripts/verify_all.py --profile benchmark
 ### 当前 `main` 验证状态
 
 <!-- CURRENT_MAIN_VERIFICATION:START -->
-已于 `2026-08-02T18:47:26.623224+00:00` 由确定性终验运行 `30761695507` 完成验证。
+已于 `2026-08-02T18:56:24.533557+00:00` 由确定性终验运行 `30762207913` 完成验证。
 
 | 当前主线项目 | 结果 |
 |---|---:|
 | 版本 | 3.0.4 |
 | 能力 / 适配器 / 工作流 | 164 / 27 / 20 |
-| 自动测试 | 778 通过，0 失败 |
+| 自动测试 | 774 通过，0 失败 |
 | 语句 / 分支覆盖率 | 96.63% / 90.99% |
 | Windows 核心支持 | Python 3.10 与 3.13；最终结果记录于 Issue #49 |
 | Linux 兼容支持 | Ubuntu 验证；最终结果记录于 Issue #49 |
@@ -99,7 +99,7 @@ python scripts/verify_all.py --profile benchmark
 | 科研视觉资产 | 42 幅自包含 SVG |
 | 远程分支 | 仅 `main` |
 
-routing-readme 最终提交只有在 [Issue #49](../../issues/49) 记录 Ubuntu/Windows × Python 3.10/3.13 正式 CI 成功后才被接受。机器可读证据：[`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json)。
+final-simplification-v2 最终提交只有在 [Issue #49](../../issues/49) 记录 Ubuntu/Windows × Python 3.10/3.13 正式 CI 成功后才被接受。机器可读证据：[`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json)。
 <!-- CURRENT_MAIN_VERIFICATION:END -->
 
 ## 性能证据
