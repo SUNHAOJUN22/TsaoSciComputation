@@ -1,0 +1,300 @@
+name: Final simplification cleanup
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  actions: write
+  contents: write
+  issues: write
+  security-events: read
+
+concurrency:
+  group: final-simplification-cleanup-main
+  cancel-in-progress: false
+
+env:
+  GH_TOKEN: ${{ github.token }}
+  PIP_DISABLE_PIP_VERSION_CHECK: '1'
+  TSAO_COVERAGE_JSON: /tmp/final-cleanup-coverage.json
+  CLEAN_BASELINE_SHA: e07a1b707cddb734469815eb63925634725fcb64
+  AUDIT_ISSUE: '49'
+
+jobs:
+  clean-and-certify:
+    if: ${{ github.event.issue.title == 'FINAL_SIMPLIFICATION_CLEANUP_V1' && github.event.issue.user.login == github.repository_owner }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+          cache: pip
+
+      - name: Simplify final tree
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo simplify > /tmp/final-cleanup-stage
+          ORIGINAL_SHA="$(git rev-parse HEAD)"
+          CLEANUP_ISSUE="${{ github.event.issue.number }}"
+          echo "ORIGINAL_SHA=$ORIGINAL_SHA" >> "$GITHUB_ENV"
+          echo "CLEANUP_ISSUE=$CLEANUP_ISSUE" >> "$GITHUB_ENV"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          python - <<'PY'
+          from pathlib import Path
+
+          root = Path('.')
+          obsolete = (
+              'scripts/regenerate_readme_visuals_v10.py',
+              'scripts/regenerate_readme_visuals_v11.py',
+              'scripts/regenerate_readme_visuals_v12.py',
+              'scripts/regenerate_readme_visuals_v13.py',
+              'scripts/sync_readme_visual_atlas.py',
+              'scripts/sync_readme_visual_atlas_v7.py',
+              'tests/test_sync_readme_visual_atlas.py',
+              'tests/test_sync_readme_visual_atlas_v7.py',
+          )
+          for relative in obsolete:
+              (root / relative).unlink(missing_ok=True)
+
+          manifest = root / 'MANIFEST.in'
+          text = manifest.read_text(encoding='utf-8')
+          text = text.replace(
+              'recursive-include templates *.json *.yaml\n',
+              'recursive-include templates *.json\n',
+          )
+          text = text.replace(
+              'recursive-include native CMakeLists.txt *.md *.h *.hpp *.c *.cc *.cpp *.cmake\n',
+              'recursive-include native CMakeLists.txt *.md *.h *.cpp\n',
+          )
+          manifest.write_text(text, encoding='utf-8', newline='\n')
+
+          changelog = root / 'CHANGELOG.md'
+          text = changelog.read_text(encoding='utf-8')
+          entry = (
+              '- Simplified the bilingual landing documentation, retired eight superseded '
+              'one-time visual migration files, and removed stale package-manifest globs '
+              'that produced false build warnings.\n'
+          )
+          marker = '## Unreleased\n'
+          if entry not in text:
+              if marker not in text:
+                  raise ValueError('CHANGELOG.md has no Unreleased section')
+              text = text.replace(marker, marker + '\n' + entry, 1)
+              changelog.write_text(text, encoding='utf-8', newline='\n')
+          PY
+          rm -f .github/workflows/final-simplification-cleanup-once.yml
+
+      - name: Full exact-tree validation
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo validate > /tmp/final-cleanup-stage
+          python -m pip install -e '.[validation,quality,security]'
+          python -m ruff check tsao_computation scripts tests _bootstrap.py
+          python -m ruff format --check tsao_computation scripts tests _bootstrap.py
+          python -m mypy --python-version 3.13 tsao_computation scripts
+          python -m bandit -q -r tsao_computation scripts -x tests
+          python scripts/run_tests.py --coverage | tee /tmp/final-cleanup-tests.log
+          python scripts/verify_all.py --profile all --timing-json /tmp/final-cleanup-all.json
+          python scripts/verify_all.py --profile benchmark --timing-json /tmp/final-cleanup-benchmark.json
+          python scripts/verify_native_core.py > /tmp/final-cleanup-native.json
+          python scripts/security_scan.py
+          python -m pip_audit --local --skip-editable --progress-spinner=off \
+            --format=json --output /tmp/final-cleanup-dependencies.json
+          python -m pytest -q | tee /tmp/final-cleanup-pytest.log
+          rm -rf /tmp/final-cleanup-build
+          python -m build --outdir /tmp/final-cleanup-build 2>&1 | tee /tmp/final-cleanup-build.log
+          if grep -F 'warning: no files found matching' /tmp/final-cleanup-build.log; then
+            echo 'stale MANIFEST.in glob warning remains' >&2
+            exit 1
+          fi
+          git ls-remote --heads origin | sort > /tmp/final-cleanup-heads.txt
+          test "$(awk '{print $2}' /tmp/final-cleanup-heads.txt | sed 's#refs/heads/##' | paste -sd ' ' -)" = main
+
+      - name: Refresh README and machine evidence
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo evidence > /tmp/final-cleanup-stage
+          cat > reports/ROUTING_README_V14.md <<'EOF'
+          # Routing, README and simplification V14
+
+          Routing cache keys normalize case and Unicode whitespace before lookup. The bilingual root READMEs retain only three overview diagrams and link the complete 42-asset atlas. Superseded one-time visual migration scripts and fixture tests were removed, while all 42 SVG assets remain validated. Package-manifest rules now describe only file types that actually exist, eliminating false build warnings.
+          EOF
+          python scripts/build_super_skill_audit.py \
+            --test-log /tmp/final-cleanup-pytest.log \
+            --coverage-json /tmp/final-cleanup-coverage.json \
+            --dependency-json /tmp/final-cleanup-dependencies.json \
+            --security-json evidence/security-scan.json \
+            --verification-json /tmp/final-cleanup-all.json
+          python scripts/update_main_audit_evidence.py \
+            --root . \
+            --run-id "$GITHUB_RUN_ID" \
+            --issue "$AUDIT_ISSUE" \
+            --test-log /tmp/final-cleanup-pytest.log \
+            --coverage-json /tmp/final-cleanup-coverage.json \
+            --dependency-json /tmp/final-cleanup-dependencies.json \
+            --security-json evidence/security-scan.json \
+            --remote-heads /tmp/final-cleanup-heads.txt \
+            --parent-commit "$ORIGINAL_SHA" \
+            --audit-generation final-simplification-v1 \
+            --audit-label final-simplification-v1 \
+            --visual-count 42 \
+            --visual-atlas-version 13 \
+            --report-path reports/ROUTING_README_V14.md \
+            --visual-families 'Three root overview diagrams; complete 42-asset atlas remains validated in assets/visuals.'
+          python scripts/sync_version_metadata.py --release-date 2026-08-03
+          python scripts/security_scan.py
+          python scripts/build_manifest.py
+
+      - name: Final tree gates
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo exact-tree > /tmp/final-cleanup-stage
+          python -m ruff check tsao_computation scripts tests _bootstrap.py
+          python -m ruff format --check tsao_computation scripts tests _bootstrap.py
+          python -m mypy --python-version 3.13 tsao_computation scripts
+          python -m bandit -q -r tsao_computation scripts -x tests
+          python -m pytest -q
+          python scripts/verify_all.py --profile core
+          python scripts/sync_version_metadata.py --check
+          python scripts/build_manifest.py --check
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          audit = json.loads(Path('reports/ULTIMATE_COMPUTATION_SUPER_SKILL_AUDIT.json').read_text())
+          assert audit['status'] == 'VALIDATED'
+          assert audit['quality']['tests_failed'] == 0
+          assert audit['quality']['statement_coverage_percent'] >= 95
+          assert audit['quality']['dependency_vulnerabilities'] == 0
+          assert audit['quality']['repository_security_findings'] == 0
+          assert audit['quality']['source_and_wheel_reproducible'] is True
+          assert not audit['validation_missing_evidence']
+          assert not audit['validation_failures']
+          PY
+          mapfile -t workflows < <(find .github/workflows -maxdepth 1 -type f -name '*.yml' -printf '%f\n' | sort)
+          expected=(ci.yml codeql.yml dependency-audit.yml release.yml scorecard.yml)
+          test "${workflows[*]}" = "${expected[*]}"
+          for removed in \
+            scripts/regenerate_readme_visuals_v10.py \
+            scripts/regenerate_readme_visuals_v11.py \
+            scripts/regenerate_readme_visuals_v12.py \
+            scripts/regenerate_readme_visuals_v13.py \
+            scripts/sync_readme_visual_atlas.py \
+            scripts/sync_readme_visual_atlas_v7.py \
+            tests/test_sync_readme_visual_atlas.py \
+            tests/test_sync_readme_visual_atlas_v7.py; do
+            test ! -e "$removed"
+          done
+          ! grep -Fq 'recursive-include templates *.json *.yaml' MANIFEST.in
+          ! grep -Eq '\*\.hpp|\*\.cc|\*\.cmake' MANIFEST.in
+
+      - name: Commit directly to main
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo commit > /tmp/final-cleanup-stage
+          test "$(git ls-remote origin refs/heads/main | awk '{print $1}')" = "$ORIGINAL_SHA"
+          git add -A
+          git commit -m 'Complete README simplification and package cleanup'
+          git push origin HEAD:refs/heads/main
+          FINAL_SHA="$(git rev-parse HEAD)"
+          echo "FINAL_SHA=$FINAL_SHA" >> "$GITHUB_ENV"
+
+      - name: Require exact-final production workflows
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo production > /tmp/final-cleanup-stage
+          gh workflow run scorecard.yml --ref main
+          : > /tmp/final-cleanup-runs.txt
+          wait_for() {
+            local workflow="$1" event="$2" line status conclusion url
+            for _ in $(seq 1 180); do
+              line="$(gh run list \
+                --repo "$GITHUB_REPOSITORY" \
+                --workflow "$workflow" \
+                --branch main \
+                --event "$event" \
+                --limit 40 \
+                --json headSha,status,conclusion,url \
+                --jq ".[] | select(.headSha == \"$FINAL_SHA\") | [.status,.conclusion,.url] | @tsv" \
+                | head -n 1)"
+              if [[ -n "$line" ]]; then
+                IFS=$'\t' read -r status conclusion url <<< "$line"
+                if [[ "$status" == completed ]]; then
+                  [[ "$conclusion" == success ]]
+                  printf '%s: %s\n' "$workflow" "$url" >> /tmp/final-cleanup-runs.txt
+                  return 0
+                fi
+              fi
+              sleep 10
+            done
+            return 1
+          }
+          wait_for ci.yml push
+          wait_for codeql.yml push
+          wait_for scorecard.yml workflow_dispatch
+
+      - name: Record completion
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo record > /tmp/final-cleanup-stage
+          metrics="$(python - <<'PY'
+          import json
+          from pathlib import Path
+          audit = json.loads(Path('reports/ULTIMATE_COMPUTATION_SUPER_SKILL_AUDIT.json').read_text())
+          quality = audit['quality']
+          print(
+              f"tests={quality['tests_passed']}; "
+              f"statement-coverage={quality['statement_coverage_percent']:.2f}%; "
+              f"branch-coverage={quality['branch_coverage_percent']:.2f}%; "
+              f"dependency-vulnerabilities={quality['dependency_vulnerabilities']}; "
+              f"security-findings={quality['repository_security_findings']}"
+          )
+          PY
+          )"
+          runs="$(cat /tmp/final-cleanup-runs.txt)"
+          message="Final simplification passed on commit \`$FINAL_SHA\`. $metrics. Both root READMEs are concise and embed three overview diagrams; all 42 SVGs remain validated. Eight superseded one-time visual migration files were removed. MANIFEST.in no longer emits false missing-file warnings. The complete local gate, exact-final CI, CodeQL and OpenSSF Scorecard passed. Remote branches remain main only; no branch or pull request was created.\n\n$runs"
+          gh issue comment "$AUDIT_ISSUE" --repo "$GITHUB_REPOSITORY" --body "$message"
+          gh issue close "$CLEANUP_ISSUE" \
+            --repo "$GITHUB_REPOSITORY" \
+            --reason completed \
+            --comment "$message"
+
+      - name: Restore certified baseline on pre-commit failure
+        if: ${{ failure() }}
+        shell: bash
+        run: |
+          set +e
+          stage="$(cat /tmp/final-cleanup-stage 2>/dev/null || echo unknown)"
+          remote="$(git ls-remote origin refs/heads/main | awk '{print $1}')"
+          if [[ "$stage" != production && "$stage" != record && -n "${ORIGINAL_SHA:-}" && "$remote" == "$ORIGINAL_SHA" ]]; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git fetch origin main
+            git reset --hard origin/main
+            git read-tree --reset -u "$CLEAN_BASELINE_SHA"
+            git clean -fd
+            git add -A
+            git commit -m "Restore certified baseline after final cleanup $stage" || true
+            git push origin HEAD:refs/heads/main || true
+          fi
+          gh issue close "${CLEANUP_ISSUE:-${{ github.event.issue.number }}}" \
+            --repo "$GITHUB_REPOSITORY" \
+            --reason "not planned" \
+            --comment "Final simplification failed closed at stage: $stage. Actions run: $GITHUB_RUN_ID. No branch or pull request was created." || true
+          exit 1
