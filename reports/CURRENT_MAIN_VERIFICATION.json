@@ -1,10 +1,10 @@
 {
-  "audit_generation": "execution-integrity-v13",
+  "audit_generation": "routing-readme-v14",
   "branch": "main",
   "canonical_checkout_lf": true,
-  "canonical_ci_evidence": "The accepted final-commit CI run is recorded in the closing comment of GitHub Issue #85.",
+  "canonical_ci_evidence": "The accepted final-commit CI run is recorded in the closing comment of GitHub Issue #49.",
   "canonical_generated_text_lf": true,
-  "canonical_text_parent_commit": "57dceced43d0b555bc3d8a70bf39eeb4b5c72d1b",
+  "canonical_text_parent_commit": "c17e54c9da4937c19a81e2d141e1650344eac722",
   "claim_boundary": "Validated for repository orchestration, contracts, routing, deterministic fixtures, packaging, documentation and cross-platform CI. No live third-party solver or production HPC execution is claimed.",
   "controlled_mutants": "64/64",
   "counts": {
@@ -15,10 +15,10 @@
   },
   "coverage": {
     "branch_percent": 90.98591549295774,
-    "statement_percent": 96.62786029706945
+    "statement_percent": 96.63056558363418
   },
   "cross_platform_core": {
-    "evidence": "GitHub Issue #85 closing comment",
+    "evidence": "GitHub Issue #49 closing comment",
     "os": [
       "ubuntu-latest",
       "windows-latest"
@@ -31,7 +31,7 @@
   },
   "cross_platform_manifest_stability": "PASS",
   "dependency_vulnerabilities": 0,
-  "deterministic_finalization_run_id": 30760609179,
+  "deterministic_finalization_run_id": 30761691044,
   "performance_audit": {
     "acceptance": {
       "cli_no_material_regression": true,
@@ -124,9 +124,9 @@
     "failed": 0,
     "passed": 778
   },
-  "ultimate_audit_issue": 85,
-  "validated_source_sha": "57dceced43d0b555bc3d8a70bf39eeb4b5c72d1b",
-  "verified_at_utc": "2026-08-02T18:14:03.772164+00:00",
+  "ultimate_audit_issue": 49,
+  "validated_source_sha": "c17e54c9da4937c19a81e2d141e1650344eac722",
+  "verified_at_utc": "2026-08-02T18:43:12.000065+00:00",
   "version": "3.0.4",
   "visual_atlas_version": 13,
   "wheel_reproducible_and_isolated_install": true

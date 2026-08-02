@@ -81,7 +81,7 @@ python scripts/verify_all.py --profile benchmark
 ### Current `main` verification
 
 <!-- CURRENT_MAIN_VERIFICATION:START -->
-Validated on `2026-08-02T18:14:03.772164+00:00` by deterministic finalization run `30760609179`.
+Validated on `2026-08-02T18:43:12.000065+00:00` by deterministic finalization run `30761691044`.
 
 | Current-main item | Result |
 |---|---:|
@@ -89,15 +89,17 @@ Validated on `2026-08-02T18:14:03.772164+00:00` by deterministic finalization ru
 | Capabilities / adapters / workflows | 164 / 27 / 20 |
 | Tests | 778 passed, 0 failed |
 | Statement / branch coverage | 96.63% / 90.99% |
-| Supported CI | Ubuntu and Windows; Python 3.10 and 3.13 |
+| Windows core | Python 3.10 and 3.13; final result recorded in Issue #49 |
+| Linux compatibility | Ubuntu validation; final result recorded in Issue #49 |
 | Controlled mutation probes | 64/64 killed |
 | Scientific reference benchmarks | 8/8 passed |
 | Repository / dependency findings | 0 / 0 |
 | Source archives / Wheel | reproducible / reproducible + isolated install |
+| Generated text / Manifest | canonical LF / cross-platform stable |
 | Scientific visual assets | 42 self-contained SVGs |
 | Remote branches | `main` only |
 
-Machine-readable evidence: [`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json) and [`reports/ULTIMATE_COMPUTATION_SUPER_SKILL_AUDIT.json`](reports/ULTIMATE_COMPUTATION_SUPER_SKILL_AUDIT.json).
+The final routing-readme commit is accepted only after canonical Ubuntu/Windows × Python 3.10/3.13 CI is recorded in [Issue #49](../../issues/49). Machine-readable evidence: [`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json).
 <!-- CURRENT_MAIN_VERIFICATION:END -->
 
 ## Performance evidence
