@@ -183,11 +183,16 @@ def test_cli_exposes_methods_plans_advice_and_trusted_invocation(
 
     workload = tmp_path / "workload.json"
     workload.write_text(json.dumps({"workload": "large sparse FEM mesh"}), encoding="utf-8")
-    assert main(["recommend-acceleration", "--workload", str(workload), "--method", "finite-element"]) == 0
+    assert (
+        main(["recommend-acceleration", "--workload", str(workload), "--method", "finite-element"])
+        == 0
+    )
     assert json.loads(capsys.readouterr().out)
 
     payload = tmp_path / "payload.json"
-    payload.write_text(json.dumps({"inputs": 2.0, "outputs": 1.0, "accumulation": 1.0}), encoding="utf-8")
+    payload.write_text(
+        json.dumps({"inputs": 2.0, "outputs": 1.0, "accumulation": 1.0}), encoding="utf-8"
+    )
     assert main(["invoke", "balance-check", "--payload", str(payload), "--execute"]) == 0
     invoked = json.loads(capsys.readouterr().out)
     assert invoked["output"]["passed"] is True

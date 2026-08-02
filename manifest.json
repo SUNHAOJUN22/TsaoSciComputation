@@ -1573,7 +1573,7 @@
     {
       "bytes": 152,
       "path": "evidence/quality-check.json",
-      "sha256": "f55d3291f96f7eff25b8c55e617622cc524d5c369cd46db5a0f341354133aa6a"
+      "sha256": "644701b4b1c4ae104603a7ad4a116e6deefbc1784be63edec6b60259fc5e60eb"
     },
     {
       "bytes": 3174,
@@ -1583,7 +1583,7 @@
     {
       "bytes": 72,
       "path": "evidence/security-scan.json",
-      "sha256": "bbfbd46c9e093c004b0e49153dd85da9f5964eea173e5b74ab91b092e8ffa32e"
+      "sha256": "d2d9d426d3bb14012be80b017896e7a0a1eb159e0659100fda39461632cf3cbc"
     },
     {
       "bytes": 573,
@@ -2471,6 +2471,11 @@
       "sha256": "e828065ea2f6737ae45dc4f6568e01e57a1ab8f09a5d5599e4fd31cf19ccb75b"
     },
     {
+      "bytes": 8514,
+      "path": "tests/test_super_skill_orchestration.py",
+      "sha256": "f3f6569b69c6a407ca4c07ef1cf9702a0758b544453290266b40ddc9a0af8795"
+    },
+    {
       "bytes": 2872,
       "path": "tests/test_supply_chain.py",
       "sha256": "2847156cbc64616e7e30595d0382f211f5f4b7cbf29378266db13c9ec419ae26"
@@ -2566,9 +2571,9 @@
       "sha256": "bd458a601ad12233cf1e0ee15c560a6511ac07de424fd37354b269b5dddca5d0"
     },
     {
-      "bytes": 5029,
+      "bytes": 7629,
       "path": "tsao_computation/cli.py",
-      "sha256": "2f263f6764aab3f89b2777cc73c6b5fb2b4be69ad89faa2e0530e601eccd10fa"
+      "sha256": "54e0834d99494ed5be814947b2cd78700005ccf100eebbc2232e6e0eaf188b33"
     },
     {
       "bytes": 181,
@@ -2644,6 +2649,21 @@
       "bytes": 196,
       "path": "tsao_computation/execution/typing_compat.py",
       "sha256": "1537697da71581bf47fe275c762f850b4cfa2b8dd10c103bcb1c8d6c2513a10b"
+    },
+    {
+      "bytes": 813,
+      "path": "tsao_computation/orchestration/__init__.py",
+      "sha256": "8ee77ab0d1e26e8febe071ee6b02a8b6fbbb57da148966ce0a03acaff526eeba"
+    },
+    {
+      "bytes": 4946,
+      "path": "tsao_computation/orchestration/model.py",
+      "sha256": "3a31e0d5872a958b005998b75a6dff40ef6f8d4bcc7f3b09b00a75773cf88197"
+    },
+    {
+      "bytes": 34015,
+      "path": "tsao_computation/orchestration/planner.py",
+      "sha256": "66a0ecad42cd89f1d881af777c5c01cc67c88eaab38a94be108200083a530750"
     },
     {
       "bytes": 250,
@@ -2773,12 +2793,12 @@
     {
       "bytes": 91,
       "path": "tsao_computation/workflows/__init__.py",
-      "sha256": "96f9f80c8846b65cf8b79a96126bbe90d458aba7b93f8427ca1e164a356361b1"
+      "sha256": "79011ef03e5ba65d69508fe180eb909f4b5312ed38f7249d270d83c4551943ce"
     },
     {
-      "bytes": 1329,
+      "bytes": 2087,
       "path": "tsao_computation/workflows/engine.py",
-      "sha256": "dc5373d077be696c0e1dab01a039ea05adebb6dd9c66aab1acce7654fe47593a"
+      "sha256": "95840b14523e74ff91b653b75698cd3b852e91f2c75bef1abc035b35630fe8f4"
     }
   ],
   "schema_version": "1.0"

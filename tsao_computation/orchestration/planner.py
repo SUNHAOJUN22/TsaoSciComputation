@@ -3,11 +3,11 @@ from __future__ import annotations
 import hashlib
 import json
 import time
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from dataclasses import asdict, is_dataclass
 from functools import cache
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any, cast
 
 from ..adapters import get_adapter, list_adapters
 from ..contracts import CalculationContract
@@ -51,7 +51,12 @@ def _method(
         output_contract=("observables", "units", "uncertainty", "evidence"),
         convergence=("declared absolute and relative criteria", "bounded recovery"),
         validation=("reference or invariant", "physical plausibility", "applicability"),
-        failure_conditions=("invalid input", "non-finite result", "unmet convergence", "missing evidence"),
+        failure_conditions=(
+            "invalid input",
+            "non-finite result",
+            "unmet convergence",
+            "missing evidence",
+        ),
         invocation_kinds=invocation_kinds,
         acceleration_paths=acceleration_paths,
         claim_boundary=_CLAIM_BOUNDARY,
@@ -64,26 +69,166 @@ def methods() -> tuple[MethodSpec, ...]:
     solver = (InvocationKind.LOCAL_SOLVER, InvocationKind.CONTAINER, InvocationKind.SCHEDULER_JOB)
     service = (InvocationKind.REMOTE_API, InvocationKind.SKILL)
     return (
-        _method("analytical-model", "Analytical model", "analytical", ("equation",), local, ("symbolic simplification", "constant folding")),
-        _method("numerical-integration", "Numerical integration", "numerical", ("equation", "continuum"), local, ("adaptive stepping", "vectorization", "batching")),
-        _method("root-finding", "Root finding", "numerical", ("equation",), local, ("analytic derivative", "bracketing", "warm start")),
-        _method("nonlinear-optimization", "Nonlinear optimization", "optimization", ("equation", "engineering"), local + service, ("analytic Jacobian", "continuation", "warm start")),
-        _method("dense-linear-algebra", "Dense linear algebra", "linear-algebra", ("equation", "data"), local, ("BLAS", "GPU tensor math", "mixed precision")),
-        _method("sparse-linear-algebra", "Sparse linear algebra", "linear-algebra", ("continuum", "network"), local + solver, ("preconditioning", "multigrid", "domain decomposition")),
-        _method("statistical-inference", "Statistical inference", "statistics", ("data",), local + service, ("vectorization", "parallel cases", "streaming")),
-        _method("uncertainty-quantification", "Uncertainty quantification", "uncertainty", ("all",), local + service, ("surrogate model", "parallel cases", "variance reduction")),
-        _method("monte-carlo", "Monte Carlo", "stochastic", ("all",), local + solver, ("parallel cases", "variance reduction", "GPU batching")),
-        _method("quantum-chemistry", "Molecular quantum chemistry", "electronic-structure", ("electronic",), solver + service, ("native solver parallelism", "density fitting", "GPU backend")),
-        _method("periodic-dft", "Periodic density-functional theory", "electronic-structure", ("electronic", "materials"), solver + service, ("k-point parallelism", "FFT backend", "GPU backend")),
-        _method("molecular-dynamics", "Molecular dynamics", "atomistic", ("atomistic",), solver + service, ("domain decomposition", "neighbor lists", "GPU backend")),
-        _method("mesoscale-simulation", "Mesoscale simulation", "mesoscale", ("mesoscale",), local + solver, ("parallel particles", "FFT backend", "coarse graining")),
-        _method("computational-fluid-dynamics", "Computational fluid dynamics", "continuum", ("continuum", "equipment"), solver + service, ("domain decomposition", "multigrid", "GPU backend")),
-        _method("finite-element", "Finite-element analysis", "continuum", ("continuum", "device"), solver + service, ("sparse solver", "preconditioning", "adaptive mesh")),
-        _method("multiphysics", "Multiphysics coupling", "multiphysics", ("continuum", "device"), solver + service, ("partitioned coupling", "reduced-order model", "parallel solvers")),
-        _method("process-simulation", "Process and flowsheet simulation", "process", ("reactor", "process"), solver + service, ("sparse Jacobian", "tear-stream acceleration", "warm start")),
-        _method("dynamic-control", "Dynamic simulation and control", "control", ("process", "control"), local + solver + service, ("compiled model", "reduced-order model", "real-time scheduling")),
-        _method("digital-twin", "Digital twin", "digital-twin", ("process", "system"), local + service, ("surrogate inference", "streaming", "edge placement")),
-        _method("surrogate-machine-learning", "Surrogate and machine learning", "machine-learning", ("data", "all"), local + service, ("batched training", "GPU tensor cores", "quantized inference")),
+        _method(
+            "analytical-model",
+            "Analytical model",
+            "analytical",
+            ("equation",),
+            local,
+            ("symbolic simplification", "constant folding"),
+        ),
+        _method(
+            "numerical-integration",
+            "Numerical integration",
+            "numerical",
+            ("equation", "continuum"),
+            local,
+            ("adaptive stepping", "vectorization", "batching"),
+        ),
+        _method(
+            "root-finding",
+            "Root finding",
+            "numerical",
+            ("equation",),
+            local,
+            ("analytic derivative", "bracketing", "warm start"),
+        ),
+        _method(
+            "nonlinear-optimization",
+            "Nonlinear optimization",
+            "optimization",
+            ("equation", "engineering"),
+            local + service,
+            ("analytic Jacobian", "continuation", "warm start"),
+        ),
+        _method(
+            "dense-linear-algebra",
+            "Dense linear algebra",
+            "linear-algebra",
+            ("equation", "data"),
+            local,
+            ("BLAS", "GPU tensor math", "mixed precision"),
+        ),
+        _method(
+            "sparse-linear-algebra",
+            "Sparse linear algebra",
+            "linear-algebra",
+            ("continuum", "network"),
+            local + solver,
+            ("preconditioning", "multigrid", "domain decomposition"),
+        ),
+        _method(
+            "statistical-inference",
+            "Statistical inference",
+            "statistics",
+            ("data",),
+            local + service,
+            ("vectorization", "parallel cases", "streaming"),
+        ),
+        _method(
+            "uncertainty-quantification",
+            "Uncertainty quantification",
+            "uncertainty",
+            ("all",),
+            local + service,
+            ("surrogate model", "parallel cases", "variance reduction"),
+        ),
+        _method(
+            "monte-carlo",
+            "Monte Carlo",
+            "stochastic",
+            ("all",),
+            local + solver,
+            ("parallel cases", "variance reduction", "GPU batching"),
+        ),
+        _method(
+            "quantum-chemistry",
+            "Molecular quantum chemistry",
+            "electronic-structure",
+            ("electronic",),
+            solver + service,
+            ("native solver parallelism", "density fitting", "GPU backend"),
+        ),
+        _method(
+            "periodic-dft",
+            "Periodic density-functional theory",
+            "electronic-structure",
+            ("electronic", "materials"),
+            solver + service,
+            ("k-point parallelism", "FFT backend", "GPU backend"),
+        ),
+        _method(
+            "molecular-dynamics",
+            "Molecular dynamics",
+            "atomistic",
+            ("atomistic",),
+            solver + service,
+            ("domain decomposition", "neighbor lists", "GPU backend"),
+        ),
+        _method(
+            "mesoscale-simulation",
+            "Mesoscale simulation",
+            "mesoscale",
+            ("mesoscale",),
+            local + solver,
+            ("parallel particles", "FFT backend", "coarse graining"),
+        ),
+        _method(
+            "computational-fluid-dynamics",
+            "Computational fluid dynamics",
+            "continuum",
+            ("continuum", "equipment"),
+            solver + service,
+            ("domain decomposition", "multigrid", "GPU backend"),
+        ),
+        _method(
+            "finite-element",
+            "Finite-element analysis",
+            "continuum",
+            ("continuum", "device"),
+            solver + service,
+            ("sparse solver", "preconditioning", "adaptive mesh"),
+        ),
+        _method(
+            "multiphysics",
+            "Multiphysics coupling",
+            "multiphysics",
+            ("continuum", "device"),
+            solver + service,
+            ("partitioned coupling", "reduced-order model", "parallel solvers"),
+        ),
+        _method(
+            "process-simulation",
+            "Process and flowsheet simulation",
+            "process",
+            ("reactor", "process"),
+            solver + service,
+            ("sparse Jacobian", "tear-stream acceleration", "warm start"),
+        ),
+        _method(
+            "dynamic-control",
+            "Dynamic simulation and control",
+            "control",
+            ("process", "control"),
+            local + solver + service,
+            ("compiled model", "reduced-order model", "real-time scheduling"),
+        ),
+        _method(
+            "digital-twin",
+            "Digital twin",
+            "digital-twin",
+            ("process", "system"),
+            local + service,
+            ("surrogate inference", "streaming", "edge placement"),
+        ),
+        _method(
+            "surrogate-machine-learning",
+            "Surrogate and machine learning",
+            "machine-learning",
+            ("data", "all"),
+            local + service,
+            ("batched training", "GPU tensor cores", "quantized inference"),
+        ),
     )
 
 
@@ -120,11 +265,25 @@ def _invoke_benchmarks(payload: Mapping[str, Any]) -> object:
     return [item.to_dict() for item in run_all()]
 
 
-_TRUSTED_CALLABLES: dict[str, tuple[str, Callable[[Mapping[str, Any]], object], tuple[str, ...]]] = {
+_TRUSTED_CALLABLES: dict[
+    str, tuple[str, Callable[[Mapping[str, Any]], object], tuple[str, ...]]
+] = {
     "balance-check": ("Conservation balance check", _invoke_balance, ("inputs", "outputs")),
-    "convergence-check": ("Numerical convergence check", _invoke_convergence, ("values", "absolute_tolerance")),
-    "combine-independent-uncertainty": ("Independent uncertainty propagation", _invoke_uncertainty, ("components",)),
-    "scientific-benchmarks": ("Deterministic scientific reference benchmarks", _invoke_benchmarks, ()),
+    "convergence-check": (
+        "Numerical convergence check",
+        _invoke_convergence,
+        ("values", "absolute_tolerance"),
+    ),
+    "combine-independent-uncertainty": (
+        "Independent uncertainty propagation",
+        _invoke_uncertainty,
+        ("components",),
+    ),
+    "scientific-benchmarks": (
+        "Deterministic scientific reference benchmarks",
+        _invoke_benchmarks,
+        (),
+    ),
 }
 
 
@@ -139,7 +298,12 @@ def _trusted_spec(slug: str) -> InvocationSpec:
         trusted_local_execution=True,
         required_inputs=required,
         expected_outputs=("structured_result", "content_hashes", "duration_seconds"),
-        evidence_requirements=("validated payload", "request hash", "result hash", "runtime version"),
+        evidence_requirements=(
+            "validated payload",
+            "request hash",
+            "result hash",
+            "runtime version",
+        ),
         claim_boundary="Trusted repository-local function only; scientific acceptance remains a separate gate.",
     )
 
@@ -160,7 +324,12 @@ def _adapter_spec(slug: str) -> InvocationSpec:
         trusted_local_execution=False,
         required_inputs=("native_input_file", "lawful_environment", "explicit_authorization"),
         expected_outputs=("raw_solver_output", "return_status", "parser_record"),
-        evidence_requirements=("executable version", "input hash", "output hash", "environment probe"),
+        evidence_requirements=(
+            "executable version",
+            "input hash",
+            "output hash",
+            "environment probe",
+        ),
         claim_boundary="Command planning only; external execution and scientific acceptance are not implied.",
     )
 
@@ -176,7 +345,12 @@ def _template_specs() -> tuple[InvocationSpec, ...]:
             trusted_local_execution=False,
             required_inputs=("target", "input schema", "authorization", "evidence policy"),
             expected_outputs=("structured execution record",),
-            evidence_requirements=("identity", "version", "request hash", "response or artifact hash"),
+            evidence_requirements=(
+                "identity",
+                "version",
+                "request hash",
+                "response or artifact hash",
+            ),
             claim_boundary="Declarative template only; no target is contacted or executed by registration.",
         )
         for slug, name, kind in (
@@ -209,7 +383,11 @@ def get_invocation_spec(slug: str) -> InvocationSpec:
             target=workflow,
             workflow=workflow,
             trusted_local_execution=False,
-            required_inputs=("calculation contract", "Skill availability", "explicit authorization"),
+            required_inputs=(
+                "calculation contract",
+                "Skill availability",
+                "explicit authorization",
+            ),
             expected_outputs=("handoff record", "artifacts", "evidence"),
             evidence_requirements=("Skill identifier", "version", "input hash", "output hash"),
             claim_boundary="Skill handoff plan only; execution depends on an available authorized Skill runtime.",
@@ -310,10 +488,11 @@ def build_invocation_plan(
 
 
 def _jsonable(value: object) -> object:
-    if hasattr(value, "to_dict"):
-        return value.to_dict()  # type: ignore[union-attr]
-    if is_dataclass(value):
-        return asdict(value)
+    to_dict = getattr(value, "to_dict", None)
+    if callable(to_dict):
+        return to_dict()
+    if is_dataclass(value) and not isinstance(value, type):
+        return asdict(cast(Any, value))
     if isinstance(value, Mapping):
         return {str(key): _jsonable(item) for key, item in value.items()}
     if isinstance(value, (list, tuple)):
@@ -326,7 +505,9 @@ def _digest(value: object) -> str:
     return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
 
 
-def execute_trusted_callable(slug: str, payload: Mapping[str, Any] | None = None) -> InvocationResult:
+def execute_trusted_callable(
+    slug: str, payload: Mapping[str, Any] | None = None
+) -> InvocationResult:
     if slug not in _TRUSTED_CALLABLES:
         raise ContractError("only registered trusted repository-local callables may execute")
     plan = build_invocation_plan(slug, payload)
@@ -350,23 +531,164 @@ def execute_trusted_callable(slug: str, payload: Mapping[str, Any] | None = None
 
 _STRATEGIES: tuple[tuple[AccelerationAdvice, tuple[str, ...]], ...] = tuple(
     (
-        AccelerationAdvice(slug, layer, recommendation, conditions, benefit, risks, requirements, validation, False, _CLAIM_BOUNDARY),
+        AccelerationAdvice(
+            slug,
+            layer,
+            recommendation,
+            conditions,
+            benefit,
+            risks,
+            requirements,
+            validation,
+            False,
+            _CLAIM_BOUNDARY,
+        ),
         tags,
     )
     for slug, layer, recommendation, conditions, benefit, risks, requirements, validation, tags in (
-        ("profiling-first", "governance", "Profile end-to-end time, memory, transfer and I/O before optimization.", ("all workloads",), "find the real bottleneck", ("measurement noise",), ("representative workload",), ("same-host repeated baseline",), ("all",)),
-        ("native-solver-backend", "backend", "Prefer the solver's supported native parallel or accelerator backend.", ("external solver supports it",), "reduced execution time", ("build-feature mismatch", "numerical non-equivalence"), ("verified solver build", "CPU reference"), ("end-to-end equivalence and timing",), ("solver", "dft", "md", "cfd", "fem", "process")),
-        ("analytic-jacobian", "algorithm", "Use an analytic or automatic-differentiation Jacobian instead of repeated finite differences.", ("smooth residual or objective",), "fewer model evaluations", ("incorrect derivatives",), ("derivative implementation",), ("finite-difference cross-check",), ("optimization", "root", "process", "control")),
-        ("sparse-preconditioning", "algorithm", "Use sparse storage and a problem-appropriate preconditioner.", ("large sparse linear systems",), "fewer iterations and lower memory", ("preconditioner setup cost",), ("sparse operator",), ("residual and iteration comparison",), ("sparse", "fem", "cfd", "multiphysics")),
-        ("multigrid-domain-decomposition", "algorithm", "Use multigrid or domain decomposition for mesh-based systems.", ("elliptic or coupled mesh problem",), "scalable convergence", ("communication overhead",), ("mesh hierarchy or partitioner",), ("mesh-independent convergence study",), ("cfd", "fem", "multiphysics", "mesh")),
-        ("adaptive-stepping", "algorithm", "Use error-controlled adaptive time or integration steps.", ("transient or integration workload",), "avoid unnecessary steps", ("missed fast events",), ("local error estimator",), ("fixed-step reference",), ("integration", "dynamic", "control", "reaction")),
-        ("continuation-warm-start", "algorithm", "Reuse a nearby accepted solution and apply continuation across difficult parameter changes.", ("parameter sweep or nonlinear solve",), "faster and more robust convergence", ("path dependence",), ("validated previous state",), ("cold-start comparison",), ("optimization", "root", "process", "sweep")),
-        ("parallel-independent-cases", "execution", "Run independent cases, samples or parameter points concurrently.", ("embarrassingly parallel cases",), "higher throughput", ("resource oversubscription",), ("bounded worker count",), ("deterministic result ordering",), ("monte", "uncertainty", "sampling", "sweep", "statistics")),
-        ("streaming-bounded-memory", "memory", "Use streaming reductions and bounded caches instead of materializing full histories.", ("large iterable, trajectory or log",), "lower peak memory", ("loss of random access",), ("one-pass statistic",), ("reference result and memory profile",), ("trajectory", "log", "stream", "large", "data")),
-        ("batched-vectorized-kernel", "kernel", "Batch homogeneous operations and use vectorized or tensor kernels.", ("repeated homogeneous arithmetic",), "higher arithmetic throughput", ("temporary memory growth",), ("array or tensor representation",), ("scalar reference equivalence",), ("dense", "tensor", "ml", "monte", "batch")),
-        ("mixed-precision", "kernel", "Use mixed precision only where a higher-precision reference proves acceptance equivalence.", ("precision-tolerant accelerated kernel",), "higher throughput or lower memory", ("loss of accuracy", "non-determinism"), ("FP64 reference",), ("observable, conservation and convergence equivalence",), ("gpu", "tensor", "ml", "dense")),
-        ("surrogate-reduced-order", "model", "Use a validated surrogate or reduced-order model for repeated queries.", ("many queries inside a validated domain",), "lower latency", ("extrapolation", "model-form error"), ("training and validation data",), ("holdout and applicability checks",), ("digital", "control", "optimization", "many queries")),
-        ("checkpoint-restart", "resilience", "Use checkpoint/restart for long or failure-prone executions.", ("long wall time or queue risk",), "reduced lost work", ("incompatible restart state",), ("versioned checkpoint format",), ("restart equivalence test",), ("hpc", "long", "scheduler", "md", "cfd", "dft")),
+        (
+            "profiling-first",
+            "governance",
+            "Profile end-to-end time, memory, transfer and I/O before optimization.",
+            ("all workloads",),
+            "find the real bottleneck",
+            ("measurement noise",),
+            ("representative workload",),
+            ("same-host repeated baseline",),
+            ("all",),
+        ),
+        (
+            "native-solver-backend",
+            "backend",
+            "Prefer the solver's supported native parallel or accelerator backend.",
+            ("external solver supports it",),
+            "reduced execution time",
+            ("build-feature mismatch", "numerical non-equivalence"),
+            ("verified solver build", "CPU reference"),
+            ("end-to-end equivalence and timing",),
+            ("solver", "dft", "md", "cfd", "fem", "process"),
+        ),
+        (
+            "analytic-jacobian",
+            "algorithm",
+            "Use an analytic or automatic-differentiation Jacobian instead of repeated finite differences.",
+            ("smooth residual or objective",),
+            "fewer model evaluations",
+            ("incorrect derivatives",),
+            ("derivative implementation",),
+            ("finite-difference cross-check",),
+            ("optimization", "root", "process", "control"),
+        ),
+        (
+            "sparse-preconditioning",
+            "algorithm",
+            "Use sparse storage and a problem-appropriate preconditioner.",
+            ("large sparse linear systems",),
+            "fewer iterations and lower memory",
+            ("preconditioner setup cost",),
+            ("sparse operator",),
+            ("residual and iteration comparison",),
+            ("sparse", "fem", "cfd", "multiphysics"),
+        ),
+        (
+            "multigrid-domain-decomposition",
+            "algorithm",
+            "Use multigrid or domain decomposition for mesh-based systems.",
+            ("elliptic or coupled mesh problem",),
+            "scalable convergence",
+            ("communication overhead",),
+            ("mesh hierarchy or partitioner",),
+            ("mesh-independent convergence study",),
+            ("cfd", "fem", "multiphysics", "mesh"),
+        ),
+        (
+            "adaptive-stepping",
+            "algorithm",
+            "Use error-controlled adaptive time or integration steps.",
+            ("transient or integration workload",),
+            "avoid unnecessary steps",
+            ("missed fast events",),
+            ("local error estimator",),
+            ("fixed-step reference",),
+            ("integration", "dynamic", "control", "reaction"),
+        ),
+        (
+            "continuation-warm-start",
+            "algorithm",
+            "Reuse a nearby accepted solution and apply continuation across difficult parameter changes.",
+            ("parameter sweep or nonlinear solve",),
+            "faster and more robust convergence",
+            ("path dependence",),
+            ("validated previous state",),
+            ("cold-start comparison",),
+            ("optimization", "root", "process", "sweep"),
+        ),
+        (
+            "parallel-independent-cases",
+            "execution",
+            "Run independent cases, samples or parameter points concurrently.",
+            ("embarrassingly parallel cases",),
+            "higher throughput",
+            ("resource oversubscription",),
+            ("bounded worker count",),
+            ("deterministic result ordering",),
+            ("monte", "uncertainty", "sampling", "sweep", "statistics"),
+        ),
+        (
+            "streaming-bounded-memory",
+            "memory",
+            "Use streaming reductions and bounded caches instead of materializing full histories.",
+            ("large iterable, trajectory or log",),
+            "lower peak memory",
+            ("loss of random access",),
+            ("one-pass statistic",),
+            ("reference result and memory profile",),
+            ("trajectory", "log", "stream", "large", "data"),
+        ),
+        (
+            "batched-vectorized-kernel",
+            "kernel",
+            "Batch homogeneous operations and use vectorized or tensor kernels.",
+            ("repeated homogeneous arithmetic",),
+            "higher arithmetic throughput",
+            ("temporary memory growth",),
+            ("array or tensor representation",),
+            ("scalar reference equivalence",),
+            ("dense", "tensor", "ml", "monte", "batch"),
+        ),
+        (
+            "mixed-precision",
+            "kernel",
+            "Use mixed precision only where a higher-precision reference proves acceptance equivalence.",
+            ("precision-tolerant accelerated kernel",),
+            "higher throughput or lower memory",
+            ("loss of accuracy", "non-determinism"),
+            ("FP64 reference",),
+            ("observable, conservation and convergence equivalence",),
+            ("gpu", "tensor", "ml", "dense"),
+        ),
+        (
+            "surrogate-reduced-order",
+            "model",
+            "Use a validated surrogate or reduced-order model for repeated queries.",
+            ("many queries inside a validated domain",),
+            "lower latency",
+            ("extrapolation", "model-form error"),
+            ("training and validation data",),
+            ("holdout and applicability checks",),
+            ("digital", "control", "optimization", "many queries"),
+        ),
+        (
+            "checkpoint-restart",
+            "resilience",
+            "Use checkpoint/restart for long or failure-prone executions.",
+            ("long wall time or queue risk",),
+            "reduced lost work",
+            ("incompatible restart state",),
+            ("versioned checkpoint format",),
+            ("restart equivalence test",),
+            ("hpc", "long", "scheduler", "md", "cfd", "dft"),
+        ),
     )
 )
 
@@ -380,7 +702,12 @@ def recommend_acceleration(
     if limit < 1:
         raise ValueError("limit must be positive")
     source = {} if workload is None else dict(workload)
-    text = " ".join([*(str(item) for item in method_slugs), *(f"{key} {value}" for key, value in source.items())]).casefold()
+    text = " ".join(
+        [
+            *(str(item) for item in method_slugs),
+            *(f"{key} {value}" for key, value in source.items()),
+        ]
+    ).casefold()
     ranked: list[tuple[int, str, AccelerationAdvice]] = []
     for advice, tags in _STRATEGIES:
         score = sum(tag in text for tag in tags)
@@ -459,15 +786,123 @@ def build_orchestration_plan(contract: CalculationContract) -> OrchestrationPlan
     )
     gates = tuple(str(item) for item in record.get("required_gates", []))
     steps = (
-        OrchestrationStep("S1", "specification", "Validate the strict calculation contract.", (), method_slugs, capability_ids, (), ("contract",), ("validated_contract",), False, _CLAIM_BOUNDARY),
-        OrchestrationStep("S2", "selection", "Select workflow, methods, capabilities and invocation candidates.", ("S1",), method_slugs, capability_ids, invocation_slugs, ("method",), ("orchestration_plan",), False, _CLAIM_BOUNDARY),
-        OrchestrationStep("S3", "preflight", "Probe software, licenses, data, hardware, backends and paths.", ("S2",), method_slugs, capability_ids, invocation_slugs, ("preflight",), ("environment_record",), True, _CLAIM_BOUNDARY),
-        OrchestrationStep("S4", "preparation", "Build native inputs, function payloads, argv or a guidance-only handoff.", ("S3",), method_slugs, capability_ids, invocation_slugs, ("input_integrity",), tuple(contract.expected_artifacts) or ("prepared_inputs",), False, _CLAIM_BOUNDARY),
-        OrchestrationStep("S5", "execution", "Execute only an authorized and ready invocation target.", ("S4",), method_slugs, capability_ids, invocation_slugs, ("completion",), ("raw_outputs", "execution_record"), True, _CLAIM_BOUNDARY),
-        OrchestrationStep("S6", "interpretation", "Parse outputs and evaluate numerical convergence.", ("S5",), method_slugs, capability_ids, ("convergence-check",), ("completion", "convergence"), ("parser_record", "convergence_record"), False, _CLAIM_BOUNDARY),
-        OrchestrationStep("S7", "validation", "Check units, conservation, physical plausibility, benchmarks and applicability.", ("S6",), method_slugs, capability_ids, ("balance-check", "scientific-benchmarks"), ("physical_validation",), ("validation_record",), False, _CLAIM_BOUNDARY),
-        OrchestrationStep("S8", "uncertainty", "Quantify statistical, numerical, parameter, model and handoff uncertainty.", ("S7",), method_slugs, capability_ids, ("combine-independent-uncertainty",), ("uncertainty",), ("uncertainty_budget",), False, _CLAIM_BOUNDARY),
-        OrchestrationStep("S9", "acceptance", "Bind evidence and decide accept, reject, fallback, escalate or supersede.", ("S8",), method_slugs, capability_ids, invocation_slugs, gates or ("acceptance",), ("evidence_manifest", "acceptance_decision"), True, _CLAIM_BOUNDARY),
+        OrchestrationStep(
+            "S1",
+            "specification",
+            "Validate the strict calculation contract.",
+            (),
+            method_slugs,
+            capability_ids,
+            (),
+            ("contract",),
+            ("validated_contract",),
+            False,
+            _CLAIM_BOUNDARY,
+        ),
+        OrchestrationStep(
+            "S2",
+            "selection",
+            "Select workflow, methods, capabilities and invocation candidates.",
+            ("S1",),
+            method_slugs,
+            capability_ids,
+            invocation_slugs,
+            ("method",),
+            ("orchestration_plan",),
+            False,
+            _CLAIM_BOUNDARY,
+        ),
+        OrchestrationStep(
+            "S3",
+            "preflight",
+            "Probe software, licenses, data, hardware, backends and paths.",
+            ("S2",),
+            method_slugs,
+            capability_ids,
+            invocation_slugs,
+            ("preflight",),
+            ("environment_record",),
+            True,
+            _CLAIM_BOUNDARY,
+        ),
+        OrchestrationStep(
+            "S4",
+            "preparation",
+            "Build native inputs, function payloads, argv or a guidance-only handoff.",
+            ("S3",),
+            method_slugs,
+            capability_ids,
+            invocation_slugs,
+            ("input_integrity",),
+            tuple(contract.expected_artifacts) or ("prepared_inputs",),
+            False,
+            _CLAIM_BOUNDARY,
+        ),
+        OrchestrationStep(
+            "S5",
+            "execution",
+            "Execute only an authorized and ready invocation target.",
+            ("S4",),
+            method_slugs,
+            capability_ids,
+            invocation_slugs,
+            ("completion",),
+            ("raw_outputs", "execution_record"),
+            True,
+            _CLAIM_BOUNDARY,
+        ),
+        OrchestrationStep(
+            "S6",
+            "interpretation",
+            "Parse outputs and evaluate numerical convergence.",
+            ("S5",),
+            method_slugs,
+            capability_ids,
+            ("convergence-check",),
+            ("completion", "convergence"),
+            ("parser_record", "convergence_record"),
+            False,
+            _CLAIM_BOUNDARY,
+        ),
+        OrchestrationStep(
+            "S7",
+            "validation",
+            "Check units, conservation, physical plausibility, benchmarks and applicability.",
+            ("S6",),
+            method_slugs,
+            capability_ids,
+            ("balance-check", "scientific-benchmarks"),
+            ("physical_validation",),
+            ("validation_record",),
+            False,
+            _CLAIM_BOUNDARY,
+        ),
+        OrchestrationStep(
+            "S8",
+            "uncertainty",
+            "Quantify statistical, numerical, parameter, model and handoff uncertainty.",
+            ("S7",),
+            method_slugs,
+            capability_ids,
+            ("combine-independent-uncertainty",),
+            ("uncertainty",),
+            ("uncertainty_budget",),
+            False,
+            _CLAIM_BOUNDARY,
+        ),
+        OrchestrationStep(
+            "S9",
+            "acceptance",
+            "Bind evidence and decide accept, reject, fallback, escalate or supersede.",
+            ("S8",),
+            method_slugs,
+            capability_ids,
+            invocation_slugs,
+            gates or ("acceptance",),
+            ("evidence_manifest", "acceptance_decision"),
+            True,
+            _CLAIM_BOUNDARY,
+        ),
     )
     blockers = contract.specification_gaps()
     return OrchestrationPlan(
@@ -486,10 +921,26 @@ def build_orchestration_plan(contract: CalculationContract) -> OrchestrationPlan
         },
         uncertainty_plan={
             "sources": list(contract.uncertainty_sources),
-            "required_components": ["statistical", "numerical", "parameter", "model-form", "handoff"],
+            "required_components": [
+                "statistical",
+                "numerical",
+                "parameter",
+                "model-form",
+                "handoff",
+            ],
         },
         evidence_plan={
-            "bind": ["versions", "inputs", "outputs", "hashes", "hardware", "backend", "precision", "timings", "validation"],
+            "bind": [
+                "versions",
+                "inputs",
+                "outputs",
+                "hashes",
+                "hardware",
+                "backend",
+                "precision",
+                "timings",
+                "validation",
+            ],
             "expected_artifacts": list(contract.expected_artifacts),
             "human_approval_nodes": list(contract.human_approval_nodes),
         },
