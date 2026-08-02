@@ -32,12 +32,10 @@ jobs:
           ref: main
           fetch-depth: 0
           persist-credentials: true
-
       - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
         with:
           python-version: '3.13'
           cache: pip
-
       - name: Materialize corrected execution-integrity candidate
         shell: bash
         run: |
@@ -51,12 +49,9 @@ jobs:
           git read-tree --reset -u "$CANDIDATE_SHA"
           git clean -fd
           python scripts/apply_execution_integrity_v13.py
-          rm -f scripts/apply_execution_integrity_v13.py
-          rm -f docs/.execution-integrity-v13-plan.md
-          rm -f .github/workflows/execution-integrity-v13b-once.yml
+          rm -f scripts/apply_execution_integrity_v13.py docs/.execution-integrity-v13-plan.md .github/workflows/execution-integrity-v13b-once.yml
           python - <<'PY'
           from pathlib import Path
-
           path = Path('CHANGELOG.md')
           text = path.read_text(encoding='utf-8')
           anchor = '## Unreleased\n'
@@ -83,7 +78,6 @@ jobs:
 
           External solver execution remains plan-only until a matching authorization is created through `authorize_plan`; scientific acceptance remains a separate gate.
           EOF
-
       - name: Normalize and run focused fault-injection gates
         shell: bash
         run: |
@@ -92,18 +86,11 @@ jobs:
           python -m pip install -e '.[validation,quality,security]'
           python -m ruff check --fix tsao_computation scripts tests _bootstrap.py
           python -m ruff format tsao_computation scripts tests _bootstrap.py
-          python -m pytest -q \
-            tests/test_execution_integrity_v13.py \
-            tests/test_core.py \
-            tests/test_extended.py \
-            tests/test_adversarial_super_skill_phase_a.py \
-            tests/test_acceleration_foundation.py \
-            tests/test_acceleration_hardening.py
+          python -m pytest -q tests/test_execution_integrity_v13.py tests/test_core.py tests/test_extended.py tests/test_adversarial_super_skill_phase_a.py tests/test_acceleration_foundation.py tests/test_acceleration_hardening.py
           python -m mypy --python-version 3.13 tsao_computation scripts
           python -m bandit -q -r tsao_computation scripts -x tests
           python scripts/security_scan.py
           python scripts/build_manifest.py
-
       - name: Run complete deterministic security dependency and package gates
         shell: bash
         run: |
@@ -114,8 +101,7 @@ jobs:
           python scripts/verify_all.py --profile benchmark --timing-json /tmp/execution-integrity-v13b-benchmark.json
           python scripts/verify_native_core.py > /tmp/execution-integrity-v13b-native.json
           python scripts/security_scan.py
-          python -m pip_audit --local --skip-editable --progress-spinner=off \
-            --format=json --output /tmp/execution-integrity-v13b-dependencies.json
+          python -m pip_audit --local --skip-editable --progress-spinner=off --format=json --output /tmp/execution-integrity-v13b-dependencies.json
           rm -rf /tmp/execution-integrity-v13b-build /tmp/execution-integrity-v13b-venv
           python -m build --outdir /tmp/execution-integrity-v13b-build
           python -m venv /tmp/execution-integrity-v13b-venv
@@ -124,38 +110,16 @@ jobs:
           python -m pytest -q | tee /tmp/execution-integrity-v13b-pytest.log
           git ls-remote --heads origin | sort > /tmp/execution-integrity-v13b-heads.txt
           test "$(awk '{print $2}' /tmp/execution-integrity-v13b-heads.txt | sed 's#refs/heads/##' | paste -sd ' ' -)" = main
-
       - name: Refresh machine evidence
         shell: bash
         run: |
           set -Eeuo pipefail
           echo evidence > /tmp/execution-integrity-v13b-stage
-          python scripts/build_super_skill_audit.py \
-            --test-log /tmp/execution-integrity-v13b-pytest.log \
-            --coverage-json /tmp/execution-integrity-v13b-coverage.json \
-            --dependency-json /tmp/execution-integrity-v13b-dependencies.json \
-            --security-json evidence/security-scan.json \
-            --verification-json /tmp/execution-integrity-v13b-all.json
-          python scripts/update_main_audit_evidence.py \
-            --root . \
-            --run-id "$GITHUB_RUN_ID" \
-            --issue "$AUDIT_ISSUE" \
-            --test-log /tmp/execution-integrity-v13b-pytest.log \
-            --coverage-json /tmp/execution-integrity-v13b-coverage.json \
-            --dependency-json /tmp/execution-integrity-v13b-dependencies.json \
-            --security-json evidence/security-scan.json \
-            --remote-heads /tmp/execution-integrity-v13b-heads.txt \
-            --parent-commit "$ORIGINAL_SHA" \
-            --audit-generation execution-integrity-v13 \
-            --audit-label execution-integrity \
-            --visual-count 42 \
-            --visual-atlas-version 13 \
-            --report-path reports/EXECUTION_INTEGRITY_V13.md \
-            --visual-families 'Electronic structure and molecular simulation; materials and interfaces; continuum and process engineering; evidence governance and HPC.'
+          python scripts/build_super_skill_audit.py --test-log /tmp/execution-integrity-v13b-pytest.log --coverage-json /tmp/execution-integrity-v13b-coverage.json --dependency-json /tmp/execution-integrity-v13b-dependencies.json --security-json evidence/security-scan.json --verification-json /tmp/execution-integrity-v13b-all.json
+          python scripts/update_main_audit_evidence.py --root . --run-id "$GITHUB_RUN_ID" --issue "$AUDIT_ISSUE" --test-log /tmp/execution-integrity-v13b-pytest.log --coverage-json /tmp/execution-integrity-v13b-coverage.json --dependency-json /tmp/execution-integrity-v13b-dependencies.json --security-json evidence/security-scan.json --remote-heads /tmp/execution-integrity-v13b-heads.txt --parent-commit "$ORIGINAL_SHA" --audit-generation execution-integrity-v13 --audit-label execution-integrity --visual-count 42 --visual-atlas-version 13 --report-path reports/EXECUTION_INTEGRITY_V13.md --visual-families 'Electronic structure and molecular simulation; materials and interfaces; continuum and process engineering; evidence governance and HPC.'
           python scripts/sync_version_metadata.py --release-date 2026-08-03
           python scripts/security_scan.py
           python scripts/build_manifest.py
-
       - name: Validate exact final tree
         shell: bash
         run: |
@@ -171,34 +135,23 @@ jobs:
           python - <<'PY'
           import json
           from pathlib import Path
-
           audit = json.loads(Path('reports/ULTIMATE_COMPUTATION_SUPER_SKILL_AUDIT.json').read_text())
           policy = audit['execution_policy']
-          assert audit['status'] == 'VALIDATED'
-          assert audit['version'] == '3.0.4'
-          assert audit['validation_missing_evidence'] == []
-          assert audit['validation_failures'] == []
+          assert audit['status'] == 'VALIDATED' and audit['version'] == '3.0.4'
+          assert audit['validation_missing_evidence'] == [] and audit['validation_failures'] == []
           assert audit['quality']['tests_failed'] == 0
           assert audit['quality']['dependency_vulnerabilities'] == 0
           assert audit['quality']['repository_security_findings'] == 0
           assert audit['quality']['source_and_wheel_reproducible'] is True
-          assert policy['direct_low_level_process_execution_disabled'] is True
-          assert policy['read_only_probe_commands_allowlisted'] is True
-          assert policy['authorization_binds_executable_sha256'] is True
-          assert policy['authorization_binds_input_sha256'] is True
-          assert policy['python_module_probes_use_sanitized_environment'] is True
-          for temporary in (
-              'scripts/apply_execution_integrity_v13.py',
-              'docs/.execution-integrity-v13-plan.md',
-              '.github/workflows/execution-integrity-v13b-once.yml',
-          ):
+          for key in ('direct_low_level_process_execution_disabled','read_only_probe_commands_allowlisted','authorization_binds_executable_sha256','authorization_binds_input_sha256','python_module_probes_use_sanitized_environment'):
+              assert policy[key] is True, key
+          for temporary in ('scripts/apply_execution_integrity_v13.py','docs/.execution-integrity-v13-plan.md','.github/workflows/execution-integrity-v13b-once.yml'):
               assert not Path(temporary).exists(), temporary
           PY
           mapfile -t workflow_files < <(find .github/workflows -maxdepth 1 -type f -name '*.yml' -printf '%f\n' | sort)
           expected=(ci.yml codeql.yml dependency-audit.yml release.yml scorecard.yml)
           test "${workflow_files[*]}" = "${expected[*]}"
           test "$(git ls-remote --heads origin | awk '{print $2}' | sed 's#refs/heads/##' | paste -sd ' ' -)" = main
-
       - name: Commit exact final tree directly to main
         shell: bash
         run: |
@@ -211,7 +164,6 @@ jobs:
           FINAL_SHA="$(git rev-parse HEAD)"
           echo "FINAL_SHA=$FINAL_SHA" >> "$GITHUB_ENV"
           echo "FINAL_PUSHED=true" >> "$GITHUB_ENV"
-
       - name: Require exact-final production workflows
         shell: bash
         run: |
@@ -223,12 +175,9 @@ jobs:
           gh workflow run scorecard.yml --ref main
           : > /tmp/execution-integrity-v13b-production-runs.txt
           wait_for_workflow() {
-            local workflow="$1"
-            local line status conclusion url
+            local workflow="$1" line status conclusion url
             for _ in $(seq 1 180); do
-              line="$(gh run list --repo "$GITHUB_REPOSITORY" --workflow "$workflow" --branch main \
-                --event workflow_dispatch --limit 20 --json headSha,status,conclusion,url \
-                --jq ".[] | select(.headSha == \"$FINAL_SHA\") | [.status,.conclusion,.url] | @tsv" | head -n 1)"
+              line="$(gh run list --repo "$GITHUB_REPOSITORY" --workflow "$workflow" --branch main --event workflow_dispatch --limit 20 --json headSha,status,conclusion,url --jq ".[] | select(.headSha == \"$FINAL_SHA\") | [.status,.conclusion,.url] | @tsv" | head -n 1)"
               if [[ -n "$line" ]]; then
                 IFS=$'\t' read -r status conclusion url <<< "$line"
                 if [[ "$status" == completed ]]; then
@@ -244,7 +193,6 @@ jobs:
           wait_for_workflow ci.yml
           wait_for_workflow codeql.yml
           wait_for_workflow scorecard.yml
-
       - name: Close successful audit
         shell: bash
         run: |
@@ -255,18 +203,11 @@ jobs:
           from pathlib import Path
           audit = json.loads(Path('reports/ULTIMATE_COMPUTATION_SUPER_SKILL_AUDIT.json').read_text())
           quality = audit['quality']
-          print(
-              f"version={audit['version']}; tests={quality['tests_passed']}; "
-              f"statement-coverage={quality['statement_coverage_percent']:.2f}%; "
-              f"branch-coverage={quality['branch_coverage_percent']:.2f}%"
-          )
+          print(f"version={audit['version']}; tests={quality['tests_passed']}; statement-coverage={quality['statement_coverage_percent']:.2f}%; branch-coverage={quality['branch_coverage_percent']:.2f}%")
           PY
           )"
-          gh issue close "$AUDIT_ISSUE" --repo "$GITHUB_REPOSITORY" --reason completed \
-            --comment "Execution integrity V13 passed on commit \`$FINAL_SHA\`. $metrics. Direct low-level execution is disabled; read-only hardware probes are allowlisted; Python-module probes use a sanitized environment; executable, input and normalized environment state are rebound before launch. All deterministic, benchmark, security, dependency, reproducible source/Wheel, Manifest and main-only gates passed. Production workflows:\n$runs\nNo branch or pull request was created."
-          gh issue close "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --reason completed \
-            --comment "Final V13 certification completed at \`$FINAL_SHA\`. Authoritative evidence is in Issue #$AUDIT_ISSUE."
-
+          gh issue close "$AUDIT_ISSUE" --repo "$GITHUB_REPOSITORY" --reason completed --comment "Execution integrity V13 passed on commit \`$FINAL_SHA\`. $metrics. Direct low-level execution is disabled; read-only hardware probes are allowlisted; Python-module probes use a sanitized environment; executable, input and normalized environment state are rebound before launch. All deterministic, benchmark, security, dependency, reproducible source/Wheel, Manifest and main-only gates passed. Production workflows:\n$runs\nNo branch or pull request was created."
+          gh issue close "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --reason completed --comment "Final V13 certification completed at \`$FINAL_SHA\`. Authoritative evidence is in Issue #$AUDIT_ISSUE."
       - name: Fail closed to certified baseline
         if: ${{ failure() }}
         shell: bash
@@ -284,8 +225,6 @@ jobs:
           git add -A
           git commit -m "Restore certified baseline after V13B $stage" || true
           git push origin HEAD:refs/heads/main || true
-          gh issue comment "$AUDIT_ISSUE" --repo "$GITHUB_REPOSITORY" \
-            --body "Execution integrity V13B failed closed at stage: $stage. Actions run: $GITHUB_RUN_ID. The tree was restored to certified baseline $CLEAN_BASELINE_SHA. No branch or PR was created." || true
-          gh issue close "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --reason "not planned" \
-            --comment "Fail-closed at stage: $stage. See audit Issue #$AUDIT_ISSUE." || true
+          gh issue comment "$AUDIT_ISSUE" --repo "$GITHUB_REPOSITORY" --body "Execution integrity V13B failed closed at stage: $stage. Actions run: $GITHUB_RUN_ID. The tree was restored to certified baseline $CLEAN_BASELINE_SHA. No branch or PR was created." || true
+          gh issue close "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --reason not_planned --comment "Fail-closed at stage: $stage. See audit Issue #$AUDIT_ISSUE." || true
           exit 1
