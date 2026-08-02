@@ -55,13 +55,18 @@ def test_release_workflow_does_not_interpolate_dispatch_input_into_shell() -> No
     assert "git diff --exit-code" in workflow
 
 
-def test_scorecard_workflow_is_pinned_and_least_privilege() -> None:
+def test_scorecard_workflow_is_pinned_least_privilege_and_sarif_preserving() -> None:
     workflow = (ROOT / ".github" / "workflows" / "scorecard.yml").read_text(encoding="utf-8")
     assert "permissions: read-all" in workflow
     assert "security-events: write" in workflow
-    assert "id-token: write" in workflow
+    assert "id-token: write" not in workflow
     assert "persist-credentials: false" in workflow
-    assert "publish_results: true" in workflow
+    assert "publish_results: false" in workflow
+    assert "results_file: results.sarif" in workflow
+    assert "results_format: sarif" in workflow
+    assert "Upload SARIF artifact" in workflow
+    assert "github/codeql-action/upload-sarif@" in workflow
+    assert "sarif_file: results.sarif" in workflow
     assert "pull_request_target:" not in workflow
     assert "workflow_run:" not in workflow
     for line in workflow.splitlines():
