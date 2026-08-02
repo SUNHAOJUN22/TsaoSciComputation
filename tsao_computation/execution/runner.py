@@ -4,12 +4,17 @@ import hashlib
 import json
 import os
 import shutil
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 
 from ..errors import SecurityError
-from ..security.process import _authorized_run, _issue_process_execution_permit
+from ..security.process import (
+    _authorized_run,
+    _issue_process_execution_permit,
+    _subprocess_environment,
+)
 from .typing_compat import CommandPlanLike
 
 _AUTHORIZATION_SEAL = object()
@@ -61,7 +66,9 @@ def _input_binding(plan: CommandPlanLike) -> tuple[str | None, str | None]:
     return str(resolved), actual_sha256
 
 
-def _bound_plan(plan: CommandPlanLike) -> tuple[str, str, str, str | None]:
+def _bound_plan(
+    plan: CommandPlanLike,
+) -> tuple[str, str, str, str | None, Mapping[str, str]]:
     if not plan.argv or any(
         not isinstance(item, str) or not item or "\x00" in item for item in plan.argv
     ):
@@ -75,11 +82,12 @@ def _bound_plan(plan: CommandPlanLike) -> tuple[str, str, str, str | None]:
     executable = _resolve_executable(plan.argv[0])
     executable_sha256 = _sha256_file(executable)
     input_path, input_sha256 = _input_binding(plan)
+    normalized_environment = _subprocess_environment(plan.environment)
     normalized_argv = [str(executable), *plan.argv[1:]]
     payload = {
         "argv": normalized_argv,
         "cwd": str(cwd),
-        "environment": dict(sorted(plan.environment.items())),
+        "environment": dict(sorted(normalized_environment.items())),
         "adapter_slug": getattr(plan, "adapter_slug", None),
         "executable_sha256": executable_sha256,
         "input_path": input_path,
@@ -87,7 +95,7 @@ def _bound_plan(plan: CommandPlanLike) -> tuple[str, str, str, str | None]:
     }
     encoded = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
     digest = hashlib.sha256(encoded.encode("utf-8")).hexdigest()
-    return digest, str(executable), executable_sha256, input_sha256
+    return digest, str(executable), executable_sha256, input_sha256, normalized_environment
 
 
 def plan_sha256(plan: CommandPlanLike) -> str:
@@ -138,7 +146,7 @@ def authorize_plan(
         raise SecurityError("authorized_by must be a non-empty identity")
     if not isinstance(purpose, str) or not purpose.strip():
         raise SecurityError("authorization purpose must be a non-empty string")
-    digest, _, executable_sha256, input_sha256 = _bound_plan(plan)
+    digest, _, executable_sha256, input_sha256, _ = _bound_plan(plan)
     return ExecutionAuthorization(
         digest,
         executable_sha256,
@@ -174,7 +182,7 @@ def run_plan(
 ) -> ExecutionRecord:
     if authorization is None:
         raise SecurityError("external process execution is plan-only until explicitly authorized")
-    digest, executable, executable_sha256, input_sha256 = _bound_plan(plan)
+    digest, executable, executable_sha256, input_sha256, environment = _bound_plan(plan)
     if authorization.explicit_authorization is not True or authorization.plan_sha256 != digest:
         raise SecurityError("execution authorization does not match the immutable command plan")
     if authorization.executable_sha256 != executable_sha256:
@@ -187,7 +195,7 @@ def run_plan(
         argv,
         cwd=plan.cwd,
         timeout=timeout,
-        env=plan.environment,
+        environment=environment,
         permit=_issue_process_execution_permit(),
     )
     completed_at = datetime.now(timezone.utc).isoformat()
