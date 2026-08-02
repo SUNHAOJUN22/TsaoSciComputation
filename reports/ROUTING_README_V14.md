@@ -5,7 +5,7 @@
 - Branch policy: `main` only; no branch or pull request created
 - Version: `3.0.4`
 - Supported platforms: Windows core; Linux compatible
-- Deterministic finalization run: `30761691044`
+- Deterministic finalization run: `30761695507`
 - Tests: `778 passed, 0 failed`
 - Coverage: `96.63%` statement / `90.99%` branch
 - Scientific benchmarks: `8/8`

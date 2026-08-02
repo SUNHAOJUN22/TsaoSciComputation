@@ -118,8 +118,8 @@
   },
   "telemetry": {
     "claim_boundary": "Same-host repository-local orchestration latency only; no external solver or GPU speedup is measured.",
-    "orchestration_plan_median_seconds": 9.816449500000601e-05,
-    "trusted_balance_invocation_median_seconds": 2.983693599998105e-05
+    "orchestration_plan_median_seconds": 0.00011505072500000323,
+    "trusted_balance_invocation_median_seconds": 3.273279399999751e-05
   },
   "temporary_branch_created": false,
   "validation_failures": [],
