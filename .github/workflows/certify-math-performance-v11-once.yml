@@ -1,0 +1,488 @@
+name: Certify mathematical performance V11 once
+
+on:
+  push:
+    branches: [main]
+    paths: [.certify-math-performance-v11]
+
+permissions:
+  actions: write
+  contents: write
+  issues: write
+
+concurrency:
+  group: certify-math-performance-v11-main
+  cancel-in-progress: false
+
+env:
+  GH_TOKEN: ${{ github.token }}
+  PIP_DISABLE_PIP_VERSION_CHECK: '1'
+  TSAO_COVERAGE_JSON: /tmp/math-v11-coverage.json
+  ISSUE_NUMBER: '52'
+  BASELINE_SHA: '4fe936e9446bebd81c0e7b1c1d5c3bd0e403f385'
+
+jobs:
+  certify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+          cache: pip
+
+      - name: Initialize exact candidate and isolated baseline
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo "ORIGINAL_SHA=$GITHUB_SHA" >> "$GITHUB_ENV"
+          echo "FINAL_PUSHED=false" >> "$GITHUB_ENV"
+          echo initialize > /tmp/math-v11-stage
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          rm -f .github/workflows/certify-math-performance-v11-once.yml
+          rm -f .certify-math-performance-v11
+          rm -f reports/MATH_PERFORMANCE_AUDIT_V11_FAILURE.json
+          rm -rf /tmp/math-v11-baseline
+          git worktree add --detach /tmp/math-v11-baseline "$BASELINE_SHA"
+
+      - name: Install full validation environment
+        run: |
+          echo install > /tmp/math-v11-stage
+          python -m pip install -e '.[validation,quality,security]'
+
+      - name: Normalize candidate and rebuild pre-test manifest
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo normalize > /tmp/math-v11-stage
+          python -m ruff check --fix \
+            tsao_computation/accelerators/planner.py \
+            tsao_computation/registries/loader.py \
+            tsao_computation/routing/router.py \
+            tsao_computation/validation/scientific_benchmarks.py \
+            scripts/run_math_performance_v11.py \
+            tests/test_math_performance_v11.py
+          python -m ruff format \
+            tsao_computation/accelerators/planner.py \
+            tsao_computation/registries/loader.py \
+            tsao_computation/routing/router.py \
+            tsao_computation/validation/scientific_benchmarks.py \
+            scripts/run_math_performance_v11.py \
+            tests/test_math_performance_v11.py
+          python scripts/security_scan.py
+          python scripts/build_manifest.py
+
+      - name: Run isolated V10 and V11 A/B measurements
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo benchmark > /tmp/math-v11-stage
+          python scripts/run_math_performance_v11.py \
+            --source-root /tmp/math-v11-baseline \
+            --output /tmp/math-v11-baseline.json >/dev/null
+          python scripts/run_math_performance_v11.py \
+            --source-root "$GITHUB_WORKSPACE" \
+            --output /tmp/math-v11-candidate.json >/dev/null
+          python scripts/run_math_performance_v10.py \
+            --source-root /tmp/math-v11-baseline \
+            --output /tmp/math-v10-baseline.json >/dev/null
+          python scripts/run_math_performance_v10.py \
+            --source-root "$GITHUB_WORKSPACE" \
+            --output /tmp/math-v10-candidate.json >/dev/null
+
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          baseline = json.loads(Path('/tmp/math-v11-baseline.json').read_text(encoding='utf-8'))
+          candidate = json.loads(Path('/tmp/math-v11-candidate.json').read_text(encoding='utf-8'))
+          v10_baseline = json.loads(Path('/tmp/math-v10-baseline.json').read_text(encoding='utf-8'))
+          v10_candidate = json.loads(Path('/tmp/math-v10-candidate.json').read_text(encoding='utf-8'))
+
+          speedups = {
+              'preparsed_acceleration_plan': (
+                  baseline['preparsed_acceleration_plan_seconds']
+                  / candidate['preparsed_acceleration_plan_seconds']
+              ),
+              'mapping_acceleration_plan': (
+                  baseline['mapping_acceleration_plan_seconds']
+                  / candidate['mapping_acceleration_plan_seconds']
+              ),
+              'semantic_route_variants': (
+                  baseline['semantic_route_variants_seconds']
+                  / candidate['semantic_route_variants_seconds']
+              ),
+              'scientific_benchmarks': (
+                  baseline['scientific_benchmarks_seconds']
+                  / candidate['scientific_benchmarks_seconds']
+              ),
+              'v10_parser': (
+                  v10_candidate['parser_20mib_throughput_mib_s']
+                  / v10_baseline['parser_20mib_throughput_mib_s']
+              ),
+              'v10_convergence': (
+                  v10_baseline['convergence_250k_seconds']
+                  / v10_candidate['convergence_250k_seconds']
+              ),
+              'v10_uncertainty': (
+                  v10_baseline['uncertainty_seconds']
+                  / v10_candidate['uncertainty_seconds']
+              ),
+          }
+
+          benchmark_semantics = all(
+              left['benchmark_id'] == right['benchmark_id']
+              and left['passed'] == right['passed']
+              and left['expected'] == right['expected']
+              and abs(left['observed'] - right['observed'])
+              <= max(left['tolerance'], right['tolerance'], 1.0e-15)
+              for left, right in zip(
+                  baseline['scientific_benchmarks'],
+                  candidate['scientific_benchmarks'],
+                  strict=True,
+              )
+          )
+          acceptance = {
+              'acceleration_plan_semantics_equal': (
+                  baseline['acceleration_plan'] == candidate['acceleration_plan']
+              ),
+              'preparsed_acceleration_plan_speedup_at_least_3_percent': (
+                  speedups['preparsed_acceleration_plan'] >= 1.03
+              ),
+              'mapping_acceleration_plan_no_material_regression': (
+                  speedups['mapping_acceleration_plan'] >= 0.97
+              ),
+              'semantic_route_decisions_equal': (
+                  baseline['semantic_route_workflows']
+                  == candidate['semantic_route_workflows']
+              ),
+              'semantic_route_speedup_at_least_2x': (
+                  speedups['semantic_route_variants'] >= 2.0
+              ),
+              'semantic_route_cache_collapsed': (
+                  candidate['semantic_route_cache_entries'] <= 4
+                  and baseline['semantic_route_cache_entries'] >= 100
+              ),
+              'scientific_benchmark_semantics_preserved': benchmark_semantics,
+              'scientific_benchmark_speedup_at_least_3_percent': (
+                  speedups['scientific_benchmarks'] >= 1.03
+              ),
+              'all_scientific_benchmarks_pass': (
+                  candidate['scientific_benchmarks_passed'] == 8
+              ),
+              'v10_parser_no_material_regression': speedups['v10_parser'] >= 0.90,
+              'v10_convergence_no_material_regression': (
+                  speedups['v10_convergence'] >= 0.90
+              ),
+              'v10_uncertainty_no_material_regression': (
+                  speedups['v10_uncertainty'] >= 0.90
+              ),
+              'v10_extreme_uncertainty_remains_finite': (
+                  v10_candidate['extreme_uncertainty_finite'] is True
+              ),
+              'v10_compensated_balance_remains_exact': (
+                  v10_candidate['compensated_balance_residual'] == -1.0
+              ),
+          }
+          report = {
+              'schema_version': '1.0',
+              'audit_generation': 'math-performance-audit-v11',
+              'baseline_sha': '4fe936e9446bebd81c0e7b1c1d5c3bd0e403f385',
+              'baseline': baseline,
+              'candidate': candidate,
+              'v10_baseline': v10_baseline,
+              'v10_candidate': v10_candidate,
+              'speedups': speedups,
+              'acceptance': acceptance,
+              'benchmark_semantics_preserved': benchmark_semantics,
+              'status': 'PASS' if all(acceptance.values()) else 'FAIL',
+              'claim_boundary': (
+                  'Repository-local Python planning, routing and deterministic '
+                  'benchmark kernels only; no external solver, GPU kernel or '
+                  'production-HPC speedup is claimed.'
+              ),
+          }
+          Path('/tmp/math-v11-comparison.json').write_text(
+              json.dumps(report, indent=2, sort_keys=True, allow_nan=False) + '\n',
+              encoding='utf-8',
+              newline='\n',
+          )
+          print(json.dumps(report, indent=2, sort_keys=True))
+          if report['status'] != 'PASS':
+              failed = [name for name, passed in acceptance.items() if not passed]
+              raise SystemExit(f'V11 acceptance failed: {failed}')
+          PY
+
+      - name: Run targeted and complete correctness gates
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo complete-gates > /tmp/math-v11-stage
+          python -m pytest -q \
+            tests/test_math_performance_v11.py \
+            tests/test_math_performance_v10.py \
+            tests/test_acceleration_foundation.py \
+            tests/test_acceleration_v11.py \
+            tests/test_routing_cache.py \
+            tests/test_scientific_benchmarks.py \
+            tests/test_validation_fail_closed.py
+          python -m mypy --python-version 3.13 tsao_computation scripts
+          python scripts/run_tests.py --coverage | tee /tmp/math-v11-tests.log
+          python scripts/verify_all.py --profile all --timing-json /tmp/math-v11-all.json
+          python scripts/verify_all.py --profile benchmark --timing-json /tmp/math-v11-benchmark.json
+          python scripts/verify_native_core.py > /tmp/math-v11-native.json
+          python scripts/security_scan.py
+          python -m pip_audit --local --skip-editable --progress-spinner=off \
+            --format=json --output /tmp/math-v11-dependencies.json
+          rm -rf /tmp/math-v11-build /tmp/math-v11-wheel-venv
+          python -m build --outdir /tmp/math-v11-build
+          python -m venv /tmp/math-v11-wheel-venv
+          /tmp/math-v11-wheel-venv/bin/python -m pip install --no-deps /tmp/math-v11-build/*.whl
+          /tmp/math-v11-wheel-venv/bin/python -c 'import tsao_computation; print(tsao_computation.__version__)'
+          python -m pytest -q | tee /tmp/math-v11-final-pytest.log
+          git ls-remote --heads origin | sort > /tmp/math-v11-heads.txt
+          test "$(awk '{print $2}' /tmp/math-v11-heads.txt | sed 's#refs/heads/##' | paste -sd ' ' -)" = main
+
+      - name: Synchronize README and machine evidence
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo evidence > /tmp/math-v11-stage
+          python scripts/update_main_audit_evidence.py \
+            --root . \
+            --run-id "$GITHUB_RUN_ID" \
+            --issue "$ISSUE_NUMBER" \
+            --test-log /tmp/math-v11-final-pytest.log \
+            --coverage-json /tmp/math-v11-coverage.json \
+            --dependency-json /tmp/math-v11-dependencies.json \
+            --security-json evidence/security-scan.json \
+            --remote-heads /tmp/math-v11-heads.txt \
+            --parent-commit "$ORIGINAL_SHA" \
+            --audit-generation math-performance-audit-v11 \
+            --audit-label V11-math-performance \
+            --visual-count 42 \
+            --visual-atlas-version 13 \
+            --report-path reports/ULTIMATE_CODE_QUALITY_FINALIZATION.md \
+            --visual-families 'Electronic structure and molecular simulation; materials and interfaces; continuum and process engineering; evidence governance and HPC.'
+
+          python - <<'PY'
+          import json
+          import re
+          import subprocess
+          import textwrap
+          from pathlib import Path
+
+          report = json.loads(Path('/tmp/math-v11-comparison.json').read_text(encoding='utf-8'))
+          report.update(
+              {
+                  'issue': 52,
+                  'candidate_source_sha': subprocess.check_output(
+                      ['git', 'rev-parse', 'HEAD'], text=True
+                  ).strip(),
+                  'changes': [
+                      'Cached parsed acceleration profiles with registry-aware invalidation.',
+                      'Normalized semantic routing cache keys across case and edge whitespace.',
+                      'Hoisted scientific benchmark loop invariants without changing methods.',
+                      'Added permanent reproducible V11 A/B benchmark and regression tests.',
+                  ],
+              }
+          )
+          Path('reports/MATH_PERFORMANCE_AUDIT_V11.json').write_text(
+              json.dumps(report, indent=2, sort_keys=True, allow_nan=False) + '\n',
+              encoding='utf-8',
+              newline='\n',
+          )
+
+          speedups = report['speedups']
+          cache_before = report['baseline']['semantic_route_cache_entries']
+          cache_after = report['candidate']['semantic_route_cache_entries']
+          english = textwrap.dedent(f'''\
+          <!-- MATH_PERFORMANCE_V11:START -->
+          ### Mathematical correctness and performance V11
+
+          The second-pass audit caches static acceleration-profile parsing, normalizes semantically equivalent routing cache keys, and hoists invariant arithmetic from the deterministic Poiseuille, RK4 and velocity-Verlet benchmark loops. Numerical methods, tolerances and scientific acceptance remain unchanged.
+
+          Isolated same-host results versus V10: pre-parsed acceleration planning **{speedups['preparsed_acceleration_plan']:.2f}×**, semantic route variants **{speedups['semantic_route_variants']:.2f}×**, and the eight-benchmark suite **{speedups['scientific_benchmarks']:.2f}×**. Equivalent routing variants use **{cache_after}** cached decision instead of **{cache_before}** entries. Mapping-based planning, the V10 parser, convergence and uncertainty kernels all remained within their no-material-regression limits. These figures cover repository-local Python kernels only.
+
+          Machine evidence: [`reports/MATH_PERFORMANCE_AUDIT_V11.json`](reports/MATH_PERFORMANCE_AUDIT_V11.json).
+          <!-- MATH_PERFORMANCE_V11:END -->''').strip()
+          chinese = textwrap.dedent(f'''\
+          <!-- MATH_PERFORMANCE_V11:START -->
+          ### 数理正确性与性能 V11
+
+          第二轮审计缓存了静态加速配置解析，统一了语义等价问题的路由缓存键，并将 Poiseuille、RK4 与 velocity-Verlet 确定性基准循环中的不变量移出热点循环。数值方法、容差和科学验收标准均未改变。
+
+          相对于 V10 的隔离同机结果：预解析请求的加速规划 **{speedups['preparsed_acceleration_plan']:.2f}×**、语义等价路由输入 **{speedups['semantic_route_variants']:.2f}×**、8 项科学基准套件 **{speedups['scientific_benchmarks']:.2f}×**。等价路由输入由 **{cache_before}** 个缓存条目收敛为 **{cache_after}** 个。映射式规划、V10 解析器、收敛判定与不确定度内核均满足无实质回退门槛。上述结果仅针对仓库内 Python 内核。
+
+          机器证据：[`reports/MATH_PERFORMANCE_AUDIT_V11.json`](reports/MATH_PERFORMANCE_AUDIT_V11.json)。
+          <!-- MATH_PERFORMANCE_V11:END -->''').strip()
+
+          def update(path: str, block: str) -> None:
+              target = Path(path)
+              text = target.read_text(encoding='utf-8')
+              pattern = re.compile(
+                  r'<!-- MATH_PERFORMANCE_V11:START -->.*?<!-- MATH_PERFORMANCE_V11:END -->',
+                  re.DOTALL,
+              )
+              if pattern.search(text):
+                  text = pattern.sub(block, text, count=1)
+              else:
+                  text = text.rstrip() + '\n\n' + block + '\n'
+              target.write_text(text, encoding='utf-8', newline='\n')
+
+          update('README.md', english)
+          update('README.zh-CN.md', chinese)
+          PY
+          python scripts/build_manifest.py
+          python scripts/build_manifest.py --check
+
+      - name: Validate the exact final tree
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo exact-final-tree > /tmp/math-v11-stage
+          python scripts/sync_version_metadata.py --check
+          python scripts/regenerate_readme_visuals_v13.py --check
+          python scripts/validate_schemas.py
+          python scripts/validate_adapter_metadata.py
+          python scripts/validate_repository.py
+          python scripts/build_manifest.py --check
+          python scripts/verify_all.py --profile all --timing-json /tmp/math-v11-final-all.json
+          python scripts/build_manifest.py
+          python scripts/build_manifest.py --check
+          python -m pytest -q
+          mapfile -t workflows < <(find .github/workflows -maxdepth 1 -type f -name '*.yml' -printf '%f\n' | sort)
+          expected=(ci.yml codeql.yml dependency-audit.yml release.yml scorecard.yml)
+          test "${workflows[*]}" = "${expected[*]}"
+          test "$(git ls-remote --heads origin | awk '{print $2}' | sed 's#refs/heads/##' | paste -sd ' ' -)" = main
+
+      - name: Commit exact certified tree directly to main
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo commit > /tmp/math-v11-stage
+          git add -A
+          git commit -m 'Improve mathematical performance V11'
+          git push origin HEAD:refs/heads/main
+          FINAL_SHA="$(git rev-parse HEAD)"
+          echo "FINAL_SHA=$FINAL_SHA" >> "$GITHUB_ENV"
+          echo "FINAL_PUSHED=true" >> "$GITHUB_ENV"
+
+      - name: Require production CI CodeQL and Scorecard
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo production-ci > /tmp/math-v11-stage
+          test "$(git ls-remote origin refs/heads/main | awk '{print $1}')" = "$FINAL_SHA"
+          gh workflow run ci.yml --ref main
+          gh workflow run codeql.yml --ref main
+          gh workflow run scorecard.yml --ref main
+          : > /tmp/math-v11-production-runs.txt
+
+          wait_for_workflow() {
+            local workflow="$1"
+            local line status conclusion url
+            for _ in $(seq 1 180); do
+              line="$(gh run list --repo "$GITHUB_REPOSITORY" --workflow "$workflow" --branch main --event workflow_dispatch --limit 20 --json headSha,status,conclusion,url --jq ".[] | select(.headSha == \"$FINAL_SHA\") | [.status,.conclusion,.url] | @tsv" | head -n 1)"
+              if [[ -n "$line" ]]; then
+                IFS=$'\t' read -r status conclusion url <<< "$line"
+                if [[ "$status" == completed ]]; then
+                  echo "$workflow: $conclusion ($url)"
+                  [[ "$conclusion" == success ]]
+                  printf '%s: %s\n' "$workflow" "$url" >> /tmp/math-v11-production-runs.txt
+                  return
+                fi
+              fi
+              sleep 10
+            done
+            return 1
+          }
+
+          wait_for_workflow ci.yml
+          wait_for_workflow codeql.yml
+          wait_for_workflow scorecard.yml
+
+      - name: Close successful V11 audit
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          runs="$(cat /tmp/math-v11-production-runs.txt)"
+          summary="$(python - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path('reports/MATH_PERFORMANCE_AUDIT_V11.json').read_text(encoding='utf-8'))
+          s = report['speedups']
+          b = report['baseline']['semantic_route_cache_entries']
+          c = report['candidate']['semantic_route_cache_entries']
+          print(
+              f"preparsed planning {s['preparsed_acceleration_plan']:.2f}x; "
+              f"semantic routing {s['semantic_route_variants']:.2f}x with cache {b}->{c}; "
+              f"scientific benchmarks {s['scientific_benchmarks']:.2f}x"
+          )
+          PY
+          )"
+          gh issue close "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --reason completed \
+            --comment "Mathematical correctness and performance V11 passed on commit \`$FINAL_SHA\`: $summary. Complete tests, coverage, deterministic and benchmark gates, security, dependency, package/Wheel, Manifest and main-only checks passed. Production runs:\n$runs\nNo branch or pull request was created."
+
+      - name: Fail closed and restore certified V10 tree
+        if: ${{ failure() }}
+        shell: bash
+        run: |
+          set +e
+          stage="$(cat /tmp/math-v11-stage 2>/dev/null || echo unknown)"
+          git fetch origin main
+          git checkout -B main origin/main
+          rm -f .github/workflows/certify-math-performance-v11-once.yml
+          rm -f .certify-math-performance-v11
+          git checkout "$BASELINE_SHA" -- \
+            tsao_computation/accelerators/planner.py \
+            tsao_computation/registries/loader.py \
+            tsao_computation/routing/router.py \
+            tsao_computation/validation/scientific_benchmarks.py \
+            README.md \
+            README.zh-CN.md \
+            reports/CURRENT_MAIN_VERIFICATION.json \
+            reports/ULTIMATE_CODE_QUALITY_FINALIZATION.md \
+            evidence/security-scan.json
+          rm -f scripts/run_math_performance_v11.py
+          rm -f tests/test_math_performance_v11.py
+          rm -f reports/MATH_PERFORMANCE_AUDIT_V11.json
+          mkdir -p reports
+          python - "$stage" "$GITHUB_RUN_ID" <<'PY'
+          import json, sys
+          from datetime import datetime, timezone
+          from pathlib import Path
+          stage, run_id = sys.argv[1], int(sys.argv[2])
+          Path('reports/MATH_PERFORMANCE_AUDIT_V11_FAILURE.json').write_text(
+              json.dumps(
+                  {
+                      'schema_version': '1.0',
+                      'status': 'FAILED_REVERTED_TO_V10',
+                      'stage': stage,
+                      'run_id': run_id,
+                      'baseline_sha': '4fe936e9446bebd81c0e7b1c1d5c3bd0e403f385',
+                      'temporary_branch_created': False,
+                      'created_at_utc': datetime.now(timezone.utc).isoformat(),
+                  },
+                  indent=2,
+                  sort_keys=True,
+              ) + '\n',
+              encoding='utf-8',
+              newline='\n',
+          )
+          PY
+          python scripts/security_scan.py || true
+          python scripts/build_manifest.py || true
+          git add -A
+          git commit -m "Revert unqualified V11 performance changes at $stage" || true
+          git push origin HEAD:refs/heads/main || true
+          gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" \
+            --body "V11 certification failed at stage: $stage. Actions run: $GITHUB_RUN_ID. The candidate was reverted to the certified V10 tree. No branch or PR was created." || true
+          exit 1
