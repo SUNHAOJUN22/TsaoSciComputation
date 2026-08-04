@@ -1,0 +1,86 @@
+name: Export exact source once
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  actions: read
+  contents: write
+  issues: write
+
+concurrency:
+  group: export-exact-source-once
+  cancel-in-progress: false
+
+env:
+  GH_TOKEN: ${{ github.token }}
+
+jobs:
+  export:
+    if: >-
+      github.event.issue.title == 'EXPORT_EXACT_SOURCE_FOR_ACCELERATION_AUDIT' &&
+      github.event.issue.user.login == github.repository_owner
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out exact main tree
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Build exact source snapshot
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          sha="$(git rev-parse HEAD)"
+          printf '%s\n' "$sha" > /tmp/source-commit.txt
+          tar \
+            --exclude=.git \
+            --exclude='.pytest_cache' \
+            --exclude='__pycache__' \
+            --sort=name \
+            --mtime='UTC 2020-01-01' \
+            --owner=0 --group=0 --numeric-owner \
+            -czf /tmp/TsaoSciComputation-main-source.tar.gz .
+          sha256sum /tmp/TsaoSciComputation-main-source.tar.gz > /tmp/source-sha256.txt
+
+      - name: Upload exact source snapshot
+        id: upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: tsao-scicomputation-main-source
+          path: |
+            /tmp/TsaoSciComputation-main-source.tar.gz
+            /tmp/source-commit.txt
+            /tmp/source-sha256.txt
+          if-no-files-found: error
+          retention-days: 3
+          compression-level: 0
+
+      - name: Record export evidence
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          commit="$(cat /tmp/source-commit.txt)"
+          digest="$(cut -d' ' -f1 /tmp/source-sha256.txt)"
+          gh issue comment "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --body "Exact source export completed. commit=$commit; artifact-id=${{ steps.upload.outputs.artifact-id }}; artifact-url=${{ steps.upload.outputs.artifact-url }}; tar-sha256=$digest; run-id=$GITHUB_RUN_ID."
+
+      - name: Remove one-time workflow directly from main
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          rm -f .github/workflows/export-source-once.yml
+          git add -A
+          git commit -m 'Remove one-time source export workflow [skip ci]'
+          git push origin HEAD:refs/heads/main
+
+      - name: Close export issue
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          gh issue close "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --reason completed --comment 'Exact source snapshot is available as the workflow artifact recorded above.'
