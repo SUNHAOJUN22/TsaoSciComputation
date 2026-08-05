@@ -65,8 +65,28 @@ Execution is fail-closed: the legacy low-level process API cannot execute; hardw
 </table>
 
 <!-- V13_VISUAL_SYSTEM:START -->
-The 42 self-contained SVGs use **Scientific Research Console V13**. The root README keeps only the three overview diagrams; the complete searchable inventory is in [`assets/visuals/README.md`](assets/visuals/README.md), with design rules in [`assets/visuals/DESIGN_SYSTEM.md`](assets/visuals/DESIGN_SYSTEM.md).
+The 42 self-contained SVGs use **Scientific Research Console V13**. The root README showcases 11 representative diagrams; the complete searchable inventory is in [`assets/visuals/README.md`](assets/visuals/README.md), with design rules in [`assets/visuals/DESIGN_SYSTEM.md`](assets/visuals/DESIGN_SYSTEM.md).
 <!-- V13_VISUAL_SYSTEM:END -->
+
+## Multiscale scientific visual map
+
+These AI-assisted information designs are deterministic, repository-owned SVG sources with no external scripts, fonts, raster images or fabricated solver output.
+
+<img src="assets/visuals/quantum-to-md.svg" alt="Electronic-structure to molecular-dynamics handoff" width="100%">
+<img src="assets/visuals/reaction-kinetics-network.svg" alt="Reaction pathways, kinetic evidence and reactor handoff" width="100%">
+<img src="assets/visuals/polymer-process.svg" alt="Polymer multiscale transfer from molecular architecture to processing" width="100%">
+<img src="assets/visuals/continuum-multiphysics.svg" alt="Continuum multiphysics coupling" width="100%">
+<img src="assets/visuals/process-optimization-uq.svg" alt="Process optimization and uncertainty quantification" width="100%">
+<img src="assets/visuals/uncertainty-sensitivity.svg" alt="Uncertainty propagation and sensitivity ranking" width="100%">
+
+## Acceleration and native interoperability
+
+Python remains the control plane for contracts, routing, provenance and acceptance. Measured hotspots may cross the versioned C ABI into C++20/OpenMP or optional CUDA-enabled backends; CPU-only builds remain supported. Prefer solver-native GPU paths and CUDA-X libraries only after profiling and numerical-equivalence gates.
+
+<img src="assets/visuals/hpc-execution-provenance.svg" alt="Bounded HPC execution and provenance" width="100%">
+<img src="assets/visuals/hpc-failure-recovery.svg" alt="HPC checkpointing and bounded recovery" width="100%">
+
+Architecture, CUDA-X selection rules and C++ migration gates: [`docs/accelerated-native-backend.md`](docs/accelerated-native-backend.md). Native verification: `python scripts/verify_native_core.py`.
 
 ## Verification
 

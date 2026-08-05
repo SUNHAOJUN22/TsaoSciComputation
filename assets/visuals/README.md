@@ -1,6 +1,6 @@
 # README visual assets
 
-This directory contains the complete visual atlas for TsaoSciComputation. The root READMEs keep only the hero and two architecture overviews; all detailed diagrams remain discoverable here.
+This directory contains the complete visual atlas for TsaoSciComputation. The root READMEs showcase 11 representative diagrams and link to this complete inventory.
 
 ## Design and trust policy
 
@@ -18,7 +18,7 @@ All 42 assets declare `data-design-system="uiux-pro-max-scientific-console-v4"`.
 - One line-icon system and explicit labels reinforce meaning beyond color.
 - SVG body text is at least 16 px.
 - No external fonts, scripts, raster images, gradients, filters, event handlers or tracking are permitted.
-- The root READMEs show three overview images and link to this complete inventory to minimize scrolling.
+- The root READMEs show 11 representative images and link to this complete inventory for progressive disclosure.
 
 See [`DESIGN_SYSTEM.md`](DESIGN_SYSTEM.md) for the complete specification.
 

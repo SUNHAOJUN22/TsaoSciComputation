@@ -65,8 +65,28 @@ python -m tsao_computation probe
 </table>
 
 <!-- V13_VISUAL_SYSTEM:START -->
-仓库内 42 幅自包含 SVG 使用 **Scientific Research Console V13**。根 README 仅保留三幅概览图；完整可检索图谱见 [`assets/visuals/README.md`](assets/visuals/README.md)，设计规范见 [`assets/visuals/DESIGN_SYSTEM.md`](assets/visuals/DESIGN_SYSTEM.md)。
+仓库内 42 幅自包含 SVG 使用 **Scientific Research Console V13**。根 README 展示 11 幅代表性示意图；完整可检索图谱见 [`assets/visuals/README.md`](assets/visuals/README.md)，设计规范见 [`assets/visuals/DESIGN_SYSTEM.md`](assets/visuals/DESIGN_SYSTEM.md)。
 <!-- V13_VISUAL_SYSTEM:END -->
+
+## 多尺度科学计算视觉图谱
+
+这些配图采用 AI 辅助信息设计，并以确定性、仓库自持的 SVG 源码交付，不包含外部脚本、字体、位图或伪造的求解器输出。
+
+<img src="assets/visuals/quantum-to-md.svg" alt="从电子结构计算到分子动力学的尺度交接" width="100%">
+<img src="assets/visuals/reaction-kinetics-network.svg" alt="反应路径、动力学证据与反应器交接" width="100%">
+<img src="assets/visuals/polymer-process.svg" alt="从分子结构到加工过程的多尺度传递" width="100%">
+<img src="assets/visuals/continuum-multiphysics.svg" alt="连续介质多物理场耦合" width="100%">
+<img src="assets/visuals/process-optimization-uq.svg" alt="流程优化与不确定度量化" width="100%">
+<img src="assets/visuals/uncertainty-sensitivity.svg" alt="不确定度传播与敏感性排序" width="100%">
+
+## 加速计算与原生互操作
+
+Python 保留为合同、路由、溯源和验收控制平面。经剖析确认的热点可通过版本化 C ABI 迁移到 C++20/OpenMP 或可选 CUDA 后端，同时保留纯 CPU 构建。只有在性能剖析和数值等价门禁通过后，才采用求解器原生 GPU 路径或 CUDA-X Libraries。
+
+<img src="assets/visuals/hpc-execution-provenance.svg" alt="有边界的 HPC 执行与溯源" width="100%">
+<img src="assets/visuals/hpc-failure-recovery.svg" alt="HPC 检查点与有边界恢复" width="100%">
+
+架构、CUDA-X 选型和 C++ 迁移门禁见 [`docs/accelerated-native-backend.md`](docs/accelerated-native-backend.md)。原生验证命令：`python scripts/verify_native_core.py`。
 
 ## 验证
 

@@ -19,10 +19,18 @@ EXPECTED_LAYOUTS = {
     "loop": 5,
     "risk": 6,
 }
-OVERVIEW_FILES = {
+FEATURED_FILES = {
     "hero-multiscale.svg",
     "agent-orchestration.svg",
     "capability-landscape.svg",
+    "quantum-to-md.svg",
+    "reaction-kinetics-network.svg",
+    "polymer-process.svg",
+    "continuum-multiphysics.svg",
+    "process-optimization-uq.svg",
+    "uncertainty-sensitivity.svg",
+    "hpc-execution-provenance.svg",
+    "hpc-failure-recovery.svg",
 }
 ALLOWED_COLORS = {
     "#07111F",
@@ -50,7 +58,7 @@ def _inventory_names() -> tuple[str, ...]:
     return names
 
 
-def test_readme_keeps_only_compact_overviews_and_links_full_atlas() -> None:
+def test_readme_showcases_featured_visuals_and_links_full_atlas() -> None:
     names = _inventory_names()
     readmes = [
         (ROOT / "README.md").read_text(encoding="utf-8"),
@@ -63,11 +71,12 @@ def test_readme_keeps_only_compact_overviews_and_links_full_atlas() -> None:
         assert "VISUAL_SYSTEM_V10" not in readme
         assert readme.count("assets/visuals/hero-multiscale.svg") == 1
         assert readme.count('<td width="50%"><img src="assets/visuals/') == 2
+        assert len(FEATURED_FILES) == 11
         assert "assets/visuals/README.md" in readme
         assert "assets/visuals/DESIGN_SYSTEM.md" in readme
         for name in names:
             relative = f"assets/visuals/{name}"
-            if name in OVERVIEW_FILES:
+            if name in FEATURED_FILES:
                 assert readme.count(relative) == 1
             else:
                 assert relative not in readme
@@ -151,7 +160,7 @@ def test_readme_visuals_are_readable_accessible_and_self_contained() -> None:
         descriptions.add(description.text.strip())
 
         relative = f"assets/visuals/{name}"
-        if name in OVERVIEW_FILES:
+        if name in FEATURED_FILES:
             assert all(relative in readme for readme in readmes)
         else:
             assert all(relative not in readme for readme in readmes)

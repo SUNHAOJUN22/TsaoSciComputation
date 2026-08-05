@@ -101,14 +101,14 @@
       "sha256": "16c346cf3277689776977c544135b0669d83db66ccbe0ad0142db295f5a39e3b"
     },
     {
-      "bytes": 7596,
+      "bytes": 9325,
       "path": "README.md",
-      "sha256": "30982bcf00036bde7f18eceb7188925d6a3a2bcc4e3a8a4e6db2c1ab8c8418e0"
+      "sha256": "5c01a5b7304a6dc7f900872d57a004967cfc27bd94912ce8c11164cdca040abd"
     },
     {
-      "bytes": 7018,
+      "bytes": 8650,
       "path": "README.zh-CN.md",
-      "sha256": "32ef9f4c6a8926cec2b5c3b714dab363457514977d1226b9658f7ece6ebe558d"
+      "sha256": "cd3b609fbaf07286aecbbb50e50964355c04b0155805f5ecc93c45e7be33078a"
     },
     {
       "bytes": 3578,
@@ -411,14 +411,14 @@
       "sha256": "f3e18e1a303411566df5f3ff5c451863c5de064f812bc2bd8dfde5feed700977"
     },
     {
-      "bytes": 3196,
+      "bytes": 3251,
       "path": "assets/visuals/DESIGN_SYSTEM.md",
-      "sha256": "41829fd6a45a0460359b6e46d0dc4e7faa86dc100c53a7753ab782f426cf035f"
+      "sha256": "5819e38a9f12066817f8ebc29c0056a960818ef5eb72d5ff52e0d47fb4ba629a"
     },
     {
-      "bytes": 5353,
+      "bytes": 5335,
       "path": "assets/visuals/README.md",
-      "sha256": "1d5b2121e474385f33124092dc231a0320e6163e64ef0cf853a0b28286c502f7"
+      "sha256": "04c824c07ffa34f2a2b9352f0f30ecef11c2c54e32a5449da36445d8719a4e65"
     },
     {
       "bytes": 6264,
@@ -2471,9 +2471,9 @@
       "sha256": "f46c1d35f8e9611e6c3d29de68819198d33e31913d4b58a2bf44c52ab00e4ded"
     },
     {
-      "bytes": 5878,
+      "bytes": 6178,
       "path": "tests/test_readme_visuals.py",
-      "sha256": "7460c01d79a8a50f2b7c97c46e923ccb2d4079a983883274f548cc8df54cbc46"
+      "sha256": "a2efde42fc4944415b0501b29760ff91a1e6895886a86bfdf29efcda2d4a94a7"
     },
     {
       "bytes": 2268,
