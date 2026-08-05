@@ -112,6 +112,8 @@ V5 报告统计 **169 个源码文件**和 **3 个原生语言文件**。生产�
 
 批量执行层现可接收每个计划不可变的 CPU、GPU、许可证令牌声明以及主机容量包络。基于条件变量的资源代理会阻止 CPU 过度订阅、独占 GPU 冲突和许可证超额分配，并将容量与声明哈希写入批执行结果。
 
+GPU 准入现采用双向失败关闭：任何非空 CUDA/HIP/ROCR 可见设备绑定都必须有匹配的 GPU 资源声明；不可变命令环境中出现的每个可见设备别名都必须与该声明一致。确定性加固证据：[`reports/RESOURCE_BROKER_GPU_BINDING_V6_HARDENING.json`](reports/RESOURCE_BROKER_GPU_BINDING_V6_HARDENING.json)。
+
 V5 新增注册表约束的求解器能力证据。`probe-solver` 会对实际解析到的可执行文件记录路径、字节数和 SHA-256，检查声明的 Python 模块，并且只允许固定、有界、无 shell 的版本/帮助参数。版本输出同样有长度上限并绑定哈希。自动状态最高仅为 `version-probed-unqualified`；数值等价、后端支持、加速收益、收敛性和许可证仍必须分别通过资格门禁。
 
 V6 将该证据绑定到 `acceleration_plan_sha256`。求解器路径、二进制 SHA-256、版本输出 SHA-256 和证据 SHA-256 的变化都会改变计划身份。证据缺失或不完整时保持 `external-hold`；完整指纹也只达到 `evidence-bound-unqualified`。`--require-solver-evidence` 会失败关闭，但仍不声称真实数值正确、GPU 已执行、获得加速、实现收敛或许可证可用。

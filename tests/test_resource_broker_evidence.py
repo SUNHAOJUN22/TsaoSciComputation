@@ -12,11 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_resource_broker_gpu_binding_evidence_is_current_and_schema_valid() -> None:
     report_path = ROOT / "reports" / "RESOURCE_BROKER_GPU_BINDING_V6_HARDENING.json"
-    schema_path = (
-        ROOT
-        / "schemas"
-        / "resource-broker-gpu-binding-evidence.schema.json"
-    )
+    schema_path = ROOT / "schemas" / "resource-broker-gpu-binding-evidence.schema.json"
     report = json.loads(report_path.read_text(encoding="utf-8"))
     schema = json.loads(schema_path.read_text(encoding="utf-8"))
     jsonschema.Draft202012Validator.check_schema(schema)

@@ -1,6 +1,6 @@
 {
   "category_counts": {
-    "external-solver-dispatch": 13,
+    "external-solver-dispatch": 14,
     "filesystem-scan": 16,
     "numeric-python-loop": 6
   },
@@ -8,18 +8,18 @@
   "file_scope_counts": {
     "benchmark": 9,
     "production": 61,
-    "test": 63,
-    "tooling": 37
+    "test": 64,
+    "tooling": 38
   },
   "language_files": {
     "c": 1,
     "cpp": 2,
-    "python": 167
+    "python": 169
   },
   "language_lines": {
     "c": 70,
     "cpp": 197,
-    "python": 21773
+    "python": 22054
   },
   "opportunities": [
     {
@@ -536,7 +536,7 @@
         "oversubscription",
         "unsupported solver backend"
       ],
-      "candidate_id": "553d732fac9a5c41969393d4e7111ba76d03adb0926fe1042218d13b7cf16e74",
+      "candidate_id": "539508f678f80ca6ce863101b4fcbaaf9ddb4738c89699e9c5303ebeb0e6ec3c",
       "category": "external-solver-dispatch",
       "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
       "confidence": "high",
@@ -557,7 +557,7 @@
       "path": "scripts/verify_all.py",
       "runtime_status": "unprofiled",
       "score": 68,
-      "source_sha256": "5eb8e479655352ca3137b4231eea93067e64da5c512af535c014b47c6b57a5f6",
+      "source_sha256": "b2dd07cb9f42a6c5364ed564af980ba76ce4e4ddf4da2097ed05dc71cca631c7",
       "symbol": "run"
     },
     {
@@ -574,7 +574,7 @@
         "oversubscription",
         "unsupported solver backend"
       ],
-      "candidate_id": "27a1829aca856b8cf473ac857aa3bedbed96e6d1281f286deddb31c1dad7b14e",
+      "candidate_id": "c6b5b6e011400afe585917e017c179af959ec38cd6354a04d421d53b47c57fc6",
       "category": "external-solver-dispatch",
       "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
       "confidence": "high",
@@ -595,7 +595,7 @@
       "path": "scripts/verify_all.py",
       "runtime_status": "unprofiled",
       "score": 68,
-      "source_sha256": "5eb8e479655352ca3137b4231eea93067e64da5c512af535c014b47c6b57a5f6",
+      "source_sha256": "b2dd07cb9f42a6c5364ed564af980ba76ce4e4ddf4da2097ed05dc71cca631c7",
       "symbol": "_run_captured"
     },
     {
@@ -711,6 +711,44 @@
       "score": 68,
       "source_sha256": "a9d9024fd3f9e8e51e33573e6f56a780a8e83265279657ec970ba9c0d92eb19f",
       "symbol": "verify_target_install"
+    },
+    {
+      "backend_candidates": [
+        "cpu",
+        "openmp",
+        "mpi",
+        "cuda",
+        "hip",
+        "sycl"
+      ],
+      "blockers": [
+        "license or scheduler limits",
+        "oversubscription",
+        "unsupported solver backend"
+      ],
+      "candidate_id": "9b83479a3a1df585a07021062b8be2d610fe32d9a8e577b685ee7baa06028754",
+      "category": "external-solver-dispatch",
+      "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
+      "confidence": "high",
+      "current_pattern": "external command or solver dispatch",
+      "decision": "diagnostic-only",
+      "evidence_requirements": [
+        "solver build features",
+        "command provenance",
+        "same-input end-to-end timing"
+      ],
+      "file_scope": "test",
+      "first_action": "batch independent cases and prefer the solver's native MPI/GPU backend before custom kernels",
+      "library_candidates": [
+        "mpi",
+        "nccl"
+      ],
+      "line": 23,
+      "path": "tests/test_resource_broker_evidence.py",
+      "runtime_status": "unprofiled",
+      "score": 68,
+      "source_sha256": "eaa7838e5e2ed238d068db029801747e1ab89f774a85a42b42fa2013cc679e69",
+      "symbol": "test_resource_broker_gpu_binding_evidence_is_current_and_schema_valid"
     },
     {
       "backend_candidates": [
@@ -1231,13 +1269,13 @@
       "symbol": "test_workflows_pin_actions_and_avoid_privileged_untrusted_triggers"
     }
   ],
-  "opportunity_count": 35,
+  "opportunity_count": 36,
   "parse_failures": [],
-  "python_files_analyzed": 167,
+  "python_files_analyzed": 169,
   "python_files_excluded": 0,
   "root": ".",
   "scope": "full-tree",
-  "source_files": 170,
-  "source_lines": 22040,
-  "source_tree_sha256": "14c3382111087a60d93b12d6d9731f0b4be36bdf2b4fe09448215f67b9cd9be9"
+  "source_files": 172,
+  "source_lines": 22321,
+  "source_tree_sha256": "5236fff90b9b52e18082f6bdd40a0f45c4e022be8212248d688eda5a9a4993e3"
 }

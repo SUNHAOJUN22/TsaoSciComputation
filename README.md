@@ -112,6 +112,8 @@ V5 reports inventory **169 source files** and **3 native-language files**. The p
 
 The batch execution layer now accepts immutable per-plan CPU, GPU and license-token claims plus a host capacity envelope. A condition-based resource broker prevents CPU oversubscription, exclusive-GPU collisions and license over-allocation, while binding the allocation hashes into the batch result.
 
+GPU admission is fail-closed in both directions: every non-empty CUDA/HIP/ROCR visible-device binding requires a matching GPU claim, and every visibility alias present in the immutable command environment must agree with that claim. Deterministic hardening evidence: [`reports/RESOURCE_BROKER_GPU_BINDING_V6_HARDENING.json`](reports/RESOURCE_BROKER_GPU_BINDING_V6_HARDENING.json).
+
 V5 adds registry-bounded solver capability evidence. `probe-solver` fingerprints the exact resolved executable, records its byte size and SHA-256, checks declared Python modules, and may run only a fixed bounded shell-free version/help argument set. Version output is bounded and hash-bound. The strongest automatic status is `version-probed-unqualified`; numerical equivalence, backend support, speedup, convergence and licensing remain separate qualification gates.
 
 V6 binds that evidence into `acceleration_plan_sha256`. Solver path, binary SHA-256, version-output SHA-256 and evidence SHA-256 therefore change the plan identity. Missing or incomplete solver evidence remains `external-hold`; a complete fingerprint is only `evidence-bound-unqualified`. `--require-solver-evidence` fails closed and still does not claim live numerical correctness, GPU use, performance, convergence or license availability.

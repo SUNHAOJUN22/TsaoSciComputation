@@ -221,6 +221,10 @@ def verify_core() -> int:
             "acceleration audit reports",
             (PYTHON, "scripts/build_acceleration_audits.py", "--check"),
         ),
+        (
+            "resource broker GPU binding evidence",
+            (PYTHON, "scripts/build_resource_broker_evidence.py", "--check"),
+        ),
         ("capability index", (PYTHON, "scripts/build_capability_index.py", "--check")),
         ("adapter documentation", (PYTHON, "scripts/build_adapter_docs.py", "--check")),
         ("workflow documentation", (PYTHON, "scripts/build_workflow_docs.py", "--check")),

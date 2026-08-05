@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Hardened GPU resource admission so non-empty CUDA/HIP/ROCR visibility cannot bypass an empty GPU claim, all present visibility aliases must agree, and malformed or duplicate device lists fail closed; added deterministic Schema-bound evidence and regression gates.
 - Added Solver-Bound Acceleration Plans V6: acceleration plan hashes now bind adapter-matched executable, binary, version-output and solver-evidence identities; strict evidence mode fails closed while preserving `external-hold` and `evidence-bound-unqualified` scientific boundaries.
 - Added Solver Capability Evidence V5 with registry-bounded executable fingerprints, safe read-only version/help probes, Python-module completeness, bounded output hashes and a machine-readable CLI/schema.
 - Added resource-aware batch admission control for CPU cores, exclusive GPU bindings and named solver-license tokens, with deterministic capacity and claim hashes.

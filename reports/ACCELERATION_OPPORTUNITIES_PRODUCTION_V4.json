@@ -7,18 +7,18 @@
   "file_scope_counts": {
     "benchmark": 9,
     "production": 61,
-    "test": 63,
-    "tooling": 37
+    "test": 64,
+    "tooling": 38
   },
   "language_files": {
     "c": 1,
     "cpp": 2,
-    "python": 167
+    "python": 169
   },
   "language_lines": {
     "c": 70,
     "cpp": 197,
-    "python": 21773
+    "python": 22054
   },
   "opportunities": [
     {
@@ -123,10 +123,10 @@
   "opportunity_count": 3,
   "parse_failures": [],
   "python_files_analyzed": 59,
-  "python_files_excluded": 108,
+  "python_files_excluded": 110,
   "root": ".",
   "scope": "production",
-  "source_files": 170,
-  "source_lines": 22040,
-  "source_tree_sha256": "14c3382111087a60d93b12d6d9731f0b4be36bdf2b4fe09448215f67b9cd9be9"
+  "source_files": 172,
+  "source_lines": 22321,
+  "source_tree_sha256": "5236fff90b9b52e18082f6bdd40a0f45c4e022be8212248d688eda5a9a4993e3"
 }
