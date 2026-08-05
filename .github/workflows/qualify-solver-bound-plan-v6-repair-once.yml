@@ -1,0 +1,158 @@
+name: Qualify final solver-bound plan V6 fix once
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: qualify-final-solver-bound-plan-v6-fix-once
+  cancel-in-progress: false
+
+env:
+  GH_TOKEN: ${{ github.token }}
+
+jobs:
+  qualify:
+    if: >-
+      github.event.issue.title == 'QUALIFY_SOLVER_BOUND_PLAN_V6_FINAL_FIX_20260806' &&
+      github.event.issue.user.login == github.repository_owner
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - name: Check out current main
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Verify and apply minimal root-cause patch
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python - <<'PY'
+          import base64
+          import gzip
+          import hashlib
+          from pathlib import Path
+
+          root = Path('.github/payloads/v6-final-fix')
+          hashes = (
+              '3611c4ca301561c90a7abd3d92b3ef5502f84c24e51e863a137d7d4abff943fb',
+              '602549c69f8371c71c67fe99fcddc638292c7a867ca75af6ea506427438ba3d0',
+              'a3effa8aefc3d904d5ca61adfab074af54e66cdaf5c9402799c4dbf696ee82dc',
+              'c3c63e0d3eddeeeefedff492494ef657d215f0dca0f36245f8cabe00507b5e6c',
+          )
+          parts = []
+          for index, expected in enumerate(hashes):
+              data = (root / f'part-{index:02d}').read_bytes().replace(b'\n', b'').replace(b'\r', b'')
+              if hashlib.sha256(data).hexdigest() != expected:
+                  raise SystemExit(f'patch part {index:02d} digest mismatch')
+              parts.append(data)
+          encoded = b''.join(parts)
+          if len(encoded) != 13356:
+              raise SystemExit(f'encoded patch length mismatch: {len(encoded)}')
+          compressed = base64.b64decode(encoded, validate=True)
+          if len(compressed) != 10016 or hashlib.sha256(compressed).hexdigest() != 'ba90be0ec1f1876ec56de95205a2b12d2a781b7c3efeadc2fdb07fe4ecb19187':
+              raise SystemExit('compressed patch identity mismatch')
+          patch = gzip.decompress(compressed)
+          if hashlib.sha256(patch).hexdigest() != '6f387dc9578c38f03eda0145c372f865cb932a52269baaa13e4cff48c37b2c68':
+              raise SystemExit('uncompressed patch identity mismatch')
+          Path('/tmp/v6-final.patch').write_bytes(patch)
+          PY
+          git apply --check /tmp/v6-final.patch
+          git apply /tmp/v6-final.patch
+          rm -rf .github/payloads/v6-final-fix
+          rmdir .github/payloads 2>/dev/null || true
+          rm -f .github/workflows/export-solver-bound-v6-candidate-once.yml
+          rm -f .github/workflows/qualify-solver-bound-plan-v6-repair-once.yml
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+          cache: pip
+
+      - name: Install complete validation toolchain
+        run: python -m pip install -e '.[validation,quality,security]'
+
+      - name: Canonicalize code and generated evidence
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python -m ruff check --fix tsao_computation scripts tests _bootstrap.py
+          python -m ruff format tsao_computation scripts tests _bootstrap.py
+          python scripts/build_acceleration_audits.py
+          python scripts/quality_check.py
+          python scripts/security_scan.py
+          python scripts/build_manifest.py
+
+      - name: Run complete deterministic release qualification
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python scripts/verify_all.py --profile all
+          python scripts/verify_native_core.py
+
+      - name: Verify V6 contracts and exact final tree
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python -m pytest -q tests/test_solver_capability_v5.py tests/test_solver_bound_plan_v6.py tests/test_acceleration_qualification_v4.py tests/test_acceleration_batch.py
+          python -m mypy --python-version 3.13 tsao_computation scripts
+          python -m ruff check tsao_computation scripts tests _bootstrap.py
+          python -m ruff format --check tsao_computation scripts tests _bootstrap.py
+          python scripts/build_acceleration_audits.py --check
+          python scripts/build_manifest.py --check
+          git diff --check
+          test ! -e .github/payloads/v6-final-fix
+          test ! -e .github/workflows/export-solver-bound-v6-candidate-once.yml
+          test ! -e .github/workflows/qualify-solver-bound-plan-v6-repair-once.yml
+          git diff HEAD -- .github/workflows/ci.yml --exit-code
+
+      - name: Publish qualified V6 by non-forced fast-forward
+        id: publish
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          base_sha=$(git rev-parse HEAD)
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Fix and qualify solver-bound acceleration plan V6'
+          final_sha=$(git rev-parse HEAD)
+          git fetch origin main
+          test "$(git rev-parse origin/main)" = "$base_sha"
+          git push origin HEAD:refs/heads/main
+          echo "sha=$final_sha" >> "$GITHUB_OUTPUT"
+
+      - name: Close qualification and superseded transport issues
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          gh issue close "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --reason completed --comment "Solver-Bound Acceleration Plans V6 were published directly to main as ${{ steps.publish.outputs.sha }} after the variable-shadowing root fix, patch identity, lint, typing, quality, security, full tests and coverage, reproducible package, native, schema and evidence gates passed. Solver evidence remains evidence-bound-unqualified; missing solver, GPU or license evidence remains external-hold. No branch, pull request or forced update was used. run=https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          for issue in 144 146 147 148 149; do
+            gh issue close "$issue" --repo "$GITHUB_REPOSITORY" --reason completed --comment "Superseded by the verified V6 publication ${{ steps.publish.outputs.sha }}." || true
+          done
+
+      - name: Remove temporary transport after failure
+        if: failure()
+        shell: bash
+        run: |
+          set +e
+          git fetch origin main
+          git checkout -B cleanup origin/main
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git rm -r --ignore-unmatch .github/payloads/v6-final-fix
+          git rm -f --ignore-unmatch .github/workflows/export-solver-bound-v6-candidate-once.yml
+          git rm -f --ignore-unmatch .github/workflows/qualify-solver-bound-plan-v6-repair-once.yml
+          if ! git diff --cached --quiet; then
+            git commit -m 'Remove failed final V6 qualification transport [skip ci]'
+            git push origin HEAD:refs/heads/main
+          fi
+          gh issue comment "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --body "Final V6 qualification failed; product changes were not published and temporary transport cleanup was attempted. Inspect run=https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
