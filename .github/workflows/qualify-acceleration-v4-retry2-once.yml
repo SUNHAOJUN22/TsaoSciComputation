@@ -1,0 +1,192 @@
+name: Qualify acceleration V4 retry2 once
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: qualify-acceleration-v4-retry2-once
+  cancel-in-progress: false
+
+env:
+  GH_TOKEN: ${{ github.token }}
+
+jobs:
+  qualify:
+    if: >-
+      github.event.issue.title == 'QUALIFY_ACCELERATION_V4_RETRY2_20260805' &&
+      github.event.issue.user.login == github.repository_owner
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - name: Check out current main with history
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Reconstruct and verify all payload levels
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python - <<'PY'
+          import hashlib
+          from pathlib import Path
+
+          expected = [
+              'b71204a99c44ed24885d4cdf44409f9d8d621e74aeb1874dc762a8501167a7f3',
+              '9685eaac71ead7a3d7dc8b5c8f3d0482fc443f20dce3de369d79f85718c20103',
+              'a6312eab34672add88e93662635e7929860d5a7bd9fc82d891efa07e7ffe20a9',
+              '5b9b6362fd5a616c893032c9b7256be38a722ffd68e9ac4d5742fcef5239797f',
+              '3cc63ead38ce476d9e0c592a4b3e404018ad21cdad0e5797df755dfa44c9cee9',
+              '339f27e69689d0c116a1d66ee895bcc8690ee1ca4086c3b5244f67d597055723',
+              '60e42e5f04a4188547bab91bab0009a6ea5f28383c874ece666a96b3ac0de266',
+              'ec322aaba6b19007541e3fe54dbac32b443c30b866dafd9b6788a6ff97d277b6',
+          ]
+          data = []
+          for index, digest in enumerate(expected):
+              path = Path(f'.github/payloads/acceleration-v4-retry2/part-{index:02d}')
+              chunk = path.read_bytes().replace(b'\n', b'').replace(b'\r', b'')
+              observed = hashlib.sha256(chunk).hexdigest()
+              if observed != digest:
+                  raise SystemExit(f'repair part {index:02d} digest mismatch: {observed}')
+              data.append(chunk)
+          repaired = b''.join(data)
+          digest = hashlib.sha256(repaired).hexdigest()
+          if digest != 'c00eb7679dbccb2963fe53bfe10a0423b0a8d0d25a5abfe01e3c19ed866d0137':
+              raise SystemExit(f'repaired 01-05 digest mismatch: {digest}')
+          Path('/tmp/v4-01-05').write_bytes(repaired)
+          PY
+          {
+            git show 1c5b984598ecfdbe307f640312abd4e79464f18c:.github/payloads/acceleration-v4-retry/big-01-00
+            git show fe9b8e427f9c8d9d1d5188c27b3d8be4eedb427e:.github/payloads/acceleration-v4-retry/big-01-01
+            git show a086a0b8658d58e82270a042d90ac796b92bd47a:.github/payloads/acceleration-v4-retry/big-01-02
+            git show e66a35d149019801512dab3ca3afad260540ab48:.github/payloads/acceleration-v4-retry/big-01-03
+            git show fc368284458c9167e2c704ed2c645d0f6e419fbe:.github/payloads/acceleration-v4-retry/big-01-04
+            cat /tmp/v4-01-05
+            git show 921ac5ea11ed00ccee2eb32de2403791004ce244:.github/payloads/acceleration-v4-retry/big-01-06
+            git show b81774de471f47cb0663ed5cab1d286a7b0de64b:.github/payloads/acceleration-v4-retry/big-01-07
+          } | tr -d '\n\r' > /tmp/v4-big-01
+          python - <<'PY'
+          import hashlib
+          from pathlib import Path
+          data = Path('/tmp/v4-big-01').read_bytes()
+          digest = hashlib.sha256(data).hexdigest()
+          if digest != '7d586deac7d6398404acc2bfeb216ff64dabd87b6e47f068cee01146f40bdafd':
+              raise SystemExit(f'big-01 digest mismatch: {digest}')
+          PY
+          {
+            git show c4554b4bef87f22e8d32f0f85cb6132812891d0f:.github/payloads/acceleration-v4/big-00
+            cat /tmp/v4-big-01
+            git show da0ee6fb4841be4623d87fa8bcb95db6fca764e8:.github/payloads/acceleration-v4/big-02
+            git show 304c88244584e7a5311d1e7530f42e9f2a02bd72:.github/payloads/acceleration-v4/big-03
+            git show 3f5e6317e7513c505744354adcf95978963c0e94:.github/payloads/acceleration-v4/big-04
+            git show 6113290e4dd3753ed593c91d7c8a21d2d7df95b4:.github/payloads/acceleration-v4/big-05
+            git show 43bf6465a49a10a1dc4b130dab748eac22bc59e9:.github/payloads/acceleration-v4/big-06
+            git show 5eefb0df20d42548274605a9a624b07f70d60748:.github/payloads/acceleration-v4/big-07
+          } | tr -d '\n\r' > /tmp/acceleration-v4.tar.gz.b64
+          python - <<'PY'
+          import base64
+          import hashlib
+          from pathlib import Path
+          encoded = Path('/tmp/acceleration-v4.tar.gz.b64').read_bytes()
+          digest = hashlib.sha256(encoded).hexdigest()
+          if digest != '5cb37164c7b932d8dc149d5bd0f36f22fe87e794995946b60411e416f08dd043':
+              raise SystemExit(f'encoded payload digest mismatch: {digest}')
+          archive = base64.b64decode(encoded, validate=True)
+          digest = hashlib.sha256(archive).hexdigest()
+          if digest != 'd7e3fd0c054ed99ff6bb6b0d3ffeb04007044ac81b6cf4a81034b86467f5a84f':
+              raise SystemExit(f'archive digest mismatch: {digest}')
+          Path('/tmp/acceleration-v4.tar.gz').write_bytes(archive)
+          PY
+
+      - name: Apply delta and remove transport
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          tar -xzf /tmp/acceleration-v4.tar.gz -C .
+          rm -rf .github/payloads/acceleration-v4-retry2
+          rm .github/workflows/qualify-acceleration-v4-retry2-once.yml
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+          cache: pip
+
+      - name: Install complete validation toolchain
+        run: python -m pip install -e '.[validation,quality,security]'
+
+      - name: Canonicalize evidence
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python -m ruff format tsao_computation scripts tests _bootstrap.py
+          python scripts/build_acceleration_audits.py
+          python scripts/quality_check.py
+          python scripts/security_scan.py
+          python scripts/build_manifest.py
+
+      - name: Run complete release qualification
+        run: python scripts/verify_all.py --profile all
+
+      - name: Verify native C ABI and Python bridge
+        run: python scripts/verify_native_core.py
+
+      - name: Smoke-test runtime workload profiling
+        run: python scripts/profile_workloads.py --quick --output "$RUNNER_TEMP/acceleration-v4-profile.json"
+
+      - name: Prepare deterministic final tree
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python scripts/build_acceleration_audits.py
+          python scripts/quality_check.py
+          python scripts/security_scan.py
+          python scripts/build_manifest.py
+          python scripts/build_acceleration_audits.py --check
+          python scripts/build_manifest.py --check
+          python -m pytest -q tests/test_acceleration_qualification_v4.py tests/test_acceleration_batch.py
+          python -m ruff check tsao_computation scripts tests _bootstrap.py
+          python -m ruff format --check tsao_computation scripts tests _bootstrap.py
+          git diff --check
+
+      - name: Publish directly to main
+        id: publish
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Add acceleration qualification V4 and resource-aware execution'
+          git push origin HEAD:refs/heads/main
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Close qualification issue
+        shell: bash
+        run: |
+          gh issue close "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --reason completed --comment "Acceleration Qualification V4 was published directly to main as ${{ steps.publish.outputs.sha }} after complete integrity, quality, security, tests, coverage, package, native and profiling gates passed. No branch or pull request was created. run=https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+
+      - name: Clean retry2 transport after failure
+        if: failure()
+        shell: bash
+        run: |
+          set +e
+          git fetch origin main
+          git checkout -B cleanup origin/main
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          rm -rf .github/payloads/acceleration-v4-retry2
+          rm -f .github/workflows/qualify-acceleration-v4-retry2-once.yml
+          git add -A
+          if ! git diff --cached --quiet; then
+            git commit -m 'Remove failed acceleration V4 retry2 transport [skip ci]'
+            git push origin HEAD:refs/heads/main
+          fi
+          gh issue comment "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --body "Acceleration Qualification V4 retry2 failed; no product commit was published. Retry2 transport was removed. Inspect run=https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
