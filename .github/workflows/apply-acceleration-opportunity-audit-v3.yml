@@ -19,7 +19,7 @@ env:
 jobs:
   apply:
     if: >-
-      github.event.issue.title == 'APPLY_ACCELERATION_OPPORTUNITY_AUDIT_V3_RETRY' &&
+      github.event.issue.title == 'APPLY_ACCELERATION_OPPORTUNITY_AUDIT_V3_RETRY2' &&
       github.event.issue.user.login == github.repository_owner
     runs-on: ubuntu-latest
     timeout-minutes: 75
@@ -36,8 +36,21 @@ jobs:
         run: |
           set -Eeuo pipefail
           git merge-base --is-ancestor 935b21dfb6ee751934760a7799ce18ccded8f04d HEAD
-          test "$(find .github/patches -maxdepth 1 -type f -name 'acceleration-v3.part-*' | wc -l)" -eq 7
-          cat .github/patches/acceleration-v3.part-* > /tmp/acceleration-v3.patch.gz.b64
+          cat \
+            .github/patches/acceleration-v3.part-00 \
+            .github/patches/acceleration-v3.part-01 \
+            .github/patches/acceleration-v3.part-02 \
+            .github/patches/acceleration-v3.part-03 \
+            .github/patches/acceleration-v3.part-04 \
+            .github/patches/acceleration-v3.part-05a \
+            .github/patches/acceleration-v3.part-05b \
+            .github/patches/acceleration-v3.part-05c \
+            .github/patches/acceleration-v3.part-05d \
+            .github/patches/acceleration-v3.part-05e \
+            .github/patches/acceleration-v3.part-05f \
+            .github/patches/acceleration-v3.part-05g \
+            .github/patches/acceleration-v3.part-06 \
+            > /tmp/acceleration-v3.patch.gz.b64
           python - <<'PY'
           import base64
           import gzip
@@ -142,4 +155,4 @@ jobs:
         if: failure()
         shell: bash
         run: |
-          gh issue comment "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --body "Acceleration opportunity audit V3 retry failed. No product-code patch commit was pushed. Inspect run=https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          gh issue comment "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --body "Acceleration opportunity audit V3 retry2 failed. No product-code patch commit was pushed. Inspect run=https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
