@@ -1,0 +1,78 @@
+name: Export current main source once
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  actions: read
+  contents: write
+  issues: write
+
+concurrency:
+  group: export-current-main-source-once
+  cancel-in-progress: false
+
+env:
+  GH_TOKEN: ${{ github.token }}
+
+jobs:
+  export:
+    if: >-
+      github.event.issue.title == 'EXPORT_CURRENT_MAIN_SOURCE_20260805' &&
+      github.event.issue.user.login == github.repository_owner
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: main
+          fetch-depth: 1
+          persist-credentials: true
+
+      - name: Build exact source snapshot
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import tarfile
+
+          root = Path.cwd()
+          out = root / 'TsaoSciComputation-main-source.tar.gz'
+          excluded = {'.git', '.venv', '__pycache__', '.pytest_cache', '.mypy_cache', '.ruff_cache'}
+          with tarfile.open(out, 'w:gz', format=tarfile.PAX_FORMAT) as archive:
+              for path in sorted(root.rglob('*')):
+                  if any(part in excluded for part in path.parts):
+                      continue
+                  if path == out or path.is_dir():
+                      continue
+                  archive.add(path, arcname=path.relative_to(root).as_posix(), recursive=False)
+          PY
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: TsaoSciComputation-main-source-${{ github.run_id }}
+          path: TsaoSciComputation-main-source.tar.gz
+          if-no-files-found: error
+          retention-days: 3
+
+      - name: Report source artifact
+        shell: bash
+        run: |
+          gh issue comment "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --body "Exact main source snapshot uploaded. run_id=$GITHUB_RUN_ID commit=$(git rev-parse HEAD)"
+
+      - name: Remove one-time workflow from main
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git rm .github/workflows/export-current-main-source-once.yml
+          git commit -m 'Remove one-time source export workflow [skip ci]'
+          git push origin HEAD:refs/heads/main
+
+      - name: Close export issue
+        shell: bash
+        run: |
+          gh issue close "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --reason completed --comment 'Source snapshot exported without creating a branch or pull request.'
