@@ -1,0 +1,138 @@
+name: Qualify acceleration V4 once
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: qualify-acceleration-v4-once
+  cancel-in-progress: false
+
+env:
+  GH_TOKEN: ${{ github.token }}
+
+jobs:
+  qualify:
+    if: >-
+      github.event.issue.title == 'QUALIFY_ACCELERATION_V4_20260805' &&
+      github.event.issue.user.login == github.repository_owner
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - name: Check out main with complete history
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Resolve and verify candidate commit
+        id: candidate
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          gh issue view "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --json body --jq .body > /tmp/qualification-body.txt
+          candidate=$(sed -n 's/^CANDIDATE_SHA=\([0-9a-f]\{40\}\)$/\1/p' /tmp/qualification-body.txt)
+          expected_parent=$(sed -n 's/^EXPECTED_PARENT=\([0-9a-f]\{40\}\)$/\1/p' /tmp/qualification-body.txt)
+          test -n "$candidate"
+          test -n "$expected_parent"
+          git fetch origin "$candidate"
+          test "$(git rev-parse "$candidate^")" = "$expected_parent"
+          test "$expected_parent" = "$(git rev-parse origin/main)"
+          git checkout --detach "$candidate"
+          test ! -e .github/workflows/qualify-acceleration-v4-once.yml
+          echo "sha=$candidate" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+          cache: pip
+
+      - name: Install complete validation toolchain
+        run: python -m pip install -e '.[validation,quality,security]'
+
+      - name: Canonicalize generated evidence
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python -m ruff format tsao_computation scripts tests _bootstrap.py
+          python scripts/build_acceleration_audits.py
+          python scripts/quality_check.py
+          python scripts/security_scan.py
+          python scripts/build_manifest.py
+
+      - name: Run complete deterministic release qualification
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python scripts/verify_all.py --profile all | tee /tmp/verify-all.log
+
+      - name: Verify native C ABI and Python bridge
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python scripts/verify_native_core.py | tee /tmp/verify-native.log
+
+      - name: Smoke-test runtime workload profiling
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python scripts/profile_workloads.py --quick --output "$RUNNER_TEMP/acceleration-v4-profile.json"
+
+      - name: Prepare exact final tree
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python scripts/build_acceleration_audits.py
+          python scripts/quality_check.py
+          python scripts/security_scan.py
+          python scripts/build_manifest.py
+          python scripts/build_acceleration_audits.py --check
+          python scripts/build_manifest.py --check
+          python -m pytest -q tests/test_acceleration_qualification_v4.py tests/test_acceleration_batch.py
+          python -m ruff check tsao_computation scripts tests _bootstrap.py
+          python -m ruff format --check tsao_computation scripts tests _bootstrap.py
+          git diff --check
+
+      - name: Publish qualified result directly to main
+        id: publish
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          if git diff --cached --quiet; then
+            final_sha=$(git rev-parse HEAD)
+          else
+            git commit -m 'Canonicalize acceleration qualification V4 evidence'
+            final_sha=$(git rev-parse HEAD)
+          fi
+          git push origin HEAD:refs/heads/main
+          echo "sha=$final_sha" >> "$GITHUB_OUTPUT"
+
+      - name: Close qualification issue
+        shell: bash
+        run: |
+          gh issue close "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --reason completed --comment "Acceleration Qualification V4 was published directly to main as ${{ steps.publish.outputs.sha }} after complete quality, security, tests, coverage, package, native and profiling gates passed. No branch or pull request was created. run=https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+
+      - name: Remove one-time workflow after failure
+        if: failure()
+        shell: bash
+        run: |
+          set +e
+          git fetch origin main
+          git checkout -B cleanup origin/main
+          if test -f .github/workflows/qualify-acceleration-v4-once.yml; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git rm .github/workflows/qualify-acceleration-v4-once.yml
+            git commit -m 'Remove failed acceleration V4 qualification workflow [skip ci]'
+            git push origin HEAD:refs/heads/main
+          fi
+          gh issue comment "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --body "Acceleration Qualification V4 failed; no candidate product commit was published. The one-time workflow was removed. Inspect run=https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
