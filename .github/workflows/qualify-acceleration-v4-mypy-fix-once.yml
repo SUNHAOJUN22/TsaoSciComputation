@@ -1,0 +1,161 @@
+name: Qualify acceleration V4 with typing fix once
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: qualify-acceleration-v4-mypy-fix-once
+  cancel-in-progress: false
+
+env:
+  GH_TOKEN: ${{ github.token }}
+
+jobs:
+  qualify:
+    if: >-
+      github.event.issue.title == 'QUALIFY_ACCELERATION_V4_MYPY_FIX_20260805' &&
+      github.event.issue.user.login == github.repository_owner
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - name: Check out complete current-main history
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Reconstruct verified V4 archive from fixed history
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git show b4832254c30bb9437965c9836dbb06656faa868d:.github/workflows/qualify-acceleration-v4-history-repair-once.yml > /tmp/history-workflow.yml
+          python - <<'PY'
+          from pathlib import Path
+
+          text = Path('/tmp/history-workflow.yml').read_text(encoding='utf-8')
+          start_marker = "          python - <<'PY'\n"
+          end_marker = "\n          PY\n"
+          start = text.index(start_marker) + len(start_marker)
+          end = text.index(end_marker, start)
+          block = text[start:end]
+          lines = [line[10:] if line.startswith('          ') else line for line in block.splitlines()]
+          Path('/tmp/reconstruct_v4.py').write_text('\n'.join(lines) + '\n', encoding='utf-8')
+          PY
+          python /tmp/reconstruct_v4.py
+          test "$(sha256sum /tmp/acceleration-v4.tar.gz | cut -d' ' -f1)" = "d7e3fd0c054ed99ff6bb6b0d3ffeb04007044ac81b6cf4a81034b86467f5a84f"
+
+      - name: Apply candidate and preserve permanent CI
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          tar -xzf /tmp/acceleration-v4.tar.gz -C .
+          git checkout origin/main -- .github/workflows/ci.yml
+          rm -rf .github/payloads/acceleration-v4-retry2
+          rm -f .github/workflows/qualify-acceleration-v4-mypy-fix-once.yml
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+          cache: pip
+
+      - name: Install complete validation toolchain
+        run: python -m pip install -e '.[validation,quality,security]'
+
+      - name: Apply deterministic lint and typing corrections
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python -m ruff check --fix tsao_computation scripts tests _bootstrap.py
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('tsao_computation/performance/model.py')
+          lines = path.read_text(encoding='utf-8').splitlines()
+          matches = [
+              index
+              for index, line in enumerate(lines)
+              if 90 <= index + 1 <= 125 and line.lstrip().startswith('payload = {')
+          ]
+          if len(matches) != 1:
+              raise SystemExit(f'expected exactly one payload assignment near line 109, found {matches}')
+          index = matches[0]
+          indentation = lines[index][: len(lines[index]) - len(lines[index].lstrip())]
+          lines[index] = f'{indentation}payload: dict[str, object] = {{'
+          path.write_text('\n'.join(lines) + '\n', encoding='utf-8')
+          PY
+          python -m ruff format tsao_computation scripts tests _bootstrap.py
+          python scripts/build_acceleration_audits.py
+          python scripts/quality_check.py
+          python scripts/security_scan.py
+          python scripts/build_manifest.py
+
+      - name: Run complete deterministic release qualification
+        run: python scripts/verify_all.py --profile all
+
+      - name: Verify native C ABI and Python bridge
+        run: python scripts/verify_native_core.py
+
+      - name: Smoke-test runtime workload profiling
+        run: python scripts/profile_workloads.py --quick --output "$RUNNER_TEMP/acceleration-v4-profile.json"
+
+      - name: Prepare exact final tree
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python scripts/build_acceleration_audits.py
+          python scripts/quality_check.py
+          python scripts/security_scan.py
+          python scripts/build_manifest.py
+          python scripts/build_acceleration_audits.py --check
+          python scripts/build_manifest.py --check
+          python -m pytest -q tests/test_acceleration_qualification_v4.py tests/test_acceleration_batch.py
+          python -m ruff check tsao_computation scripts tests _bootstrap.py
+          python -m ruff format --check tsao_computation scripts tests _bootstrap.py
+          python -m mypy --python-version 3.13 tsao_computation scripts
+          git diff --check
+          test ! -e .github/workflows/qualify-acceleration-v4-mypy-fix-once.yml
+          git diff -- .github/workflows/ci.yml --exit-code
+
+      - name: Publish directly to main
+        id: publish
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Add acceleration qualification V4 and resource-aware execution'
+          git push origin HEAD:refs/heads/main
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Close qualification issues
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          gh issue close "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --reason completed --comment "Acceleration Qualification V4 was published directly to main as ${{ steps.publish.outputs.sha }} after archive integrity, lint, typing, quality, security, tests, coverage, package, native and profiling gates passed. No branch or pull request was created. run=https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          gh issue close 135 --repo "$GITHUB_REPOSITORY" --reason completed --comment "Superseded by published V4 commit ${{ steps.publish.outputs.sha }}."
+          gh issue close 136 --repo "$GITHUB_REPOSITORY" --reason completed --comment "Superseded by published V4 commit ${{ steps.publish.outputs.sha }}."
+
+      - name: Remove one-time workflow after failure
+        if: failure()
+        shell: bash
+        run: |
+          set +e
+          git fetch origin main
+          git reset --hard origin/main
+          git clean -fd
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git rm -f --ignore-unmatch .github/workflows/qualify-acceleration-v4-mypy-fix-once.yml
+          if ! git diff --cached --quiet; then
+            git commit -m 'Remove failed acceleration V4 typing qualification [skip ci]'
+            git push origin HEAD:refs/heads/main
+          fi
+          gh issue comment "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --body "Acceleration Qualification V4 typing run failed; no product commit was published. The one-time workflow was removed. Inspect run=https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
