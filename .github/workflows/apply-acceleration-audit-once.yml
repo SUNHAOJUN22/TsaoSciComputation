@@ -5,6 +5,7 @@ on:
     types: [opened]
 
 permissions:
+  actions: read
   contents: write
   issues: write
 
@@ -18,10 +19,10 @@ env:
 jobs:
   apply:
     if: >-
-      github.event.issue.title == 'APPLY_ACCELERATION_AUDIT_PATCH' &&
+      github.event.issue.title == 'APPLY_ACCELERATION_AUDIT_PATCH_V2' &&
       github.event.issue.user.login == github.repository_owner
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 45
     steps:
       - name: Check out current main
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
@@ -30,29 +31,33 @@ jobs:
           fetch-depth: 0
           persist-credentials: true
 
+      - name: Record workflow start
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          gh issue comment "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --body "Acceleration patch validation started. run=https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+
       - name: Set up Python
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
         with:
           python-version: '3.13'
           cache: pip
 
-      - name: Decode and apply owner-authorized patch
+      - name: Retrieve, decode and apply owner-authorized patch
         shell: bash
-        env:
-          ISSUE_BODY: ${{ github.event.issue.body }}
         run: |
           set -Eeuo pipefail
+          gh issue view 113 --repo "$GITHUB_REPOSITORY" --json body --jq .body > /tmp/patch-issue-body.txt
           python - <<'PY'
           import base64
           import gzip
-          import os
           from pathlib import Path
 
-          body = os.environ['ISSUE_BODY']
+          body = Path('/tmp/patch-issue-body.txt').read_text(encoding='utf-8')
           start = 'BEGIN_GZIP_BASE64_PATCH\n'
           end = '\nEND_GZIP_BASE64_PATCH'
           if start not in body or end not in body:
-              raise SystemExit('patch markers are missing')
+              raise SystemExit('patch markers are missing from source issue 113')
           payload = body.split(start, 1)[1].split(end, 1)[0].strip()
           patch = gzip.decompress(base64.b64decode(payload, validate=True))
           Path('/tmp/acceleration.patch').write_bytes(patch)
@@ -84,8 +89,15 @@ jobs:
           git commit -m 'Add native CUDA runtime discovery and Python bridge'
           git push origin HEAD:refs/heads/main
 
-      - name: Close authorization issue
+      - name: Close authorization issues
         shell: bash
         run: |
           set -Eeuo pipefail
-          gh issue close "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --reason completed --comment 'Acceleration audit patch applied to main after quality, core, and native verification passed.'
+          gh issue close 113 --repo "$GITHUB_REPOSITORY" --reason completed --comment 'Acceleration audit patch was applied to main after quality, core, and native verification passed.'
+          gh issue close "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --reason completed --comment 'Acceleration audit patch applied directly to main; no branch or pull request was created.'
+
+      - name: Record failure diagnostics
+        if: failure()
+        shell: bash
+        run: |
+          gh issue comment "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --body "Acceleration patch validation failed. Inspect run=https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID. No patch commit was pushed."
