@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/SUNHAOJUN22/TsaoSciComputation/schemas/solver-capability-evidence.schema.json",
+  "title": "Solver capability evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "adapter_slug",
+    "declared_executables",
+    "detected",
+    "required_python_modules",
+    "missing_python_modules",
+    "version_arguments",
+    "qualification_status",
+    "reason",
+    "claim_boundary",
+    "evidence_sha256"
+  ],
+  "properties": {
+    "adapter_slug": {"type": "string", "minLength": 1},
+    "declared_executables": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1},
+      "uniqueItems": true
+    },
+    "detected": {"type": "boolean"},
+    "executable_name": {"type": ["string", "null"]},
+    "executable_path": {"type": ["string", "null"]},
+    "executable_sha256": {
+      "type": ["string", "null"],
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "executable_size_bytes": {"type": ["integer", "null"], "minimum": 1},
+    "required_python_modules": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1},
+      "uniqueItems": true
+    },
+    "missing_python_modules": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1},
+      "uniqueItems": true
+    },
+    "version_arguments": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1},
+      "uniqueItems": true
+    },
+    "version_returncode": {"type": ["integer", "null"]},
+    "version_text_sha256": {
+      "type": ["string", "null"],
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "version_excerpt": {"type": ["string", "null"], "maxLength": 4096},
+    "qualification_status": {
+      "enum": [
+        "candidate-only",
+        "detected-incomplete",
+        "fingerprinted-unqualified",
+        "version-probed-unqualified"
+      ]
+    },
+    "reason": {"type": "string", "minLength": 1},
+    "claim_boundary": {"type": "string", "minLength": 1},
+    "evidence_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"detected": {"const": true}}},
+      "then": {
+        "required": ["executable_path", "executable_sha256", "executable_size_bytes"]
+      }
+    }
+  ]
+}

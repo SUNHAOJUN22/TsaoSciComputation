@@ -34,6 +34,22 @@ _SAFE_OVERRIDE_KEYS = frozenset(
         "VECLIB_MAXIMUM_THREADS",
     }
 )
+_READ_ONLY_PROBE_ARGUMENTS = frozenset(
+    {
+        ("--version",),
+        ("-version",),
+        ("version",),
+        ("info",),
+        ("info", "--version"),
+        ("-v",),
+        ("-h",),
+        ("--help",),
+        ("-help",),
+        ("mdrun", "-h"),
+    }
+)
+_MAX_PROBE_OUTPUT_CHARS = 65_536
+
 _PROBE_ARGUMENTS: dict[str, frozenset[tuple[str, ...]]] = {
     "nvidia-smi": frozenset(
         {
@@ -267,3 +283,36 @@ def probe_python_modules(executable: str, modules: tuple[str, ...]) -> tuple[str
     except json.JSONDecodeError:
         return modules
     return tuple(str(item) for item in payload) if isinstance(payload, list) else modules
+
+
+def read_only_probe_arguments_allowed(arguments: tuple[str, ...]) -> bool:
+    return arguments in _READ_ONLY_PROBE_ARGUMENTS
+
+
+def probe_read_only_command_output(
+    executable: str,
+    arguments: tuple[str, ...],
+) -> tuple[int, str, str]:
+    """Run one bounded, shell-free version/help probe.
+
+    Only a small fixed argument set is accepted. Callers remain responsible for
+    ensuring that the executable is declared by an adapter registry record.
+    The result is discovery evidence only and never authorizes a calculation.
+    """
+
+    if arguments not in _READ_ONLY_PROBE_ARGUMENTS:
+        raise SecurityError(f"unsupported read-only executable probe arguments: {arguments}")
+    resolved = _validated_executable(executable)
+    try:
+        result = _run_sanitized(
+            (str(resolved), *arguments),
+            cwd=Path.cwd(),
+            timeout=8.0,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return 127, "", ""
+    return (
+        result.returncode,
+        result.stdout[:_MAX_PROBE_OUTPUT_CHARS],
+        result.stderr[:_MAX_PROBE_OUTPUT_CHARS],
+    )

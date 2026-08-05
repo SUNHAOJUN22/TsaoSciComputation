@@ -38,6 +38,13 @@ def build_parser() -> argparse.ArgumentParser:
         help="detect CPU, accelerator, MPI, scheduler and edge-planning evidence",
     )
 
+    solver_probe = subparsers.add_parser(
+        "probe-solver",
+        help="fingerprint one declared solver executable and run a bounded read-only probe",
+    )
+    solver_probe.add_argument("adapter")
+    solver_probe.add_argument("--output", type=Path)
+
     libraries = subparsers.add_parser(
         "list-acceleration-libraries",
         help="list optional acceleration-library candidates without installing them",
@@ -158,6 +165,25 @@ def main(argv: list[str] | None = None) -> int:
             from .accelerators import probe_accelerators
 
             _json(probe_accelerators().to_dict())
+        elif args.command == "probe-solver":
+            from .accelerators import probe_solver_capability
+
+            payload = probe_solver_capability(args.adapter).to_dict()
+            if args.output is not None:
+                args.output.parent.mkdir(parents=True, exist_ok=True)
+                args.output.write_text(
+                    json.dumps(
+                        payload,
+                        ensure_ascii=False,
+                        indent=2,
+                        sort_keys=True,
+                        allow_nan=False,
+                    )
+                    + "\n",
+                    encoding="utf-8",
+                    newline="\n",
+                )
+            _json(payload)
         elif args.command == "list-acceleration-libraries":
             from .accelerators import recommend_acceleration_libraries
 

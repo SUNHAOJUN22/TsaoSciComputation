@@ -97,15 +97,19 @@ python -m tsao_computation audit-acceleration \
 python -m tsao_computation profile-performance \
   --workload routing-hot --workload acceleration-plan \
   --repeats 7 --warmups 1 --output .tsao-computation/performance-profile.json
+python -m tsao_computation probe-solver gromacs \
+  --output .tsao-computation/gromacs-capability-evidence.json
 ```
 
 The production audit excludes tests, repository tooling and benchmark fixtures from migration decisions; the full-tree audit remains available for diagnostics. Every candidate is bound to a source hash and stable candidate ID and remains `unprofiled` until runtime evidence exists. Acceleration plans now separate candidate, detected and qualified libraries and bind request, inventory, adapter-profile and plan hashes.
 
 <!-- ACCELERATION_AUDIT_SUMMARY:START -->
-V4 reports inventory **167 source files** and **3 native-language files**. The production scope analyzes **58 Python files** and finds **3 unprofiled candidates**; the diagnostic full tree analyzes **164 Python files** and finds **35 candidates**. Neither report claims measured speedup.
+V5 reports inventory **169 source files** and **3 native-language files**. The production scope analyzes **59 Python files** and finds **3 unprofiled candidates**; the diagnostic full tree analyzes **166 Python files** and finds **35 candidates**. Neither report claims measured speedup.
 <!-- ACCELERATION_AUDIT_SUMMARY:END -->
 
 The batch execution layer now accepts immutable per-plan CPU, GPU and license-token claims plus a host capacity envelope. A condition-based resource broker prevents CPU oversubscription, exclusive-GPU collisions and license over-allocation, while binding the allocation hashes into the batch result.
+
+V5 adds registry-bounded solver capability evidence. `probe-solver` fingerprints the exact resolved executable, records its byte size and SHA-256, checks declared Python modules, and may run only a fixed bounded shell-free version/help argument set. Version output is bounded and hash-bound. The strongest automatic status is `version-probed-unqualified`; numerical equivalence, backend support, speedup, convergence and licensing remain separate qualification gates.
 
 Architecture, CUDA-X selection rules and C++ migration gates: [`docs/accelerated-native-backend.md`](docs/accelerated-native-backend.md). Native verification: `python scripts/verify_native_core.py`.
 

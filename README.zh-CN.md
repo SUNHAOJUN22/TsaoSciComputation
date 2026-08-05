@@ -97,15 +97,19 @@ python -m tsao_computation audit-acceleration \
 python -m tsao_computation profile-performance \
   --workload routing-hot --workload acceleration-plan \
   --repeats 7 --warmups 1 --output .tsao-computation/performance-profile.json
+python -m tsao_computation probe-solver gromacs \
+  --output .tsao-computation/gromacs-capability-evidence.json
 ```
 
 生产审计会从迁移决策中排除测试、仓库工具脚本和基准夹具；全树审计仅用于诊断。每个候选绑定源码哈希和稳定候选 ID，在获得运行时证据前保持 `unprofiled`。加速计划现已区分候选库、已检测库和已资格验证库，并绑定资源请求、硬件清单、适配器配置和最终计划哈希。
 
 <!-- ACCELERATION_AUDIT_SUMMARY:START -->
-V4 报告统计 **167 个源码文件**和 **3 个原生语言文件**。生产范围分析 **58 个 Python 文件**并得到 **3 个未剖析候选**；诊断性全树范围分析 **164 个 Python 文件**并得到 **35 个候选**。两类报告均不声称已经取得实测加速。
+V5 报告统计 **169 个源码文件**和 **3 个原生语言文件**。生产范围分析 **59 个 Python 文件**并得到 **3 个未剖析候选**；诊断性全树范围分析 **166 个 Python 文件**并得到 **35 个候选**。两类报告均不声称已经取得实测加速。
 <!-- ACCELERATION_AUDIT_SUMMARY:END -->
 
 批量执行层现可接收每个计划不可变的 CPU、GPU、许可证令牌声明以及主机容量包络。基于条件变量的资源代理会阻止 CPU 过度订阅、独占 GPU 冲突和许可证超额分配，并将容量与声明哈希写入批执行结果。
+
+V5 新增注册表约束的求解器能力证据。`probe-solver` 会对实际解析到的可执行文件记录路径、字节数和 SHA-256，检查声明的 Python 模块，并且只允许固定、有界、无 shell 的版本/帮助参数。版本输出同样有长度上限并绑定哈希。自动状态最高仅为 `version-probed-unqualified`；数值等价、后端支持、加速收益、收敛性和许可证仍必须分别通过资格门禁。
 
 架构、CUDA-X 选型和 C++ 迁移门禁见 [`docs/accelerated-native-backend.md`](docs/accelerated-native-backend.md)。原生验证命令：`python scripts/verify_native_core.py`。
 

@@ -6,19 +6,19 @@
   "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
   "file_scope_counts": {
     "benchmark": 9,
-    "production": 60,
-    "test": 61,
+    "production": 61,
+    "test": 62,
     "tooling": 37
   },
   "language_files": {
     "c": 1,
     "cpp": 2,
-    "python": 164
+    "python": 166
   },
   "language_lines": {
     "c": 70,
     "cpp": 197,
-    "python": 20558
+    "python": 21171
   },
   "opportunities": [
     {
@@ -35,7 +35,7 @@
         "oversubscription",
         "unsupported solver backend"
       ],
-      "candidate_id": "b49b6941eb1ac9de797ba7f0a0e9e0abc1b7f1ea2e559bd1134438c0e94be1fe",
+      "candidate_id": "fb464600a79bb0c2e65440717aa20f1465a15c142f8974a89f3f6aedccc83436",
       "category": "external-solver-dispatch",
       "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
       "confidence": "high",
@@ -52,11 +52,11 @@
         "mpi",
         "nccl"
       ],
-      "line": 147,
+      "line": 163,
       "path": "tsao_computation/security/process.py",
       "runtime_status": "unprofiled",
       "score": 68,
-      "source_sha256": "eea8f8226fca4ce7ecc597296477169a561daf927df905d426216b332e086ff1",
+      "source_sha256": "b03d2796105f25355c88d056888639e54e98baeab8481b9588a90587ff844ecc",
       "symbol": "_run_prepared"
     },
     {
@@ -122,11 +122,11 @@
   ],
   "opportunity_count": 3,
   "parse_failures": [],
-  "python_files_analyzed": 58,
-  "python_files_excluded": 106,
+  "python_files_analyzed": 59,
+  "python_files_excluded": 107,
   "root": ".",
   "scope": "production",
-  "source_files": 167,
-  "source_lines": 20825,
-  "source_tree_sha256": "3275de9a5bde65d0626a304a95a52c7e930fccc94d4319ad45434d4fa5d5f8c1"
+  "source_files": 169,
+  "source_lines": 21438,
+  "source_tree_sha256": "48d84f32d05e5d1b822e45f7ac300b07f622cd4ee783621ce69f91bfbc7cec44"
 }

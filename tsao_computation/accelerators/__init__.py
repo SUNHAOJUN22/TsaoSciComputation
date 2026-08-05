@@ -27,6 +27,7 @@ from .model import (
 from .native import NativeProbeResult, probe_native_core
 from .planner import AccelerationPlan, acceleration_plan, plan_acceleration
 from .probe import probe_accelerators, probe_hardware
+from .solver import SolverCapabilityEvidence, fingerprint_solver, probe_solver_capability
 
 __all__ = [
     "AccelerationLibrary",
@@ -44,16 +45,19 @@ __all__ = [
     "PrecisionPolicy",
     "RepositoryAccelerationAudit",
     "ResourceRequest",
+    "SolverCapabilityEvidence",
     "acceleration_libraries",
     "audit_acceleration",
     "audit_repository_acceleration",
     "acceleration_plan",
+    "fingerprint_solver",
     "get_acceleration_library",
     "library_catalog",
     "plan_acceleration",
     "probe_accelerators",
     "probe_hardware",
     "probe_native_core",
+    "probe_solver_capability",
     "recommend_acceleration_libraries",
     "recommend_libraries",
 ]

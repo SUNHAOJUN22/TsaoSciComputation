@@ -60,6 +60,31 @@ Acceleration-library state is explicitly three-stage:
 Plans bind `resource_request_sha256`, `inventory_sha256`, `adapter_profile_sha256` and
 `acceleration_plan_sha256`. Detection alone never promotes a CUDA-X library to qualified use.
 
+## V5 executable fingerprint and solver-capability evidence
+
+Acceleration plans cannot safely claim a solver-native CUDA, MPI or OpenMP path from an
+executable name alone. V5 adds an explicit machine-readable preflight:
+
+```bash
+python -m tsao_computation probe-solver gromacs \
+  --output .tsao-computation/gromacs-capability-evidence.json
+```
+
+The probe is bounded by the adapter and accelerator registries. It:
+
+- resolves only declared adapter executables;
+- hashes the exact executable bytes and records the file size and resolved path;
+- checks declared Python-module availability with a fixed internal script;
+- accepts only a fixed shell-free read-only argument set such as `--version`, `-v`, `-h`,
+  `--help`, `info --version` and `mdrun -h`;
+- bounds captured stdout and stderr and records a version-text SHA-256; and
+- derives a deterministic evidence SHA-256 without timestamps.
+
+The resulting statuses are deliberately limited to `candidate-only`, `detected-incomplete`,
+`fingerprinted-unqualified` and `version-probed-unqualified`. No automatic path marks a solver
+as scientifically qualified. A real qualification must still bind the method, input, backend,
+precision, device allocation, numerical comparison, convergence and end-to-end performance.
+
 ## Implemented native boundary
 
 The source-only `native/` library now provides a versioned C ABI that:
@@ -166,7 +191,7 @@ measured requirement and the maintenance tradeoff is accepted.
 
 ### Phase 4 — solver and edge deployment
 
-- Bind exact external-solver versions and build features to acceleration plans.
+- Executable path, binary SHA-256, module completeness and bounded version/help evidence are implemented; bind method-specific build features and live numerical qualification next.
 - Record driver, runtime, GPU architecture, device binding, precision and environment hashes.
 - For edge targets, validate TensorRT/Holoscan pipelines on the actual Jetson or IGX class,
   including power mode, thermal throttling and CPU fallback.
