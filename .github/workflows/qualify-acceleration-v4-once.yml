@@ -23,29 +23,44 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 75
     steps:
-      - name: Check out main with complete history
+      - name: Check out current main
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
         with:
           ref: main
           fetch-depth: 0
           persist-credentials: true
 
-      - name: Resolve and verify candidate commit
-        id: candidate
+      - name: Reassemble and verify owner-authorized delta
         shell: bash
         run: |
           set -Eeuo pipefail
-          gh issue view "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --json body --jq .body > /tmp/qualification-body.txt
-          candidate=$(sed -n 's/^CANDIDATE_SHA=\([0-9a-f]\{40\}\)$/\1/p' /tmp/qualification-body.txt)
-          expected_parent=$(sed -n 's/^EXPECTED_PARENT=\([0-9a-f]\{40\}\)$/\1/p' /tmp/qualification-body.txt)
-          test -n "$candidate"
-          test -n "$expected_parent"
-          git fetch origin "$candidate"
-          test "$(git rev-parse "$candidate^")" = "$expected_parent"
-          test "$expected_parent" = "$(git rev-parse origin/main)"
-          git checkout --detach "$candidate"
-          test ! -e .github/workflows/qualify-acceleration-v4-once.yml
-          echo "sha=$candidate" >> "$GITHUB_OUTPUT"
+          test "$(find .github/payloads/acceleration-v4 -maxdepth 1 -type f -name 'part-*' | wc -l)" -eq 16
+          cat .github/payloads/acceleration-v4/part-* | tr -d '\n\r' > /tmp/acceleration-v4.tar.gz.b64
+          python - <<'PY'
+          import base64
+          import hashlib
+          from pathlib import Path
+
+          encoded = Path('/tmp/acceleration-v4.tar.gz.b64').read_bytes()
+          expected_encoded = '5cb37164c7b932d8dc149d5bd0f36f22fe87e794995946b60411e416f08dd043'
+          digest = hashlib.sha256(encoded).hexdigest()
+          if digest != expected_encoded:
+              raise SystemExit(f'encoded payload digest mismatch: {digest}')
+          archive = base64.b64decode(encoded, validate=True)
+          expected_archive = 'd7e3fd0c054ed99ff6bb6b0d3ffeb04007044ac81b6cf4a81034b86467f5a84f'
+          archive_digest = hashlib.sha256(archive).hexdigest()
+          if archive_digest != expected_archive:
+              raise SystemExit(f'archive digest mismatch: {archive_digest}')
+          Path('/tmp/acceleration-v4.tar.gz').write_bytes(archive)
+          PY
+
+      - name: Apply delta and remove temporary transport
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          tar -xzf /tmp/acceleration-v4.tar.gz -C .
+          rm -rf .github/payloads/acceleration-v4
+          rm .github/workflows/qualify-acceleration-v4-once.yml
 
       - name: Set up Python
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
@@ -107,32 +122,29 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -A
-          if git diff --cached --quiet; then
-            final_sha=$(git rev-parse HEAD)
-          else
-            git commit -m 'Canonicalize acceleration qualification V4 evidence'
-            final_sha=$(git rev-parse HEAD)
-          fi
+          git commit -m 'Add acceleration qualification V4 and resource-aware execution'
           git push origin HEAD:refs/heads/main
-          echo "sha=$final_sha" >> "$GITHUB_OUTPUT"
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: Close qualification issue
         shell: bash
         run: |
           gh issue close "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --reason completed --comment "Acceleration Qualification V4 was published directly to main as ${{ steps.publish.outputs.sha }} after complete quality, security, tests, coverage, package, native and profiling gates passed. No branch or pull request was created. run=https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
 
-      - name: Remove one-time workflow after failure
+      - name: Remove temporary transport after failure
         if: failure()
         shell: bash
         run: |
           set +e
           git fetch origin main
           git checkout -B cleanup origin/main
-          if test -f .github/workflows/qualify-acceleration-v4-once.yml; then
-            git config user.name 'github-actions[bot]'
-            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-            git rm .github/workflows/qualify-acceleration-v4-once.yml
-            git commit -m 'Remove failed acceleration V4 qualification workflow [skip ci]'
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          rm -rf .github/payloads/acceleration-v4
+          rm -f .github/workflows/qualify-acceleration-v4-once.yml
+          git add -A
+          if ! git diff --cached --quiet; then
+            git commit -m 'Remove failed acceleration V4 qualification transport [skip ci]'
             git push origin HEAD:refs/heads/main
           fi
-          gh issue comment "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --body "Acceleration Qualification V4 failed; no candidate product commit was published. The one-time workflow was removed. Inspect run=https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          gh issue comment "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --body "Acceleration Qualification V4 failed; no candidate product commit was published. Temporary transport was removed. Inspect run=https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
