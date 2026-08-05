@@ -1,0 +1,57 @@
+def _parse_visible_devices(variable: str, raw: object) -> tuple[int, ...]:
+    if not isinstance(raw, str):
+        raise SecurityError(f"{variable} visible-device environment must be a string")
+    if not raw.strip():
+        return ()
+    parts = tuple(item.strip() for item in raw.split(","))
+    if any(not item for item in parts):
+        raise SecurityError(
+            "visible-device environment is not a comma-separated integer list"
+        )
+    try:
+        bound = tuple(int(item) for item in parts)
+    except ValueError as error:
+        raise SecurityError(
+            "visible-device environment is not a comma-separated integer list"
+        ) from error
+    if any(item < 0 for item in bound):
+        raise SecurityError(
+            "visible-device environment is not a comma-separated integer list"
+        )
+    if len(set(bound)) != len(bound):
+        raise SecurityError(
+            "visible-device environment must contain unique device indices"
+        )
+    return bound
+
+
+def validate_resource_binding(
+    environment: Mapping[str, str],
+    claim: ExecutionResourceClaim,
+) -> None:
+    variables = (
+        "CUDA_VISIBLE_DEVICES",
+        "HIP_VISIBLE_DEVICES",
+        "ROCR_VISIBLE_DEVICES",
+    )
+    bindings = tuple(
+        (variable, _parse_visible_devices(variable, environment[variable]))
+        for variable in variables
+        if variable in environment
+    )
+    expected = tuple(claim.gpu_devices)
+    if not expected:
+        if any(bound for _, bound in bindings):
+            raise SecurityError(
+                "GPU-visible command environment requires a matching GPU resource claim"
+            )
+        return
+    if not bindings:
+        raise SecurityError(
+            "GPU resource claim requires a bound visible-device environment"
+        )
+    for variable, bound in bindings:
+        if bound != expected:
+            raise SecurityError(
+                f"GPU resource claim does not match the immutable {variable} environment"
+            )
