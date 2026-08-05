@@ -7,6 +7,7 @@ from .accelerators import (
     AcceleratorPolicy,
     ComputeResourceRequest,
     HardwareInventory,
+    NativeProbeResult,
     PlacementTarget,
     PrecisionPolicy,
     ResourceRequest,
@@ -17,6 +18,7 @@ from .accelerators import (
     plan_acceleration,
     probe_accelerators,
     probe_hardware,
+    probe_native_core,
     recommend_acceleration_libraries,
     recommend_libraries,
 )
@@ -30,6 +32,7 @@ __all__ = [
     "AcceleratorPolicy",
     "ComputeResourceRequest",
     "HardwareInventory",
+    "NativeProbeResult",
     "PlacementTarget",
     "PrecisionPolicy",
     "ResourceRequest",
@@ -40,6 +43,7 @@ __all__ = [
     "plan_acceleration",
     "probe_accelerators",
     "probe_hardware",
+    "probe_native_core",
     "recommend_acceleration_libraries",
     "recommend_libraries",
 ]

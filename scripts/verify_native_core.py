@@ -1,18 +1,21 @@
 from __future__ import annotations
 
 import json
+import os
 import shutil
 import subprocess  # nosec B404
+import sys
 import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def _run(command: tuple[str, ...]) -> dict[str, object]:
+def _run(command: tuple[str, ...], *, env: dict[str, str] | None = None) -> dict[str, object]:
     completed = subprocess.run(  # nosec B603
         command,
         cwd=ROOT,
+        env=env,
         check=False,
         capture_output=True,
         text=True,
@@ -76,6 +79,34 @@ def main() -> int:
                 if result["returncode"] != 0:
                     problems.append(f"native verification command failed: {' '.join(command)}")
                     break
+            if not problems:
+                suffixes = {".dll", ".dylib", ".so"}
+                libraries = tuple(
+                    path
+                    for path in build.rglob("*")
+                    if path.is_file()
+                    and path.suffix.casefold() in suffixes
+                    and "tsao_native" in path.name.casefold()
+                )
+                if len(libraries) != 1:
+                    problems.append(f"expected one native shared library, found {len(libraries)}")
+                else:
+                    bridge_env = dict(os.environ)
+                    bridge_env["TSAO_NATIVE_LIBRARY"] = str(libraries[0])
+                    bridge_command = (
+                        sys.executable,
+                        "-c",
+                        (
+                            "from tsao_computation.accelerators import probe_native_core; "
+                            "result=probe_native_core(); "
+                            "assert result is not None and result.logical_cpu_count >= 1; "
+                            "assert 'cpu' in {item.value for item in result.runtime_backends}"
+                        ),
+                    )
+                    result = _run(bridge_command, env=bridge_env)
+                    steps.append(result)
+                    if result["returncode"] != 0:
+                        problems.append("Python/native C ABI bridge verification failed")
 
     report = {
         "schema_version": "1.0",
@@ -83,9 +114,10 @@ def main() -> int:
         "problems": problems,
         "steps": steps,
         "claim_boundary": (
-            "This compiles and smoke-tests the source-only C++20 CPU/OpenMP discovery ABI. "
-            "It does not claim a CUDA, HIP, SYCL, external-solver, numerical-performance, "
-            "convergence, physical-validity, applicability, or authorization result."
+            "This compiles and smoke-tests the source-only C++20 CPU/OpenMP discovery ABI, "
+            "the Python C-ABI bridge, and optional CUDA Runtime discovery when the toolkit is "
+            "available. It does not claim external-solver support, numerical speedup, "
+            "convergence, physical validity, applicability, or authorization."
         ),
     }
     print(json.dumps(report, indent=2, sort_keys=True))

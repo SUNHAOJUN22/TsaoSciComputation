@@ -16,6 +16,7 @@ from .model import (
     AcceleratorInventory,
     PlacementTarget,
 )
+from .native import NativeProbeResult, probe_native_core
 
 _TOOL_CANDIDATES = (
     "nvidia-smi",
@@ -227,11 +228,17 @@ def probe_accelerators(
     runner: Callable[[str, tuple[str, ...]], str] = _command_output,
     module_finder: Callable[[str], object | None] = importlib.util.find_spec,
     edge_detector: Callable[[], bool] = _edge_detected,
+    native_probe: Callable[[], NativeProbeResult | None] = probe_native_core,
 ) -> AcceleratorInventory:
     found = {name: path for name in _TOOL_CANDIDATES if (path := which(name))}
     modules = tuple(sorted(name for name in _MODULE_CANDIDATES if module_finder(name) is not None))
     backends: set[AcceleratorBackend] = {AcceleratorBackend.CPU}
     logical_cpus = max(1, os.cpu_count() or 1)
+    native = native_probe()
+    if native is not None:
+        logical_cpus = max(logical_cpus, native.logical_cpu_count)
+        backends.update(native.runtime_backends)
+        found["tsao-native"] = native.library_path
     if logical_cpus > 1:
         backends.update({AcceleratorBackend.OPENMP, AcceleratorBackend.TASK_PARALLEL})
     if {"mpirun", "mpiexec", "srun"} & found.keys():
@@ -256,6 +263,12 @@ def probe_accelerators(
         devices.extend(_sycl_devices(found["sycl-ls"], runner))
     if "clinfo" in found:
         devices.extend(_opencl_devices(found["clinfo"], runner))
+    if native is not None:
+        devices.extend(native.devices)
+    unique_devices: dict[tuple[AcceleratorBackend, int], AcceleratorDevice] = {}
+    for device in devices:
+        unique_devices.setdefault((device.backend, device.index), device)
+    devices = list(unique_devices.values())
 
     placements = {PlacementTarget.LOCAL}
     if logical_cpus >= 8 or devices:

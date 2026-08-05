@@ -17,6 +17,7 @@ from .model import (
     PrecisionPolicy,
     ResourceRequest,
 )
+from .native import NativeProbeResult, probe_native_core
 from .planner import AccelerationPlan, acceleration_plan, plan_acceleration
 from .probe import probe_accelerators, probe_hardware
 
@@ -29,6 +30,7 @@ __all__ = [
     "AcceleratorPolicy",
     "ComputeResourceRequest",
     "HardwareInventory",
+    "NativeProbeResult",
     "PlacementTarget",
     "PrecisionPolicy",
     "ResourceRequest",
@@ -39,6 +41,7 @@ __all__ = [
     "plan_acceleration",
     "probe_accelerators",
     "probe_hardware",
+    "probe_native_core",
     "recommend_acceleration_libraries",
     "recommend_libraries",
 ]

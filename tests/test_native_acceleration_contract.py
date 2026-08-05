@@ -14,7 +14,11 @@ def test_native_core_is_source_only_and_exposes_stable_c_abi() -> None:
     assert "tsao_native_capabilities_json" in header
     assert "cxx_std_20" in cmake
     assert "OpenMP" in cmake
-    assert "cuda" in source.casefold()
+    assert "CUDAToolkit" in cmake
+    assert "CUDA::cudart" in cmake
+    assert "tsao_native_compiled_backend_mask" in header
+    assert "tsao_native_device_info" in header
+    assert "cudaGetDeviceCount" in source
     forbidden = {".dll", ".dylib", ".exe", ".lib", ".o", ".obj", ".so", ".a"}
     assert not [
         path

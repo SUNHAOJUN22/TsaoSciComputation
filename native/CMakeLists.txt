@@ -1,8 +1,13 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(TsaoNativeCore VERSION 1.0.0 LANGUAGES CXX)
+project(TsaoNativeCore VERSION 1.1.0 LANGUAGES CXX)
 
 option(TSAO_NATIVE_ENABLE_OPENMP "Enable the portable OpenMP CPU backend when available" ON)
+option(
+  TSAO_NATIVE_ENABLE_CUDA_RUNTIME
+  "Enable CUDA Runtime device discovery when the CUDA Toolkit is available"
+  ON
+)
 
 add_library(tsao_native SHARED src/capi.cpp)
 target_compile_features(tsao_native PUBLIC cxx_std_20)
@@ -25,6 +30,14 @@ if(TSAO_NATIVE_ENABLE_OPENMP)
   find_package(OpenMP QUIET)
   if(OpenMP_CXX_FOUND)
     target_link_libraries(tsao_native PRIVATE OpenMP::OpenMP_CXX)
+  endif()
+endif()
+
+if(TSAO_NATIVE_ENABLE_CUDA_RUNTIME)
+  find_package(CUDAToolkit QUIET)
+  if(CUDAToolkit_FOUND)
+    target_link_libraries(tsao_native PRIVATE CUDA::cudart)
+    target_compile_definitions(tsao_native PRIVATE TSAO_NATIVE_HAS_CUDA_RUNTIME=1)
   endif()
 endif()
 

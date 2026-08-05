@@ -1466,6 +1466,11 @@
       "sha256": "3838c23e97cf92019b8a7f49df1122d19b41b0e7e2957de24e7cd1cc9e88ecd0"
     },
     {
+      "bytes": 7657,
+      "path": "docs/accelerated-native-backend.md",
+      "sha256": "2e81eeccb1383ca10bdedd9430f687457925180c1524e2723453b16785946b83"
+    },
+    {
       "bytes": 1755,
       "path": "docs/adapter-certification.md",
       "sha256": "9de3ec82d4c76c71f2a832ba359d0fbd27ce46dba3570e8c8e499cdfd232e090"
@@ -1578,7 +1583,7 @@
     {
       "bytes": 152,
       "path": "evidence/quality-check.json",
-      "sha256": "02805078dfb86c79a25c4ec2dd5ac52d19209275887deb3c67dd67b59c0a0e4e"
+      "sha256": "17a50b3cb463e3d6df189cfa31d3aed40543cbe2517e5ac8f46fc71ae7ba7133"
     },
     {
       "bytes": 3174,
@@ -1588,7 +1593,7 @@
     {
       "bytes": 72,
       "path": "evidence/security-scan.json",
-      "sha256": "35bc225d7292ef806bfbbff3f83f00ffc965784d9d21ce7a194140622d23f138"
+      "sha256": "891391737b734a14f50ac340dc36fd273d64ad0add55ea800b9c55e3fadabd35"
     },
     {
       "bytes": 573,
@@ -1711,29 +1716,29 @@
       "sha256": "211c09f91d4360102c120887969b17fb9a8dfe87b07f2e5d8903f20569fa8617"
     },
     {
-      "bytes": 1383,
+      "bytes": 1764,
       "path": "native/CMakeLists.txt",
-      "sha256": "8e11ea5a4deb00c8c169beadc371c6d2af6d154ccf775fbf081b79155b96d910"
+      "sha256": "03417667600b16cc4832ffe9b37ba91bdce3998339f583ff97e0a9e29ba3457e"
     },
     {
-      "bytes": 1141,
+      "bytes": 2020,
       "path": "native/README.md",
-      "sha256": "42bcf4283a08d9e04f7c2dc9d4a69b28f845ab64bebc4e56adbefd4d0e8dc817"
+      "sha256": "7639ec083d2796bf498ba36b0bb10dff607fb55d2218232df85d54309da4f84d"
     },
     {
-      "bytes": 1109,
+      "bytes": 1924,
       "path": "native/include/tsao/capi.h",
-      "sha256": "f3761a7c3047e1e4d817f4b7373ca398f41f6aa4937aee2c631e99bca40acfce"
+      "sha256": "94e638219db575c511e8322deb6c7bf69e74576c177bc3843d118373fa008f4e"
     },
     {
-      "bytes": 1505,
+      "bytes": 4108,
       "path": "native/src/capi.cpp",
-      "sha256": "fe76a8c1392a927a4a03e5376c759192c18ba1a6c054239163cbb4168a8202e1"
+      "sha256": "1c3aa2dcf18a24ee861e1e388a831f282d1702d3b611e45fa8ae059e4d8e01ed"
     },
     {
-      "bytes": 928,
+      "bytes": 2104,
       "path": "native/tests/native_smoke.cpp",
-      "sha256": "78e7516e579b770675ecf5c431ae1023869276a01b9df2205bd9cc4fb5b22e99"
+      "sha256": "ccd4e6b996a3342360714fe805eb3f810f343f55badf04846eacff5ee089123c"
     },
     {
       "bytes": 2425,
@@ -2151,9 +2156,9 @@
       "sha256": "388f1ae48c68ef4bb80c51eda9f064088f237628c1d2867c42f5a223fe44cb34"
     },
     {
-      "bytes": 3113,
+      "bytes": 4696,
       "path": "scripts/verify_native_core.py",
-      "sha256": "d591c4e3694fb509d4793380dc53c3260eddfe99b169f1cb2f5744ca1df2b1f4"
+      "sha256": "66c9ddae66af619eb88c1d006fd53e39c1466b742b345dd265b9065eeef406e7"
     },
     {
       "bytes": 5493,
@@ -2441,9 +2446,14 @@
       "sha256": "6f72c135ef16efb47f952206becb3463cf7103005768f3f817e397963bbca1f7"
     },
     {
-      "bytes": 867,
+      "bytes": 1043,
       "path": "tests/test_native_acceleration_contract.py",
-      "sha256": "c03a47d9455286adb22b6b4d1bd1f251207968874d61cfc18aeb26b8cfbdd7cc"
+      "sha256": "826d1513e46cce5f2cba43a6adb5ff4a862767d48ce14bcb315a13ba0d04767d"
+    },
+    {
+      "bytes": 7577,
+      "path": "tests/test_native_runtime_bridge.py",
+      "sha256": "0417fe31bd8bde804f593e16d953ba9ca106a5e3178fafb0faf93b518aa171eb"
     },
     {
       "bytes": 8957,
@@ -2566,14 +2576,14 @@
       "sha256": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d"
     },
     {
-      "bytes": 1063,
+      "bytes": 1159,
       "path": "tsao_computation/acceleration.py",
-      "sha256": "d6886334619414d6f5c4528af8b41ae3552680dc84f118a6c605ba2f9ea57019"
+      "sha256": "e30b194fadfc010d7d0201349eb6d7b733ee8cfb0b653212362b51a2f67e1e4c"
     },
     {
-      "bytes": 1099,
+      "bytes": 1206,
       "path": "tsao_computation/accelerators/__init__.py",
-      "sha256": "49e1697700cf0951aca650bd53330b906d9cb5a248533fb2bffb87c6d6edf364"
+      "sha256": "9e55bdd22ae51a86f616452d852e21af3b2474d72cd4b26e22be20317dd2a1df"
     },
     {
       "bytes": 13099,
@@ -2586,14 +2596,19 @@
       "sha256": "2ff2c9b14788c0f6a0d4bfff9fabc5b0bb984f2366e393122f9771a6611f6307"
     },
     {
+      "bytes": 7350,
+      "path": "tsao_computation/accelerators/native.py",
+      "sha256": "7afc829ea266e9e9c30af6b7ad8f32d35e754d198f61318931bbf612231e3ea3"
+    },
+    {
       "bytes": 11589,
       "path": "tsao_computation/accelerators/planner.py",
       "sha256": "9f2651cdd3797bbd7fa1efa7c0c609d00e29463bed29c2c3da596f78b321b387"
     },
     {
-      "bytes": 8244,
+      "bytes": 8893,
       "path": "tsao_computation/accelerators/probe.py",
-      "sha256": "981320122b80b57338c239b4f53a6fcadc3baf58759b97b283e39e3d85794aeb"
+      "sha256": "0e7c7018058eaf5d2d9c81f6d52a67c5a1998bf5917474514d31b2475700db9e"
     },
     {
       "bytes": 212,
