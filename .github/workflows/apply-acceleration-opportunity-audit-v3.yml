@@ -19,7 +19,7 @@ env:
 jobs:
   apply:
     if: >-
-      github.event.issue.title == 'APPLY_ACCELERATION_OPPORTUNITY_AUDIT_V3' &&
+      github.event.issue.title == 'APPLY_ACCELERATION_OPPORTUNITY_AUDIT_V3_RETRY' &&
       github.event.issue.user.login == github.repository_owner
     runs-on: ubuntu-latest
     timeout-minutes: 75
@@ -28,27 +28,23 @@ jobs:
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
         with:
           ref: main
-          fetch-depth: 2
+          fetch-depth: 0
           persist-credentials: true
 
       - name: Verify authorized base and decode patch
         shell: bash
         run: |
           set -Eeuo pipefail
-          test "$(git rev-parse HEAD^)" = "935b21dfb6ee751934760a7799ce18ccded8f04d"
-          gh issue view "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --json body --jq .body > /tmp/patch-issue-body.txt
+          git merge-base --is-ancestor 935b21dfb6ee751934760a7799ce18ccded8f04d HEAD
+          test "$(find .github/patches -maxdepth 1 -type f -name 'acceleration-v3.part-*' | wc -l)" -eq 7
+          cat .github/patches/acceleration-v3.part-* > /tmp/acceleration-v3.patch.gz.b64
           python - <<'PY'
           import base64
           import gzip
           import hashlib
           from pathlib import Path
 
-          body = Path('/tmp/patch-issue-body.txt').read_text(encoding='utf-8')
-          start = 'BEGIN_GZIP_BASE64_PATCH\n'
-          end = '\nEND_GZIP_BASE64_PATCH'
-          if start not in body or end not in body:
-              raise SystemExit('patch markers are missing')
-          encoded = body.split(start, 1)[1].split(end, 1)[0].strip()
+          encoded = Path('/tmp/acceleration-v3.patch.gz.b64').read_text(encoding='utf-8')
           patch = gzip.decompress(base64.b64decode(encoded, validate=True))
           digest = hashlib.sha256(patch).hexdigest()
           expected = '4b3a4895514c024c677af6334065927559a118230e50fbccc8f210ee60b07e77'
@@ -62,6 +58,7 @@ jobs:
         run: |
           set -Eeuo pipefail
           rm .github/workflows/apply-acceleration-opportunity-audit-v3.yml
+          rm -rf .github/patches
           git apply --check /tmp/acceleration-v3.patch
           git apply /tmp/acceleration-v3.patch
 
@@ -145,4 +142,4 @@ jobs:
         if: failure()
         shell: bash
         run: |
-          gh issue comment "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --body "Acceleration opportunity audit V3 validation failed. No patch commit was pushed. Inspect run=https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          gh issue comment "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --body "Acceleration opportunity audit V3 retry failed. No product-code patch commit was pushed. Inspect run=https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
