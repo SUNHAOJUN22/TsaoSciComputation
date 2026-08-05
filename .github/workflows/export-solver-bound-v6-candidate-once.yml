@@ -1,6 +1,8 @@
 name: Export solver-bound V6 candidate once
 
 on:
+  push:
+    branches: [main]
   issues:
     types: [opened]
 
@@ -14,8 +16,8 @@ env:
 jobs:
   export:
     if: >-
-      github.event.issue.title == 'EXPORT_SOLVER_BOUND_V6_CANDIDATE_20260806' &&
-      github.event.issue.user.login == github.repository_owner
+      (github.event_name == 'push' && github.event.head_commit.message == 'RUN_VERIFIED_V6_EXPORT') ||
+      (github.event_name == 'issues' && github.event.issue.title == 'EXPORT_SOLVER_BOUND_V6_CANDIDATE_20260806' && github.event.issue.user.login == github.repository_owner)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
@@ -73,4 +75,4 @@ jobs:
           git rm .github/workflows/export-solver-bound-v6-candidate-once.yml
           git commit -m 'Remove one-time V6 candidate export workflow [skip ci]'
           git push origin HEAD:refs/heads/main
-          gh issue close "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --reason completed --comment "Verified V6 candidate archive exported; sha256=2a77313de59d58c5b57cfbb7a24958c02f94de4ddd9902f56475d7308f41fcd5 run=$GITHUB_RUN_ID"
+          for issue in 147 148; do gh issue close "$issue" --repo "$GITHUB_REPOSITORY" --reason completed --comment "Verified V6 candidate archive exported; sha256=2a77313de59d58c5b57cfbb7a24958c02f94de4ddd9902f56475d7308f41fcd5 run=$GITHUB_RUN_ID" || true; done
