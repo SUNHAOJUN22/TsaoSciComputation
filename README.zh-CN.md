@@ -90,16 +90,22 @@ Python 保留为合同、路由、溯源和验收控制平面。经剖析确认�
 ### 可执行的仓库源码审计
 
 ```bash
+python scripts/build_acceleration_audits.py
 python -m tsao_computation audit-acceleration \
-  --root . --limit 50 --min-score 40 \
-  --output reports/ACCELERATION_OPPORTUNITIES_V2.json
+  --root . --scope production --limit 50 --min-score 40 \
+  --output reports/ACCELERATION_OPPORTUNITIES_PRODUCTION_V4.json
+python -m tsao_computation profile-performance \
+  --workload routing-hot --workload acceleration-plan \
+  --repeats 7 --warmups 1 --output .tsao-computation/performance-profile.json
 ```
 
-该审计统计 Python、C、C++、CUDA、Fortran、Rust 与 Julia 源码；在不执行源码的前提下解析 Python AST；保留文件、行号和符号证据；并对稠密/稀疏线性代数、FFT、张量收缩、等变机器学习、随机采样、外部求解器调度、文件系统扫描和算术循环进行排序。它可以推荐性能剖析、CPU/向量化基线、C++20/OpenMP、求解器原生加速或 CUDA-X 候选，但不声称已经取得实测加速。
+生产审计会从迁移决策中排除测试、仓库工具脚本和基准夹具；全树审计仅用于诊断。每个候选绑定源码哈希和稳定候选 ID，在获得运行时证据前保持 `unprofiled`。加速计划现已区分候选库、已检测库和已资格验证库，并绑定资源请求、硬件清单、适配器配置和最终计划哈希。
 
 <!-- ACCELERATION_AUDIT_SUMMARY:START -->
-当前报告统计 **159 个源码文件**、**分析 97 个 Python 文件**、**3 个原生语言文件**，并输出 **28 个排序候选**。这些是静态迁移候选，不是实测加速结论。
+V4 报告统计 **167 个源码文件**和 **3 个原生语言文件**。生产范围分析 **58 个 Python 文件**并得到 **3 个未剖析候选**；诊断性全树范围分析 **164 个 Python 文件**并得到 **35 个候选**。两类报告均不声称已经取得实测加速。
 <!-- ACCELERATION_AUDIT_SUMMARY:END -->
+
+批量执行层现可接收每个计划不可变的 CPU、GPU、许可证令牌声明以及主机容量包络。基于条件变量的资源代理会阻止 CPU 过度订阅、独占 GPU 冲突和许可证超额分配，并将容量与声明哈希写入批执行结果。
 
 架构、CUDA-X 选型和 C++ 迁移门禁见 [`docs/accelerated-native-backend.md`](docs/accelerated-native-backend.md)。原生验证命令：`python scripts/verify_native_core.py`。
 

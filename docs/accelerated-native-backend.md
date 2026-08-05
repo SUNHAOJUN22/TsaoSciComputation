@@ -27,6 +27,39 @@ filesystem passes and bounded task parallelism. Expensive scientific numerics sh
 to prefer external solvers' supported GPU, MPI, OpenMP, Kokkos or vendor-library paths before
 a repository-owned kernel is created.
 
+## Resource-aware external execution
+
+The first runtime profile showed routing and acceleration planning in the microsecond-to-
+millisecond range and therefore did not justify C++ or CUDA migration. External solver dispatch
+remained the only high-value production candidate. Batch execution now accepts immutable
+`ExecutionResourceClaim` records and an `ExecutionResourceCapacity` envelope. The broker:
+
+- prevents aggregate CPU-core oversubscription;
+- allocates declared GPU indices exclusively and verifies visible-device bindings;
+- accounts for named commercial-solver license tokens;
+- blocks bounded workers until resources are released; and
+- records capacity and per-plan claim hashes in the batch result.
+
+This is a local admission-control primitive, not a cluster scheduler. Slurm, PBS, Kubernetes,
+cloud queues and solver-specific launchers remain external backends and require their own
+versioned execution evidence.
+
+### V4 qualification loop
+
+V4 separates the production audit from the diagnostic full-tree audit. Production candidates
+carry a stable candidate ID, source SHA-256, file scope and `unprofiled` runtime state. The
+workload profiler records repeated wall time, process CPU time, Python peak allocation, median,
+MAD, P95 and operations per second together with a host-environment hash.
+
+Acceleration-library state is explicitly three-stage:
+
+1. `candidate`: the adapter and selected backend make a library technically relevant;
+2. `detected`: a module or runtime signal is present and version evidence is recorded;
+3. `qualified`: a workload-specific numerical, convergence and performance gate has passed.
+
+Plans bind `resource_request_sha256`, `inventory_sha256`, `adapter_profile_sha256` and
+`acceleration_plan_sha256`. Detection alone never promotes a CUDA-X library to qualified use.
+
 ## Implemented native boundary
 
 The source-only `native/` library now provides a versioned C ABI that:

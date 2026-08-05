@@ -34,9 +34,13 @@ _LOCAL_PLACEMENTS = {
 }
 
 
-def _request_sha256(request: ComputeResourceRequest) -> str:
-    encoded = json.dumps(request.to_dict(), sort_keys=True, separators=(",", ":"), allow_nan=False)
+def _json_sha256(value: object) -> str:
+    encoded = json.dumps(value, sort_keys=True, separators=(",", ":"), allow_nan=False)
     return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
+
+
+def _request_sha256(request: ComputeResourceRequest) -> str:
+    return _json_sha256(request.to_dict())
 
 
 @dataclass(frozen=True, slots=True)
@@ -51,12 +55,19 @@ class AccelerationPlan:
     threads_per_rank: int
     device_indices: tuple[int, ...]
     library_candidates: tuple[str, ...]
+    library_detected: tuple[str, ...]
+    library_qualified: tuple[str, ...]
+    unmet_requirements: tuple[str, ...]
+    qualification_status: str
     environment: dict[str, str]
     precision: PrecisionPolicy
     deterministic: bool
     allow_fallback: bool
     resource_request: dict[str, object]
     resource_request_sha256: str
+    inventory_sha256: str
+    adapter_profile_sha256: str
+    acceleration_plan_sha256: str
     fallback_used: bool
     reason: str
     claim_boundary: str
@@ -72,6 +83,9 @@ class AccelerationPlan:
         payload["precision"] = self.precision.value
         payload["device_indices"] = list(self.device_indices)
         payload["library_candidates"] = list(self.library_candidates)
+        payload["library_detected"] = list(self.library_detected)
+        payload["library_qualified"] = list(self.library_qualified)
+        payload["unmet_requirements"] = list(self.unmet_requirements)
         payload["environment"] = thaw_json(self.environment)
         payload["resource_request"] = thaw_json(self.resource_request)
         return payload
@@ -257,8 +271,37 @@ def plan_acceleration(
     profile_libraries = tuple(str(item) for item in record.get("library_candidates", []))
     compatible = {item.slug for item in recommend_acceleration_libraries(backend=selected)}
     libraries = tuple(item for item in profile_libraries if item in compatible)
+    detected_libraries = tuple(
+        slug
+        for slug in libraries
+        if (evidence := detected.library_evidence_for(slug)) is not None and evidence.detected
+    )
+    qualified_libraries = tuple(
+        slug
+        for slug in libraries
+        if (evidence := detected.library_evidence_for(slug)) is not None and evidence.qualified
+    )
+    unmet: list[str] = []
+    for slug in libraries:
+        evidence = detected.library_evidence_for(slug)
+        if evidence is None or not evidence.detected:
+            unmet.append(f"library {slug} is a candidate but is not detected")
+        elif not evidence.qualified:
+            version = f" version {evidence.version}" if evidence.version else ""
+            unmet.append(f"library {slug}{version} is detected but is not qualified")
+    qualification_status = (
+        "qualified"
+        if libraries and len(qualified_libraries) == len(libraries)
+        else "detected-unqualified"
+        if detected_libraries
+        else "candidate-only"
+        if libraries
+        else "not-applicable"
+    )
     request_payload = request.to_dict()
     request_digest = _request_sha256(request)
+    inventory_digest = _json_sha256(detected.to_dict())
+    profile_digest = _json_sha256(record)
     reason = (
         f"selected {selected.value} for {adapter_slug}; "
         f"supported={sorted(item.value for item in supported)}; "
@@ -267,6 +310,29 @@ def plan_acceleration(
         f"precision={request.precision.value}; deterministic={request.deterministic}; "
         f"request_sha256={request_digest}"
     )
+    plan_identity = {
+        "adapter_slug": adapter_slug,
+        "workflow": str(record.get("workflow", "")),
+        "backend": selected.value,
+        "placement": placement.value,
+        "execution_mode": str(record.get("execution_mode", "solver-native")),
+        "cpu_cores": cpu_cores,
+        "mpi_ranks": mpi_ranks,
+        "threads_per_rank": threads,
+        "device_indices": [item.index for item in devices],
+        "library_candidates": list(libraries),
+        "library_detected": list(detected_libraries),
+        "library_qualified": list(qualified_libraries),
+        "environment": environment,
+        "precision": request.precision.value,
+        "deterministic": request.deterministic,
+        "allow_fallback": request.allow_fallback,
+        "resource_request_sha256": request_digest,
+        "inventory_sha256": inventory_digest,
+        "adapter_profile_sha256": profile_digest,
+        "fallback_used": fallback,
+    }
+    plan_digest = _json_sha256(plan_identity)
     return AccelerationPlan(
         adapter_slug=adapter_slug,
         workflow=str(record.get("workflow", "")),
@@ -278,12 +344,19 @@ def plan_acceleration(
         threads_per_rank=threads,
         device_indices=tuple(item.index for item in devices),
         library_candidates=libraries,
+        library_detected=detected_libraries,
+        library_qualified=qualified_libraries,
+        unmet_requirements=tuple(unmet),
+        qualification_status=qualification_status,
         environment=environment,
         precision=request.precision,
         deterministic=request.deterministic,
         allow_fallback=request.allow_fallback,
         resource_request=request_payload,
         resource_request_sha256=request_digest,
+        inventory_sha256=inventory_digest,
+        adapter_profile_sha256=profile_digest,
+        acceleration_plan_sha256=plan_digest,
         fallback_used=fallback,
         reason=reason,
         claim_boundary=str(

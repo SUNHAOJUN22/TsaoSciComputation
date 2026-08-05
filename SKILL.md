@@ -133,11 +133,13 @@ Use this sequence:
 1. Establish a CPU, analytical, experimental, or otherwise contract-backed reference.
 2. Characterize arithmetic intensity, parallelism, memory, transfer, communication, I/O, data size, precision, determinism, and latency.
 3. Run `python -m tsao_computation probe-accelerators`.
-4. Run `python -m tsao_computation plan-acceleration <adapter>` with a resource request.
-5. Verify the selected executable or library was built for the planned backend and method.
-6. Measure warm-up and repeated end-to-end execution, not kernel time alone.
-7. Compare CPU and accelerated completion, convergence, observables, conservation, uncertainty, and applicability.
-8. Accept acceleration only when time or energy per scientifically accepted result improves without weakening a gate.
+4. Run `python scripts/build_acceleration_audits.py` and use the production report for migration decisions; use the full-tree report only for diagnostics.
+5. Run `python -m tsao_computation profile-performance` on representative built-in or project workloads before selecting a native hotspot.
+6. Run `python -m tsao_computation plan-acceleration <adapter>` with a resource request and inspect candidate, detected and qualified library states plus all four plan hashes.
+7. Verify the selected executable or library was built for the planned backend and method.
+8. Measure warm-up and repeated end-to-end execution, not kernel time alone.
+9. Compare CPU and accelerated completion, convergence, observables, conservation, uncertainty, and applicability.
+10. Accept acceleration only when time or energy per scientifically accepted result improves without weakening a gate.
 
 Candidate integrations include cuTENSOR for tensor primitives, cuEquivariance for supported equivariant ML and MACE operations, nvmath-python for FFT and dense/sparse/tensor math, cuBLAS/cuSOLVER/cuSPARSE/cuFFT for native solver kernels, NCCL or NVSHMEM for supported multi-GPU communication, nvCOMP and GPUDirect Storage for qualified large-data paths, TensorRT for validated edge surrogate inference, RAPIDS for sufficiently large data/graph workloads, DLPack and Arrow C interfaces for cross-language data exchange, and Kokkos for portable C++ kernels. These are optional candidates, never core dependencies or availability claims.
 

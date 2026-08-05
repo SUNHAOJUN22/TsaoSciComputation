@@ -49,3 +49,230 @@ def test_empty_batch_and_worker_validation() -> None:
             ],
             max_workers=0,
         )
+
+
+def test_resource_broker_prevents_cpu_oversubscription(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import threading
+    import time
+    from types import SimpleNamespace
+
+    from tsao_computation.execution import (
+        ExecutionResourceCapacity,
+        ExecutionResourceClaim,
+    )
+    from tsao_computation.execution import batch as batch_module
+
+    lock = threading.Lock()
+    active = 0
+    maximum_active = 0
+
+    def fake_run_plan(*_: object, **__: object) -> object:
+        nonlocal active, maximum_active
+        with lock:
+            active += 1
+            maximum_active = max(maximum_active, active)
+        time.sleep(0.03)
+        with lock:
+            active -= 1
+        return SimpleNamespace(completed=True, returncode=0)
+
+    monkeypatch.setattr(batch_module, "run_plan", fake_run_plan)
+    plans = [
+        CommandPlan((sys.executable, "-c", "pass"), tmp_path, {}, "test"),
+        CommandPlan((sys.executable, "-c", "pass"), tmp_path, {}, "test"),
+    ]
+    claims = [ExecutionResourceClaim(cpu_cores=2), ExecutionResourceClaim(cpu_cores=2)]
+    capacity = ExecutionResourceCapacity(cpu_cores=2)
+    result = run_plan_batch(
+        plans,
+        authorizations=[object(), object()],  # type: ignore[list-item]
+        max_workers=2,
+        resource_claims=claims,
+        resource_capacity=capacity,
+    )
+    assert result.completed is True
+    assert maximum_active == 1
+    assert result.resource_capacity_sha256 == capacity.sha256
+    assert result.resource_claim_sha256s == tuple(item.sha256 for item in claims)
+
+
+def test_resource_broker_validates_gpu_binding_and_capacity(tmp_path: Path) -> None:
+    from tsao_computation.errors import SecurityError
+    from tsao_computation.execution import (
+        ExecutionResourceCapacity,
+        ExecutionResourceClaim,
+    )
+
+    plan = CommandPlan(
+        (sys.executable, "-c", "pass"),
+        tmp_path,
+        {"CUDA_VISIBLE_DEVICES": "0"},
+        "test",
+    )
+    authorization = authorize_plan(
+        plan,
+        authorized_by="pytest",
+        purpose="resource binding",
+        explicit_authorization=True,
+    )
+    with pytest.raises(SecurityError, match="does not match"):
+        run_plan_batch(
+            [plan],
+            authorizations=[authorization],
+            resource_claims=[ExecutionResourceClaim(gpu_devices=(1,))],
+            resource_capacity=ExecutionResourceCapacity(cpu_cores=1, gpu_devices=(0, 1)),
+        )
+    with pytest.raises(SecurityError, match="license capacity"):
+        run_plan_batch(
+            [plan],
+            authorizations=[authorization],
+            resource_claims=[ExecutionResourceClaim(license_tokens=(("solver", 2),))],
+            resource_capacity=ExecutionResourceCapacity(
+                cpu_cores=1,
+                license_tokens=(("solver", 1),),
+            ),
+        )
+    with pytest.raises(SecurityError, match="provided together"):
+        run_plan_batch(
+            [plan],
+            authorizations=[authorization],
+            resource_claims=[ExecutionResourceClaim()],
+        )
+
+
+def test_resource_value_validation_and_binding_errors() -> None:
+    from tsao_computation.errors import SecurityError
+    from tsao_computation.execution import (
+        ExecutionResourceCapacity,
+        ExecutionResourceClaim,
+        validate_resource_binding,
+    )
+
+    with pytest.raises(ValueError, match="positive integer"):
+        ExecutionResourceClaim(cpu_cores=0)
+    with pytest.raises(ValueError, match="non-negative integers"):
+        ExecutionResourceClaim(gpu_devices=(-1,))
+    with pytest.raises(ValueError, match="unique"):
+        ExecutionResourceClaim(gpu_devices=(0, 0))
+    with pytest.raises(ValueError, match="non-empty strings"):
+        ExecutionResourceClaim(license_tokens=((" ", 1),))
+    with pytest.raises(ValueError, match="positive integer"):
+        ExecutionResourceClaim(license_tokens=(("solver", 0),))
+    with pytest.raises(ValueError, match="unique"):
+        ExecutionResourceCapacity(
+            cpu_cores=1,
+            license_tokens=(("solver", 1), ("solver", 1)),
+        )
+
+    claim = ExecutionResourceClaim(gpu_devices=(0,))
+    with pytest.raises(SecurityError, match="requires a bound"):
+        validate_resource_binding({}, claim)
+    with pytest.raises(SecurityError, match="comma-separated integer"):
+        validate_resource_binding({"CUDA_VISIBLE_DEVICES": "gpu0"}, claim)
+    validate_resource_binding({"CUDA_VISIBLE_DEVICES": "0"}, claim)
+    validate_resource_binding({}, ExecutionResourceClaim())
+
+
+def test_resource_broker_serializes_gpu_and_license_claims(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import threading
+    import time
+    from types import SimpleNamespace
+
+    from tsao_computation.execution import (
+        ExecutionResourceCapacity,
+        ExecutionResourceClaim,
+    )
+    from tsao_computation.execution import batch as batch_module
+
+    lock = threading.Lock()
+    active = 0
+    maximum_active = 0
+
+    def fake_run_plan(*_: object, **__: object) -> object:
+        nonlocal active, maximum_active
+        with lock:
+            active += 1
+            maximum_active = max(maximum_active, active)
+        time.sleep(0.03)
+        with lock:
+            active -= 1
+        return SimpleNamespace(completed=True, returncode=0)
+
+    monkeypatch.setattr(batch_module, "run_plan", fake_run_plan)
+    plans = [
+        CommandPlan(
+            (sys.executable, "-c", "pass"),
+            tmp_path,
+            {"CUDA_VISIBLE_DEVICES": "0"},
+            "test",
+        ),
+        CommandPlan(
+            (sys.executable, "-c", "pass"),
+            tmp_path,
+            {"CUDA_VISIBLE_DEVICES": "0"},
+            "test",
+        ),
+    ]
+    claims = [
+        ExecutionResourceClaim(gpu_devices=(0,), license_tokens=(("solver", 1),)),
+        ExecutionResourceClaim(gpu_devices=(0,), license_tokens=(("solver", 1),)),
+    ]
+    result = run_plan_batch(
+        plans,
+        authorizations=[object(), object()],  # type: ignore[list-item]
+        max_workers=2,
+        resource_claims=claims,
+        resource_capacity=ExecutionResourceCapacity(
+            cpu_cores=2,
+            gpu_devices=(0,),
+            license_tokens=(("solver", 1),),
+        ),
+    )
+    assert result.completed is True
+    assert maximum_active == 1
+
+
+def test_resource_claim_rejects_unavailable_capacity_and_count_mismatch(tmp_path: Path) -> None:
+    from tsao_computation.errors import SecurityError
+    from tsao_computation.execution import (
+        ExecutionResourceCapacity,
+        ExecutionResourceClaim,
+    )
+
+    plan = CommandPlan(
+        (sys.executable, "-c", "pass"),
+        tmp_path,
+        {"CUDA_VISIBLE_DEVICES": "1"},
+        "test",
+    )
+    authorization = authorize_plan(
+        plan,
+        authorized_by="pytest",
+        purpose="resource capacity validation",
+        explicit_authorization=True,
+    )
+    with pytest.raises(SecurityError, match="unavailable GPU"):
+        run_plan_batch(
+            [plan],
+            authorizations=[authorization],
+            resource_claims=[ExecutionResourceClaim(gpu_devices=(1,))],
+            resource_capacity=ExecutionResourceCapacity(cpu_cores=1, gpu_devices=(0,)),
+        )
+    with pytest.raises(SecurityError, match="one matching resource claim"):
+        run_plan_batch(
+            [plan],
+            authorizations=[authorization],
+            resource_claims=[],
+            resource_capacity=ExecutionResourceCapacity(cpu_cores=1),
+        )
+    with pytest.raises(SecurityError, match="CPU capacity"):
+        run_plan_batch(
+            [plan],
+            authorizations=[authorization],
+            resource_claims=[ExecutionResourceClaim(cpu_cores=2)],
+            resource_capacity=ExecutionResourceCapacity(cpu_cores=1),
+        )

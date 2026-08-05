@@ -70,10 +70,21 @@ def build_parser() -> argparse.ArgumentParser:
     )
     audit.add_argument("--root", type=Path, default=Path("."))
     audit.add_argument("--include-tests", action="store_true")
+    audit.add_argument("--scope", choices=("production", "full-tree"))
     audit.add_argument("--limit", type=int, default=40)
     audit.add_argument("--min-score", type=int, default=40)
     audit.add_argument("--max-python-bytes", type=int, default=2_000_000)
     audit.add_argument("--output", type=Path)
+
+    performance = subparsers.add_parser(
+        "profile-performance",
+        help="measure deterministic built-in control-plane workloads on the current host",
+    )
+    performance.add_argument("--root", type=Path, default=Path("."))
+    performance.add_argument("--workload", action="append", default=[])
+    performance.add_argument("--repeats", type=int, default=7)
+    performance.add_argument("--warmups", type=int, default=1)
+    performance.add_argument("--output", type=Path)
 
     orchestrate = subparsers.add_parser(
         "plan",
@@ -183,9 +194,33 @@ def main(argv: list[str] | None = None) -> int:
             payload = audit_repository_acceleration(
                 args.root,
                 include_tests=args.include_tests,
+                scope=args.scope,
                 limit=args.limit,
                 min_score=args.min_score,
                 max_python_bytes=args.max_python_bytes,
+            ).to_dict()
+            if args.output is not None:
+                args.output.parent.mkdir(parents=True, exist_ok=True)
+                args.output.write_text(
+                    json.dumps(
+                        payload,
+                        ensure_ascii=False,
+                        indent=2,
+                        sort_keys=True,
+                        allow_nan=False,
+                    )
+                    + "\n",
+                    encoding="utf-8",
+                    newline="\n",
+                )
+            _json(payload)
+        elif args.command == "profile-performance":
+            from .performance import profile_workloads, select_workloads
+
+            payload = profile_workloads(
+                select_workloads(tuple(args.workload), root=args.root),
+                repeats=args.repeats,
+                warmups=args.warmups,
             ).to_dict()
             if args.output is not None:
                 args.output.parent.mkdir(parents=True, exist_ok=True)

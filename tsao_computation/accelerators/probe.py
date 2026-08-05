@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import importlib.metadata
 import importlib.util
 import os
 import platform
@@ -14,6 +15,7 @@ from .model import (
     AcceleratorBackend,
     AcceleratorDevice,
     AcceleratorInventory,
+    AcceleratorLibraryEvidence,
     PlacementTarget,
 )
 from .native import NativeProbeResult, probe_native_core
@@ -57,6 +59,78 @@ _MODULE_CANDIDATES = (
     "dask",
 )
 _EDGE_TRUE_VALUES = {"1", "true", "yes", "on"}
+
+_LIBRARY_MODULES: dict[str, tuple[str, ...]] = {
+    "cupy": ("cupy",),
+    "nvmath-python": ("nvmath",),
+    "cutensor": ("cutensor",),
+    "cuequivariance": ("cuequivariance", "cuequivariance_torch", "cuequivariance_jax"),
+    "tensorrt": ("tensorrt",),
+    "rapids": ("cudf", "cuml", "cugraph", "rmm"),
+    "rapids-cudf": ("cudf",),
+    "rapids-cuml": ("cuml",),
+    "cugraph": ("cugraph",),
+    "warp": ("warp",),
+    "cuquantum": ("cuquantum",),
+    "cupynumeric": ("cupynumeric", "legate"),
+    "holoscan": ("holoscan",),
+    "mpi": ("mpi4py",),
+}
+
+_LIBRARY_DISTRIBUTIONS: dict[str, tuple[str, ...]] = {
+    "cupy": ("cupy", "cupy-cuda12x", "cupy-cuda11x"),
+    "nvmath-python": ("nvmath-python",),
+    "cutensor": ("cutensor-cu12", "cutensor-cu11", "cutensor"),
+    "cuequivariance": ("cuequivariance", "cuequivariance-torch", "cuequivariance-jax"),
+    "tensorrt": ("tensorrt",),
+    "rapids": ("cudf-cu12", "cudf"),
+    "rapids-cudf": ("cudf-cu12", "cudf"),
+    "rapids-cuml": ("cuml-cu12", "cuml"),
+    "cugraph": ("cugraph-cu12", "cugraph"),
+    "warp": ("warp-lang", "warp"),
+    "cuquantum": ("cuquantum-python-cu12", "cuquantum-python"),
+    "cupynumeric": ("cupynumeric", "legate"),
+    "holoscan": ("holoscan",),
+    "mpi": ("mpi4py",),
+}
+
+
+def _distribution_version(name: str) -> str | None:
+    try:
+        return importlib.metadata.version(name)
+    except importlib.metadata.PackageNotFoundError:
+        return None
+
+
+def _library_evidence(
+    modules: tuple[str, ...],
+    version_resolver: Callable[[str], str | None],
+) -> tuple[AcceleratorLibraryEvidence, ...]:
+    found = set(modules)
+    records: list[AcceleratorLibraryEvidence] = []
+    for slug, candidates in sorted(_LIBRARY_MODULES.items()):
+        detected_modules = tuple(item for item in candidates if item in found)
+        if not detected_modules:
+            continue
+        version = next(
+            (
+                resolved
+                for distribution in _LIBRARY_DISTRIBUTIONS.get(slug, ())
+                if (resolved := version_resolver(distribution)) is not None
+            ),
+            None,
+        )
+        records.append(
+            AcceleratorLibraryEvidence(
+                slug=slug,
+                modules=detected_modules,
+                version=version,
+                detected=True,
+                qualified=False,
+                qualification="detected-only; runtime and numerical qualification are missing",
+            )
+        )
+    return tuple(records)
 
 
 def _memory_gib() -> float | None:
@@ -229,6 +303,7 @@ def probe_accelerators(
     module_finder: Callable[[str], object | None] = importlib.util.find_spec,
     edge_detector: Callable[[], bool] = _edge_detected,
     native_probe: Callable[[], NativeProbeResult | None] = probe_native_core,
+    version_resolver: Callable[[str], str | None] = _distribution_version,
 ) -> AcceleratorInventory:
     found = {name: path for name in _TOOL_CANDIDATES if (path := which(name))}
     modules = tuple(sorted(name for name in _MODULE_CANDIDATES if module_finder(name) is not None))
@@ -287,6 +362,7 @@ def probe_accelerators(
         devices=tuple(devices),
         tools=tuple(sorted(found)),
         python_modules=modules,
+        libraries=_library_evidence(modules, version_resolver),
         placements=tuple(sorted(placements, key=lambda item: item.value)),
     )
 

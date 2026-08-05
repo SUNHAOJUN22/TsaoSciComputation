@@ -142,6 +142,35 @@ class AcceleratorDevice:
 
 
 @dataclass(frozen=True, slots=True)
+class AcceleratorLibraryEvidence:
+    slug: str
+    modules: tuple[str, ...] = ()
+    version: str | None = None
+    detected: bool = True
+    qualified: bool = False
+    qualification: str = "unqualified"
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "slug", _required_string(self.slug, "slug"))
+        object.__setattr__(self, "modules", _string_tuple(self.modules, "modules"))
+        object.__setattr__(self, "version", _optional_string(self.version, "version"))
+        if not isinstance(self.detected, bool) or not isinstance(self.qualified, bool):
+            raise ContractError("detected and qualified must be booleans")
+        if self.qualified and not self.detected:
+            raise ContractError("a qualified library must be detected")
+        object.__setattr__(
+            self,
+            "qualification",
+            _required_string(self.qualification, "qualification"),
+        )
+
+    def to_dict(self) -> dict[str, object]:
+        payload = asdict(self)
+        payload["modules"] = list(self.modules)
+        return payload
+
+
+@dataclass(frozen=True, slots=True)
 class AcceleratorInventory:
     logical_cpu_count: int
     architecture: str
@@ -151,6 +180,7 @@ class AcceleratorInventory:
     devices: tuple[AcceleratorDevice, ...] = ()
     tools: tuple[str, ...] = ()
     python_modules: tuple[str, ...] = ()
+    libraries: tuple[AcceleratorLibraryEvidence, ...] = ()
     placements: tuple[PlacementTarget, ...] = (PlacementTarget.LOCAL,)
     claim_boundary: str = (
         "Hardware and library detection is planning evidence only; it does not prove solver "
@@ -188,6 +218,14 @@ class AcceleratorInventory:
         object.__setattr__(
             self, "python_modules", _string_tuple(self.python_modules, "python_modules")
         )
+        if isinstance(self.libraries, (str, bytes)) or not isinstance(self.libraries, Iterable):
+            raise ContractError("libraries must be an array")
+        libraries = tuple(self.libraries)
+        if any(not isinstance(item, AcceleratorLibraryEvidence) for item in libraries):
+            raise ContractError("libraries must contain AcceleratorLibraryEvidence records")
+        if len({item.slug for item in libraries}) != len(libraries):
+            raise ContractError("library slugs must be unique")
+        object.__setattr__(self, "libraries", libraries)
         object.__setattr__(
             self,
             "placements",
@@ -207,11 +245,16 @@ class AcceleratorInventory:
         normalized = _enum_value(AcceleratorBackend, backend, "backend")
         return tuple(device for device in self.devices if device.backend == normalized)
 
+    def library_evidence_for(self, slug: str) -> AcceleratorLibraryEvidence | None:
+        normalized = _required_string(slug, "slug")
+        return next((item for item in self.libraries if item.slug == normalized), None)
+
     def to_dict(self) -> dict[str, object]:
         payload = asdict(self)
         payload["backends"] = [item.value for item in self.backends]
         payload["placements"] = [item.value for item in self.placements]
         payload["devices"] = [item.to_dict() for item in self.devices]
+        payload["libraries"] = [item.to_dict() for item in self.libraries]
         return payload
 
 

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Added resource-aware batch admission control for CPU cores, exclusive GPU bindings and named solver-license tokens, with deterministic capacity and claim hashes.
+- Added Acceleration Qualification V4: production/full-tree source audits, stable candidate and source hashes, candidate/detected/qualified library states, inventory/profile/plan hashes, and a dependency-free runtime workload profiler.
 - Added a deterministic repository acceleration audit with language composition, Python AST evidence, ranked C++/OpenMP/CUDA-X candidates, a machine-readable report, CLI coverage and a dedicated qualification visual.
 - Simplified the bilingual landing documentation, retired eight superseded one-time visual migration files, and removed stale package-manifest globs that produced false build warnings.
 

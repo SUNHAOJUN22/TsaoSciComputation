@@ -90,16 +90,22 @@ Python remains the control plane for contracts, routing, provenance and acceptan
 ### Executable repository source audit
 
 ```bash
+python scripts/build_acceleration_audits.py
 python -m tsao_computation audit-acceleration \
-  --root . --limit 50 --min-score 40 \
-  --output reports/ACCELERATION_OPPORTUNITIES_V2.json
+  --root . --scope production --limit 50 --min-score 40 \
+  --output reports/ACCELERATION_OPPORTUNITIES_PRODUCTION_V4.json
+python -m tsao_computation profile-performance \
+  --workload routing-hot --workload acceleration-plan \
+  --repeats 7 --warmups 1 --output .tsao-computation/performance-profile.json
 ```
 
-The audit inventories Python, C, C++, CUDA, Fortran, Rust and Julia source; parses Python without executing it; records file, line and symbol evidence; and ranks dense, sparse, FFT, tensor, equivariant-ML, stochastic, solver-dispatch, filesystem and arithmetic-loop candidates. It recommends profiling, CPU/vectorized baselines, C++20/OpenMP, solver-native acceleration or CUDA-X candidates without claiming measured speedup.
+The production audit excludes tests, repository tooling and benchmark fixtures from migration decisions; the full-tree audit remains available for diagnostics. Every candidate is bound to a source hash and stable candidate ID and remains `unprofiled` until runtime evidence exists. Acceleration plans now separate candidate, detected and qualified libraries and bind request, inventory, adapter-profile and plan hashes.
 
 <!-- ACCELERATION_AUDIT_SUMMARY:START -->
-Current report: **159 source files**, **97 Python files analyzed**, **3 native-language files**, and **28 ranked candidates**. These are static migration candidates, not measured speedups.
+V4 reports inventory **167 source files** and **3 native-language files**. The production scope analyzes **58 Python files** and finds **3 unprofiled candidates**; the diagnostic full tree analyzes **164 Python files** and finds **35 candidates**. Neither report claims measured speedup.
 <!-- ACCELERATION_AUDIT_SUMMARY:END -->
+
+The batch execution layer now accepts immutable per-plan CPU, GPU and license-token claims plus a host capacity envelope. A condition-based resource broker prevents CPU oversubscription, exclusive-GPU collisions and license over-allocation, while binding the allocation hashes into the batch result.
 
 Architecture, CUDA-X selection rules and C++ migration gates: [`docs/accelerated-native-backend.md`](docs/accelerated-native-backend.md). Native verification: `python scripts/verify_native_core.py`.
 
