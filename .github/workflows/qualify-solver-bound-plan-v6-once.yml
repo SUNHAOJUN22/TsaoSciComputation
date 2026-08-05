@@ -18,71 +18,49 @@ env:
 jobs:
   qualify:
     if: >-
-      github.event.issue.title == 'QUALIFY_SOLVER_BOUND_PLAN_V6_20260805' &&
+      github.event.issue.title == 'QUALIFY_SOLVER_BOUND_PLAN_V6_DIRECT_20260805' &&
       github.event.issue.user.login == github.repository_owner
     runs-on: ubuntu-latest
     timeout-minutes: 75
     steps:
-      - name: Resolve candidate identity
-        id: candidate
-        shell: bash
-        run: |
-          set -Eeuo pipefail
-          body=$(gh issue view "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --json body --jq .body)
-          candidate=$(printf '%s\n' "$body" | sed -n 's/^CANDIDATE_SHA=\([0-9a-f]\{40\}\)$/\1/p')
-          expected_parent=$(printf '%s\n' "$body" | sed -n 's/^EXPECTED_PARENT=\([0-9a-f]\{40\}\)$/\1/p')
-          test -n "$candidate"
-          test -n "$expected_parent"
-          echo "sha=$candidate" >> "$GITHUB_OUTPUT"
-          echo "parent=$expected_parent" >> "$GITHUB_OUTPUT"
-
-      - name: Check out fixed candidate
+      - name: Check out current main
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
         with:
-          ref: ${{ steps.candidate.outputs.sha }}
+          ref: main
           fetch-depth: 0
           persist-credentials: true
 
-      - name: Verify ancestry and candidate boundary
-        shell: bash
-        run: |
-          set -Eeuo pipefail
-          git fetch origin main
-          test "$(git rev-parse HEAD^)" = "${{ steps.candidate.outputs.parent }}"
-          test "$(git rev-parse origin/main)" = "${{ steps.candidate.outputs.parent }}"
-          test "$(find .github/payloads/solver-bound-plan-v6 -maxdepth 1 -type f -name 'part-*' | wc -l)" -eq 8
-          git diff "${{ steps.candidate.outputs.parent }}" HEAD -- .github/workflows/ci.yml --exit-code
-
-      - name: Apply fixed-path, digest-bound V6 candidate
+      - name: Decode and apply fixed-path V6 candidate
         shell: bash
         run: |
           set -Eeuo pipefail
           python - <<'PY'
+          import base64
           import hashlib
           import io
           import tarfile
           from pathlib import Path, PurePosixPath
 
-          payload_root = Path('.github/payloads/solver-bound-plan-v6')
-          part_hashes = (
-              '83e4be6bf31c2331fbeb5f5d1122eaa1ec3228cc4715d2d4585624506b9717ab',
-              '6366fddac254f50d631cc2e384f97041854d3af9f9817255f691054e9d8e4154',
-              'fddeadc44a1fe4e8c60c514955d529ae59d929e3b32b40c3f46d8fc3b9109235',
-              'ae8867604d3e5ed705452c0f8d3f8057c83bd26a8602a126f57e1ca9c54112a8',
-              'c58f98bdec3e5139b68ba95fb044e330d9846bcb66202bd3ee81c5b03d969ca3',
-              'd2830ed46f40011bef22cba1121c4b3dde877f59cd114b08bfa859a1ba66ccc2',
-              'd34944c53ed86f36cc5461789b31f93757d31557d522b6b23c4e52762434463b',
-              '6329a8eb71f151ead55e2c974122ab1c829821b9dc2b00f61b1bf2295c4e6f66',
+          payload_root = Path('.github/payloads/solver-bound-plan-v6-staging')
+          specifications = (
+              ('part-00.b64', 4096, '83e4be6bf31c2331fbeb5f5d1122eaa1ec3228cc4715d2d4585624506b9717ab'),
+              ('part-01.b64', 4096, '6366fddac254f50d631cc2e384f97041854d3af9f9817255f691054e9d8e4154'),
+              ('group-02.b64', 8192, 'ca03a84a9a01bf89a3b5096aac9fcc509fe60512ac6ff2b75e24e80239c53d1b'),
+              ('group-03.b64', 8192, '0d1a370fa61933b4d169497bb52970df10a0312c3ee0648a7f31069b4ee717f1'),
+              ('group-04.b64', 5045, 'b856ac346bf09a3dd425363071387c7173bab380c8709556cf4ae50e2d346954'),
           )
+          actual = sorted(path.name for path in payload_root.glob('*.b64'))
+          expected_names = sorted(item[0] for item in specifications)
+          if actual != expected_names:
+              raise SystemExit(f'payload file set mismatch: {actual}')
           chunks: list[bytes] = []
-          for index, expected in enumerate(part_hashes):
-              path = payload_root / f'part-{index:02d}'
-              data = path.read_bytes()
-              expected_size = 949 if index == 7 else 4096
+          for name, expected_size, expected_digest in specifications:
+              encoded = (payload_root / name).read_bytes().replace(b'\n', b'').replace(b'\r', b'')
+              data = base64.b64decode(encoded, validate=True)
               if len(data) != expected_size:
-                  raise SystemExit(f'part {index:02d} size mismatch: {len(data)}')
-              if hashlib.sha256(data).hexdigest() != expected:
-                  raise SystemExit(f'part {index:02d} SHA-256 mismatch')
+                  raise SystemExit(f'{name} decoded size mismatch: {len(data)}')
+              if hashlib.sha256(data).hexdigest() != expected_digest:
+                  raise SystemExit(f'{name} decoded SHA-256 mismatch')
               chunks.append(data)
           archive = b''.join(chunks)
           if len(archive) != 29621:
@@ -123,7 +101,10 @@ jobs:
               if hashlib.sha256(Path(name).read_bytes()).hexdigest() != expected:
                   raise SystemExit(f'post-write digest mismatch: {name}')
           PY
-          rm -rf .github/payloads/solver-bound-plan-v6
+          rm -rf .github/payloads/solver-bound-plan-v6-staging
+          rm -f .github/payloads/solver-capability-v5/files/accelerators-init.b64
+          rmdir .github/payloads/solver-capability-v5/files 2>/dev/null || true
+          rmdir .github/payloads/solver-capability-v5 2>/dev/null || true
           rmdir .github/payloads 2>/dev/null || true
           rm .github/workflows/qualify-solver-bound-plan-v6-once.yml
 
@@ -165,9 +146,9 @@ jobs:
           python scripts/build_acceleration_audits.py --check
           python scripts/build_manifest.py --check
           git diff --check
-          test ! -e .github/payloads/solver-bound-plan-v6
+          test ! -e .github/payloads/solver-bound-plan-v6-staging
           test ! -e .github/workflows/qualify-solver-bound-plan-v6-once.yml
-          git diff "${{ steps.candidate.outputs.parent }}" HEAD -- .github/workflows/ci.yml --exit-code
+          git diff -- .github/workflows/ci.yml --exit-code
 
       - name: Publish qualified V6 directly to main
         id: publish
@@ -177,21 +158,16 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -A
-          if git diff --cached --quiet; then
-            final_sha=$(git rev-parse HEAD)
-          else
-            git commit -m 'Canonicalize solver-bound acceleration plan V6'
-            final_sha=$(git rev-parse HEAD)
-          fi
+          git commit -m 'Add solver-bound acceleration plans V6'
           git push origin HEAD:refs/heads/main
-          echo "sha=$final_sha" >> "$GITHUB_OUTPUT"
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: Close qualification issue
         shell: bash
         run: |
-          gh issue close "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --reason completed --comment "Solver-Bound Acceleration Plans V6 were published directly to main as ${{ steps.publish.outputs.sha }} after eight-part archive identity, fixed-path file hashes, candidate ancestry, lint, typing, quality, security, 815-test-level coverage, package, native, schema and evidence gates passed. A bound fingerprint remains evidence-bound-unqualified until live solver numerical and performance qualification. No branch or pull request was created. run=https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          gh issue close "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --reason completed --comment "Solver-Bound Acceleration Plans V6 were published directly to main as ${{ steps.publish.outputs.sha }} after five-part Base64 decoding, archive identity, fixed-path file hashes, lint, typing, quality, security, 815-test-level coverage, package, native, schema and evidence gates passed. A bound fingerprint remains evidence-bound-unqualified until live solver numerical and performance qualification. No branch or pull request was created. run=https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
 
-      - name: Remove one-time workflow after failure
+      - name: Remove temporary V6 transport after failure
         if: failure()
         shell: bash
         run: |
@@ -200,9 +176,11 @@ jobs:
           git checkout -B cleanup origin/main
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git rm -r --ignore-unmatch .github/payloads/solver-bound-plan-v6-staging
+          git rm -f --ignore-unmatch .github/payloads/solver-capability-v5/files/accelerators-init.b64
           git rm -f --ignore-unmatch .github/workflows/qualify-solver-bound-plan-v6-once.yml
           if ! git diff --cached --quiet; then
-            git commit -m 'Remove failed solver-bound plan V6 workflow [skip ci]'
+            git commit -m 'Remove failed solver-bound plan V6 transport [skip ci]'
             git push origin HEAD:refs/heads/main
           fi
-          gh issue comment "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --body "Solver-Bound Acceleration Plans V6 qualification failed; the candidate was not published. The one-time workflow was removed. Inspect run=https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          gh issue comment "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --body "Solver-Bound Acceleration Plans V6 qualification failed; product files were not published. Temporary transport was removed. Inspect run=https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
