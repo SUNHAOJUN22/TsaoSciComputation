@@ -1,0 +1,232 @@
+name: Apply acceleration source audit V3 once
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  actions: read
+  contents: write
+  issues: write
+
+concurrency:
+  group: apply-acceleration-source-audit-v3
+  cancel-in-progress: false
+
+env:
+  GH_TOKEN: ${{ github.token }}
+
+jobs:
+  apply:
+    if: >-
+      github.event.issue.title == 'APPLY_ACCELERATION_SOURCE_AUDIT_V3' &&
+      github.event.issue.user.login == github.repository_owner
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Check out current main
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Record workflow start
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          gh issue comment "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --body "Acceleration source audit V3 started. run=https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+          cache: pip
+
+      - name: Install source audit, CLI, tests, docs and visual
+        run: python .github/payloads/acceleration-audit-v3/apply.py
+
+      - name: Install validation dependencies
+        run: python -m pip install -e '.[validation,quality,security]'
+
+      - name: Format and lint changed Python files
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python -m ruff format \
+            tsao_computation/accelerators/audit.py \
+            tsao_computation/accelerators/__init__.py \
+            tsao_computation/acceleration.py \
+            tsao_computation/cli.py \
+            tests/test_acceleration_opportunity_audit.py \
+            tests/test_readme_visuals.py
+          python -m ruff check --fix \
+            tsao_computation/accelerators/audit.py \
+            tsao_computation/accelerators/__init__.py \
+            tsao_computation/acceleration.py \
+            tsao_computation/cli.py \
+            tests/test_acceleration_opportunity_audit.py \
+            tests/test_readme_visuals.py
+
+      - name: Generate repository acceleration report and README summary
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python -m tsao_computation audit-acceleration \
+            --root . --limit 50 --min-score 40 \
+            --output reports/ACCELERATION_OPPORTUNITIES_V2.json \
+            > /tmp/acceleration-audit.json
+          python - <<'PYCODE'
+          import json
+          from pathlib import Path
+
+          report = json.loads(Path("reports/ACCELERATION_OPPORTUNITIES_V2.json").read_text(encoding="utf-8"))
+          if report["python_files_analyzed"] < 1 or report["opportunity_count"] < 1:
+              raise SystemExit("acceleration audit did not produce a meaningful repository report")
+          languages = report["language_files"]
+          native_files = sum(languages.get(key, 0) for key in ("c", "cpp", "cuda", "fortran", "rust"))
+          en = (
+              "<!-- ACCELERATION_AUDIT_SUMMARY:START -->\n"
+              f"Current report: **{report['source_files']} source files**, "
+              f"**{report['python_files_analyzed']} Python files analyzed**, "
+              f"**{native_files} native-language files**, and "
+              f"**{report['opportunity_count']} ranked candidates**. "
+              "These are static migration candidates, not measured speedups.\n"
+              "<!-- ACCELERATION_AUDIT_SUMMARY:END -->"
+          )
+          zh = (
+              "<!-- ACCELERATION_AUDIT_SUMMARY:START -->\n"
+              f"当前报告统计 **{report['source_files']} 个源码文件**、"
+              f"**分析 {report['python_files_analyzed']} 个 Python 文件**、"
+              f"**{native_files} 个原生语言文件**，并输出 "
+              f"**{report['opportunity_count']} 个排序候选**。"
+              "这些是静态迁移候选，不是实测加速结论。\n"
+              "<!-- ACCELERATION_AUDIT_SUMMARY:END -->"
+          )
+          for path, replacement in (("README.md", en), ("README.zh-CN.md", zh)):
+              target = Path(path)
+              text = target.read_text(encoding="utf-8")
+              start = "<!-- ACCELERATION_AUDIT_SUMMARY:START -->"
+              end = "<!-- ACCELERATION_AUDIT_SUMMARY:END -->"
+              before, remainder = text.split(start, 1)
+              _, after = remainder.split(end, 1)
+              target.write_text(before + replacement + after, encoding="utf-8", newline="\n")
+          PYCODE
+          python scripts/build_manifest.py
+
+      - name: Run first full release verification
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python scripts/verify_all.py --profile all | tee /tmp/verify-first.log
+
+      - name: Verify native C ABI and Python bridge
+        run: python scripts/verify_native_core.py
+
+      - name: Synchronize current README verification evidence
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python - <<'PYCODE'
+          import re
+          from pathlib import Path
+
+          log = Path("/tmp/verify-first.log").read_text(encoding="utf-8")
+          tests = re.findall(r"(\d+) passed in", log)
+          coverage = re.findall(r"Total coverage: ([0-9.]+)%", log)
+          if not tests or not coverage:
+              raise SystemExit("could not parse verification count or coverage")
+          test_count = tests[-1]
+          coverage_value = coverage[-1]
+          run_id = "${{ github.run_id }}"
+
+          def update(path: str, heading: str, performance_heading: str, tests_label: str, coverage_label: str, sentence: str, visual_row: str) -> None:
+              target = Path(path)
+              text = target.read_text(encoding="utf-8")
+              start = text.index(heading)
+              end = text.index(performance_heading, start)
+              block = text[start:end]
+              block, tests_changed = re.subn(
+                  rf"\| {re.escape(tests_label)} \| \d+ [^|]+\|",
+                  f"| {tests_label} | {test_count} passed, 0 failed |" if path == "README.md" else f"| {tests_label} | {test_count} 通过，0 失败 |",
+                  block,
+                  count=1,
+              )
+              block, coverage_changed = re.subn(
+                  rf"\| {re.escape(coverage_label)} \| [^|]+\|",
+                  f"| {coverage_label} | {coverage_value}% (required: 95.00%) |" if path == "README.md" else f"| {coverage_label} | {coverage_value}%（门槛：95.00%） |",
+                  block,
+                  count=1,
+              )
+              if tests_changed != 1 or coverage_changed != 1:
+                  raise SystemExit(f"{path}: latest verification rows were not uniquely updated")
+              first_line_end = block.index("\n", block.index(heading) + len(heading)) + 1
+              next_blank = block.index("\n", first_line_end) + 1
+              table_start = block.index("| Latest" if path == "README.md" else "| 最新", next_blank)
+              block = block[:next_blank] + sentence.format(run_id=run_id) + "\n\n" + block[table_start:]
+              if visual_row not in block:
+                  anchor = "| C++20 C ABI build / CTest / Python bridge | PASS / 1 of 1 / PASS |" if path == "README.md" else "| C++20 C ABI 构建 / CTest / Python 桥 | PASS / 1/1 / PASS |"
+                  block = block.replace(anchor, anchor + "\n" + visual_row, 1)
+              target.write_text(text[:start] + block + text[end:], encoding="utf-8", newline="\n")
+
+          update(
+              "README.md",
+              "### Latest main-only README and native verification",
+              "## Performance evidence",
+              "Tests",
+              "Total coverage",
+              "The current main tree, source audit and native-interoperability layer were revalidated on `2026-08-05` by GitHub Actions run `{run_id}` before direct publication to `main`.",
+              "| Scientific visual assets | 43 self-contained SVGs / 12 featured |",
+          )
+          update(
+              "README.zh-CN.md",
+              "### 最新 `main` README 与原生层验证",
+              "## 性能证据",
+              "自动测试",
+              "总覆盖率",
+              "当前 `main`、源码加速审计和原生互操作层已于 `2026-08-05` 由 GitHub Actions 运行 `{run_id}` 在直接发布前重新验证。",
+              "| 科研视觉资产 | 43 幅自包含 SVG / 根 README 展示 12 幅 |",
+          )
+          PYCODE
+          python scripts/build_manifest.py
+
+      - name: Run final exact-tree verification
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python scripts/verify_all.py --profile all | tee /tmp/verify-final.log
+          python scripts/verify_native_core.py
+          python - <<'PYCODE'
+          import re
+          from pathlib import Path
+
+          first = Path("/tmp/verify-first.log").read_text(encoding="utf-8")
+          final = Path("/tmp/verify-final.log").read_text(encoding="utf-8")
+          first_tests = re.findall(r"(\d+) passed in", first)[-1]
+          final_tests = re.findall(r"(\d+) passed in", final)[-1]
+          if first_tests != final_tests:
+              raise SystemExit("test count changed while synchronizing verification evidence")
+          PYCODE
+
+      - name: Commit directly to main
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git diff --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Add executable repository acceleration audit'
+          git push origin HEAD:refs/heads/main
+
+      - name: Close authorization issue
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          gh issue close "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --reason completed --comment 'Acceleration source audit V3 was applied directly to main after two full repository verification passes and native-core verification. No branch or pull request was created.'
+
+      - name: Record failure diagnostics
+        if: failure()
+        shell: bash
+        run: |
+          gh issue comment "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --body "Acceleration source audit V3 failed. Inspect run=https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID. No feature commit was pushed."
