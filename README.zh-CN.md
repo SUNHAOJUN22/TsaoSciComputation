@@ -98,12 +98,12 @@ python scripts/verify_all.py --profile benchmark
 
 `all` 覆盖质量、安全、测试、覆盖率、科学基准、Schema 与注册表校验、受控变异测试、可重复源码/Wheel 构建、隔离安装、SBOM、校验和与发布清单。`benchmark` 属于环境相关遥测，不作为发布门禁。
 
-### 当前 `main` 验证状态
+### 规范化跨平台资格基线
 
 <!-- CURRENT_MAIN_VERIFICATION:START -->
-已于 `2026-08-02T19:04:13.872746+00:00` 由确定性终验运行 `30762511647` 完成验证。
+不可变的 Ubuntu/Windows × Python 3.10/3.13 跨平台资格基线已于 `2026-08-02T19:04:13.872746+00:00` 由确定性终验运行 `30762511647` 完成验证。
 
-| 当前主线项目 | 结果 |
+| 规范化资格项目 | 结果 |
 |---|---:|
 | 版本 | 3.0.4 |
 | 能力 / 适配器 / 工作流 | 164 / 27 / 20 |
@@ -119,8 +119,22 @@ python scripts/verify_all.py --profile benchmark
 | 科研视觉资产 | 42 幅自包含 SVG |
 | 远程分支 | 仅 `main` |
 
-final-exact-tree-v3 最终提交只有在 [Issue #49](../../issues/49) 记录 Ubuntu/Windows × Python 3.10/3.13 正式 CI 成功后才被接受。机器可读证据：[`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json)。
+该基线继续作为 [Issue #49](../../issues/49) 记录的规范化跨平台证据。机器可读证据：[`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json)。
 <!-- CURRENT_MAIN_VERIFICATION:END -->
+
+### 最新 `main` README 与原生层验证
+
+当前文档和原生互操作层已于 `2026-08-05` 在直接发布到 `main` 前重新完成验证。
+
+| 最新门禁 | 结果 |
+|---|---:|
+| 自动测试 | 781 通过，0 失败 |
+| 总覆盖率 | 95.61%（门槛：95.00%） |
+| Ruff / Mypy / Bandit / 仓库安全扫描 | PASS |
+| 受控变异探针 / 科学参考基准 | 64/64 被识别 / 8/8 通过 |
+| 可重复源码包 / Wheel 隔离安装 | PASS / PASS |
+| C++20 C ABI 构建 / CTest / Python 桥 | PASS / 1/1 / PASS |
+| 远程分支 | 仅 `main` |
 
 ## 性能证据
 

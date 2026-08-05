@@ -98,12 +98,12 @@ python scripts/verify_all.py --profile benchmark
 
 `all` covers quality, security, tests, coverage, scientific benchmarks, schema and registry validation, mutation probes, reproducible source/Wheel builds, isolated installation, SBOMs, checksums and release manifests. `benchmark` is environment-dependent telemetry and is not a release gate.
 
-### Current `main` verification
+### Canonical cross-platform qualification
 
 <!-- CURRENT_MAIN_VERIFICATION:START -->
-Validated on `2026-08-02T19:04:13.872746+00:00` by deterministic finalization run `30762511647`.
+The immutable Ubuntu/Windows × Python 3.10/3.13 qualification baseline was validated on `2026-08-02T19:04:13.872746+00:00` by deterministic finalization run `30762511647`.
 
-| Current-main item | Result |
+| Canonical qualification item | Result |
 |---|---:|
 | Version | 3.0.4 |
 | Capabilities / adapters / workflows | 164 / 27 / 20 |
@@ -119,8 +119,22 @@ Validated on `2026-08-02T19:04:13.872746+00:00` by deterministic finalization ru
 | Scientific visual assets | 42 self-contained SVGs |
 | Remote branches | `main` only |
 
-The final final-exact-tree-v3 commit is accepted only after canonical Ubuntu/Windows × Python 3.10/3.13 CI is recorded in [Issue #49](../../issues/49). Machine-readable evidence: [`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json).
+This baseline remains the canonical cross-platform evidence recorded in [Issue #49](../../issues/49). Machine-readable evidence: [`reports/CURRENT_MAIN_VERIFICATION.json`](reports/CURRENT_MAIN_VERIFICATION.json).
 <!-- CURRENT_MAIN_VERIFICATION:END -->
+
+### Latest main-only README and native verification
+
+The current documentation and native-interoperability layer was revalidated on `2026-08-05` before direct publication to `main`.
+
+| Latest gate | Result |
+|---|---:|
+| Tests | 781 passed, 0 failed |
+| Total coverage | 95.61% (required: 95.00%) |
+| Ruff / Mypy / Bandit / repository security scan | PASS |
+| Controlled mutation probes / scientific benchmarks | 64/64 killed / 8/8 passed |
+| Reproducible source archives / Wheel isolated install | PASS / PASS |
+| C++20 C ABI build / CTest / Python bridge | PASS / 1 of 1 / PASS |
+| Remote branches | `main` only |
 
 ## Performance evidence
 
