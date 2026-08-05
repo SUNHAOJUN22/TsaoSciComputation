@@ -1,6 +1,6 @@
 # README visual assets
 
-This directory contains the complete visual atlas for TsaoSciComputation. The root READMEs showcase 11 representative diagrams and link to this complete inventory.
+This directory contains the complete visual atlas for TsaoSciComputation. The root READMEs showcase 12 representative diagrams and link to this complete inventory.
 
 ## Design and trust policy
 
@@ -12,13 +12,13 @@ This directory contains the complete visual atlas for TsaoSciComputation. The ro
 
 ## Scientific Research Console V13
 
-All 42 assets declare `data-design-system="uiux-pro-max-scientific-console-v4"`.
+All 43 assets declare `data-design-system="uiux-pro-max-scientific-console-v4"`.
 
 - Five information layouts are used: Hero, Bento, Workflow, Loop and Risk.
 - One line-icon system and explicit labels reinforce meaning beyond color.
 - SVG body text is at least 16 px.
 - No external fonts, scripts, raster images, gradients, filters, event handlers or tracking are permitted.
-- The root READMEs show 11 representative images and link to this complete inventory for progressive disclosure.
+- The root READMEs show 12 representative images and link to this complete inventory for progressive disclosure.
 
 See [`DESIGN_SYSTEM.md`](DESIGN_SYSTEM.md) for the complete specification.
 
@@ -66,5 +66,6 @@ See [`DESIGN_SYSTEM.md`](DESIGN_SYSTEM.md) for the complete specification.
 - `reactor-scaleup-thermal-risk.svg` — reactor residence time, heat removal, runaway and scale-up
 - `dynamic-control-estimation.svg` — dynamic control, disturbances, state estimation and safety boundaries
 - `hpc-failure-recovery.svg` — checkpoints, failure classification and bounded recovery
+- `acceleration-opportunity-pipeline.svg` — source inventory, AST evidence, candidate ranking and qualification gates
 
 Run `python -m pytest tests/test_readme_visuals.py -q` to validate the asset inventory, design metadata and compact bilingual README references.

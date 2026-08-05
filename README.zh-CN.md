@@ -65,7 +65,7 @@ python -m tsao_computation probe
 </table>
 
 <!-- V13_VISUAL_SYSTEM:START -->
-仓库内 42 幅自包含 SVG 使用 **Scientific Research Console V13**。根 README 展示 11 幅代表性示意图；完整可检索图谱见 [`assets/visuals/README.md`](assets/visuals/README.md)，设计规范见 [`assets/visuals/DESIGN_SYSTEM.md`](assets/visuals/DESIGN_SYSTEM.md)。
+仓库内 43 幅自包含 SVG 使用 **Scientific Research Console V13**。根 README 展示 12 幅代表性示意图；完整可检索图谱见 [`assets/visuals/README.md`](assets/visuals/README.md)，设计规范见 [`assets/visuals/DESIGN_SYSTEM.md`](assets/visuals/DESIGN_SYSTEM.md)。
 <!-- V13_VISUAL_SYSTEM:END -->
 
 ## 多尺度科学计算视觉图谱
@@ -85,6 +85,21 @@ Python 保留为合同、路由、溯源和验收控制平面。经剖析确认�
 
 <img src="assets/visuals/hpc-execution-provenance.svg" alt="有边界的 HPC 执行与溯源" width="100%">
 <img src="assets/visuals/hpc-failure-recovery.svg" alt="HPC 检查点与有边界恢复" width="100%">
+<img src="assets/visuals/acceleration-opportunity-pipeline.svg" alt="证据约束型仓库加速机会审计" width="100%">
+
+### 可执行的仓库源码审计
+
+```bash
+python -m tsao_computation audit-acceleration \
+  --root . --limit 50 --min-score 40 \
+  --output reports/ACCELERATION_OPPORTUNITIES_V2.json
+```
+
+该审计统计 Python、C、C++、CUDA、Fortran、Rust 与 Julia 源码；在不执行源码的前提下解析 Python AST；保留文件、行号和符号证据；并对稠密/稀疏线性代数、FFT、张量收缩、等变机器学习、随机采样、外部求解器调度、文件系统扫描和算术循环进行排序。它可以推荐性能剖析、CPU/向量化基线、C++20/OpenMP、求解器原生加速或 CUDA-X 候选，但不声称已经取得实测加速。
+
+<!-- ACCELERATION_AUDIT_SUMMARY:START -->
+当前报告统计 **159 个源码文件**、**分析 97 个 Python 文件**、**3 个原生语言文件**，并输出 **28 个排序候选**。这些是静态迁移候选，不是实测加速结论。
+<!-- ACCELERATION_AUDIT_SUMMARY:END -->
 
 架构、CUDA-X 选型和 C++ 迁移门禁见 [`docs/accelerated-native-backend.md`](docs/accelerated-native-backend.md)。原生验证命令：`python scripts/verify_native_core.py`。
 
@@ -124,16 +139,17 @@ python scripts/verify_all.py --profile benchmark
 
 ### 最新 `main` README 与原生层验证
 
-当前文档和原生互操作层已于 `2026-08-05` 在直接发布到 `main` 前重新完成验证。
+当前 `main`、源码加速审计和原生互操作层已于 `2026-08-05` 由 GitHub Actions 运行 `30981066673` 在直接发布前重新验证。
 
 | 最新门禁 | 结果 |
 |---|---:|
-| 自动测试 | 781 通过，0 失败 |
-| 总覆盖率 | 95.61%（门槛：95.00%） |
+| 自动测试 | 785 通过，0 失败 |
+| 总覆盖率 | 95.26%（门槛：95.00%） |
 | Ruff / Mypy / Bandit / 仓库安全扫描 | PASS |
 | 受控变异探针 / 科学参考基准 | 64/64 被识别 / 8/8 通过 |
 | 可重复源码包 / Wheel 隔离安装 | PASS / PASS |
 | C++20 C ABI 构建 / CTest / Python 桥 | PASS / 1/1 / PASS |
+| 科研视觉资产 | 43 幅自包含 SVG / 根 README 展示 12 幅 |
 | 远程分支 | 仅 `main` |
 
 ## 性能证据

@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Added a deterministic repository acceleration audit with language composition, Python AST evidence, ranked C++/OpenMP/CUDA-X candidates, a machine-readable report, CLI coverage and a dedicated qualification visual.
 - Simplified the bilingual landing documentation, retired eight superseded one-time visual migration files, and removed stale package-manifest globs that produced false build warnings.
 
 ## 3.0.4 — 2026-08-03

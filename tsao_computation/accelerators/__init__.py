@@ -1,3 +1,9 @@
+from .audit import (
+    AccelerationOpportunity,
+    RepositoryAccelerationAudit,
+    audit_acceleration,
+    audit_repository_acceleration,
+)
 from .catalog import (
     AccelerationLibrary,
     acceleration_libraries,
@@ -23,6 +29,7 @@ from .probe import probe_accelerators, probe_hardware
 
 __all__ = [
     "AccelerationLibrary",
+    "AccelerationOpportunity",
     "AccelerationPlan",
     "AcceleratorBackend",
     "AcceleratorDevice",
@@ -33,8 +40,11 @@ __all__ = [
     "NativeProbeResult",
     "PlacementTarget",
     "PrecisionPolicy",
+    "RepositoryAccelerationAudit",
     "ResourceRequest",
     "acceleration_libraries",
+    "audit_acceleration",
+    "audit_repository_acceleration",
     "acceleration_plan",
     "get_acceleration_library",
     "library_catalog",

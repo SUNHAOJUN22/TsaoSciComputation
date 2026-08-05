@@ -142,7 +142,11 @@ _RULES: Final = (
             "profile shapes and layouts, then compare framework-native kernels with cuTENSOR",
             ("cpu", "openmp", "cuda"),
             ("cutensor", "nvmath-python", "cupy"),
-            ("scalar or CPU reference", "shape/layout inventory", "numerical-equivalence tolerance"),
+            (
+                "scalar or CPU reference",
+                "shape/layout inventory",
+                "numerical-equivalence tolerance",
+            ),
             ("transfer overhead", "layout conversion", "temporary-memory growth"),
         ),
     ),
@@ -240,7 +244,12 @@ _NUMERIC_LOOP_RULE: Final = _Rule(
     "establish a vectorized CPU reference, then consider C++20/OpenMP, Kokkos, Warp, or CUDA",
     ("cpu", "openmp", "cuda", "hip", "sycl"),
     ("kokkos", "warp", "cupy"),
-    ("scalar reference", "shape and stride contract", "sanitizer and race tests", "size-scaled benchmark"),
+    (
+        "scalar reference",
+        "shape and stride contract",
+        "sanitizer and race tests",
+        "size-scaled benchmark",
+    ),
     ("Python control-flow dependence", "insufficient arithmetic intensity", "precision drift"),
 )
 

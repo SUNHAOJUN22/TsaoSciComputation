@@ -15,7 +15,7 @@ ICON_SYSTEM = "uiux-pro-max-line-v1"
 EXPECTED_LAYOUTS = {
     "hero": 1,
     "bento": 7,
-    "workflow": 23,
+    "workflow": 24,
     "loop": 5,
     "risk": 6,
 }
@@ -31,6 +31,7 @@ FEATURED_FILES = {
     "uncertainty-sensitivity.svg",
     "hpc-execution-provenance.svg",
     "hpc-failure-recovery.svg",
+    "acceleration-opportunity-pipeline.svg",
 }
 ALLOWED_COLORS = {
     "#07111F",
@@ -71,7 +72,7 @@ def test_readme_showcases_featured_visuals_and_links_full_atlas() -> None:
         assert "VISUAL_SYSTEM_V10" not in readme
         assert readme.count("assets/visuals/hero-multiscale.svg") == 1
         assert readme.count('<td width="50%"><img src="assets/visuals/') == 2
-        assert len(FEATURED_FILES) == 11
+        assert len(FEATURED_FILES) == 12
         assert "assets/visuals/README.md" in readme
         assert "assets/visuals/DESIGN_SYSTEM.md" in readme
         for name in names:
@@ -97,7 +98,7 @@ def test_readme_visuals_are_readable_accessible_and_self_contained() -> None:
     assert all(layout.title() in design_system for layout in EXPECTED_LAYOUTS)
 
     names = _inventory_names()
-    assert len(names) == 42
+    assert len(names) == 43
     visual_root = ROOT / "assets" / "visuals"
     assert {path.name for path in visual_root.glob("*.svg")} == set(names)
 

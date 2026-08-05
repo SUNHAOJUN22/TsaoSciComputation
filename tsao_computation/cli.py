@@ -64,6 +64,17 @@ def build_parser() -> argparse.ArgumentParser:
     advice.add_argument("--method", action="append", default=[])
     advice.add_argument("--limit", type=int, default=8)
 
+    audit = subparsers.add_parser(
+        "audit-acceleration",
+        help="statically audit repository source for evidence-bound acceleration candidates",
+    )
+    audit.add_argument("--root", type=Path, default=Path("."))
+    audit.add_argument("--include-tests", action="store_true")
+    audit.add_argument("--limit", type=int, default=40)
+    audit.add_argument("--min-score", type=int, default=40)
+    audit.add_argument("--max-python-bytes", type=int, default=2_000_000)
+    audit.add_argument("--output", type=Path)
+
     orchestrate = subparsers.add_parser(
         "plan",
         help="build a complete evidence-bound orchestration plan from a calculation contract",
@@ -166,6 +177,31 @@ def main(argv: list[str] | None = None) -> int:
                     )
                 ]
             )
+        elif args.command == "audit-acceleration":
+            from .accelerators import audit_repository_acceleration
+
+            payload = audit_repository_acceleration(
+                args.root,
+                include_tests=args.include_tests,
+                limit=args.limit,
+                min_score=args.min_score,
+                max_python_bytes=args.max_python_bytes,
+            ).to_dict()
+            if args.output is not None:
+                args.output.parent.mkdir(parents=True, exist_ok=True)
+                args.output.write_text(
+                    json.dumps(
+                        payload,
+                        ensure_ascii=False,
+                        indent=2,
+                        sort_keys=True,
+                        allow_nan=False,
+                    )
+                    + "\n",
+                    encoding="utf-8",
+                    newline="\n",
+                )
+            _json(payload)
         elif args.command == "plan":
             from .contracts import CalculationContract
             from .workflows import WorkflowEngine

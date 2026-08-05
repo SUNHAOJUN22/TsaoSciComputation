@@ -1,0 +1,885 @@
+{
+  "category_counts": {
+    "external-solver-dispatch": 13,
+    "filesystem-scan": 9,
+    "numeric-python-loop": 6
+  },
+  "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
+  "language_files": {
+    "c": 1,
+    "cpp": 2,
+    "python": 156
+  },
+  "language_lines": {
+    "c": 70,
+    "cpp": 197,
+    "python": 19024
+  },
+  "opportunities": [
+    {
+      "backend_candidates": [
+        "cpu",
+        "openmp",
+        "cuda",
+        "hip",
+        "sycl"
+      ],
+      "blockers": [
+        "Python control-flow dependence",
+        "insufficient arithmetic intensity",
+        "precision drift"
+      ],
+      "category": "numeric-python-loop",
+      "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
+      "confidence": "medium",
+      "current_pattern": "arithmetic-heavy Python loop",
+      "evidence_requirements": [
+        "scalar reference",
+        "shape and stride contract",
+        "sanitizer and race tests",
+        "size-scaled benchmark"
+      ],
+      "first_action": "establish a vectorized CPU reference, then consider C++20/OpenMP, Kokkos, Warp, or CUDA",
+      "library_candidates": [
+        "kokkos",
+        "warp",
+        "cupy"
+      ],
+      "line": 146,
+      "path": "tsao_computation/validation/scientific_benchmarks.py",
+      "score": 77,
+      "symbol": "pfr_first_order"
+    },
+    {
+      "backend_candidates": [
+        "cpu",
+        "openmp",
+        "cuda",
+        "hip",
+        "sycl"
+      ],
+      "blockers": [
+        "Python control-flow dependence",
+        "insufficient arithmetic intensity",
+        "precision drift"
+      ],
+      "category": "numeric-python-loop",
+      "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
+      "confidence": "medium",
+      "current_pattern": "arithmetic-heavy Python loop",
+      "evidence_requirements": [
+        "scalar reference",
+        "shape and stride contract",
+        "sanitizer and race tests",
+        "size-scaled benchmark"
+      ],
+      "first_action": "establish a vectorized CPU reference, then consider C++20/OpenMP, Kokkos, Warp, or CUDA",
+      "library_candidates": [
+        "kokkos",
+        "warp",
+        "cupy"
+      ],
+      "line": 31,
+      "path": "scripts/validate_adapter_metadata.py",
+      "score": 76,
+      "symbol": "validate"
+    },
+    {
+      "backend_candidates": [
+        "cpu",
+        "openmp",
+        "cuda",
+        "hip",
+        "sycl"
+      ],
+      "blockers": [
+        "Python control-flow dependence",
+        "insufficient arithmetic intensity",
+        "precision drift"
+      ],
+      "category": "numeric-python-loop",
+      "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
+      "confidence": "medium",
+      "current_pattern": "arithmetic-heavy Python loop",
+      "evidence_requirements": [
+        "scalar reference",
+        "shape and stride contract",
+        "sanitizer and race tests",
+        "size-scaled benchmark"
+      ],
+      "first_action": "establish a vectorized CPU reference, then consider C++20/OpenMP, Kokkos, Warp, or CUDA",
+      "library_candidates": [
+        "kokkos",
+        "warp",
+        "cupy"
+      ],
+      "line": 50,
+      "path": "scripts/validate_accelerator_metadata.py",
+      "score": 75,
+      "symbol": "validate"
+    },
+    {
+      "backend_candidates": [
+        "cpu",
+        "openmp",
+        "cuda",
+        "hip",
+        "sycl"
+      ],
+      "blockers": [
+        "Python control-flow dependence",
+        "insufficient arithmetic intensity",
+        "precision drift"
+      ],
+      "category": "numeric-python-loop",
+      "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
+      "confidence": "medium",
+      "current_pattern": "arithmetic-heavy Python loop",
+      "evidence_requirements": [
+        "scalar reference",
+        "shape and stride contract",
+        "sanitizer and race tests",
+        "size-scaled benchmark"
+      ],
+      "first_action": "establish a vectorized CPU reference, then consider C++20/OpenMP, Kokkos, Warp, or CUDA",
+      "library_candidates": [
+        "kokkos",
+        "warp",
+        "cupy"
+      ],
+      "line": 168,
+      "path": "tsao_computation/validation/scientific_benchmarks.py",
+      "score": 74,
+      "symbol": "harmonic_oscillator"
+    },
+    {
+      "backend_candidates": [
+        "cpu",
+        "openmp",
+        "cuda",
+        "hip",
+        "sycl"
+      ],
+      "blockers": [
+        "Python control-flow dependence",
+        "insufficient arithmetic intensity",
+        "precision drift"
+      ],
+      "category": "numeric-python-loop",
+      "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
+      "confidence": "medium",
+      "current_pattern": "arithmetic-heavy Python loop",
+      "evidence_requirements": [
+        "scalar reference",
+        "shape and stride contract",
+        "sanitizer and race tests",
+        "size-scaled benchmark"
+      ],
+      "first_action": "establish a vectorized CPU reference, then consider C++20/OpenMP, Kokkos, Warp, or CUDA",
+      "library_candidates": [
+        "kokkos",
+        "warp",
+        "cupy"
+      ],
+      "line": 76,
+      "path": "tsao_computation/validation/scientific_benchmarks.py",
+      "score": 73,
+      "symbol": "steady_conduction"
+    },
+    {
+      "backend_candidates": [
+        "cpu",
+        "openmp",
+        "cuda",
+        "hip",
+        "sycl"
+      ],
+      "blockers": [
+        "Python control-flow dependence",
+        "insufficient arithmetic intensity",
+        "precision drift"
+      ],
+      "category": "numeric-python-loop",
+      "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
+      "confidence": "medium",
+      "current_pattern": "arithmetic-heavy Python loop",
+      "evidence_requirements": [
+        "scalar reference",
+        "shape and stride contract",
+        "sanitizer and race tests",
+        "size-scaled benchmark"
+      ],
+      "first_action": "establish a vectorized CPU reference, then consider C++20/OpenMP, Kokkos, Warp, or CUDA",
+      "library_candidates": [
+        "kokkos",
+        "warp",
+        "cupy"
+      ],
+      "line": 107,
+      "path": "tsao_computation/validation/scientific_benchmarks.py",
+      "score": 72,
+      "symbol": "poiseuille_flow"
+    },
+    {
+      "backend_candidates": [
+        "cpu",
+        "openmp",
+        "mpi",
+        "cuda",
+        "hip",
+        "sycl"
+      ],
+      "blockers": [
+        "license or scheduler limits",
+        "oversubscription",
+        "unsupported solver backend"
+      ],
+      "category": "external-solver-dispatch",
+      "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
+      "confidence": "high",
+      "current_pattern": "external command or solver dispatch",
+      "evidence_requirements": [
+        "solver build features",
+        "command provenance",
+        "same-input end-to-end timing"
+      ],
+      "first_action": "batch independent cases and prefer the solver's native MPI/GPU backend before custom kernels",
+      "library_candidates": [
+        "mpi",
+        "nccl"
+      ],
+      "line": 83,
+      "path": "scripts/profile_performance_v9_refresh.py",
+      "score": 70,
+      "symbol": "_measure_subprocess"
+    },
+    {
+      "backend_candidates": [
+        "cpu",
+        "openmp",
+        "mpi",
+        "cuda",
+        "hip",
+        "sycl"
+      ],
+      "blockers": [
+        "license or scheduler limits",
+        "oversubscription",
+        "unsupported solver backend"
+      ],
+      "category": "external-solver-dispatch",
+      "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
+      "confidence": "high",
+      "current_pattern": "external command or solver dispatch",
+      "evidence_requirements": [
+        "solver build features",
+        "command provenance",
+        "same-input end-to-end timing"
+      ],
+      "first_action": "batch independent cases and prefer the solver's native MPI/GPU backend before custom kernels",
+      "library_candidates": [
+        "mpi",
+        "nccl"
+      ],
+      "line": 323,
+      "path": "scripts/profile_performance_v9_refresh.py",
+      "score": 70,
+      "symbol": "profile_hot_functions"
+    },
+    {
+      "backend_candidates": [
+        "cpu",
+        "openmp",
+        "mpi",
+        "cuda",
+        "hip",
+        "sycl"
+      ],
+      "blockers": [
+        "license or scheduler limits",
+        "oversubscription",
+        "unsupported solver backend"
+      ],
+      "category": "external-solver-dispatch",
+      "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
+      "confidence": "high",
+      "current_pattern": "external command or solver dispatch",
+      "evidence_requirements": [
+        "solver build features",
+        "command provenance",
+        "same-input end-to-end timing"
+      ],
+      "first_action": "batch independent cases and prefer the solver's native MPI/GPU backend before custom kernels",
+      "library_candidates": [
+        "mpi",
+        "nccl"
+      ],
+      "line": 73,
+      "path": "scripts/benchmark.py",
+      "score": 68,
+      "symbol": "import_seconds"
+    },
+    {
+      "backend_candidates": [
+        "cpu",
+        "openmp",
+        "mpi",
+        "cuda",
+        "hip",
+        "sycl"
+      ],
+      "blockers": [
+        "license or scheduler limits",
+        "oversubscription",
+        "unsupported solver backend"
+      ],
+      "category": "external-solver-dispatch",
+      "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
+      "confidence": "high",
+      "current_pattern": "external command or solver dispatch",
+      "evidence_requirements": [
+        "solver build features",
+        "command provenance",
+        "same-input end-to-end timing"
+      ],
+      "first_action": "batch independent cases and prefer the solver's native MPI/GPU backend before custom kernels",
+      "library_candidates": [
+        "mpi",
+        "nccl"
+      ],
+      "line": 31,
+      "path": "scripts/build_release_manifest.py",
+      "score": 68,
+      "symbol": "source_commit"
+    },
+    {
+      "backend_candidates": [
+        "cpu",
+        "openmp",
+        "mpi",
+        "cuda",
+        "hip",
+        "sycl"
+      ],
+      "blockers": [
+        "license or scheduler limits",
+        "oversubscription",
+        "unsupported solver backend"
+      ],
+      "category": "external-solver-dispatch",
+      "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
+      "confidence": "high",
+      "current_pattern": "external command or solver dispatch",
+      "evidence_requirements": [
+        "solver build features",
+        "command provenance",
+        "same-input end-to-end timing"
+      ],
+      "first_action": "batch independent cases and prefer the solver's native MPI/GPU backend before custom kernels",
+      "library_candidates": [
+        "mpi",
+        "nccl"
+      ],
+      "line": 73,
+      "path": "scripts/measure_command_v9.py",
+      "score": 68,
+      "symbol": "_measure_once"
+    },
+    {
+      "backend_candidates": [
+        "cpu",
+        "openmp",
+        "mpi",
+        "cuda",
+        "hip",
+        "sycl"
+      ],
+      "blockers": [
+        "license or scheduler limits",
+        "oversubscription",
+        "unsupported solver backend"
+      ],
+      "category": "external-solver-dispatch",
+      "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
+      "confidence": "high",
+      "current_pattern": "external command or solver dispatch",
+      "evidence_requirements": [
+        "solver build features",
+        "command provenance",
+        "same-input end-to-end timing"
+      ],
+      "first_action": "batch independent cases and prefer the solver's native MPI/GPU backend before custom kernels",
+      "library_candidates": [
+        "mpi",
+        "nccl"
+      ],
+      "line": 64,
+      "path": "scripts/profile_performance_v9_refresh.py",
+      "score": 68,
+      "symbol": "_run_json"
+    },
+    {
+      "backend_candidates": [
+        "cpu",
+        "openmp",
+        "mpi",
+        "cuda",
+        "hip",
+        "sycl"
+      ],
+      "blockers": [
+        "license or scheduler limits",
+        "oversubscription",
+        "unsupported solver backend"
+      ],
+      "category": "external-solver-dispatch",
+      "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
+      "confidence": "high",
+      "current_pattern": "external command or solver dispatch",
+      "evidence_requirements": [
+        "solver build features",
+        "command provenance",
+        "same-input end-to-end timing"
+      ],
+      "first_action": "batch independent cases and prefer the solver's native MPI/GPU backend before custom kernels",
+      "library_candidates": [
+        "mpi",
+        "nccl"
+      ],
+      "line": 50,
+      "path": "scripts/run_tests.py",
+      "score": 68,
+      "symbol": "main"
+    },
+    {
+      "backend_candidates": [
+        "cpu",
+        "openmp",
+        "mpi",
+        "cuda",
+        "hip",
+        "sycl"
+      ],
+      "blockers": [
+        "license or scheduler limits",
+        "oversubscription",
+        "unsupported solver backend"
+      ],
+      "category": "external-solver-dispatch",
+      "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
+      "confidence": "high",
+      "current_pattern": "external command or solver dispatch",
+      "evidence_requirements": [
+        "solver build features",
+        "command provenance",
+        "same-input end-to-end timing"
+      ],
+      "first_action": "batch independent cases and prefer the solver's native MPI/GPU backend before custom kernels",
+      "library_candidates": [
+        "mpi",
+        "nccl"
+      ],
+      "line": 84,
+      "path": "scripts/verify_all.py",
+      "score": 68,
+      "symbol": "run"
+    },
+    {
+      "backend_candidates": [
+        "cpu",
+        "openmp",
+        "mpi",
+        "cuda",
+        "hip",
+        "sycl"
+      ],
+      "blockers": [
+        "license or scheduler limits",
+        "oversubscription",
+        "unsupported solver backend"
+      ],
+      "category": "external-solver-dispatch",
+      "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
+      "confidence": "high",
+      "current_pattern": "external command or solver dispatch",
+      "evidence_requirements": [
+        "solver build features",
+        "command provenance",
+        "same-input end-to-end timing"
+      ],
+      "first_action": "batch independent cases and prefer the solver's native MPI/GPU backend before custom kernels",
+      "library_candidates": [
+        "mpi",
+        "nccl"
+      ],
+      "line": 107,
+      "path": "scripts/verify_all.py",
+      "score": 68,
+      "symbol": "_run_captured"
+    },
+    {
+      "backend_candidates": [
+        "cpu",
+        "openmp",
+        "mpi",
+        "cuda",
+        "hip",
+        "sycl"
+      ],
+      "blockers": [
+        "license or scheduler limits",
+        "oversubscription",
+        "unsupported solver backend"
+      ],
+      "category": "external-solver-dispatch",
+      "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
+      "confidence": "high",
+      "current_pattern": "external command or solver dispatch",
+      "evidence_requirements": [
+        "solver build features",
+        "command provenance",
+        "same-input end-to-end timing"
+      ],
+      "first_action": "batch independent cases and prefer the solver's native MPI/GPU backend before custom kernels",
+      "library_candidates": [
+        "mpi",
+        "nccl"
+      ],
+      "line": 15,
+      "path": "scripts/verify_native_core.py",
+      "score": 68,
+      "symbol": "_run"
+    },
+    {
+      "backend_candidates": [
+        "cpu",
+        "openmp",
+        "mpi",
+        "cuda",
+        "hip",
+        "sycl"
+      ],
+      "blockers": [
+        "license or scheduler limits",
+        "oversubscription",
+        "unsupported solver backend"
+      ],
+      "category": "external-solver-dispatch",
+      "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
+      "confidence": "high",
+      "current_pattern": "external command or solver dispatch",
+      "evidence_requirements": [
+        "solver build features",
+        "command provenance",
+        "same-input end-to-end timing"
+      ],
+      "first_action": "batch independent cases and prefer the solver's native MPI/GPU backend before custom kernels",
+      "library_candidates": [
+        "mpi",
+        "nccl"
+      ],
+      "line": 44,
+      "path": "scripts/verify_wheel.py",
+      "score": 68,
+      "symbol": "build_once"
+    },
+    {
+      "backend_candidates": [
+        "cpu",
+        "openmp",
+        "mpi",
+        "cuda",
+        "hip",
+        "sycl"
+      ],
+      "blockers": [
+        "license or scheduler limits",
+        "oversubscription",
+        "unsupported solver backend"
+      ],
+      "category": "external-solver-dispatch",
+      "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
+      "confidence": "high",
+      "current_pattern": "external command or solver dispatch",
+      "evidence_requirements": [
+        "solver build features",
+        "command provenance",
+        "same-input end-to-end timing"
+      ],
+      "first_action": "batch independent cases and prefer the solver's native MPI/GPU backend before custom kernels",
+      "library_candidates": [
+        "mpi",
+        "nccl"
+      ],
+      "line": 85,
+      "path": "scripts/verify_wheel.py",
+      "score": 68,
+      "symbol": "verify_target_install"
+    },
+    {
+      "backend_candidates": [
+        "cpu",
+        "openmp",
+        "mpi",
+        "cuda",
+        "hip",
+        "sycl"
+      ],
+      "blockers": [
+        "license or scheduler limits",
+        "oversubscription",
+        "unsupported solver backend"
+      ],
+      "category": "external-solver-dispatch",
+      "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
+      "confidence": "high",
+      "current_pattern": "external command or solver dispatch",
+      "evidence_requirements": [
+        "solver build features",
+        "command provenance",
+        "same-input end-to-end timing"
+      ],
+      "first_action": "batch independent cases and prefer the solver's native MPI/GPU backend before custom kernels",
+      "library_candidates": [
+        "mpi",
+        "nccl"
+      ],
+      "line": 147,
+      "path": "tsao_computation/security/process.py",
+      "score": 68,
+      "symbol": "_run_prepared"
+    },
+    {
+      "backend_candidates": [
+        "cpu"
+      ],
+      "blockers": [
+        "cold-cache variability",
+        "network filesystem",
+        "stale cache"
+      ],
+      "category": "filesystem-scan",
+      "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
+      "confidence": "medium",
+      "current_pattern": "repository or dataset filesystem walk",
+      "evidence_requirements": [
+        "I/O trace",
+        "filesystem-pass count",
+        "same-host latency and peak-memory baseline"
+      ],
+      "first_action": "reduce repeated passes, cache stable metadata, and stream results; GPU migration is usually unsuitable",
+      "library_candidates": [],
+      "line": 37,
+      "path": "scripts/sync_package_assets.py",
+      "score": 47,
+      "symbol": "main"
+    },
+    {
+      "backend_candidates": [
+        "cpu"
+      ],
+      "blockers": [
+        "cold-cache variability",
+        "network filesystem",
+        "stale cache"
+      ],
+      "category": "filesystem-scan",
+      "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
+      "confidence": "medium",
+      "current_pattern": "repository or dataset filesystem walk",
+      "evidence_requirements": [
+        "I/O trace",
+        "filesystem-pass count",
+        "same-host latency and peak-memory baseline"
+      ],
+      "first_action": "reduce repeated passes, cache stable metadata, and stream results; GPU migration is usually unsuitable",
+      "library_candidates": [],
+      "line": 399,
+      "path": "tsao_computation/accelerators/audit.py",
+      "score": 47,
+      "symbol": "audit_repository_acceleration"
+    },
+    {
+      "backend_candidates": [
+        "cpu"
+      ],
+      "blockers": [
+        "cold-cache variability",
+        "network filesystem",
+        "stale cache"
+      ],
+      "category": "filesystem-scan",
+      "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
+      "confidence": "medium",
+      "current_pattern": "repository or dataset filesystem walk",
+      "evidence_requirements": [
+        "I/O trace",
+        "filesystem-pass count",
+        "same-host latency and peak-memory baseline"
+      ],
+      "first_action": "reduce repeated passes, cache stable metadata, and stream results; GPU migration is usually unsuitable",
+      "library_candidates": [],
+      "line": 301,
+      "path": "tsao_computation/repository_audit.py",
+      "score": 47,
+      "symbol": "audit_repository"
+    },
+    {
+      "backend_candidates": [
+        "cpu"
+      ],
+      "blockers": [
+        "cold-cache variability",
+        "network filesystem",
+        "stale cache"
+      ],
+      "category": "filesystem-scan",
+      "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
+      "confidence": "medium",
+      "current_pattern": "repository or dataset filesystem walk",
+      "evidence_requirements": [
+        "I/O trace",
+        "filesystem-pass count",
+        "same-host latency and peak-memory baseline"
+      ],
+      "first_action": "reduce repeated passes, cache stable metadata, and stream results; GPU migration is usually unsuitable",
+      "library_candidates": [],
+      "line": 20,
+      "path": "scripts/quality_check.py",
+      "score": 45,
+      "symbol": "main"
+    },
+    {
+      "backend_candidates": [
+        "cpu"
+      ],
+      "blockers": [
+        "cold-cache variability",
+        "network filesystem",
+        "stale cache"
+      ],
+      "category": "filesystem-scan",
+      "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
+      "confidence": "medium",
+      "current_pattern": "repository or dataset filesystem walk",
+      "evidence_requirements": [
+        "I/O trace",
+        "filesystem-pass count",
+        "same-host latency and peak-memory baseline"
+      ],
+      "first_action": "reduce repeated passes, cache stable metadata, and stream results; GPU migration is usually unsuitable",
+      "library_candidates": [],
+      "line": 14,
+      "path": "scripts/sync_package_assets.py",
+      "score": 45,
+      "symbol": "differing_files"
+    },
+    {
+      "backend_candidates": [
+        "cpu"
+      ],
+      "blockers": [
+        "cold-cache variability",
+        "network filesystem",
+        "stale cache"
+      ],
+      "category": "filesystem-scan",
+      "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
+      "confidence": "medium",
+      "current_pattern": "repository or dataset filesystem walk",
+      "evidence_requirements": [
+        "I/O trace",
+        "filesystem-pass count",
+        "same-host latency and peak-memory baseline"
+      ],
+      "first_action": "reduce repeated passes, cache stable metadata, and stream results; GPU migration is usually unsuitable",
+      "library_candidates": [],
+      "line": 21,
+      "path": "scripts/validate_schemas.py",
+      "score": 45,
+      "symbol": "main"
+    },
+    {
+      "backend_candidates": [
+        "cpu"
+      ],
+      "blockers": [
+        "cold-cache variability",
+        "network filesystem",
+        "stale cache"
+      ],
+      "category": "filesystem-scan",
+      "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
+      "confidence": "medium",
+      "current_pattern": "repository or dataset filesystem walk",
+      "evidence_requirements": [
+        "I/O trace",
+        "filesystem-pass count",
+        "same-host latency and peak-memory baseline"
+      ],
+      "first_action": "reduce repeated passes, cache stable metadata, and stream results; GPU migration is usually unsuitable",
+      "library_candidates": [],
+      "line": 169,
+      "path": "scripts/validate_skill_spec.py",
+      "score": 45,
+      "symbol": "validate_repository_skills"
+    },
+    {
+      "backend_candidates": [
+        "cpu"
+      ],
+      "blockers": [
+        "cold-cache variability",
+        "network filesystem",
+        "stale cache"
+      ],
+      "category": "filesystem-scan",
+      "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
+      "confidence": "medium",
+      "current_pattern": "repository or dataset filesystem walk",
+      "evidence_requirements": [
+        "I/O trace",
+        "filesystem-pass count",
+        "same-host latency and peak-memory baseline"
+      ],
+      "first_action": "reduce repeated passes, cache stable metadata, and stream results; GPU migration is usually unsuitable",
+      "library_candidates": [],
+      "line": 86,
+      "path": "scripts/verify_native_core.py",
+      "score": 45,
+      "symbol": "main"
+    },
+    {
+      "backend_candidates": [
+        "cpu"
+      ],
+      "blockers": [
+        "cold-cache variability",
+        "network filesystem",
+        "stale cache"
+      ],
+      "category": "filesystem-scan",
+      "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
+      "confidence": "medium",
+      "current_pattern": "repository or dataset filesystem walk",
+      "evidence_requirements": [
+        "I/O trace",
+        "filesystem-pass count",
+        "same-host latency and peak-memory baseline"
+      ],
+      "first_action": "reduce repeated passes, cache stable metadata, and stream results; GPU migration is usually unsuitable",
+      "library_candidates": [],
+      "line": 60,
+      "path": "scripts/verify_wheel.py",
+      "score": 45,
+      "symbol": "build_once"
+    }
+  ],
+  "opportunity_count": 28,
+  "parse_failures": [],
+  "python_files_analyzed": 97,
+  "python_files_excluded": 59,
+  "root": ".",
+  "source_files": 159,
+  "source_lines": 19291
+}

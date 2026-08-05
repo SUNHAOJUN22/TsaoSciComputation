@@ -8,22 +8,24 @@ hotspots behind stable native interfaces.
 
 ## Repository-wide audit conclusion
 
-The current `main` baseline contains 570 source and project files before this change:
+The repository now provides a deterministic executable audit instead of relying on stale prose counts.
 
-- 152 Python files with about 17,900 lines;
-- one C++ implementation, one C++ smoke test and one public C header;
-- no repository-owned CUDA kernel;
-- substantial JSON, YAML and Markdown registries, adapter metadata and evidence assets.
+```bash
+python -m tsao_computation audit-acceleration \
+  --root . --limit 50 --min-score 40 \
+  --output reports/ACCELERATION_OPPORTUNITIES_V2.json
+```
 
-Static analysis of every Python module found that repository-local work is dominated by file
-walking, JSON/YAML parsing, hashing, validation, subprocess planning and bounded workflow
-orchestration. Those operations are generally latency- and I/O-bound. Rewriting them in CUDA
-would add transfer, deployment and maintenance costs without a defensible speedup. The correct
-optimization targets are caching, streaming, bounded task parallelism, fewer filesystem passes
-and native interoperability.
+The audit inventories Python, C, C++, CUDA, Fortran, Rust and Julia files and lines, parses
+Python ASTs without importing or executing target modules, records file/line/symbol evidence,
+and ranks explicit dense, sparse, FFT, tensor, equivariant-ML, stochastic, solver-dispatch,
+filesystem and arithmetic-loop patterns. Its report is static evidence, not a profiler result.
 
-The expensive scientific numerics remain in external solvers. Their supported GPU, MPI,
-OpenMP, Kokkos or vendor-library paths should be preferred before creating a new kernel here.
+Repository-local work remains predominantly orchestration, validation, registries, hashing,
+I/O and bounded process planning. Those paths should first use caching, streaming, fewer
+filesystem passes and bounded task parallelism. Expensive scientific numerics should continue
+to prefer external solvers' supported GPU, MPI, OpenMP, Kokkos or vendor-library paths before
+a repository-owned kernel is created.
 
 ## Implemented native boundary
 
@@ -109,6 +111,7 @@ measured requirement and the maintenance tradeoff is accepted.
 - Runtime device inventory through the C ABI.
 - Python `ctypes` bridge and merged accelerator inventory.
 - CTest and pytest coverage with CPU-only fallback.
+- Deterministic AST-based repository acceleration audit with machine-readable ranking evidence.
 
 ### Phase 2 — packaging and interoperability
 

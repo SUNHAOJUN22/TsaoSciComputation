@@ -104,7 +104,9 @@ def test_audit_records_parse_failures_and_validates_limits(tmp_path: Path) -> No
         audit_repository_acceleration(tmp_path / "missing")
 
 
-def test_cli_writes_machine_readable_audit(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+def test_cli_writes_machine_readable_audit(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
     _write_fixture(tmp_path)
     output = tmp_path / "audit.json"
     assert (

@@ -22,10 +22,10 @@ to TsaoSciComputation README illustrations.
 ## Priority decisions
 
 1. Accessibility: high contrast, unique titles/descriptions and no color-only meaning.
-2. Progressive disclosure: the root READMEs surface 11 representative diagrams while the atlas retains all 42.
+2. Progressive disclosure: the root READMEs surface 12 representative diagrams while the atlas retains all 43.
 3. Performance: self-contained SVG, with no network resources, filters, raster images or external fonts.
 4. Style: technical editorial + Swiss grid + restrained Bento hierarchy.
-5. Responsive layout: the hero and eight detailed diagrams are full width; only two architecture overviews share a row.
+5. Responsive layout: the hero and nine detailed diagrams are full width; only two architecture overviews share a row.
 6. Typography: minimum 16 px, concise two-line stage copy and system font stacks.
 7. Icons: one consistent line-icon family; no emoji or decorative pseudo-data.
 

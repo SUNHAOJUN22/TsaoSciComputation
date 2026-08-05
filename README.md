@@ -65,7 +65,7 @@ Execution is fail-closed: the legacy low-level process API cannot execute; hardw
 </table>
 
 <!-- V13_VISUAL_SYSTEM:START -->
-The 42 self-contained SVGs use **Scientific Research Console V13**. The root README showcases 11 representative diagrams; the complete searchable inventory is in [`assets/visuals/README.md`](assets/visuals/README.md), with design rules in [`assets/visuals/DESIGN_SYSTEM.md`](assets/visuals/DESIGN_SYSTEM.md).
+The 43 self-contained SVGs use **Scientific Research Console V13**. The root README showcases 12 representative diagrams; the complete searchable inventory is in [`assets/visuals/README.md`](assets/visuals/README.md), with design rules in [`assets/visuals/DESIGN_SYSTEM.md`](assets/visuals/DESIGN_SYSTEM.md).
 <!-- V13_VISUAL_SYSTEM:END -->
 
 ## Multiscale scientific visual map
@@ -85,6 +85,21 @@ Python remains the control plane for contracts, routing, provenance and acceptan
 
 <img src="assets/visuals/hpc-execution-provenance.svg" alt="Bounded HPC execution and provenance" width="100%">
 <img src="assets/visuals/hpc-failure-recovery.svg" alt="HPC checkpointing and bounded recovery" width="100%">
+<img src="assets/visuals/acceleration-opportunity-pipeline.svg" alt="Evidence-bound repository acceleration opportunity audit" width="100%">
+
+### Executable repository source audit
+
+```bash
+python -m tsao_computation audit-acceleration \
+  --root . --limit 50 --min-score 40 \
+  --output reports/ACCELERATION_OPPORTUNITIES_V2.json
+```
+
+The audit inventories Python, C, C++, CUDA, Fortran, Rust and Julia source; parses Python without executing it; records file, line and symbol evidence; and ranks dense, sparse, FFT, tensor, equivariant-ML, stochastic, solver-dispatch, filesystem and arithmetic-loop candidates. It recommends profiling, CPU/vectorized baselines, C++20/OpenMP, solver-native acceleration or CUDA-X candidates without claiming measured speedup.
+
+<!-- ACCELERATION_AUDIT_SUMMARY:START -->
+Current report: **159 source files**, **97 Python files analyzed**, **3 native-language files**, and **28 ranked candidates**. These are static migration candidates, not measured speedups.
+<!-- ACCELERATION_AUDIT_SUMMARY:END -->
 
 Architecture, CUDA-X selection rules and C++ migration gates: [`docs/accelerated-native-backend.md`](docs/accelerated-native-backend.md). Native verification: `python scripts/verify_native_core.py`.
 
@@ -124,16 +139,17 @@ This baseline remains the canonical cross-platform evidence recorded in [Issue #
 
 ### Latest main-only README and native verification
 
-The current documentation and native-interoperability layer was revalidated on `2026-08-05` before direct publication to `main`.
+The current main tree, source audit and native-interoperability layer were revalidated on `2026-08-05` by GitHub Actions run `30981066673` before direct publication to `main`.
 
 | Latest gate | Result |
 |---|---:|
-| Tests | 781 passed, 0 failed |
-| Total coverage | 95.61% (required: 95.00%) |
+| Tests | 785 passed, 0 failed |
+| Total coverage | 95.26% (required: 95.00%) |
 | Ruff / Mypy / Bandit / repository security scan | PASS |
 | Controlled mutation probes / scientific benchmarks | 64/64 killed / 8/8 passed |
 | Reproducible source archives / Wheel isolated install | PASS / PASS |
 | C++20 C ABI build / CTest / Python bridge | PASS / 1 of 1 / PASS |
+| Scientific visual assets | 43 self-contained SVGs / 12 featured |
 | Remote branches | `main` only |
 
 ## Performance evidence
