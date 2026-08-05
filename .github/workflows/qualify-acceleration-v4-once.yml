@@ -34,8 +34,8 @@ jobs:
         shell: bash
         run: |
           set -Eeuo pipefail
-          test "$(find .github/payloads/acceleration-v4 -maxdepth 1 -type f -name 'part-*' | wc -l)" -eq 16
-          cat .github/payloads/acceleration-v4/part-* | tr -d '\n\r' > /tmp/acceleration-v4.tar.gz.b64
+          test "$(find .github/payloads/acceleration-v4 -maxdepth 1 -type f -name 'big-*' | wc -l)" -eq 8
+          cat .github/payloads/acceleration-v4/big-* | tr -d '\n\r' > /tmp/acceleration-v4.tar.gz.b64
           python - <<'PY'
           import base64
           import hashlib
