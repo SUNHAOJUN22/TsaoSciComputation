@@ -62,6 +62,22 @@ def build_parser() -> argparse.ArgumentParser:
         type=Path,
         help="JSON resource request; omitted means the conservative default request",
     )
+    solver_source = planning.add_mutually_exclusive_group()
+    solver_source.add_argument(
+        "--solver-evidence",
+        type=Path,
+        help="V5 solver capability evidence JSON to bind into the plan identity",
+    )
+    solver_source.add_argument(
+        "--probe-solver",
+        action="store_true",
+        help="run the registry-bounded read-only solver probe before planning",
+    )
+    planning.add_argument(
+        "--require-solver-evidence",
+        action="store_true",
+        help="fail closed unless complete version-probed solver evidence is bound",
+    )
 
     advice = subparsers.add_parser(
         "recommend-acceleration",
@@ -197,10 +213,23 @@ def main(argv: list[str] | None = None) -> int:
                 ]
             )
         elif args.command == "plan-acceleration":
-            from .accelerators import plan_acceleration
+            from .accelerators import load_solver_capability_evidence, plan_acceleration
 
             resources = None if args.resources is None else _read_mapping(args.resources)
-            _json(plan_acceleration(args.adapter, resources).to_dict())
+            evidence = (
+                None
+                if args.solver_evidence is None
+                else load_solver_capability_evidence(args.solver_evidence)
+            )
+            _json(
+                plan_acceleration(
+                    args.adapter,
+                    resources,
+                    solver_evidence=evidence,
+                    probe_solver=args.probe_solver,
+                    require_solver_evidence=args.require_solver_evidence,
+                ).to_dict()
+            )
         elif args.command == "recommend-acceleration":
             from .orchestration import recommend_acceleration
 

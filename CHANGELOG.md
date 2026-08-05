@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Added Solver-Bound Acceleration Plans V6: acceleration plan hashes now bind adapter-matched executable, binary, version-output and solver-evidence identities; strict evidence mode fails closed while preserving `external-hold` and `evidence-bound-unqualified` scientific boundaries.
 - Added Solver Capability Evidence V5 with registry-bounded executable fingerprints, safe read-only version/help probes, Python-module completeness, bounded output hashes and a machine-readable CLI/schema.
 - Added resource-aware batch admission control for CPU cores, exclusive GPU bindings and named solver-license tokens, with deterministic capacity and claim hashes.
 - Added Acceleration Qualification V4: production/full-tree source audits, stable candidate and source hashes, candidate/detected/qualified library states, inventory/profile/plan hashes, and a dependency-free runtime workload profiler.

@@ -99,6 +99,9 @@ python -m tsao_computation profile-performance \
   --repeats 7 --warmups 1 --output .tsao-computation/performance-profile.json
 python -m tsao_computation probe-solver gromacs \
   --output .tsao-computation/gromacs-capability-evidence.json
+python -m tsao_computation plan-acceleration gromacs \
+  --solver-evidence .tsao-computation/gromacs-capability-evidence.json \
+  --require-solver-evidence
 ```
 
 The production audit excludes tests, repository tooling and benchmark fixtures from migration decisions; the full-tree audit remains available for diagnostics. Every candidate is bound to a source hash and stable candidate ID and remains `unprofiled` until runtime evidence exists. Acceleration plans now separate candidate, detected and qualified libraries and bind request, inventory, adapter-profile and plan hashes.
@@ -110,6 +113,8 @@ V5 reports inventory **169 source files** and **3 native-language files**. The p
 The batch execution layer now accepts immutable per-plan CPU, GPU and license-token claims plus a host capacity envelope. A condition-based resource broker prevents CPU oversubscription, exclusive-GPU collisions and license over-allocation, while binding the allocation hashes into the batch result.
 
 V5 adds registry-bounded solver capability evidence. `probe-solver` fingerprints the exact resolved executable, records its byte size and SHA-256, checks declared Python modules, and may run only a fixed bounded shell-free version/help argument set. Version output is bounded and hash-bound. The strongest automatic status is `version-probed-unqualified`; numerical equivalence, backend support, speedup, convergence and licensing remain separate qualification gates.
+
+V6 binds that evidence into `acceleration_plan_sha256`. Solver path, binary SHA-256, version-output SHA-256 and evidence SHA-256 therefore change the plan identity. Missing or incomplete solver evidence remains `external-hold`; a complete fingerprint is only `evidence-bound-unqualified`. `--require-solver-evidence` fails closed and still does not claim live numerical correctness, GPU use, performance, convergence or license availability.
 
 Architecture, CUDA-X selection rules and C++ migration gates: [`docs/accelerated-native-backend.md`](docs/accelerated-native-backend.md). Native verification: `python scripts/verify_native_core.py`.
 

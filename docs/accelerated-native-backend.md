@@ -85,6 +85,12 @@ The resulting statuses are deliberately limited to `candidate-only`, `detected-i
 as scientifically qualified. A real qualification must still bind the method, input, backend,
 precision, device allocation, numerical comparison, convergence and end-to-end performance.
 
+## V6 solver-bound plan identity
+
+A plan may consume a V5 evidence JSON with `--solver-evidence`, or explicitly request the same registry-bounded read-only probe with `--probe-solver`. The two sources are mutually exclusive. The plan identity now includes the solver executable path, binary SHA-256, version-output SHA-256, evidence SHA-256, detection state and strict-evidence policy. Evidence must match the adapter slug and its own content hash.
+
+Without applicable evidence, execution qualification remains `external-hold`. A detected, module-complete and version-probed fingerprint becomes `evidence-bound-unqualified`; this is an identity and preflight result, not an execution result. `--require-solver-evidence` rejects missing, mismatched, undetected or incomplete evidence. GPU availability, solver licensing, method/input equivalence, convergence and transfer-inclusive performance remain external qualification gates.
+
 ## Implemented native boundary
 
 The source-only `native/` library now provides a versioned C ABI that:

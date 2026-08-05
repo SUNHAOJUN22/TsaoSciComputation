@@ -27,7 +27,12 @@ from .model import (
 from .native import NativeProbeResult, probe_native_core
 from .planner import AccelerationPlan, acceleration_plan, plan_acceleration
 from .probe import probe_accelerators, probe_hardware
-from .solver import SolverCapabilityEvidence, fingerprint_solver, probe_solver_capability
+from .solver import (
+    SolverCapabilityEvidence,
+    fingerprint_solver,
+    load_solver_capability_evidence,
+    probe_solver_capability,
+)
 
 __all__ = [
     "AccelerationLibrary",
@@ -53,6 +58,7 @@ __all__ = [
     "fingerprint_solver",
     "get_acceleration_library",
     "library_catalog",
+    "load_solver_capability_evidence",
     "plan_acceleration",
     "probe_accelerators",
     "probe_hardware",
