@@ -48,13 +48,13 @@ jobs:
           test "$(git hash-object README.md)" = e1493380b796b561df8dd47f10c0b02e950bd310
           test "$(git hash-object README.zh-CN.md)" = 618d2f1e5f3013d83bfa7c80f1d4109f6bfaf227
           test "$(git hash-object CHANGELOG.md)" = 1503003a2a5a11fabb23857916f662dda9fa536c
+          test "$(git hash-object .github/qualification-payload/resource-broker/apply.py)" = 17417d3905ee3f5c4b398ee8e2534f4bdfe2a419
           sha256sum -c <<'EOF'
           78b8bd4dc7f89179299f67fd5976850af6f4779baae76b7aa23f1d57631c1c28  .github/qualification-payload/resource-broker/resource_binding_replacement.txt
           580a75cd540c629b626925e0c7b190b1a6876220ddec66c03c626aebf0cd6784  .github/qualification-payload/resource-broker/test_acceleration_batch_append.txt
           75474398a26870093644ba45a424aa8e143b464aa8206c02fb51af04ff8747f6  .github/qualification-payload/resource-broker/build_resource_broker_evidence.py
           49c0c1bfa1e97b87bee2a511cbd1771ac3f037cbb9e97af5c8216dd71a56c48d  .github/qualification-payload/resource-broker/resource-broker-gpu-binding-evidence.schema.json
           28755a938fa3f53cd412c4e52c2f5b90d192e8036f20b74b81e4d411b0321997  .github/qualification-payload/resource-broker/test_resource_broker_evidence.py
-          5f67614900a42d3d96b465be37dec442235af1010353244c6c70ee613469237f  .github/qualification-payload/resource-broker/apply.py
           EOF
           python .github/qualification-payload/resource-broker/apply.py
           test ! -e .github/qualification-payload/resource-broker
