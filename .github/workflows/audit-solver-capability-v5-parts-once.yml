@@ -1,0 +1,70 @@
+name: Audit solver capability V5 parts once
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: write
+  issues: write
+
+env:
+  GH_TOKEN: ${{ github.token }}
+
+jobs:
+  audit:
+    if: >-
+      github.event.issue.title == 'AUDIT_SOLVER_CAPABILITY_V5_PARTS_20260805' &&
+      github.event.issue.user.login == github.repository_owner
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+      - name: Compute historical payload identities
+        run: |
+          python - <<'PY' > /tmp/audit.json
+          import hashlib
+          import json
+          import subprocess
+
+          sources = [
+              ('9c2edcc3ddf742fbd9ee0575ff39a46aa57f4abd', '.github/payloads/solver-capability-v5/part-00'),
+              ('be62e18fdcbaed85d70c2dd08987eb17d462b661', '.github/payloads/solver-capability-v5/part-01'),
+              ('a131ab8f461e92fef277ca919e12aad01d78eb23', '.github/payloads/solver-capability-v5-retry/part-02'),
+              ('89159694b307c316e86d017911f5de1653dd47ae', '.github/payloads/solver-capability-v5/part-03'),
+              ('c442cdf4356ca38346f48c6366d8b8bb6f81a5df', '.github/payloads/solver-capability-v5/part-04'),
+              ('08526d20be74140a14748d11dafa94d8a1599aa1', '.github/payloads/solver-capability-v5/part-05'),
+              ('01421c0bb1900fedaddc8bf2278d93379faf660c', '.github/payloads/solver-capability-v5/part-06'),
+              ('99db53c7e919a1acf43fbc7c6ca3d3385eedb9b3', '.github/payloads/solver-capability-v5/part-07'),
+              ('64b7c6a98b01b139701ea60d57c9a1769e6bed6b', '.github/payloads/solver-capability-v5/part-08'),
+          ]
+          expected = [
+              '37a113145283f0bc0d4303abad0c94e44dabbda260eef7060d750f57fda7a908',
+              'e7fab9c090f586b6b0415fb6450405cdb8f1345df283dcd45cbf07355313d16a',
+              'a58dea7d29a1ae91fdd46293d8a9a7ef99a1bab8f0ee6eb842b51eb78e4657c3',
+              '0afdf2dc332e105267b2f6be1563d417da42b33d56ec1f657c06c730611590af',
+              '008d13816a8232fb43acdee9eaca709bd7077f993add9b8a7cda459ed34317fc',
+              '997734842c96255de54f4262b711f219e8b866106c2c20d4e6a6d6f48a28851b',
+              '8c5fb7bf42a0d24662b8882b453c0703cc63ffb5a7e6ce724da352345b3b92d8',
+              '8d219ac91d9638ae2b768229e1b345b549c3ef920d6ae22b3bd295230cafbbf5',
+              '56df68f8c3621b6030751e56f7af04840bd46afaaa12716128e49dd10bc7c3f1',
+          ]
+          rows = []
+          for index, ((commit, path), target) in enumerate(zip(sources, expected, strict=True)):
+              data = subprocess.check_output(('git', 'show', f'{commit}:{path}')).replace(b'\n', b'').replace(b'\r', b'')
+              observed = hashlib.sha256(data).hexdigest()
+              rows.append({'index': index, 'bytes': len(data), 'expected': target, 'observed': observed, 'match': observed == target})
+          print(json.dumps({'parts': rows}, indent=2, sort_keys=True))
+          PY
+          gh issue comment "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --body-file /tmp/audit.json
+      - name: Remove one-time audit workflow
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git rm .github/workflows/audit-solver-capability-v5-parts-once.yml
+          git commit -m 'Remove one-time V5 payload audit workflow [skip ci]'
+          git push origin HEAD:refs/heads/main
+          gh issue close "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --reason completed
