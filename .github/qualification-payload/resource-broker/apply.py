@@ -28,6 +28,47 @@ resources_path.write_text(
 
 batch_path = ROOT / "tests" / "test_acceleration_batch.py"
 batch = batch_path.read_text(encoding="utf-8")
+old_license_fixture = """            resource_claims=[ExecutionResourceClaim(license_tokens=((\"solver\", 2),))],
+            resource_capacity=ExecutionResourceCapacity(
+                cpu_cores=1,
+                license_tokens=((\"solver\", 1),),
+            ),
+"""
+new_license_fixture = """            resource_claims=[
+                ExecutionResourceClaim(
+                    gpu_devices=(0,),
+                    license_tokens=((\"solver\", 2),),
+                )
+            ],
+            resource_capacity=ExecutionResourceCapacity(
+                cpu_cores=1,
+                gpu_devices=(0,),
+                license_tokens=((\"solver\", 1),),
+            ),
+"""
+batch = replace_once(
+    batch,
+    old_license_fixture,
+    new_license_fixture,
+    "license-capacity test fixture",
+)
+old_cpu_fixture = """            resource_claims=[ExecutionResourceClaim(cpu_cores=2)],
+            resource_capacity=ExecutionResourceCapacity(cpu_cores=1),
+"""
+new_cpu_fixture = """            resource_claims=[
+                ExecutionResourceClaim(cpu_cores=2, gpu_devices=(1,))
+            ],
+            resource_capacity=ExecutionResourceCapacity(
+                cpu_cores=1,
+                gpu_devices=(1,),
+            ),
+"""
+batch = replace_once(
+    batch,
+    old_cpu_fixture,
+    new_cpu_fixture,
+    "CPU-capacity test fixture",
+)
 marker = "def test_resource_binding_rejects_unclaimed_visible_gpu()"
 if marker in batch:
     raise SystemExit("resource binding hardening tests already exist")
