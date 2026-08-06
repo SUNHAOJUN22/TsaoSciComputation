@@ -1,8 +1,10 @@
 name: Qualify README delivery once
 
 on:
-  issue_comment:
-    types: [created]
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/qualify-readme-delivery-once.yml
 
 permissions:
   contents: write
@@ -11,14 +13,10 @@ permissions:
 env:
   GH_TOKEN: ${{ github.token }}
   PIP_DISABLE_PIP_VERSION_CHECK: '1'
+  ISSUE_NUMBER: '158'
 
 jobs:
   qualify:
-    if: >-
-      github.event.issue.title == 'QUALIFY_README_DELIVERY_20260806' &&
-      github.event.issue.user.login == github.repository_owner &&
-      github.event.comment.user.login == github.repository_owner &&
-      github.event.comment.body == 'RUN_README_DELIVERY_20260806'
     runs-on: ubuntu-24.04
     timeout-minutes: 90
     steps:
@@ -39,18 +37,24 @@ jobs:
 
       - name: Reassemble SHA-locked delivery bundle
         shell: bash
-        env:
-          ISSUE_NUMBER: ${{ github.event.issue.number }}
         run: |
           set -Eeuo pipefail
           gh api --paginate "repos/$GITHUB_REPOSITORY/issues/$ISSUE_NUMBER/comments?per_page=100" --slurp > "$RUNNER_TEMP/comment-pages.json"
           python - <<'PY'
-          import base64, hashlib, json, os, re
+          import base64
+          import hashlib
+          import json
+          import os
+          import re
           from pathlib import Path
+
           temp = Path(os.environ['RUNNER_TEMP'])
           pages = json.loads((temp / 'comment-pages.json').read_text(encoding='utf-8'))
           texts = [item.get('body') or '' for page in pages for item in page]
-          pattern = re.compile(r"README_DELIVERY_V2_PART_(\d{2})\n([A-Za-z0-9+/=\n]+?)\nEND_README_DELIVERY_V2_PART_\1", re.MULTILINE)
+          pattern = re.compile(
+              r"README_DELIVERY_V2_PART_(\d{2})\n([A-Za-z0-9+/=\n]+?)\nEND_README_DELIVERY_V2_PART_\1",
+              re.MULTILINE,
+          )
           parts = {}
           for text in texts:
               for raw_index, payload in pattern.findall(text):
@@ -114,10 +118,10 @@ jobs:
         if: success()
         shell: bash
         run: |
-          gh issue comment "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --body "README delivery qualification passed and published to main at $PRODUCT_COMMIT. Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
-          gh issue close "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --comment "Completed without branch, pull request or force push. External solver qualification remains EXTERNAL_HOLD."
+          gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body "README delivery qualification passed and published to main at $PRODUCT_COMMIT. Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          gh issue close "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --comment "Completed without branch, pull request or force push. External solver qualification remains EXTERNAL_HOLD."
 
       - name: Record failure
         if: failure()
         shell: bash
-        run: gh issue comment "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --body "README delivery qualification failed; no product commit was published. Inspect: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+        run: gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body "README delivery qualification failed; no product commit was published. Inspect: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
