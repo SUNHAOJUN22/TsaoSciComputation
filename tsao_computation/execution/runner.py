@@ -32,9 +32,7 @@ def _resolve_executable(argv0: str, cwd: Path, *, search_path: str) -> Path:
     if not isinstance(argv0, str) or not argv0 or "\x00" in argv0:
         raise SecurityError("command plan executable must be a non-empty string")
     candidate = Path(argv0).expanduser()
-    explicit_relative = candidate.parent != Path(".") or argv0.startswith(
-        (f".{os.sep}", f"..{os.sep}")
-    )
+    explicit_relative = candidate.parent != Path(".") or "/" in argv0 or "\\" in argv0
     found: str | None
     if candidate.is_absolute():
         found = str(candidate)
