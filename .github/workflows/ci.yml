@@ -12,7 +12,7 @@ permissions:
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 env:
   PIP_DISABLE_PIP_VERSION_CHECK: '1'
@@ -126,3 +126,157 @@ jobs:
           else
             echo 'V9 performance evidence has not been finalized yet.'
           fi
+
+  finalize-cross-platform-path:
+    if: >-
+      github.event_name == 'push' &&
+      github.event.head_commit.message == 'Trigger cross-platform path qualification'
+    permissions:
+      contents: write
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - name: Check out staged main
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+      - name: Verify staging scope
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          product_base=697ddd126ea7aaaf2562bbf10e3384f98bd6d98f
+          cat > "$RUNNER_TEMP/expected-staging.txt" <<'EOF'
+          .github/workflows/ci.yml
+          .github/workflows/qualify-cross-platform-path-once.yml
+          EOF
+          git diff --name-only "$product_base" HEAD | sort > "$RUNNER_TEMP/observed-staging.txt"
+          diff -u "$RUNNER_TEMP/expected-staging.txt" "$RUNNER_TEMP/observed-staging.txt"
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+          cache: pip
+      - run: python -m pip install -e '.[validation,quality,security]'
+      - name: Restore permanent CI and apply code hardening
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          product_base=697ddd126ea7aaaf2562bbf10e3384f98bd6d98f
+          git show "$product_base:.github/workflows/ci.yml" > .github/workflows/ci.yml
+          rm .github/workflows/qualify-cross-platform-path-once.yml
+          python - <<'PY'
+          from pathlib import Path
+
+          runner = Path("tsao_computation/execution/runner.py")
+          text = runner.read_text(encoding="utf-8")
+          old = '''    explicit_relative = candidate.parent != Path(".") or argv0.startswith(
+              (f".{os.sep}", f"..{os.sep}")
+          )
+          '''
+          new = '''    explicit_relative = (
+              candidate.parent != Path(".") or "/" in argv0 or "\\\\" in argv0
+          )
+          '''
+          if text.count(old) != 1:
+              raise SystemExit(f"runner anchor mismatch: {text.count(old)}")
+          runner.write_text(text.replace(old, new), encoding="utf-8", newline="\n")
+
+          tests = Path("tests/test_execution_evidence_hardening.py")
+          text = tests.read_text(encoding="utf-8")
+          if text.count("import os\n") != 1:
+              raise SystemExit("test import anchor mismatch")
+          text = text.replace("import os\n", "")
+          old = '''def test_dot_relative_executable_never_falls_back_to_path(
+              tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+          ) -> None:
+              path_bin = tmp_path / "path-bin"
+              _executable(path_bin / "solver")
+              work = tmp_path / "work"
+              work.mkdir()
+              monkeypatch.setenv("PATH", str(path_bin))
+              plan = CommandPlan((f".{os.sep}solver",), work, {}, "explicit relative path")
+
+              with pytest.raises(SecurityError, match="executable is unavailable"):
+                  authorize_plan(
+                      plan,
+                      authorized_by="pytest",
+                      purpose="reject PATH substitution",
+                      explicit_authorization=True,
+                  )
+          '''
+          new = '''@pytest.mark.parametrize("argv0", ("./solver", ".\\\\solver"))
+          def test_dot_relative_executable_never_falls_back_to_path(
+              tmp_path: Path, monkeypatch: pytest.MonkeyPatch, argv0: str
+          ) -> None:
+              work = tmp_path / "work"
+              work.mkdir()
+
+              def forbidden_which(_command: str, *, path: str | None = None) -> str | None:
+                  raise AssertionError(f"explicit path unexpectedly reached PATH lookup: {path}")
+
+              monkeypatch.setattr(execution_runner.shutil, "which", forbidden_which)
+              plan = CommandPlan((argv0,), work, {"PATH": str(tmp_path)}, "explicit relative path")
+
+              with pytest.raises(SecurityError, match="executable is unavailable"):
+                  authorize_plan(
+                      plan,
+                      authorized_by="pytest",
+                      purpose="reject PATH substitution",
+                      explicit_authorization=True,
+                  )
+          '''
+          if text.count(old) != 1:
+              raise SystemExit(f"test anchor mismatch: {text.count(old)}")
+          tests.write_text(text.replace(old, new), encoding="utf-8", newline="\n")
+
+          for name in ("README.md", "README.zh-CN.md"):
+              path = Path(name)
+              text = path.read_text(encoding="utf-8")
+              if text.count("845") != 2:
+                  raise SystemExit(f"{name} test-count anchor mismatch: {text.count('845')}")
+              path.write_text(text.replace("845", "846"), encoding="utf-8", newline="\n")
+
+          changelog = Path("CHANGELOG.md")
+          text = changelog.read_text(encoding="utf-8")
+          anchor = "## Unreleased\n\n"
+          bullet = (
+              "- Hardened cross-platform explicit-relative executable detection so both Unix- and "
+              "Windows-style separators bind to `CommandPlan.cwd` and cannot fall back to PATH lookup.\n"
+          )
+          if text.count(anchor) != 1 or bullet in text:
+              raise SystemExit("CHANGELOG anchor mismatch")
+          changelog.write_text(text.replace(anchor, anchor + bullet, 1), encoding="utf-8", newline="\n")
+          PY
+          python -m ruff format tsao_computation scripts tests _bootstrap.py
+          python scripts/build_manifest.py
+          git diff --check
+      - name: Run complete qualification
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python scripts/verify_all.py --profile all
+          python scripts/verify_native_core.py
+          python scripts/verify_all.py --profile benchmark
+      - name: Publish exact product tree
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          product_base=697ddd126ea7aaaf2562bbf10e3384f98bd6d98f
+          cat > "$RUNNER_TEMP/expected-files.txt" <<'EOF'
+          CHANGELOG.md
+          README.md
+          README.zh-CN.md
+          manifest.json
+          tests/test_execution_evidence_hardening.py
+          tsao_computation/execution/runner.py
+          EOF
+          git add -A
+          git diff --cached --check
+          git diff --cached --name-only "$product_base" | sort > "$RUNNER_TEMP/observed-files.txt"
+          diff -u "$RUNNER_TEMP/expected-files.txt" "$RUNNER_TEMP/observed-files.txt"
+          python scripts/build_manifest.py --check
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git commit -m "Harden cross-platform explicit executable paths"
+          git push origin HEAD:main
