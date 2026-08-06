@@ -6,7 +6,7 @@ This directory contains the complete visual atlas for TsaoSciComputation. The ro
 
 - Every asset is a self-contained SVG with an accessible `<title>` and `<desc>`.
 - Assets use no external fonts, scripts, raster images, network resources, event handlers or tracking elements.
-- Diagrams explain architecture and scientific boundaries; they are not solver screenshots or claims of live third-party execution.
+- Diagrams explain architecture, mathematics, qualification and scientific boundaries; they are not solver screenshots or claims of live third-party execution.
 - Text labels remain consistent with registries, workflows and machine-readable evidence.
 - Relative paths keep visuals available in repository clones and source archives.
 
@@ -35,15 +35,15 @@ See [`DESIGN_SYSTEM.md`](DESIGN_SYSTEM.md) for the complete specification.
 - `polymer-process.svg` — polymer-to-process multiscale transfer
 - `mesoscale-phase-field.svg` — coarse-graining, phase evolution and morphology evidence
 - `continuum-multiphysics.svg` — CFD, FEM, heat, mechanics and field coupling
-- `process-optimization-uq.svg` — flowsheet optimization, sensitivity, UQ and reviewed decisions
-- `uncertainty-sensitivity.svg` — uncertainty propagation, sensitivity ranking and decision limits
+- `process-optimization-uq.svg` — reproducible build, evidence and delivery chain
+- `uncertainty-sensitivity.svg` — correctness-first external execution qualification ladder
 - `electrochemical-interface.svg` — electrode/electrolyte interfaces, transport and observables
 - `spectroscopy-observables.svg` — state models, simulated spectra and evidence-based assignment
 - `transport-degradation.svg` — coupled charge, heat, species transport and lifetime evidence
 - `inverse-design-loop.svg` — constrained inverse design and multi-objective Pareto validation
 - `data-model-governance.svg` — data lineage, model versioning and release governance
 - `reactor-safety-control.svg` — reactor digital twin, control and independent protection layers
-- `hpc-execution-provenance.svg` — bounded execution, scheduler boundaries and provenance
+- `hpc-execution-provenance.svg` — resource admission barriers, allocation policy and escalation
 - `engine-ecosystem.svg` — external solver adapter ecosystem
 - `evidence-loop.svg` — fail-closed scientific acceptance loop
 - `confidence-ladder.svg` — C0–C5 confidence model
@@ -66,6 +66,6 @@ See [`DESIGN_SYSTEM.md`](DESIGN_SYSTEM.md) for the complete specification.
 - `reactor-scaleup-thermal-risk.svg` — reactor residence time, heat removal, runaway and scale-up
 - `dynamic-control-estimation.svg` — dynamic control, disturbances, state estimation and safety boundaries
 - `hpc-failure-recovery.svg` — checkpoints, failure classification and bounded recovery
-- `acceleration-opportunity-pipeline.svg` — source inventory, AST evidence, candidate ranking and qualification gates
+- `acceleration-opportunity-pipeline.svg` — fail-closed solver evidence state machine
 
-Run `python -m pytest tests/test_readme_visuals.py -q` to validate the asset inventory, design metadata and compact bilingual README references.
+Run `python -m pytest tests/test_readme_visuals.py -q` to validate the asset inventory, design metadata and bilingual README references.
