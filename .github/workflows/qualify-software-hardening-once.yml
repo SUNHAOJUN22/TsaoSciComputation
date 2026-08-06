@@ -37,7 +37,7 @@ jobs:
           workflow=.github/workflows/qualify-software-hardening-once.yml
           test "$(git diff --name-only "$base" HEAD)" = "$workflow"
 
-      - name: Reassemble and apply SHA-locked patch
+      - name: Reassemble and apply SHA-locked patch V2
         shell: bash
         env:
           ISSUE_NUMBER: ${{ github.event.issue.number }}
@@ -61,7 +61,7 @@ jobs:
           comments = json.loads((temp / "comments.json").read_text(encoding="utf-8"))
           texts = [issue.get("body") or "", *(item.get("body") or "" for item in comments)]
           pattern = re.compile(
-              r"PATCH_PART_(\d{2})\n([A-Za-z0-9+/=\n]+?)\nEND_PATCH_PART_\1",
+              r"PATCH_V2_PART_(\d{2})\n([A-Za-z0-9+/=\n]+?)\nEND_PATCH_V2_PART_\1",
               re.MULTILINE,
           )
           parts: dict[int, str] = {}
@@ -69,34 +69,38 @@ jobs:
               for raw_index, payload in pattern.findall(text):
                   index = int(raw_index)
                   if index in parts:
-                      raise SystemExit(f"duplicate patch part: {index:02d}")
+                      raise SystemExit(f"duplicate V2 patch part: {index:02d}")
                   parts[index] = "".join(payload.split())
           if sorted(parts) != [0, 1, 2]:
-              raise SystemExit(f"patch part set mismatch: {sorted(parts)}")
+              raise SystemExit(f"V2 patch part set mismatch: {sorted(parts)}")
           expected = {
-              0: "0aff7ec64e23b2f0cf08cd9f90a4e0c35f3f2d9a0b8fcddb73805154f9dc9c98",
-              1: "31f1610099cda06ed367cf87e6c5331284cee12f8d2ff8d6dd78739397c759c7",
-              2: "3766ad21abde782f8f91a4e96332ce22e861bff977c0f1e495a7b45a8e2f8b8a",
+              0: "c6b323dc3c154a3f3b0f9b25914afefe200a2f0afe83c500191712652d0bbc0e",
+              1: "35fd84a85ca50499e48e69661c9c723f40ba4fabe5727686f7ad36d8110a47a4",
+              2: "50fa21d5ea05dbd5a6f74d30f3105724b44e6445107a4aa92932cde6ddf7db8f",
           }
           for index, part in parts.items():
               observed = hashlib.sha256(part.encode("ascii")).hexdigest()
               if observed != expected[index]:
-                  raise SystemExit(f"patch part SHA-256 mismatch: {index:02d}")
+                  raise SystemExit(f"V2 patch part SHA-256 mismatch: {index:02d}")
           encoded = "".join(parts[index] for index in (0, 1, 2))
           if hashlib.sha256(encoded.encode("ascii")).hexdigest() != (
-              "026792d41ceca6bd16799eda4053fea364fdf85d2c9d51ae22fcd15919766cd0"
+              "a63ec76f24f35d9af74a3e583d62b7044318de5fec7cc9c3df1ad270678e9e11"
           ):
-              raise SystemExit("encoded patch SHA-256 mismatch")
+              raise SystemExit("encoded V2 patch SHA-256 mismatch")
           compressed = base64.b64decode(encoded, validate=True)
           if hashlib.sha256(compressed).hexdigest() != (
-              "f3fa2b789d71ecabeafa7afcfc1496aacc5043f19b92054dec0b3ae2208b19ba"
+              "5f0da580f13a564a3d0427df41532f9b5f4ccdbad2e201ad03336630178717b7"
           ):
-              raise SystemExit("compressed patch SHA-256 mismatch")
+              raise SystemExit("compressed V2 patch SHA-256 mismatch")
           patch = gzip.decompress(compressed)
-          (temp / "software-hardening.patch").write_bytes(patch)
+          if hashlib.sha256(patch).hexdigest() != (
+              "7db96051668bfc8533a3d18a443644153d1585bb9ea4302d1a5d03b62543d2f3"
+          ):
+              raise SystemExit("uncompressed V2 patch SHA-256 mismatch")
+          (temp / "software-hardening-v2.patch").write_bytes(patch)
           PY
-          git apply --check "$RUNNER_TEMP/software-hardening.patch"
-          git apply "$RUNNER_TEMP/software-hardening.patch"
+          git apply --check "$RUNNER_TEMP/software-hardening-v2.patch"
+          git apply "$RUNNER_TEMP/software-hardening-v2.patch"
           rm .github/workflows/qualify-software-hardening-once.yml
 
       - name: Set up Python
@@ -144,12 +148,10 @@ jobs:
           tsao_computation/accelerators/solver.py
           tsao_computation/execution/runner.py
           EOF
-          git diff --check
-          git diff --name-only "$base" | sort > "$RUNNER_TEMP/observed-files.txt"
-          diff -u "$RUNNER_TEMP/expected-files.txt" "$RUNNER_TEMP/observed-files.txt"
           git add -A
-          git diff --cached --name-only "$base" | sort > "$RUNNER_TEMP/staged-files.txt"
-          diff -u "$RUNNER_TEMP/expected-files.txt" "$RUNNER_TEMP/staged-files.txt"
+          git diff --cached --check
+          git diff --cached --name-only "$base" | sort > "$RUNNER_TEMP/observed-files.txt"
+          diff -u "$RUNNER_TEMP/expected-files.txt" "$RUNNER_TEMP/observed-files.txt"
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git commit -m "Harden execution evidence and deterministic tests"
