@@ -1,10 +1,8 @@
 name: Qualify cross-platform explicit path once
 
 on:
-  issues:
-    types: [edited]
-  schedule:
-    - cron: '*/5 * * * *'
+  issue_comment:
+    types: [created]
 
 permissions:
   contents: write
@@ -23,11 +21,10 @@ concurrency:
 jobs:
   qualify:
     if: >-
-      github.event_name == 'schedule' ||
-      (github.event_name == 'issues' &&
-       github.event.issue.number == 159 &&
-       github.event.issue.user.login == github.repository_owner &&
-       contains(github.event.issue.body, 'RUN_CROSS_PLATFORM_PATH_20260807'))
+      github.event.issue.number == 159 &&
+      github.event.issue.user.login == github.repository_owner &&
+      github.event.comment.user.login == github.repository_owner &&
+      github.event.comment.body == 'RUN_CROSS_PLATFORM_PATH_20260807'
     runs-on: ubuntu-24.04
     timeout-minutes: 90
     steps:
@@ -64,65 +61,48 @@ jobs:
 
           runner = Path("tsao_computation/execution/runner.py")
           text = runner.read_text(encoding="utf-8")
-          old = '''    explicit_relative = candidate.parent != Path(".") or argv0.startswith(
-              (f".{os.sep}", f"..{os.sep}")
+          old = (
+              '    explicit_relative = candidate.parent != Path(".") or argv0.startswith(\n'
+              '        (f".{os.sep}", f"..{os.sep}")\n'
+              '    )\n'
           )
-          '''
-          new = '''    explicit_relative = (
-              candidate.parent != Path(".") or "/" in argv0 or "\\\\" in argv0
+          new = (
+              '    explicit_relative = (\n'
+              '        candidate.parent != Path(".") or "/" in argv0 or "\\\\" in argv0\n'
+              '    )\n'
           )
-          '''
           if text.count(old) != 1:
               raise SystemExit(f"runner anchor mismatch: {text.count(old)}")
           runner.write_text(text.replace(old, new), encoding="utf-8", newline="\n")
 
           tests = Path("tests/test_execution_evidence_hardening.py")
           text = tests.read_text(encoding="utf-8")
-          if text.count("import os\n") != 1:
-              raise SystemExit("test import anchor mismatch")
-          text = text.replace("import os\n", "")
-          old = '''def test_dot_relative_executable_never_falls_back_to_path(
-              tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-          ) -> None:
-              path_bin = tmp_path / "path-bin"
-              _executable(path_bin / "solver")
-              work = tmp_path / "work"
-              work.mkdir()
-              monkeypatch.setenv("PATH", str(path_bin))
-              plan = CommandPlan((f".{os.sep}solver",), work, {}, "explicit relative path")
+          anchor = "\ndef test_bare_executable_uses_the_immutable_plan_path(tmp_path: Path) -> None:\n"
+          regression = '''
 
-              with pytest.raises(SecurityError, match="executable is unavailable"):
-                  authorize_plan(
-                      plan,
-                      authorized_by="pytest",
-                      purpose="reject PATH substitution",
-                      explicit_authorization=True,
-                  )
-          '''
-          new = '''@pytest.mark.parametrize("argv0", ("./solver", ".\\\\solver"))
-          def test_dot_relative_executable_never_falls_back_to_path(
-              tmp_path: Path, monkeypatch: pytest.MonkeyPatch, argv0: str
-          ) -> None:
-              work = tmp_path / "work"
-              work.mkdir()
+def test_cross_platform_explicit_relative_never_uses_path(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    work = tmp_path / "work"
+    work.mkdir()
 
-              def forbidden_which(_command: str, *, path: str | None = None) -> str | None:
-                  raise AssertionError(f"explicit path unexpectedly reached PATH lookup: {path}")
+    def forbidden_which(_command: str, *, path: str | None = None) -> str | None:
+        raise AssertionError(f"explicit path unexpectedly reached PATH lookup: {path}")
 
-              monkeypatch.setattr(execution_runner.shutil, "which", forbidden_which)
-              plan = CommandPlan((argv0,), work, {"PATH": str(tmp_path)}, "explicit relative path")
-
-              with pytest.raises(SecurityError, match="executable is unavailable"):
-                  authorize_plan(
-                      plan,
-                      authorized_by="pytest",
-                      purpose="reject PATH substitution",
-                      explicit_authorization=True,
-                  )
-          '''
-          if text.count(old) != 1:
-              raise SystemExit(f"test anchor mismatch: {text.count(old)}")
-          tests.write_text(text.replace(old, new), encoding="utf-8", newline="\n")
+    monkeypatch.setattr(execution_runner.shutil, "which", forbidden_which)
+    for argv0 in ("./solver", ".\\\\solver"):
+        plan = CommandPlan((argv0,), work, {"PATH": str(tmp_path)}, "explicit relative path")
+        with pytest.raises(SecurityError, match="executable is unavailable"):
+            authorize_plan(
+                plan,
+                authorized_by="pytest",
+                purpose="reject cross-platform PATH substitution",
+                explicit_authorization=True,
+            )
+'''
+          if text.count(anchor) != 1 or "test_cross_platform_explicit_relative_never_uses_path" in text:
+              raise SystemExit("test insertion anchor mismatch")
+          tests.write_text(text.replace(anchor, regression + anchor), encoding="utf-8", newline="\n")
 
           for name in ("README.md", "README.zh-CN.md"):
               path = Path(name)
