@@ -71,9 +71,9 @@
       "sha256": "f417b371a3e3868b0449e82ca36d4b25c7926eda0bbeea829170ea0d5295138d"
     },
     {
-      "bytes": 8768,
+      "bytes": 8976,
       "path": "CHANGELOG.md",
-      "sha256": "66a325ee4bd220c6d5ede499514c68c07e41b901ab03840e6bed2fa9c42eefeb"
+      "sha256": "cdd7f93e657aef606f8a889d9fd0454ef64530d8d05713ed2dfa7735e2edda5f"
     },
     {
       "bytes": 307,
@@ -101,14 +101,14 @@
       "sha256": "16c346cf3277689776977c544135b0669d83db66ccbe0ad0142db295f5a39e3b"
     },
     {
-      "bytes": 14215,
+      "bytes": 17946,
       "path": "README.md",
-      "sha256": "f6d70c34601e091591e34e9785a7eeaca889550f1272de7bc210cc4c685b1cf8"
+      "sha256": "bec1d54b715ee18d1701f993bb2a72693cdd12221621ccf0d2e12bf863817af0"
     },
     {
-      "bytes": 13223,
+      "bytes": 16307,
       "path": "README.zh-CN.md",
-      "sha256": "a27382259617dfa6628e01b9861820716d9ec45029482e43a3d8ac70308559c2"
+      "sha256": "b8c7fdfd8a0f193fd68277068b29719a7c52552c6843b76ff1bfd153bb681bed"
     },
     {
       "bytes": 3578,
@@ -416,14 +416,14 @@
       "sha256": "5359737ce203c8d537f8f3d4a64c0b0f22461addb34f735c17a8fba9a36c7227"
     },
     {
-      "bytes": 5455,
+      "bytes": 5428,
       "path": "assets/visuals/README.md",
-      "sha256": "1cac58e10d9e353ee98ffcb18696975dee44c2758574190041e8e47ef82e10c7"
+      "sha256": "42d61f1280731e58007ca12d8272baf7a2788b89855feccf3e888ae74e283913"
     },
     {
-      "bytes": 6408,
+      "bytes": 4995,
       "path": "assets/visuals/acceleration-opportunity-pipeline.svg",
-      "sha256": "6b17fdf5fef5c37d080f883ece911358948efeaaa4a7ea972284c5af56a8e100"
+      "sha256": "39ab47347dd30a3187b29c8f6ceedb347bef4d3c69b7902d778aded9ecf82d48"
     },
     {
       "bytes": 6264,
@@ -526,9 +526,9 @@
       "sha256": "1f4f4600cf5ce7d0aa9e58f068f0402bf250b3b66344aa26dd491a1b59d1ee90"
     },
     {
-      "bytes": 6149,
+      "bytes": 5189,
       "path": "assets/visuals/hpc-execution-provenance.svg",
-      "sha256": "ffe2237f524960514525647bc894792336c86edbb54d1fe7b2403b6a62561fea"
+      "sha256": "cd1140f9573912e632d4013efdccaaf076067d6dc11358f3f922d121aaa9a8fe"
     },
     {
       "bytes": 6187,
@@ -581,9 +581,9 @@
       "sha256": "10579e9d56e42f6863a699ac41b172cb5f2f487381c05f330ff5101b7cac5896"
     },
     {
-      "bytes": 7600,
+      "bytes": 5149,
       "path": "assets/visuals/process-optimization-uq.svg",
-      "sha256": "3ce48e374a0d60960866b4a2c24392a9ce8b21c040da48444a98dba5d57a6b20"
+      "sha256": "5fc42d794d4a51b6eaef61345098fd1e152d42f4bc8ddcbb020f62e93106a96f"
     },
     {
       "bytes": 7726,
@@ -631,9 +631,9 @@
       "sha256": "d64ddcfe4a7f6e575ac1d3a862681b2fa6ba9e6545dd8f174dc1916e860eef45"
     },
     {
-      "bytes": 7627,
+      "bytes": 5226,
       "path": "assets/visuals/uncertainty-sensitivity.svg",
-      "sha256": "be74eb8941d506b23945122456e4ff6a009b53613a2ce9c7076af3fc5c34aa36"
+      "sha256": "a9f01da633aab8a90a51236a9830832054e82bb78b7066f2ffc7812594403a2d"
     },
     {
       "bytes": 816,
