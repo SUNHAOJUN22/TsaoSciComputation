@@ -37,7 +37,7 @@ jobs:
           workflow=.github/workflows/qualify-software-hardening-once.yml
           test "$(git diff --name-only "$base" HEAD)" = "$workflow"
 
-      - name: Reassemble and apply SHA-locked patch V4
+      - name: Reassemble and apply SHA-locked V2 patch
         shell: bash
         env:
           ISSUE_NUMBER: ${{ github.event.issue.number }}
@@ -61,7 +61,7 @@ jobs:
           comments = json.loads((temp / "comments.json").read_text(encoding="utf-8"))
           texts = [issue.get("body") or "", *(item.get("body") or "" for item in comments)]
           pattern = re.compile(
-              r"PATCH_V4_PART_(\d{2})\n([A-Za-z0-9+/=\n]+?)\nEND_PATCH_V4_PART_\1",
+              r"PATCH_V2_PART_(\d{2})\n([A-Za-z0-9+/=\n]+?)\nEND_PATCH_V2_PART_\1",
               re.MULTILINE,
           )
           parts: dict[int, str] = {}
@@ -69,42 +69,31 @@ jobs:
               for raw_index, payload in pattern.findall(text):
                   index = int(raw_index)
                   if index in parts:
-                      raise SystemExit(f"duplicate V4 patch part: {index:02d}")
+                      raise SystemExit(f"duplicate V2 patch part: {index:02d}")
                   parts[index] = "".join(payload.split())
-          expected_indices = list(range(6))
-          if sorted(parts) != expected_indices:
-              raise SystemExit(f"V4 patch part set mismatch: {sorted(parts)}")
+          if sorted(parts) != [0, 1, 2]:
+              raise SystemExit(f"V2 patch part set mismatch: {sorted(parts)}")
           expected = {
-              0: "96644ca500ab5a34ad64347b2d63ac3da6422b7aec43f154416bfa55bcf349f8",
-              1: "65048bc3e2b408736df7536594fd00727bb4f130a15e9c831143ab18c79b2fa2",
-              2: "2c72d99bbd45113a9c04d9b662a7ddd039834b88172382b759fe1d48077f43eb",
-              3: "c1aa546526cd3d6d1e2c53e006772d9c5f7f30b3af36d4a37533757dd7976478",
-              4: "7f6be232a1ba346e42dd0a6bec57801f1ab4d1f7fae55d489f990f20b299c53a",
-              5: "d0d06e765d2ab90858e46a2e21cd681a58c14ed227439011ff1a8365ff069111",
+              0: "c6b323dc3c154a3f3b0f9b25914afefe200a2f0afe83c500191712652d0bbc0e",
+              1: "35fd84a85ca50499e48e69661c9c723f40ba4fabe5727686f7ad36d8110a47a4",
+              2: "50fa21d5ea05dbd5a6f74d30f3105724b44e6445107a4aa92932cde6ddf7db8f",
           }
           for index, part in parts.items():
-              observed = hashlib.sha256(part.encode("ascii")).hexdigest()
-              if observed != expected[index]:
-                  raise SystemExit(f"V4 patch part SHA-256 mismatch: {index:02d}")
-          encoded = "".join(parts[index] for index in expected_indices)
-          if hashlib.sha256(encoded.encode("ascii")).hexdigest() != (
-              "81c271ab7fdc399e924e0c7d6eafde0be944b55c269e5fcc934696adf6acbdb1"
-          ):
-              raise SystemExit("encoded V4 patch SHA-256 mismatch")
+              if hashlib.sha256(part.encode("ascii")).hexdigest() != expected[index]:
+                  raise SystemExit(f"V2 patch part SHA-256 mismatch: {index:02d}")
+          encoded = "".join(parts[index] for index in (0, 1, 2))
+          if hashlib.sha256(encoded.encode("ascii")).hexdigest() != "a63ec76f24f35d9af74a3e583d62b7044318de5fec7cc9c3df1ad270678e9e11":
+              raise SystemExit("encoded V2 patch SHA-256 mismatch")
           compressed = base64.b64decode(encoded, validate=True)
-          if hashlib.sha256(compressed).hexdigest() != (
-              "084a3355c1046f70fac014876937a23a5f80b009f4967497688cc30b52904c1f"
-          ):
-              raise SystemExit("compressed V4 patch SHA-256 mismatch")
+          if hashlib.sha256(compressed).hexdigest() != "5f0da580f13a564a3d0427df41532f9b5f4ccdbad2e201ad03336630178717b7":
+              raise SystemExit("compressed V2 patch SHA-256 mismatch")
           patch = gzip.decompress(compressed)
-          if hashlib.sha256(patch).hexdigest() != (
-              "398f58ec732e6e4b193b796c38ea2d8a4aef1d6d7c8e5ef26c2233da67deffbf"
-          ):
-              raise SystemExit("uncompressed V4 patch SHA-256 mismatch")
-          (temp / "software-hardening-v4.patch").write_bytes(patch)
+          if hashlib.sha256(patch).hexdigest() != "7db96051668bfc8533a3d18a443644153d1585bb9ea4302d1a5d03b62543d2f3":
+              raise SystemExit("uncompressed V2 patch SHA-256 mismatch")
+          (temp / "software-hardening-v2.patch").write_bytes(patch)
           PY
-          git apply --check "$RUNNER_TEMP/software-hardening-v4.patch"
-          git apply "$RUNNER_TEMP/software-hardening-v4.patch"
+          git apply --check "$RUNNER_TEMP/software-hardening-v2.patch"
+          git apply "$RUNNER_TEMP/software-hardening-v2.patch"
           rm .github/workflows/qualify-software-hardening-once.yml
 
       - name: Set up Python
@@ -115,6 +104,16 @@ jobs:
 
       - name: Install governed validation tools
         run: python -m pip install -e '.[validation,quality,security]'
+
+      - name: Normalize formatter-bound files and governed evidence
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python -m ruff format tests/test_execution_evidence_hardening.py tsao_computation/execution/runner.py
+          python scripts/quality_check.py
+          python scripts/security_scan.py
+          python scripts/build_acceleration_audits.py
+          python scripts/build_manifest.py
 
       - name: Run complete software qualification
         shell: bash
