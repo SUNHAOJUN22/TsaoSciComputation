@@ -18,7 +18,7 @@ jobs:
       github.event.issue.title == 'QUALIFY_SOFTWARE_HARDENING_20260806' &&
       github.event.issue.user.login == github.repository_owner &&
       github.event.comment.user.login == github.repository_owner &&
-      github.event.comment.body == 'RUN_SOFTWARE_HARDENING_V5_20260806'
+      github.event.comment.body == 'RUN_SOFTWARE_HARDENING_V6_20260806'
     runs-on: ubuntu-24.04
     timeout-minutes: 90
     steps:
@@ -118,6 +118,50 @@ jobs:
       - name: Install governed validation tools
         run: python -m pip install -e '.[validation,quality,security]'
 
+      - name: Apply deterministic E731 correction and refresh evidence
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path("tests/test_execution_evidence_hardening.py")
+          text = path.read_text(encoding="utf-8")
+          old = '''    adapters = lambda: (
+              {
+                  "slug": "fixture",
+                  "executables": ["fixture"],
+                  "python_modules": ["required_module"],
+              },
+          )
+          accelerators = lambda: (
+              {"slug": "fixture", "probe_hints": ["fixture --version"]},
+          )
+
+          '''
+          new = '''    def adapters() -> tuple[dict[str, object], ...]:
+              return (
+                  {
+                      "slug": "fixture",
+                      "executables": ["fixture"],
+                      "python_modules": ["required_module"],
+                  },
+              )
+
+              def accelerators() -> tuple[dict[str, object], ...]:
+                  return ({"slug": "fixture", "probe_hints": ["fixture --version"]},)
+
+          '''
+          if text.count(old) != 1:
+              raise SystemExit(f"E731 correction anchor mismatch: {text.count(old)}")
+          path.write_text(text.replace(old, new), encoding="utf-8", newline="\n")
+          PY
+          python -m ruff format tests/test_execution_evidence_hardening.py tsao_computation/execution/runner.py
+          python scripts/quality_check.py
+          python scripts/security_scan.py
+          python scripts/build_acceleration_audits.py
+          python scripts/build_manifest.py
+
       - name: Run complete software qualification
         shell: bash
         run: |
@@ -164,11 +208,11 @@ jobs:
         if: success()
         shell: bash
         run: |
-          gh issue comment "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --body "Software hardening V5 qualification passed and published to main at $PRODUCT_COMMIT. Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          gh issue comment "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --body "Software hardening V6 qualification passed and published to main at $PRODUCT_COMMIT. Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
           gh issue close "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --comment "Completed without branch, pull request or force push. External solver qualification remains EXTERNAL_HOLD."
 
       - name: Record failure
         if: failure()
         shell: bash
         run: |
-          gh issue comment "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --body "Software hardening V5 qualification failed; no product commit was published. Inspect: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          gh issue comment "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" --body "Software hardening V6 qualification failed; no product commit was published. Inspect: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
