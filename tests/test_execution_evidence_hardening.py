@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-import os
 import subprocess
 import sys
 from dataclasses import replace
@@ -76,20 +75,22 @@ def test_relative_executable_and_input_are_bound_to_plan_cwd(tmp_path: Path) -> 
 def test_dot_relative_executable_never_falls_back_to_path(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    path_bin = tmp_path / "path-bin"
-    _executable(path_bin / "solver")
     work = tmp_path / "work"
     work.mkdir()
-    monkeypatch.setenv("PATH", str(path_bin))
-    plan = CommandPlan((f".{os.sep}solver",), work, {}, "explicit relative path")
 
-    with pytest.raises(SecurityError, match="executable is unavailable"):
-        authorize_plan(
-            plan,
-            authorized_by="pytest",
-            purpose="reject PATH substitution",
-            explicit_authorization=True,
-        )
+    def forbidden_which(_command: str, *, path: str | None = None) -> str | None:
+        raise AssertionError(f"explicit path unexpectedly reached PATH lookup: {path}")
+
+    monkeypatch.setattr(execution_runner.shutil, "which", forbidden_which)
+    for argv0 in ("./solver", ".\\solver"):
+        plan = CommandPlan((argv0,), work, {"PATH": str(tmp_path)}, "explicit relative path")
+        with pytest.raises(SecurityError, match="executable is unavailable"):
+            authorize_plan(
+                plan,
+                authorized_by="pytest",
+                purpose="reject PATH substitution",
+                explicit_authorization=True,
+            )
 
 
 def test_bare_executable_uses_the_immutable_plan_path(tmp_path: Path) -> None:
