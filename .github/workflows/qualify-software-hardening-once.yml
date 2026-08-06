@@ -155,7 +155,7 @@ jobs:
               raise SystemExit(f"E731 correction anchor mismatch: {text.count(old)}")
           path.write_text(text.replace(old, new), encoding="utf-8", newline="\n")
           PY
-          python -m ruff format tests/test_execution_evidence_hardening.py tsao_computation/execution/runner.py
+          python -m ruff format tsao_computation scripts tests _bootstrap.py
           python scripts/quality_check.py
           python scripts/security_scan.py
           python scripts/build_acceleration_audits.py
