@@ -1,0 +1,209 @@
+name: Qualify software hardening once
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: write
+  issues: write
+
+env:
+  GH_TOKEN: ${{ github.token }}
+  PIP_DISABLE_PIP_VERSION_CHECK: '1'
+
+jobs:
+  qualify:
+    if: >-
+      github.event.issue.title == 'QUALIFY_SOFTWARE_HARDENING_20260806' &&
+      github.event.issue.user.login == github.repository_owner &&
+      github.event.comment.user.login == github.repository_owner &&
+      github.event.comment.body == 'RUN_SOFTWARE_HARDENING_20260806'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - name: Check out staged main
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Verify immutable staging commit
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          base=38a0c9a62d86ef1614aa08ac1821606696d68ca4
+          workflow=.github/workflows/qualify-software-hardening-once.yml
+          test "$(git rev-parse HEAD^)" = "$base"
+          test "$(git diff --name-only HEAD^ HEAD)" = "$workflow"
+
+      - name: Reassemble and verify owner payload
+        shell: bash
+        env:
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          set -Eeuo pipefail
+          gh api "repos/$GITHUB_REPOSITORY/issues/$ISSUE_NUMBER" > "$RUNNER_TEMP/issue.json"
+          gh api "repos/$GITHUB_REPOSITORY/issues/$ISSUE_NUMBER/comments?per_page=100" > "$RUNNER_TEMP/comments.json"
+          python - <<'PY'
+          from __future__ import annotations
+
+          import base64
+          import hashlib
+          import json
+          import os
+          import re
+          import tarfile
+          from pathlib import Path, PurePosixPath
+
+          temp = Path(os.environ["RUNNER_TEMP"])
+          issue = json.loads((temp / "issue.json").read_text(encoding="utf-8"))
+          comments = json.loads((temp / "comments.json").read_text(encoding="utf-8"))
+          texts = [issue.get("body") or "", *(item.get("body") or "" for item in comments)]
+          pattern = re.compile(
+              r"PAYLOAD_PART_(\d{2})\n([A-Za-z0-9+/=\n]+?)\nEND_PAYLOAD_PART_\1",
+              re.MULTILINE,
+          )
+          parts: dict[int, str] = {}
+          for text in texts:
+              for raw_index, payload in pattern.findall(text):
+                  index = int(raw_index)
+                  if index in parts:
+                      raise SystemExit(f"duplicate payload part: {index:02d}")
+                  parts[index] = "".join(payload.split())
+          if sorted(parts) != [0, 1, 2]:
+              raise SystemExit(f"payload part set mismatch: {sorted(parts)}")
+          expected_part_sha256 = {
+              0: "4cfbe1bb770bcc42110994a3096fc7b02f20bcf65a4e7ea8064d9b120f71a5cd",
+              1: "eed27db5b988760734c329faba4b86ce485ae08186a8353e35a0371cd1cdf08d",
+              2: "73907413ffc18f5298fc54bd4c9559e5961f516d00bdf7129884bfd876e3c04f",
+          }
+          for index, part in parts.items():
+              observed = hashlib.sha256(part.encode("ascii")).hexdigest()
+              if observed != expected_part_sha256[index]:
+                  raise SystemExit(f"payload part SHA-256 mismatch: {index:02d}")
+          encoded = "".join(parts[index] for index in sorted(parts))
+          if hashlib.sha256(encoded.encode("ascii")).hexdigest() != (
+              "97639c40a9ae2b360360725111ee1b0874393b01d4f6619f8f99115a85437207"
+          ):
+              raise SystemExit("encoded payload SHA-256 mismatch")
+          archive_bytes = base64.b64decode(encoded, validate=True)
+          if hashlib.sha256(archive_bytes).hexdigest() != (
+              "e6f9a651b665b5f4db5c388bd55cb0534061bf1fe46307b1bbc3da273f84e775"
+          ):
+              raise SystemExit("archive payload SHA-256 mismatch")
+          archive_path = temp / "software-hardening.tar.gz"
+          archive_path.write_bytes(archive_bytes)
+          expected = {
+              "CHANGELOG.md",
+              "README.md",
+              "README.zh-CN.md",
+              "docs/autonomous-software-hardening-prompt.md",
+              "evidence/critical-coverage-policy.json",
+              "evidence/quality-check.json",
+              "evidence/security-scan.json",
+              "manifest.json",
+              "pytest.ini",
+              "reports/ACCELERATION_OPPORTUNITIES_FULL_TREE_V4.json",
+              "reports/ACCELERATION_OPPORTUNITIES_PRODUCTION_V4.json",
+              "reports/ACCELERATION_OPPORTUNITIES_V2.json",
+              "schemas/solver-capability-evidence.schema.json",
+              "tests/test_adversarial_phase_a_coverage.py",
+              "tests/test_core.py",
+              "tests/test_execution_evidence_hardening.py",
+              "tests/test_execution_integrity_v13_coverage.py",
+              "tests/test_extended.py",
+              "tests/test_solver_bound_plan_v6.py",
+              "tsao_computation/accelerators/solver.py",
+              "tsao_computation/execution/runner.py",
+          }
+          with tarfile.open(archive_path, "r:gz") as archive:
+              members = archive.getmembers()
+              observed = {member.name for member in members if member.isfile()}
+              if observed != expected:
+                  raise SystemExit(
+                      f"archive file set mismatch: missing={sorted(expected-observed)} "
+                      f"extra={sorted(observed-expected)}"
+                  )
+              for member in members:
+                  path = PurePosixPath(member.name)
+                  if path.is_absolute() or ".." in path.parts or member.issym() or member.islnk():
+                      raise SystemExit(f"unsafe archive member: {member.name}")
+              archive.extractall(Path.cwd(), filter="data")
+          PY
+          rm .github/workflows/qualify-software-hardening-once.yml
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+          cache: pip
+
+      - name: Install governed validation tools
+        run: python -m pip install -e '.[validation,quality,security]'
+
+      - name: Run deterministic release gates
+        run: python scripts/verify_all.py --profile all
+
+      - name: Verify native boundary
+        run: python scripts/verify_native_core.py
+
+      - name: Run bounded benchmark telemetry
+        run: python scripts/verify_all.py --profile benchmark
+
+      - name: Verify exact final tree and publish
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          base=38a0c9a62d86ef1614aa08ac1821606696d68ca4
+          cat > "$RUNNER_TEMP/expected-files.txt" <<'EOF'
+          CHANGELOG.md
+          README.md
+          README.zh-CN.md
+          docs/autonomous-software-hardening-prompt.md
+          evidence/critical-coverage-policy.json
+          evidence/quality-check.json
+          evidence/security-scan.json
+          manifest.json
+          pytest.ini
+          reports/ACCELERATION_OPPORTUNITIES_FULL_TREE_V4.json
+          reports/ACCELERATION_OPPORTUNITIES_PRODUCTION_V4.json
+          reports/ACCELERATION_OPPORTUNITIES_V2.json
+          schemas/solver-capability-evidence.schema.json
+          tests/test_adversarial_phase_a_coverage.py
+          tests/test_core.py
+          tests/test_execution_evidence_hardening.py
+          tests/test_execution_integrity_v13_coverage.py
+          tests/test_extended.py
+          tests/test_solver_bound_plan_v6.py
+          tsao_computation/accelerators/solver.py
+          tsao_computation/execution/runner.py
+          EOF
+          git diff --check
+          git diff --name-only "$base" | sort > "$RUNNER_TEMP/observed-files.txt"
+          diff -u "$RUNNER_TEMP/expected-files.txt" "$RUNNER_TEMP/observed-files.txt"
+          git add -A
+          git diff --cached --name-only "$base" | sort > "$RUNNER_TEMP/staged-files.txt"
+          diff -u "$RUNNER_TEMP/expected-files.txt" "$RUNNER_TEMP/staged-files.txt"
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git commit -m "Harden execution evidence and deterministic tests"
+          git push origin HEAD:main
+          echo "PRODUCT_COMMIT=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Record success
+        if: success()
+        shell: bash
+        run: |
+          gh issue comment "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" \
+            --body "Software hardening qualification passed and published to main at $PRODUCT_COMMIT. Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          gh issue close "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" \
+            --comment "Completed without branch, pull request or force push. External solver qualification remains EXTERNAL_HOLD."
+
+      - name: Record failure
+        if: failure()
+        shell: bash
+        run: |
+          gh issue comment "${{ github.event.issue.number }}" --repo "$GITHUB_REPOSITORY" \
+            --body "Software hardening qualification failed; no product commit was published. Inspect: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
