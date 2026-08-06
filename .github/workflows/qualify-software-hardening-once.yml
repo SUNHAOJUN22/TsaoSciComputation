@@ -127,31 +127,30 @@ jobs:
 
           path = Path("tests/test_execution_evidence_hardening.py")
           text = path.read_text(encoding="utf-8")
-          old = '''    adapters = lambda: (
-              {
-                  "slug": "fixture",
-                  "executables": ["fixture"],
-                  "python_modules": ["required_module"],
-              },
+          old = (
+              "    adapters = lambda: (\n"
+              "        {\n"
+              "            \"slug\": \"fixture\",\n"
+              "            \"executables\": [\"fixture\"],\n"
+              "            \"python_modules\": [\"required_module\"],\n"
+              "        },\n"
+              "    )\n"
+              "    accelerators = lambda: (\n"
+              "        {\"slug\": \"fixture\", \"probe_hints\": [\"fixture --version\"]},\n"
+              "    )\n\n"
           )
-          accelerators = lambda: (
-              {"slug": "fixture", "probe_hints": ["fixture --version"]},
+          new = (
+              "    def adapters() -> tuple[dict[str, object], ...]:\n"
+              "        return (\n"
+              "            {\n"
+              "                \"slug\": \"fixture\",\n"
+              "                \"executables\": [\"fixture\"],\n"
+              "                \"python_modules\": [\"required_module\"],\n"
+              "            },\n"
+              "        )\n\n"
+              "    def accelerators() -> tuple[dict[str, object], ...]:\n"
+              "        return ({\"slug\": \"fixture\", \"probe_hints\": [\"fixture --version\"]},)\n\n"
           )
-
-          '''
-          new = '''    def adapters() -> tuple[dict[str, object], ...]:
-              return (
-                  {
-                      "slug": "fixture",
-                      "executables": ["fixture"],
-                      "python_modules": ["required_module"],
-                  },
-              )
-
-              def accelerators() -> tuple[dict[str, object], ...]:
-                  return ({"slug": "fixture", "probe_hints": ["fixture --version"]},)
-
-          '''
           if text.count(old) != 1:
               raise SystemExit(f"E731 correction anchor mismatch: {text.count(old)}")
           path.write_text(text.replace(old, new), encoding="utf-8", newline="\n")
