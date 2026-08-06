@@ -3,6 +3,8 @@ name: Qualify cross-platform explicit path once
 on:
   issue_comment:
     types: [created]
+  schedule:
+    - cron: '*/5 * * * *'
 
 permissions:
   contents: write
@@ -21,10 +23,11 @@ concurrency:
 jobs:
   qualify:
     if: >-
-      github.event.issue.number == 159 &&
-      github.event.issue.user.login == github.repository_owner &&
-      github.event.comment.user.login == github.repository_owner &&
-      github.event.comment.body == 'RUN_CROSS_PLATFORM_PATH_20260807'
+      github.event_name == 'schedule' ||
+      (github.event.issue.number == 159 &&
+       github.event.issue.user.login == github.repository_owner &&
+       github.event.comment.user.login == github.repository_owner &&
+       github.event.comment.body == 'RUN_CROSS_PLATFORM_PATH_20260807')
     runs-on: ubuntu-24.04
     timeout-minutes: 90
     steps:
