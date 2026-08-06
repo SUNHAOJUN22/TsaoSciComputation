@@ -6,6 +6,8 @@ on:
     types: [completed]
   schedule:
     - cron: '*/5 * * * *'
+  issues:
+    types: [edited]
 
 permissions:
   contents: write
@@ -23,7 +25,12 @@ concurrency:
 
 jobs:
   finalize:
-    if: github.event_name == 'schedule' || github.event.workflow_run.conclusion == 'success'
+    if: >-
+      github.event_name == 'schedule' ||
+      github.event.workflow_run.conclusion == 'success' ||
+      (github.event_name == 'issues' &&
+       github.event.issue.number == 158 &&
+       contains(github.event.issue.body, 'RUN_FINAL_MANIFEST_20260806'))
     runs-on: ubuntu-24.04
     timeout-minutes: 90
     steps:
