@@ -28,15 +28,20 @@ def _sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
-def _resolve_executable(argv0: str) -> Path:
+def _resolve_executable(argv0: str, cwd: Path, *, search_path: str) -> Path:
     if not isinstance(argv0, str) or not argv0 or "\x00" in argv0:
         raise SecurityError("command plan executable must be a non-empty string")
     candidate = Path(argv0).expanduser()
+    explicit_relative = candidate.parent != Path(".") or argv0.startswith(
+        (f".{os.sep}", f"..{os.sep}")
+    )
     found: str | None
-    if candidate.is_absolute() or candidate.parent != Path("."):
+    if candidate.is_absolute():
         found = str(candidate)
+    elif explicit_relative:
+        found = str(cwd / candidate)
     else:
-        found = shutil.which(argv0)
+        found = shutil.which(argv0, path=search_path)
     if not found:
         raise SecurityError(f"command plan executable is unavailable: {argv0}")
     try:
@@ -48,15 +53,18 @@ def _resolve_executable(argv0: str) -> Path:
     return resolved
 
 
-def _input_binding(plan: CommandPlanLike) -> tuple[str | None, str | None]:
+def _input_binding(plan: CommandPlanLike, cwd: Path) -> tuple[str | None, str | None]:
     raw_path = getattr(plan, "input_path", None)
     declared_sha256 = getattr(plan, "input_sha256", None)
     if raw_path is None:
         if declared_sha256 is not None:
             raise SecurityError("command plan declares an input hash without an input path")
         return None, None
+    candidate = Path(raw_path).expanduser()
+    if not candidate.is_absolute():
+        candidate = cwd / candidate
     try:
-        resolved = Path(raw_path).expanduser().resolve(strict=True)
+        resolved = candidate.resolve(strict=True)
     except OSError as error:
         raise SecurityError(f"command plan input file is unavailable: {raw_path}") from error
     if not resolved.is_file():
@@ -69,7 +77,7 @@ def _input_binding(plan: CommandPlanLike) -> tuple[str | None, str | None]:
 
 def _bound_plan(
     plan: CommandPlanLike,
-) -> tuple[str, str, str, str | None, Mapping[str, str]]:
+) -> tuple[str, str, str, str | None, Mapping[str, str], Path]:
     if not plan.argv or any(
         not isinstance(item, str) or not item or "\x00" in item for item in plan.argv
     ):
@@ -80,10 +88,12 @@ def _bound_plan(
         raise SecurityError(f"command plan working directory is unavailable: {plan.cwd}") from error
     if not cwd.is_dir():
         raise SecurityError(f"command plan working directory is unavailable: {plan.cwd}")
-    executable = _resolve_executable(plan.argv[0])
-    executable_sha256 = _sha256_file(executable)
-    input_path, input_sha256 = _input_binding(plan)
     normalized_environment = _subprocess_environment(plan.environment)
+    executable = _resolve_executable(
+        plan.argv[0], cwd, search_path=normalized_environment.get("PATH", "")
+    )
+    executable_sha256 = _sha256_file(executable)
+    input_path, input_sha256 = _input_binding(plan, cwd)
     normalized_argv = [str(executable), *plan.argv[1:]]
     payload = {
         "argv": normalized_argv,
@@ -96,7 +106,14 @@ def _bound_plan(
     }
     encoded = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
     digest = hashlib.sha256(encoded.encode("utf-8")).hexdigest()
-    return digest, str(executable), executable_sha256, input_sha256, normalized_environment
+    return (
+        digest,
+        str(executable),
+        executable_sha256,
+        input_sha256,
+        normalized_environment,
+        cwd,
+    )
 
 
 def plan_sha256(plan: CommandPlanLike) -> str:
@@ -147,7 +164,7 @@ def authorize_plan(
         raise SecurityError("authorized_by must be a non-empty identity")
     if not isinstance(purpose, str) or not purpose.strip():
         raise SecurityError("authorization purpose must be a non-empty string")
-    digest, _, executable_sha256, input_sha256, _ = _bound_plan(plan)
+    digest, _, executable_sha256, input_sha256, _, _ = _bound_plan(plan)
     return ExecutionAuthorization(
         digest,
         executable_sha256,
@@ -183,7 +200,7 @@ def run_plan(
 ) -> ExecutionRecord:
     if authorization is None:
         raise SecurityError("external process execution is plan-only until explicitly authorized")
-    digest, executable, executable_sha256, input_sha256, environment = _bound_plan(plan)
+    digest, executable, executable_sha256, input_sha256, environment, cwd = _bound_plan(plan)
     if authorization.explicit_authorization is not True or authorization.plan_sha256 != digest:
         raise SecurityError("execution authorization does not match the immutable command plan")
     if authorization.executable_sha256 != executable_sha256:
@@ -194,7 +211,7 @@ def run_plan(
     argv = (executable, *plan.argv[1:])
     result = _authorized_run(
         argv,
-        cwd=plan.cwd,
+        cwd=cwd,
         timeout=timeout,
         environment=environment,
         permit=_issue_process_execution_permit(),

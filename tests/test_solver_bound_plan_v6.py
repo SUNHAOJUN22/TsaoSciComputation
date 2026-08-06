@@ -61,6 +61,9 @@ def _evidence(
             qualification_status="candidate-only",
             reason="fixture executable is absent",
         )
+    if missing_modules and status == "version-probed-unqualified":
+        status = "detected-incomplete"
+    has_version = status in {"version-probed-unqualified", "detected-incomplete"}
     return SolverCapabilityEvidence(
         adapter_slug=adapter_slug,
         declared_executables=("gmx",),
@@ -71,10 +74,10 @@ def _evidence(
         executable_size_bytes=4096,
         required_python_modules=missing_modules,
         missing_python_modules=missing_modules,
-        version_arguments=("--version",),
-        version_returncode=0,
-        version_text_sha256="b" * 64,
-        version_excerpt="GROMACS fixture build",
+        version_arguments=("--version",) if has_version else (),
+        version_returncode=0 if has_version else None,
+        version_text_sha256="b" * 64 if has_version else None,
+        version_excerpt="GROMACS fixture build" if has_version else None,
         qualification_status=status,
         reason="fixture fingerprint and bounded version output",
     )

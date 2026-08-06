@@ -49,6 +49,8 @@ The repository exposes **164 capabilities**, **23 computation methods**, **9 inv
 | Python module, CLI, API, container, scheduler or Skill | Declarative handoff until runtime, identity, authorization and evidence requirements are satisfied |
 
 Execution is fail-closed: the legacy low-level process API cannot execute; hardware probes use fixed read-only commands; external authorization is rebound to the executable, declared inputs and normalized environment immediately before launch.
+
+Relative executable and input paths are now resolved from the normalized `CommandPlan.cwd`, not from the controller process directory. Bare executable names are resolved once against the sanitized immutable `PATH`, converted to an absolute path, hashed and rebound before execution; the authorized normalized working directory is also the directory passed to the process runner.
 <!-- SUPER_SKILL_ORCHESTRATION:END -->
 
 ## Architecture at a glance
@@ -117,6 +119,8 @@ GPU admission is fail-closed in both directions: every non-empty CUDA/HIP/ROCR v
 V5 adds registry-bounded solver capability evidence. `probe-solver` fingerprints the exact resolved executable, records its byte size and SHA-256, checks declared Python modules, and may run only a fixed bounded shell-free version/help argument set. Version output is bounded and hash-bound. The strongest automatic status is `version-probed-unqualified`; numerical equivalence, backend support, speedup, convergence and licensing remain separate qualification gates.
 
 V6 binds that evidence into `acceleration_plan_sha256`. Solver path, binary SHA-256, version-output SHA-256 and evidence SHA-256 therefore change the plan identity. Missing or incomplete solver evidence remains `external-hold`; a complete fingerprint is only `evidence-bound-unqualified`. `--require-solver-evidence` fails closed and still does not claim live numerical correctness, GPU use, performance, convergence or license availability.
+
+Solver evidence now enforces a coherent status matrix in both Python and JSON Schema: undetected evidence must be `candidate-only`; missing modules require `detected-incomplete`; successful bounded version output requires `version-probed-unqualified`; and contradictory hashes, sizes, module sets or version fields are rejected. The reusable autonomous hardening prompt is documented in [`docs/autonomous-software-hardening-prompt.md`](docs/autonomous-software-hardening-prompt.md).
 
 Architecture, CUDA-X selection rules and C++ migration gates: [`docs/accelerated-native-backend.md`](docs/accelerated-native-backend.md). Native verification: `python scripts/verify_native_core.py`.
 

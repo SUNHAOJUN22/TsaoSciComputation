@@ -1,6 +1,14 @@
 {
   "critical_files": {
+    "tsao_computation/accelerators/solver.py": {
+      "minimum_branch_percent": 80.0,
+      "minimum_statement_percent": 90.0
+    },
     "tsao_computation/contracts/calculation.py": {
+      "minimum_branch_percent": 85.0,
+      "minimum_statement_percent": 90.0
+    },
+    "tsao_computation/execution/runner.py": {
       "minimum_branch_percent": 85.0,
       "minimum_statement_percent": 90.0
     },

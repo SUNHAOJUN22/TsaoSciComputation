@@ -49,6 +49,8 @@ python -m tsao_computation probe
 | Python 模块、CLI、API、容器、调度器或其他 Skill | 在运行时、身份、授权和证据条件满足前仅生成声明式交接 |
 
 执行策略为 fail-closed：旧低层进程接口不能直接执行；硬件探测仅允许固定只读命令；外部执行在启动前重新绑定可执行文件、声明输入和规范化环境。
+
+相对可执行文件和输入路径现统一以规范化后的 `CommandPlan.cwd` 为基准解析，不再受控制进程当前目录影响。裸命令名仅按清洗后的不可变 `PATH` 解析一次，随后转换为绝对路径、计算哈希并在执行前重新绑定；实际进程运行也使用已授权的规范化工作目录。
 <!-- SUPER_SKILL_ORCHESTRATION:END -->
 
 ## 架构概览
@@ -113,6 +115,9 @@ V5 报告统计 **169 个源码文件**和 **3 个原生语言文件**。生产�
 批量执行层现可接收每个计划不可变的 CPU、GPU、许可证令牌声明以及主机容量包络。基于条件变量的资源代理会阻止 CPU 过度订阅、独占 GPU 冲突和许可证超额分配，并将容量与声明哈希写入批执行结果。
 
 GPU 准入现采用双向失败关闭：任何非空 CUDA/HIP/ROCR 可见设备绑定都必须有匹配的 GPU 资源声明；不可变命令环境中出现的每个可见设备别名都必须与该声明一致。确定性加固证据：[`reports/RESOURCE_BROKER_GPU_BINDING_V6_HARDENING.json`](reports/RESOURCE_BROKER_GPU_BINDING_V6_HARDENING.json)。
+
+
+求解器证据现在在 Python 数据模型与 JSON Schema 中实施一致的状态矩阵：未检测证据只能是 `candidate-only`；缺失模块必须是 `detected-incomplete`；成功取得受限版本输出必须是 `version-probed-unqualified`；互相矛盾的哈希、大小、模块集合和版本字段会被拒绝。可复用的自治加固提示词见 [`docs/autonomous-software-hardening-prompt.md`](docs/autonomous-software-hardening-prompt.md)。
 
 V5 新增注册表约束的求解器能力证据。`probe-solver` 会对实际解析到的可执行文件记录路径、字节数和 SHA-256，检查声明的 Python 模块，并且只允许固定、有界、无 shell 的版本/帮助参数。版本输出同样有长度上限并绑定哈希。自动状态最高仅为 `version-probed-unqualified`；数值等价、后端支持、加速收益、收敛性和许可证仍必须分别通过资格门禁。
 

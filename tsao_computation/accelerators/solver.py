@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 import shlex
 import shutil
 import sys
@@ -21,6 +22,15 @@ from ..security.process import (
 
 _READ_CHUNK_BYTES = 1024 * 1024
 _MAX_VERSION_EXCERPT_CHARS = 4096
+_SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
+_QUALIFICATION_STATUSES = frozenset(
+    {
+        "candidate-only",
+        "detected-incomplete",
+        "fingerprinted-unqualified",
+        "version-probed-unqualified",
+    }
+)
 
 
 def _required_string(value: object, field_name: str) -> str:
@@ -134,76 +144,131 @@ class SolverCapabilityEvidence:
         object.__setattr__(
             self, "adapter_slug", _required_string(self.adapter_slug, "adapter_slug")
         )
-        object.__setattr__(
-            self,
+        for field_name in (
             "declared_executables",
-            _string_tuple(self.declared_executables, "declared_executables"),
-        )
-        object.__setattr__(
-            self,
             "required_python_modules",
-            _string_tuple(self.required_python_modules, "required_python_modules"),
-        )
-        object.__setattr__(
-            self,
             "missing_python_modules",
-            _string_tuple(self.missing_python_modules, "missing_python_modules"),
-        )
-        object.__setattr__(
-            self,
             "version_arguments",
-            _string_tuple(self.version_arguments, "version_arguments"),
-        )
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _string_tuple(getattr(self, field_name), field_name),
+            )
         if not isinstance(self.detected, bool):
             raise ContractError("detected must be a boolean")
-        optional_strings = (
+        if self.executable_size_bytes is not None and (
+            isinstance(self.executable_size_bytes, bool)
+            or not isinstance(self.executable_size_bytes, int)
+        ):
+            raise ContractError("executable_size_bytes must be an integer or null")
+        if self.version_returncode is not None and (
+            isinstance(self.version_returncode, bool)
+            or not isinstance(self.version_returncode, int)
+        ):
+            raise ContractError("version_returncode must be an integer or null")
+
+        for field_name in (
             "executable_name",
             "executable_path",
             "executable_sha256",
             "version_text_sha256",
             "version_excerpt",
-        )
-        for field_name in optional_strings:
+        ):
             value = getattr(self, field_name)
             if value is not None:
                 object.__setattr__(self, field_name, _required_string(value, field_name))
-        if self.detected:
-            if self.executable_path is None or self.executable_sha256 is None:
-                raise ContractError(
-                    "detected solver evidence requires a path and executable SHA-256"
-                )
-            if self.executable_size_bytes is None or self.executable_size_bytes < 1:
-                raise ContractError("detected solver evidence requires a positive executable size")
-        elif any(
-            value is not None
-            for value in (
-                self.executable_path,
-                self.executable_sha256,
-                self.executable_size_bytes,
-                self.version_returncode,
-                self.version_text_sha256,
-                self.version_excerpt,
-            )
-        ):
-            raise ContractError("undetected solver evidence cannot contain executable evidence")
-        if self.version_returncode is not None and not isinstance(self.version_returncode, int):
-            raise ContractError("version_returncode must be an integer or null")
+        for field_name in ("executable_sha256", "version_text_sha256"):
+            value = getattr(self, field_name)
+            if value is not None and _SHA256_PATTERN.fullmatch(value) is None:
+                raise ContractError(f"{field_name} must be a lowercase SHA-256 digest")
         if (
             self.version_excerpt is not None
             and len(self.version_excerpt) > _MAX_VERSION_EXCERPT_CHARS
         ):
             raise ContractError("version_excerpt exceeds the bounded evidence limit")
-        object.__setattr__(
-            self,
-            "qualification_status",
-            _required_string(self.qualification_status, "qualification_status"),
-        )
+
+        status = _required_string(self.qualification_status, "qualification_status")
+        if status not in _QUALIFICATION_STATUSES:
+            raise ContractError(f"unsupported qualification_status: {status}")
+        object.__setattr__(self, "qualification_status", status)
         object.__setattr__(self, "reason", _required_string(self.reason, "reason"))
         object.__setattr__(
             self,
             "claim_boundary",
             _required_string(self.claim_boundary, "claim_boundary"),
         )
+
+        required_modules = set(self.required_python_modules)
+        missing_modules = set(self.missing_python_modules)
+        if not missing_modules.issubset(required_modules):
+            raise ContractError(
+                "missing_python_modules must be a subset of required_python_modules"
+            )
+        if bool(self.version_arguments) != (self.version_returncode is not None):
+            raise ContractError("version arguments and return code must be recorded together")
+        if (self.version_text_sha256 is None) != (self.version_excerpt is None):
+            raise ContractError("version text SHA-256 and excerpt must be recorded together")
+        if self.version_returncode is None and self.version_text_sha256 is not None:
+            raise ContractError("version text requires a completed version probe")
+
+        executable_evidence = (
+            self.executable_name,
+            self.executable_path,
+            self.executable_sha256,
+            self.executable_size_bytes,
+        )
+        version_evidence = (
+            self.version_arguments,
+            self.version_returncode,
+            self.version_text_sha256,
+            self.version_excerpt,
+        )
+        if self.detected:
+            if any(value is None for value in executable_evidence):
+                raise ContractError(
+                    "detected solver evidence requires name, path, SHA-256 and size"
+                )
+            if self.executable_size_bytes is None or self.executable_size_bytes < 1:
+                raise ContractError("detected solver evidence requires a positive executable size")
+            if status == "candidate-only":
+                raise ContractError("detected solver evidence cannot be candidate-only")
+        else:
+            if any(
+                value is not None and value != ()
+                for value in (*executable_evidence, *version_evidence)
+            ):
+                raise ContractError("undetected solver evidence cannot contain executable evidence")
+            if self.missing_python_modules:
+                raise ContractError("undetected solver evidence cannot report missing modules")
+            if status != "candidate-only":
+                raise ContractError("undetected solver evidence must be candidate-only")
+
+        if status == "detected-incomplete":
+            if not self.detected or not self.missing_python_modules:
+                raise ContractError(
+                    "detected-incomplete evidence requires detected solver and missing modules"
+                )
+        elif status == "version-probed-unqualified":
+            if self.missing_python_modules:
+                raise ContractError("version-probed evidence cannot report missing Python modules")
+            if (
+                not self.detected
+                or self.version_returncode != 0
+                or self.version_text_sha256 is None
+            ):
+                raise ContractError(
+                    "version-probed evidence requires successful bounded version output"
+                )
+        elif status == "fingerprinted-unqualified":
+            if not self.detected or self.missing_python_modules:
+                raise ContractError(
+                    "fingerprinted evidence requires a detected solver with complete modules"
+                )
+            if self.version_returncode == 0 and self.version_text_sha256 is not None:
+                raise ContractError(
+                    "successful version output must use version-probed-unqualified status"
+                )
 
     def _identity_dict(self) -> dict[str, object]:
         payload = asdict(self)
