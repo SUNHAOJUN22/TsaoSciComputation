@@ -136,10 +136,7 @@ def build_report(root: Path, *, platform_name: str | None = None) -> dict[str, A
         path.relative_to(root).as_posix()
         for path in root.rglob("*")
         if path.is_file()
-        and any(
-            path.name.endswith(suffix)
-            for suffix in (".tmp", ".part", ".orig", ".rej")
-        )
+        and any(path.name.endswith(suffix) for suffix in (".tmp", ".part", ".orig", ".rej"))
     )
     for relative in temporary_files:
         _issue(issues, "temporary_delivery_file", relative, "remove transport or editor residue")
@@ -171,7 +168,7 @@ def build_report(root: Path, *, platform_name: str | None = None) -> dict[str, A
             EXTERNAL_BOUNDARY,
             "\\[",
             "H_{bundle}",
-            "ExecutionResource",
+            "resource admission",
             "Windows",
             "Linux",
         ):
