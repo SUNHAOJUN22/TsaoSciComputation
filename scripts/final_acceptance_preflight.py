@@ -76,6 +76,9 @@ def _check_svg(path: Path, issues: list[dict[str, str]]) -> None:
     except (OSError, ET.ParseError, DefusedXmlException) as exc:
         _issue(issues, "svg_invalid", path.as_posix(), str(exc))
         return
+    if root is None:
+        _issue(issues, "svg_root_missing", path.as_posix(), "parser returned no root element")
+        return
     if not root.tag.endswith("svg"):
         _issue(issues, "svg_root_invalid", path.as_posix(), "root is not svg")
     if not root.attrib.get("viewBox"):
