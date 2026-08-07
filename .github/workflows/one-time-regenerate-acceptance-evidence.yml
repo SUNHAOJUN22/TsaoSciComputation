@@ -1,0 +1,51 @@
+name: One-time regenerate acceptance evidence
+
+on:
+  push:
+    branches: [agent/final-acceptance-20260807]
+    paths:
+      - .github/acceptance-evidence-regenerate.trigger
+
+permissions:
+  contents: write
+
+concurrency:
+  group: tsao-computation-acceptance-evidence
+  cancel-in-progress: false
+
+jobs:
+  regenerate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: agent/final-acceptance-20260807
+          fetch-depth: 0
+          token: ${{ github.token }}
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+          cache: pip
+      - name: Remove one-time transport and regenerate source-bound evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f .github/acceptance-evidence-regenerate.trigger
+          rm -f .github/workflows/one-time-regenerate-acceptance-evidence.yml
+          python -m pip install -e '.[validation,quality,security]'
+          python scripts/build_acceleration_audits.py
+          python scripts/final_acceptance_preflight.py --root . --json
+          python scripts/verify_all.py --profile core
+          python scripts/verify_all.py --profile quality
+          python scripts/verify_all.py --profile package
+      - name: Commit exact generated reports
+        shell: bash
+        run: |
+          set -euo pipefail
+          git add -A
+          git diff --cached --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'docs: regenerate source-bound acceleration evidence'
+          git push origin HEAD:agent/final-acceptance-20260807
