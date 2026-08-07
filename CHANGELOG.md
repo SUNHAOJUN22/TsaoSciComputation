@@ -2,7 +2,8 @@
 
 ## Unreleased
 
-- Rewrote the bilingual delivery READMEs with mathematical operating models, six deployment and qualification strategies, four acceptance-focused AI-assisted SVG diagrams, and current qualification evidence.
+- Rejected Python booleans as scientific scalars across finite-value, convergence and uncertainty paths; converted non-finite convergence failure sentinels into JSON-safe structured evidence and added trusted-callable regression coverage.
+- Rewrote the bilingual delivery READMEs with mathematical operating models, seven deployment and qualification strategies, strict scalar-domain equations, four acceptance-focused AI-assisted SVG diagrams, and layered qualification evidence.
 - Hardened execution identity so relative executables and inputs bind to the normalized plan working directory, sanitized PATH resolution is immutable, and runtime uses the authorized normalized directory; strengthened solver-evidence state coherence, Schema validation, strict pytest configuration, and critical branch-coverage gates.
 - Hardened GPU resource admission so non-empty CUDA/HIP/ROCR visibility cannot bypass an empty GPU claim, all present visibility aliases must agree, and malformed or duplicate device lists fail closed; added deterministic Schema-bound evidence and regression gates.
 - Added Solver-Bound Acceleration Plans V6: acceleration plan hashes now bind adapter-matched executable, binary, version-output and solver-evidence identities; strict evidence mode fails closed while preserving `external-hold` and `evidence-bound-unqualified` scientific boundaries.
