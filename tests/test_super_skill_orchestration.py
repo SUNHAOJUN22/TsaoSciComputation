@@ -102,6 +102,31 @@ def test_trusted_callables_fail_closed() -> None:
         execute_trusted_callable("remote-api-template", {})
 
 
+def test_trusted_convergence_callable_rejects_boolean_scalars() -> None:
+    observed = execute_trusted_callable(
+        "convergence-check", {"values": [False, False], "absolute_tolerance": 0.0}
+    )
+    assert observed.output == {
+        "passed": False,
+        "delta": None,
+        "threshold": 0.0,
+        "reason": "invalid-or-insufficient-convergence-data",
+    }
+    assert len(observed.result_sha256) == 64
+
+    with pytest.raises(ValueError, match="finite and non-negative"):
+        execute_trusted_callable(
+            "convergence-check", {"values": [1.0, 1.0], "absolute_tolerance": True}
+        )
+
+
+def test_trusted_uncertainty_callable_preserves_boolean_rejection() -> None:
+    with pytest.raises(ValueError, match="finite non-negative"):
+        execute_trusted_callable(
+            "combine-independent-uncertainty", {"components": [True, 1.0]}
+        )
+
+
 def test_external_invocation_targets_are_plan_only(tmp_path: Path) -> None:
     abstract = build_invocation_plan("remote-api-template", {})
     assert not abstract.ready and not abstract.execute_allowed
