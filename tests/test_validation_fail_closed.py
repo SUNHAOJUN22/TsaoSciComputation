@@ -26,6 +26,23 @@ def test_non_numeric_values_fail_finite_and_convergence_checks() -> None:
     assert result["delta"] == float("inf")
 
 
+def test_boolean_observations_are_not_scientific_scalars() -> None:
+    assert finite_values([1.0, True]) is False
+    result = convergence_check([False, False], absolute_tolerance=0.0)
+    assert result == {"passed": False, "delta": float("inf"), "threshold": 0.0}
+
+
+@pytest.mark.parametrize(
+    ("absolute", "relative"),
+    ((True, 0.0), (0.1, False)),
+)
+def test_boolean_convergence_tolerances_are_rejected(
+    absolute: float, relative: float
+) -> None:
+    with pytest.raises(ValueError, match="finite and non-negative"):
+        convergence_check([1.0, 1.1], absolute_tolerance=absolute, relative_tolerance=relative)
+
+
 @pytest.mark.parametrize(
     ("absolute", "relative"),
     ((-1.0, 0.0), (0.1, -1.0), (math.nan, 0.0), (0.1, math.inf)),
