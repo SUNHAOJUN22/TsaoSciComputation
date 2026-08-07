@@ -4,16 +4,33 @@ import math
 from collections.abc import Iterable
 
 
+def _finite_scalar(value: object, *, name: str) -> float:
+    if isinstance(value, bool):
+        raise ValueError(f"{name} must be a finite real number, not a boolean")
+    try:
+        converted = float(value)
+    except (TypeError, ValueError, OverflowError) as error:
+        raise ValueError(f"{name} must be a finite real number") from error
+    if not math.isfinite(converted):
+        raise ValueError(f"{name} must be a finite real number")
+    return converted
+
+
 def finite_values(values: Iterable[float]) -> bool:
     try:
-        return all(math.isfinite(float(value)) for value in values)
+        for value in values:
+            _finite_scalar(value, name="values")
     except (TypeError, ValueError, OverflowError):
         return False
+    return True
 
 
 def _finite_non_negative(value: float, *, name: str) -> float:
-    converted = float(value)
-    if not math.isfinite(converted) or converted < 0:
+    try:
+        converted = _finite_scalar(value, name=name)
+    except ValueError as error:
+        raise ValueError(f"{name} must be finite and non-negative") from error
+    if converted < 0:
         raise ValueError(f"{name} must be finite and non-negative")
     return converted
 
@@ -28,9 +45,7 @@ def convergence_check(
     current = 0.0
     try:
         for value in values:
-            converted = float(value)
-            if not math.isfinite(converted):
-                return {"passed": False, "delta": float("inf"), "threshold": absolute}
+            converted = _finite_scalar(value, name="convergence values")
             previous, current = current, converted
             count += 1
     except (TypeError, ValueError, OverflowError):
