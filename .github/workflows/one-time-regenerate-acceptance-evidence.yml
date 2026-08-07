@@ -29,7 +29,7 @@ jobs:
         with:
           python-version: '3.13'
           cache: pip
-      - name: Restore permanent workflow, repair lint, and remove temporary transport
+      - name: Restore permanent workflow and remove temporary transport
         shell: bash
         run: |
           set -euo pipefail
@@ -37,23 +37,6 @@ jobs:
           git checkout origin/main -- .github/workflows/ci.yml
           rm -f .github/acceptance-evidence-regenerate.trigger
           rm -f .github/workflows/one-time-regenerate-acceptance-evidence.yml
-          python - <<'PY'
-          from pathlib import Path
-
-          path = Path('scripts/final_acceptance_preflight.py')
-          text = path.read_text(encoding='utf-8')
-          if 'from contextlib import suppress' not in text:
-              text = text.replace(
-                  'import xml.etree.ElementTree as ET\n',
-                  'import xml.etree.ElementTree as ET\nfrom contextlib import suppress\n',
-                  1,
-              )
-          old = '''    finally:\n        try:\n            sys.path.remove(str(root))\n        except ValueError:\n            pass\n'''
-          new = '''    finally:\n        with suppress(ValueError):\n            sys.path.remove(str(root))\n'''
-          if old not in text:
-              raise SystemExit('expected Ruff SIM105 block not found')
-          path.write_text(text.replace(old, new, 1), encoding='utf-8')
-          PY
       - name: Format, regenerate, and qualify exact source-bound evidence
         shell: bash
         run: |
@@ -75,5 +58,5 @@ jobs:
           git diff --cached --check
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git commit -m 'fix: format and regenerate exact source-bound evidence'
+          git commit -m 'fix: qualify type-safe hardened source-bound evidence'
           git push origin HEAD:agent/final-acceptance-20260807
