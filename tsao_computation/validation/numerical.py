@@ -4,7 +4,6 @@ import math
 from collections.abc import Iterable
 from typing import SupportsFloat, SupportsIndex
 
-
 _SCALAR_INPUT_TYPES = (str, bytes, bytearray, memoryview, SupportsFloat, SupportsIndex)
 
 

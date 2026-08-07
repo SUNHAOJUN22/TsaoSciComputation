@@ -122,9 +122,7 @@ def test_trusted_convergence_callable_rejects_boolean_scalars() -> None:
 
 def test_trusted_uncertainty_callable_preserves_boolean_rejection() -> None:
     with pytest.raises(ValueError, match="finite non-negative"):
-        execute_trusted_callable(
-            "combine-independent-uncertainty", {"components": [True, 1.0]}
-        )
+        execute_trusted_callable("combine-independent-uncertainty", {"components": [True, 1.0]})
 
 
 def test_external_invocation_targets_are_plan_only(tmp_path: Path) -> None:

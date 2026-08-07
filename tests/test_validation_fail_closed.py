@@ -36,9 +36,7 @@ def test_boolean_observations_are_not_scientific_scalars() -> None:
     ("absolute", "relative"),
     ((True, 0.0), (0.1, False)),
 )
-def test_boolean_convergence_tolerances_are_rejected(
-    absolute: float, relative: float
-) -> None:
+def test_boolean_convergence_tolerances_are_rejected(absolute: float, relative: float) -> None:
     with pytest.raises(ValueError, match="finite and non-negative"):
         convergence_check([1.0, 1.1], absolute_tolerance=absolute, relative_tolerance=relative)
 

@@ -202,7 +202,9 @@ def build_report(root: Path, *, platform_name: str | None = None) -> dict[str, A
 
 def _atomic_write(path: Path, report: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    rendered = json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True, allow_nan=False) + "\n"
+    rendered = (
+        json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True, allow_nan=False) + "\n"
+    )
     with tempfile.NamedTemporaryFile(
         "w", encoding="utf-8", newline="\n", dir=path.parent, delete=False
     ) as stream:
