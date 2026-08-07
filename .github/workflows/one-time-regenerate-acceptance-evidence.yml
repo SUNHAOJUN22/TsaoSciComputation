@@ -43,6 +43,8 @@ jobs:
           set -euo pipefail
           python -m pip install -e '.[validation,quality,security]'
           python -m ruff format tsao_computation scripts tests _bootstrap.py
+          python -m ruff check --fix tsao_computation scripts tests _bootstrap.py
+          python -m ruff format tsao_computation scripts tests _bootstrap.py
           python -m ruff check tsao_computation scripts tests _bootstrap.py
           python scripts/build_acceleration_audits.py
           python scripts/build_manifest.py
