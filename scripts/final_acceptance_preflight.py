@@ -14,9 +14,12 @@ import os
 import platform
 import sys
 import tempfile
-import xml.etree.ElementTree as ET
+from contextlib import suppress
 from pathlib import Path
 from typing import Any
+
+from defusedxml import ElementTree as ET
+from defusedxml.common import DefusedXmlException
 
 SCHEMA = "tsao.final-acceptance-preflight/v1"
 REPOSITORY = "TsaoSciComputation"
@@ -70,7 +73,7 @@ def _issue(issues: list[dict[str, str]], code: str, path: str, detail: str) -> N
 def _check_svg(path: Path, issues: list[dict[str, str]]) -> None:
     try:
         root = ET.parse(path).getroot()
-    except (OSError, ET.ParseError) as exc:
+    except (OSError, ET.ParseError, DefusedXmlException) as exc:
         _issue(issues, "svg_invalid", path.as_posix(), str(exc))
         return
     if not root.tag.endswith("svg"):
@@ -104,10 +107,8 @@ def _inventory_counts(root: Path, issues: list[dict[str, str]]) -> dict[str, int
         _issue(issues, "registry_load_failed", "tsao_computation/data/registry", str(exc))
         return {}
     finally:
-        try:
+        with suppress(ValueError):
             sys.path.remove(str(root))
-        except ValueError:
-            pass
     for name, expected in EXPECTED_COUNTS.items():
         observed = counts[name]
         if observed != expected:
