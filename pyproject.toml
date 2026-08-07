@@ -44,6 +44,7 @@ Security = "https://github.com/SUNHAOJUN22/TsaoSciComputation/security/policy"
 validation = [
   "pytest>=8",
   "coverage>=7",
+  "defusedxml>=0.7.1,<0.8",
   "jsonschema>=4",
   "PyYAML>=6",
   "tomli>=2; python_version < '3.11'",
