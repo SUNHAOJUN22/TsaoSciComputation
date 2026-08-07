@@ -20,6 +20,10 @@ from .planner import (
     methods,
     recommend_acceleration,
 )
+from .strict_scalars import install_strict_scalar_invocations as _install_strict_scalar_invocations
+
+_install_strict_scalar_invocations()
+del _install_strict_scalar_invocations
 
 __all__ = [
     "AccelerationAdvice",
