@@ -6,7 +6,7 @@
 
 **Evidence-governed scientific-computation orchestration from equations and solver identity to reproducible delivery.**
 
-![version](https://img.shields.io/badge/version-3.0.4-2563eb) ![capabilities](https://img.shields.io/badge/capabilities-164-7c3aed) ![adapters](https://img.shields.io/badge/adapters-27-ea580c) ![workflows](https://img.shields.io/badge/workflows-20-0891b2) ![tests](https://img.shields.io/badge/tests-845%20passed-16a34a) ![coverage](https://img.shields.io/badge/coverage-95.25%25-0891b2)
+![version](https://img.shields.io/badge/version-3.0.4-2563eb) ![capabilities](https://img.shields.io/badge/capabilities-164-7c3aed) ![adapters](https://img.shields.io/badge/adapters-27-ea580c) ![workflows](https://img.shields.io/badge/workflows-20-0891b2) ![tests](https://img.shields.io/badge/tests-845%20qualified%20%2B%205%20incremental-16a34a) ![coverage](https://img.shields.io/badge/coverage-95.25%25%20qualified-0891b2)
 
 [中文说明](README.zh-CN.md) · [Root Skill](SKILL.md) · [Capabilities](capability-index/README.md) · [Visual atlas](assets/visuals/README.md) · [Validation](docs/scientific-validation.md) · [Architecture](docs/architecture.md) · [Delivery prompt](docs/autonomous-software-hardening-prompt.md)
 
@@ -14,19 +14,20 @@
 
 ## Delivery status
 
-The current software baseline is suitable for repository-level delivery and acceptance:
+TsaoSciComputation is a deliverable software control plane with an explicit boundary between **repository qualification** and **external scientific execution**.
 
-- **164 capabilities**, **27 external adapters** and **20 machine-readable workflows**;
-- **845 deterministic tests passed** with **95.25% total coverage**;
-- Ruff, Mypy, Bandit, repository security scanning, controlled mutation, Schema, Manifest, reproducible source/Wheel, isolated installation, SBOM and native C ABI verification passed;
-- the repository keeps **`main` as the sole authoritative branch**;
-- live third-party solver qualification remains **`EXTERNAL_HOLD`** until real binaries, licenses, fixed inputs, hardware fingerprints, reference results and scientific tolerances are supplied.
+- **164 capabilities**, **27 external adapters**, **20 machine-readable workflows**, **23 methods**, **13 acceleration strategies** and **7 trusted local functions**;
+- the accepted remote baseline contains **845 deterministic tests** at **95.25% total coverage**;
+- this acceptance increment adds **5 scalar-validation regression cases**, all passing in the reconstructed source qualification suite;
+- Ruff, Mypy, Bandit, repository security scanning, controlled mutation, Schema, Manifest, reproducible source/Wheel, isolated installation, SBOM and native C ABI checks remain the release gates;
+- `main` is the sole authoritative branch;
+- real third-party solver correctness remains **`EXTERNAL_HOLD`** until binaries, licenses, fixed inputs, hardware fingerprints, reference values and scientific tolerances are supplied.
 
-This distinction is deliberate: software delivery is complete; external scientific execution is evidence-dependent.
+No exit code, version string, GPU visibility variable or benchmark microsecond is promoted into a scientific claim by itself.
 
 ## What the repository is
 
-TsaoSciComputation converts a scientific question into a governed calculation program:
+TsaoSciComputation turns a scientific question into a governed calculation program:
 
 ```text
 question → contract → method/scale route → preflight → bounded execution
@@ -34,14 +35,17 @@ question → contract → method/scale route → preflight → bounded execution
          → uncertainty/applicability → accept, reject or hold
 ```
 
-It is a **control plane and qualification framework**, not a bundled DFT, MD, CFD, FEM or process simulator. Python owns contracts, routing, policy, provenance and acceptance. External numerical engines remain separately installed, licensed and scientifically qualified. Profiled software hotspots may cross a versioned C ABI into C++20/OpenMP or an optional solver-native accelerator path.
+It is a **control plane and qualification framework**, not a bundled DFT, MD, CFD, FEM or process simulator. Python owns contracts, routing, policy, provenance and acceptance. A source-only C++20/OpenMP layer exposes a versioned C ABI for measured software hotspots. External engines remain separately installed, licensed and qualified.
 
-### What it does not claim
+### Claim boundary
 
-- no fabricated VASP, Quantum ESPRESSO, Gaussian, GROMACS, OpenFOAM, Aspen or commercial-solver execution;
-- no GPU/MPI numerical-equivalence claim without a trusted CPU reference;
-- no production speedup claim from repository-local orchestration benchmarks;
-- no scientific acceptance from process exit code alone.
+The repository does **not** claim:
+
+- fabricated VASP, Quantum ESPRESSO, Gaussian, GROMACS, OpenFOAM, Aspen or commercial-solver execution;
+- GPU/MPI numerical equivalence without a trusted CPU reference;
+- production speedup from orchestration-only benchmarks;
+- convergence or physical validity from process completion;
+- a boolean value as a valid scientific real scalar.
 
 ## Quick start
 
@@ -51,12 +55,11 @@ cd TsaoSciComputation
 python -m pip install -e '.[validation,quality,security]'
 
 python -m tsao_computation route \
-  "Plan a DFT-to-MD study of an interface with explicit uncertainty gates"
-
+  "Plan a DFT-to-MD interface study with explicit uncertainty gates"
 python -m tsao_computation validate-contract \
   templates/calculation-contract.json --strict
-
 python -m tsao_computation probe
+
 python scripts/verify_all.py --profile all
 python scripts/verify_native_core.py
 ```
@@ -81,11 +84,13 @@ The repository exposes **164 capabilities**, **23 computation methods**, **9 inv
 
 | Invocation mode | Default behavior |
 |---|---|
-| Registered trusted local function | Execute only after payload validation and request/result hashing |
-| External solver or adapter | Probe and build a command plan; execution requires separate authorization |
+| Registered trusted local function | Validate payload, execute a bounded implementation, and hash request/result evidence |
+| External solver or adapter | Probe identity and build a command plan; execution requires separate authorization |
 | Python module, CLI, API, container, scheduler or Skill | Produce a declarative handoff until runtime, identity and evidence conditions are satisfied |
 
-Execution is fail-closed. Relative executables and inputs are resolved from normalized `CommandPlan.cwd`. Bare command names are resolved once against a sanitized immutable `PATH`, converted to absolute paths, hashed and rebound immediately before launch. The authorized normalized working directory is the directory actually passed to the process runner.
+Execution is fail-closed. Relative executables and inputs resolve from normalized `CommandPlan.cwd`. Bare command names resolve once against a sanitized immutable `PATH`, become absolute paths, are hashed, and are rebound immediately before launch. The authorized normalized working directory is the directory passed to the process runner.
+
+Scalar-sensitive trusted callables are also fail-closed: booleans never acquire scientific meaning through Python's `bool ⊂ int` implementation detail, and non-finite failure sentinels are converted to JSON-safe structured evidence before hashing.
 <!-- SUPER_SKILL_ORCHESTRATION:END -->
 
 ## Architecture at a glance
@@ -101,8 +106,6 @@ Execution is fail-closed. Relative executables and inputs are resolved from norm
 </tr>
 </table>
 
-### Control plane, native plane and external engines
-
 | Layer | Responsibility | Acceptance boundary |
 |---|---|---|
 | Python control plane | contracts, routing, evidence, provenance, policy, parsers, UQ and decisions | deterministic repository qualification |
@@ -111,45 +114,58 @@ Execution is fail-closed. Relative executables and inputs are resolved from norm
 
 ## Mathematical operating model
 
-The mathematics below describes the repository's actual control logic. It is not decoration and does not substitute for a solver's governing equations.
+The equations below describe implemented control logic; they do not replace a solver's governing equations.
 
-### 1. Calculation contract as a constrained state
-
-A governed calculation can be represented as
+### 1. Calculation contract
 
 $$
-\mathcal{C}=(Q,M,D,R,E,V,U,A),
+\mathcal C=(Q,M,D,R,E,V,U,A),
 $$
 
-where $Q$ is the scientific question, $M$ the selected method, $D$ the declared data and inputs, $R$ the resource request, $E$ the execution evidence, $V$ the validation specification, $U$ the uncertainty model and $A$ the acceptance authority. A route is admissible only if the required predicates are satisfied:
+where $Q$ is the scientific question, $M$ the method, $D$ declared data, $R$ resources, $E$ execution evidence, $V$ validation, $U$ uncertainty and $A$ acceptance authority.
 
 $$
-\operatorname{admit}(\mathcal{C})=
-\mathbf{1}_{\text{schema}}
-\mathbf{1}_{\text{identity}}
-\mathbf{1}_{\text{inputs}}
-\mathbf{1}_{\text{resources}}
-\mathbf{1}_{\text{policy}}.
+\operatorname{admit}(\mathcal C)=
+\mathbf 1_{\mathrm{schema}}
+\mathbf 1_{\mathrm{identity}}
+\mathbf 1_{\mathrm{inputs}}
+\mathbf 1_{\mathrm{resources}}
+\mathbf 1_{\mathrm{policy}}.
 $$
 
-One failed predicate yields zero admission; missing evidence is not treated as success.
+Any false predicate yields zero admission.
 
 ### 2. Reproducible identity binding
 
-The execution bundle is bound by a canonical digest:
-
 $$
-H_{\text{bundle}}=
-\operatorname{SHA256}(B_{\text{solver}}\parallel B_{\text{inputs}}
-\parallel B_{\text{env}}\parallel B_{\text{contract}}
-\parallel B_{\text{reference}}).
+H_{\mathrm{bundle}}=
+\operatorname{SHA256}(B_{\mathrm{solver}}\parallel B_{\mathrm{inputs}}
+\parallel B_{\mathrm{env}}\parallel B_{\mathrm{contract}}
+\parallel B_{\mathrm{reference}}).
 $$
 
-Changing the executable, input bytes, normalized environment, contract or reference evidence changes the bundle identity. Authorization for one identity cannot silently authorize another.
+Changing executable bytes, canonical inputs, environment, contract or reference evidence changes the identity and invalidates the old authorization.
 
-### 3. Convergence and stopping rules
+### 3. Strict scientific scalar domain
 
-A generic iterative convergence condition is
+Python permits `True == 1`, but scientific validation must not. The implemented admissibility predicate is
+
+$$
+\chi_{\mathbb R_f}(x)=
+\mathbf 1_{\neg\operatorname{Bool}(x)}
+\mathbf 1_{\operatorname{convertible}(x)}
+\mathbf 1_{\operatorname{isfinite}(\operatorname{float}(x))}.
+$$
+
+For non-negative tolerances and uncertainty components,
+
+$$
+\chi_{\mathbb R_f^+}(x)=\chi_{\mathbb R_f}(x)\mathbf 1_{x\ge 0}.
+$$
+
+Thus `True`, `False`, NaN, infinity and nonnumeric objects cannot silently enter convergence or uncertainty calculations.
+
+### 4. Convergence and stopping rules
 
 $$
 \lVert x_{k+1}-x_k\rVert
@@ -157,31 +173,33 @@ $$
 +\varepsilon_{\mathrm{rel}}\lVert x_k\rVert.
 $$
 
-TsaoSciComputation keeps convergence distinct from process completion:
-
 ```text
 completed ≠ parsed ≠ converged ≠ validated ≠ accepted
 ```
 
-A zero exit code can establish only process completion. Convergence requires an explicit observable, norm and tolerance.
+Invalid or insufficient convergence data returns structured failure. To preserve strict JSON evidence,
 
-### 4. Numerical equivalence
+$$
+\Phi(\Delta)=
+\begin{cases}
+\Delta, & \Delta\in\mathbb R_f,\\
+\texttt{null}, & \text{otherwise},
+\end{cases}
+$$
 
-For a candidate backend and trusted reference,
+with an explicit reason code rather than a non-standard `Infinity` token.
+
+### 5. Numerical equivalence
 
 $$
 \delta_{\mathrm{rel}}=
 \frac{|y_{\mathrm{candidate}}-y_{\mathrm{reference}}|}
-{\max(|y_{\mathrm{reference}}|,\epsilon)}.
+{\max(|y_{\mathrm{reference}}|,\epsilon)},
+\qquad
+\max_j\delta_{\mathrm{rel},j}\leq\tau_{\mathrm{eq}}.
 $$
 
-Backend equivalence is accepted only when all governed observables satisfy their declared limits:
-
-$$
-\max_j \delta_{\mathrm{rel},j}\leq \tau_{\mathrm{eq}}.
-$$
-
-This is why the qualification order is fixed:
+Qualification order is fixed:
 
 $$
 \text{Identity}\rightarrow
@@ -190,129 +208,121 @@ $$
 \text{performance qualification}.
 $$
 
-### 5. Conservation and physical residuals
-
-For a steady balance,
+### 6. Conservation and physical residuals
 
 $$
 R_{\mathrm{cons}}=
-\left|\sum_i F_i^{\mathrm{in}}
--\sum_j F_j^{\mathrm{out}}
-+S\right|,
+\left|\sum_iF_i^{\mathrm{in}}-\sum_jF_j^{\mathrm{out}}+S\right|,
+\qquad
+R_{\mathrm{cons}}\leq\tau_{\mathrm{cons}}.
 $$
 
-where $S$ is a declared generation or consumption term. Acceptance requires
+### 7. Uncertainty propagation and applicability
+
+For independent components,
 
 $$
-R_{\mathrm{cons}}\leq \tau_{\mathrm{cons}}.
+u_c=\sqrt{\sum_i u_i^2},\qquad u_i\in\mathbb R_f^+.
 $$
 
-The internal reference suite applies analytical, conservation and invariant checks to heat transfer, fluid flow, reaction engineering, molecular dynamics, statistical mechanics, electrostatics and multiphysics fixtures.
-
-### 6. Uncertainty propagation and applicability
-
-For $y=f(x_1,\ldots,x_n)$ with independent input uncertainties,
+For $y=f(x_1,\ldots,x_n)$,
 
 $$
-u_y^2\approx
-\sum_i\left(\frac{\partial f}{\partial x_i}\right)^2u_{x_i}^2.
+u_y^2\approx\sum_i\left(\frac{\partial f}{\partial x_i}\right)^2u_{x_i}^2.
 $$
 
-A result is not accepted solely because $u_y$ is small. The applicability predicate must also hold:
+Applicability remains separate:
 
 $$
 A_{\mathrm{domain}}=
-\mathbf{1}(x\in\Omega_{\mathrm{validated}})
-\mathbf{1}(\text{model assumptions hold}).
+\mathbf 1(x\in\Omega_{\mathrm{validated}})
+\mathbf 1(\text{model assumptions hold}).
 $$
 
-### 7. Resource broker admission
-
-For license, binary, hardware, inputs and policy predicates,
+### 8. Resource broker admission
 
 $$
 A_{\mathrm{resource}}=
-\mathbf{1}(L)\mathbf{1}(B)\mathbf{1}(H)
-\mathbf{1}(I)\mathbf{1}(P).
+\mathbf 1(L)\mathbf 1(B)\mathbf 1(H)\mathbf 1(I)\mathbf 1(P),
 $$
 
-For a host capacity vector $c=(c_{\mathrm{CPU}},c_{\mathrm{GPU}},c_{\mathrm{license}})$ and plan claims $r_p$, concurrent plans are feasible only if
+and concurrent claims must satisfy
 
 $$
-\sum_{p\in\mathcal{P}_{\mathrm{active}}}r_p\preceq c.
+\sum_{p\in\mathcal P_{\mathrm{active}}}r_p\preceq c.
 $$
 
 The broker rejects CPU oversubscription, exclusive-GPU collisions, inconsistent CUDA/HIP/ROCR visibility and license-token over-allocation.
 
+### 9. Claim contract
+
+Every acceptance statement is represented as
+
+$$
+\operatorname{claim}=(\text{observable},\text{reference},\text{tolerance},
+\text{evidence},\text{authority}).
+$$
+
+Missing any component downgrades the claim or retains a hold.
+
 ## Qualification and delivery diagrams
 
-The following AI-assisted information designs are deterministic, repository-owned SVG sources. They explain software logic and do not depict fabricated solver output.
+The following AI-assisted information designs are deterministic repository-owned SVG sources. They explain code and qualification logic; they are not fabricated solver output.
 
-<img src="assets/visuals/uncertainty-sensitivity.svg" alt="Correctness-first external execution qualification ladder" width="100%">
+<img src="assets/visuals/uncertainty-sensitivity.svg" alt="Scientific scalar admission and correctness-first qualification ladder" width="100%">
 <img src="assets/visuals/acceleration-opportunity-pipeline.svg" alt="Fail-closed solver evidence state machine" width="100%">
 <img src="assets/visuals/hpc-execution-provenance.svg" alt="Resource broker admission barriers and escalation" width="100%">
 <img src="assets/visuals/process-optimization-uq.svg" alt="Reproducible build, evidence and delivery feedback loop" width="100%">
 
 <!-- V13_VISUAL_SYSTEM:START -->
-The repository contains **43 self-contained SVGs** using **Scientific Research Console V13**. The root READMEs showcase **12 representative diagrams**; the complete searchable inventory is in [`assets/visuals/README.md`](assets/visuals/README.md), with design and trust rules in [`assets/visuals/DESIGN_SYSTEM.md`](assets/visuals/DESIGN_SYSTEM.md).
+The repository contains **43 self-contained SVGs** using **Scientific Research Console V13**. The root READMEs showcase **12 representative diagrams**; the complete inventory is in [`assets/visuals/README.md`](assets/visuals/README.md), with design and trust rules in [`assets/visuals/DESIGN_SYSTEM.md`](assets/visuals/DESIGN_SYSTEM.md).
 <!-- V13_VISUAL_SYSTEM:END -->
 
 ## Usage strategies
 
-### Strategy A — scientific planning without solver access
+### Strategy A — planning without solver access
 
-Use `route`, contract validation and capability/workflow inspection to design a defensible calculation program. Keep the result as a plan or `EXTERNAL_HOLD`; do not invent runtime evidence.
+Use routing, contract validation and capability inspection to produce a defensible calculation plan. Keep it plan-only or `EXTERNAL_HOLD`; do not invent runtime evidence.
 
-### Strategy B — onboarding an external solver
+### Strategy B — strict scalar ingestion
 
-Prepare a minimum evidence package:
+Validate every observation, tolerance and uncertainty component before calculation. Reject booleans, NaN and infinity. Preserve failure as JSON-safe structured evidence so request/result hashes remain deterministic.
+
+### Strategy C — external solver onboarding
 
 ```text
 qualification-bundle/
-├── solver-identity.json        # path, size, SHA-256, version output
+├── solver-identity.json        # path, size, SHA-256, bounded version output
 ├── environment.json            # OS, runtime, libraries, scheduler, devices
 ├── inputs/                     # fixed canonical inputs
 ├── references/                 # trusted CPU or analytical references
-├── tolerances.json             # observable-specific numerical limits
+├── tolerances.json             # observable-specific limits
 ├── license-evidence.json       # availability and authorization boundary
 └── provenance.json             # bundle hash and review authority
 ```
 
-Then qualify identity, correctness, equivalence and performance in that order.
+Qualify identity, CPU correctness, GPU/MPI equivalence and performance in that order.
 
-### Strategy C — edge deployment
+### Strategy D — edge deployment
 
-- pre-package registries, Schemas, templates and visual/documentation assets;
-- use CPU-only mode unless the edge accelerator is explicitly fingerprinted;
-- cap workers and memory; prefer local deterministic functions and declarative handoffs;
-- transfer only hash-bound evidence bundles to a larger solver host.
+Pre-package registries and Schemas; default to CPU-only unless the accelerator is fingerprinted; cap workers and memory; transfer only hash-bound evidence bundles to larger solver hosts.
 
-### Strategy D — shared HPC deployment
+### Strategy E — shared HPC deployment
 
-- map immutable plan claims to scheduler CPU/GPU/license requests;
-- separate scratch, checkpoint and final evidence directories;
-- bind scheduler metadata, executable identity and environment to provenance;
-- retry only classified transient failures; never reinterpret non-convergence as infrastructure failure.
+Map immutable claims to scheduler CPU/GPU/license requests; separate scratch, checkpoint and evidence directories; bind scheduler metadata to provenance; retry only classified transient failures.
 
-### Strategy E — acceleration work
+### Strategy F — acceleration engineering
 
-1. inventory the code and profile a real workload;
-2. distinguish orchestration overhead from numerical-kernel cost;
-3. prefer solver-native parallelism and libraries before custom kernels;
-4. establish CPU correctness and deterministic references;
-5. prove GPU/MPI equivalence using declared observables and tolerances;
-6. measure performance on the same qualified problem and report uncertainty.
+1. inventory and profile a real workload;
+2. distinguish orchestration from numerical-kernel cost;
+3. prefer solver-native parallelism and mature libraries;
+4. establish a trusted CPU reference;
+5. prove GPU/MPI equivalence with declared observables and tolerances;
+6. measure same-problem performance with uncertainty.
 
-### Strategy F — acceptance and audit
+### Strategy G — acceptance and audit
 
-Treat every claim as a tuple
-
-$$
-\text{claim}=(\text{observable},\text{reference},\text{tolerance},
-\text{evidence},\text{authority}).
-$$
-
-If any element is absent, downgrade the claim or keep it on hold.
+Require a reference, tolerance, evidence identity and approving authority for every claim. A successful process without those items remains unaccepted.
 
 ## Multiscale scientific visual map
 
@@ -323,7 +333,7 @@ If any element is absent, downgrade the claim or keep it on hold.
 
 ## Acceleration and native interoperability
 
-Python remains the control plane. A hotspot should move to C++/OpenMP/CUDA only when profiling demonstrates material value and the boundary can be tested independently.
+Python remains the control plane. A hotspot crosses into C++/OpenMP/CUDA only after profiling demonstrates material value and equivalence can be tested independently.
 
 <img src="assets/visuals/hpc-failure-recovery.svg" alt="HPC checkpointing and bounded recovery" width="100%">
 
@@ -339,12 +349,12 @@ python -m tsao_computation profile-performance \
 ```
 
 <!-- ACCELERATION_AUDIT_SUMMARY:START -->
-The governed audit inventories **170 Python files** and **3 native-language files**. Production and full-tree reports remain source-hash-bound and `unprofiled` until runtime evidence exists; neither report claims external-solver or GPU speedup.
+The governed audit inventories **171 Python files** and **3 native-language files** after the scalar-validation increment. Production and full-tree reports remain source-hash-bound and `unprofiled` until runtime evidence exists; neither report claims external-solver or GPU speedup.
 <!-- ACCELERATION_AUDIT_SUMMARY:END -->
 
 Architecture, CUDA-X selection rules and C++ migration gates: [`docs/accelerated-native-backend.md`](docs/accelerated-native-backend.md). Native verification: `python scripts/verify_native_core.py`.
 
-## Verification and acceptance evidence
+## Verification
 
 ```bash
 python -m pip install -e '.[validation,quality,security]'
@@ -353,18 +363,31 @@ python scripts/verify_native_core.py
 python scripts/verify_all.py --profile benchmark
 ```
 
-`all` covers quality, linting, formatting, typing, security, tests, coverage, controlled mutation, scientific reference fixtures, Schema/registry checks, generated-file consistency, reproducible source/Wheel builds, isolated installation, SBOMs, checksums and release manifests. `benchmark` reports environment-dependent orchestration telemetry and is not external solver performance evidence.
+`all` covers linting, formatting, typing, security, pytest, coverage, mutation, analytical fixtures, Schema/registry checks, generated-file consistency, reproducible source/Wheel builds, isolated installation, SBOMs, checksums and release manifests. `benchmark` is orchestration telemetry, not external-solver performance evidence.
+
+### Incremental scalar-hardening evidence
+
+| Check | Result |
+|---|---:|
+| New regression cases | 5 passed |
+| Reconstructed source suite | 830 passed, 0 failed |
+| Reconstructed coverage | 95.08% total |
+| Scientific reference fixtures | 8/8 passed |
+| Repository security scan | 597 files, 0 findings |
+| Schema / adapter metadata | PASS / PASS |
+| C++20 C ABI / CTest / Python bridge | PASS / 1 of 1 / PASS |
+
+The reconstructed suite starts from the retained release-candidate source artifact; the prior current-main software baseline remains the authoritative 845-test remote qualification. A new remote full-tree run must not be inferred from this local incremental evidence.
 
 <!-- CURRENT_MAIN_VERIFICATION:START -->
-### Current deliverable baseline
+### Accepted remote baseline
 
-| Qualification item | Result |
+| Current-main item | Result |
 |---|---:|
 | Version | 3.0.4 |
 | Capabilities / adapters / workflows | 164 / 27 / 20 |
 | Tests | 845 passed, 0 failed |
-| Total coverage | 95.25% (required: 95.00%) |
-| Ruff / Mypy / Bandit | PASS / 105 source files / PASS |
+| Total coverage | 95.25% |
 | Controlled mutation probes | 64/64 killed |
 | Scientific reference benchmarks | 8/8 passed |
 | Repository security findings | 0 |
@@ -373,10 +396,10 @@ python scripts/verify_all.py --profile benchmark
 | Scientific visual assets | 43 self-contained SVGs / 12 featured |
 | Remote branches | `main` only |
 
-The qualification boundary covers repository software, deterministic fixtures and native interoperability. External solver correctness, licenses, accelerator equivalence and production performance remain `EXTERNAL_HOLD` until real evidence is supplied.
+The remote baseline covers repository software, deterministic fixtures and native interoperability. The scalar increment is separately identified above; external solver correctness, licenses, accelerator equivalence and production performance remain `EXTERNAL_HOLD`.
 <!-- CURRENT_MAIN_VERIFICATION:END -->
 
-## Trust boundaries
+## Trust states
 
 | State | Meaning |
 |---|---|
