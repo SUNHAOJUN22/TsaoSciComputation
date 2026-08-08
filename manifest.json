@@ -1476,6 +1476,11 @@
       "sha256": "3838c23e97cf92019b8a7f49df1122d19b41b0e7e2957de24e7cd1cc9e88ecd0"
     },
     {
+      "bytes": 7435,
+      "path": "docs/SIX_REPOSITORY_PARALLEL_6H_ACCEPTANCE_PROMPT.md",
+      "sha256": "93122899436c01681fcf0c883194ee56a619de57e8fbe53d8df85da8de6add6f"
+    },
+    {
       "bytes": 11904,
       "path": "docs/accelerated-native-backend.md",
       "sha256": "6325b682a3ddefbf5637fa713670a940ffccadf8e0a3fd926f93a23559913a1e"
@@ -1623,7 +1628,7 @@
     {
       "bytes": 72,
       "path": "evidence/security-scan.json",
-      "sha256": "8b5b77842cf408695c3b5678f571890a80ecc1058a6ff258da2efdba5d086925"
+      "sha256": "f1b44fb759eaf65885a39a6ad979b0028a67e4f8a3ba91b2fcb6cd4c7dd8bb5a"
     },
     {
       "bytes": 573,
