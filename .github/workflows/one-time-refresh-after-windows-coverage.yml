@@ -1,0 +1,53 @@
+name: One-time refresh after Windows coverage repair
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/refresh-after-windows-coverage.trigger
+
+permissions:
+  contents: write
+
+concurrency:
+  group: tsao-scicomputation-post-coverage-evidence-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - name: Check out exact acceptance branch
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: agent/parallel-6h-acceptance-20260808
+          fetch-depth: 0
+          persist-credentials: true
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+          cache: pip
+      - name: Install exact qualification dependencies
+        run: python -m pip install -e '.[validation,quality,security]'
+      - name: Regenerate governed evidence and qualify all affected profiles
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/security_scan.py
+          python scripts/build_manifest.py
+          python scripts/build_manifest.py --check
+          python scripts/verify_all.py --profile core
+          python scripts/verify_all.py --profile quality
+          python scripts/verify_all.py --profile package
+      - name: Publish exact regenerated acceptance tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git diff --cached --check
+          git commit -m 'test: bind Windows path-coverage repair to exact source evidence'
+          git push origin HEAD:agent/parallel-6h-acceptance-20260808
