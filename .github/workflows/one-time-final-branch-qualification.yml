@@ -1,0 +1,101 @@
+name: One-time final branch qualification
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: tsao-computation-final-branch-qualification
+  cancel-in-progress: false
+
+jobs:
+  core-matrix:
+    if: >-
+      github.event.issue.number == 160 &&
+      github.event.comment.body == '/qualify-tsao-computation-final'
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ['3.10', '3.13']
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      - name: Check out exact acceptance branch
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: agent/final-acceptance-20260807
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+      - name: Install and run complete core qualification
+        run: |
+          python -m pip install -e '.[validation,quality]'
+          python scripts/verify_all.py --profile core
+
+  quality-package:
+    if: >-
+      github.event.issue.number == 160 &&
+      github.event.comment.body == '/qualify-tsao-computation-final'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - name: Check out exact acceptance branch
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: agent/final-acceptance-20260807
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+          cache: pip
+      - name: Run quality, security, drift and package qualification
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install -e '.[validation,quality,security]'
+          python scripts/verify_all.py --profile quality
+          git diff --exit-code
+          python scripts/verify_all.py --profile package
+
+  cleanup:
+    if: >-
+      github.event.issue.number == 160 &&
+      github.event.comment.body == '/qualify-tsao-computation-final' &&
+      needs.core-matrix.result == 'success' &&
+      needs.quality-package.result == 'success'
+    needs: [core-matrix, quality-package]
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Remove trusted controller from main
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: main
+          persist-credentials: true
+      - name: Delete controller and post success
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git rm .github/workflows/one-time-final-branch-qualification.yml
+          git commit -m 'chore: remove one-time computation qualification controller'
+          git push origin HEAD:main
+          body='TSAO_COMPUTATION_FINAL_QUALIFICATION: PASS — Windows/Linux × Python 3.10/3.13 core matrix plus quality/security/drift/package gates completed.'
+          jq -n --arg body "$body" '{body:$body}' > /tmp/comment.json
+          curl -fsSL -X POST \
+            -H 'Accept: application/vnd.github+json' \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H 'X-GitHub-Api-Version: 2022-11-28' \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/160/comments" \
+            -d @/tmp/comment.json
