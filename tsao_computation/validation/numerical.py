@@ -2,11 +2,16 @@ from __future__ import annotations
 
 import math
 from collections.abc import Iterable
+from typing import SupportsFloat, SupportsIndex
+
+_SCALAR_INPUT_TYPES = (str, bytes, bytearray, memoryview, SupportsFloat, SupportsIndex)
 
 
 def _finite_scalar(value: object, *, name: str) -> float:
     if isinstance(value, bool):
         raise ValueError(f"{name} must be a finite real number, not a boolean")
+    if not isinstance(value, _SCALAR_INPUT_TYPES):
+        raise ValueError(f"{name} must be a finite real number")
     try:
         converted = float(value)
     except (TypeError, ValueError, OverflowError) as error:

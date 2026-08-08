@@ -1,25 +1,25 @@
 {
   "category_counts": {
     "external-solver-dispatch": 14,
-    "filesystem-scan": 16,
+    "filesystem-scan": 17,
     "numeric-python-loop": 6
   },
   "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
   "file_scope_counts": {
     "benchmark": 9,
-    "production": 61,
-    "test": 65,
-    "tooling": 38
+    "production": 62,
+    "test": 67,
+    "tooling": 39
   },
   "language_files": {
     "c": 1,
     "cpp": 2,
-    "python": 170
+    "python": 174
   },
   "language_lines": {
     "c": 70,
     "cpp": 197,
-    "python": 22450
+    "python": 22929
   },
   "opportunities": [
     {
@@ -977,6 +977,36 @@
         "network filesystem",
         "stale cache"
       ],
+      "candidate_id": "6cee40c4ac43b73a7d773932e38f9d672fa61a485c0cadfdcc8c20aada7e5beb",
+      "category": "filesystem-scan",
+      "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
+      "confidence": "medium",
+      "current_pattern": "repository or dataset filesystem walk",
+      "decision": "diagnostic-only",
+      "evidence_requirements": [
+        "I/O trace",
+        "filesystem-pass count",
+        "same-host latency and peak-memory baseline"
+      ],
+      "file_scope": "tooling",
+      "first_action": "reduce repeated passes, cache stable metadata, and stream results; GPU migration is usually unsuitable",
+      "library_candidates": [],
+      "line": 141,
+      "path": "scripts/final_acceptance_preflight.py",
+      "runtime_status": "unprofiled",
+      "score": 45,
+      "source_sha256": "3763e0b9366bea5cd625949a85814570d03c09c5b1e388844b20451369b41f07",
+      "symbol": "build_report"
+    },
+    {
+      "backend_candidates": [
+        "cpu"
+      ],
+      "blockers": [
+        "cold-cache variability",
+        "network filesystem",
+        "stale cache"
+      ],
       "candidate_id": "3c91a4139501936385069fde38a7f9b64ca2d3a5567c8b4ee3387eb9f833b853",
       "category": "filesystem-scan",
       "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
@@ -1269,13 +1299,13 @@
       "symbol": "test_workflows_pin_actions_and_avoid_privileged_untrusted_triggers"
     }
   ],
-  "opportunity_count": 36,
+  "opportunity_count": 37,
   "parse_failures": [],
-  "python_files_analyzed": 170,
+  "python_files_analyzed": 174,
   "python_files_excluded": 0,
   "root": ".",
   "scope": "full-tree",
-  "source_files": 173,
-  "source_lines": 22717,
-  "source_tree_sha256": "525af2cbf1c406272c06f9b92e13366eb38bbcc7999cd676a13d098a00c75571"
+  "source_files": 177,
+  "source_lines": 23196,
+  "source_tree_sha256": "d32e2ebbc5de9b7e580c4b691f7a963a5cf8e0a1b6ba8d52a37a5595f54d0d5c"
 }

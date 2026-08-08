@@ -28,13 +28,40 @@ def _sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
+def _has_explicit_relative_prefix(value: str) -> bool:
+    normalized = value.replace("\\", "/")
+    return normalized.startswith("./") or normalized.startswith("../")
+
+
+def _search_exact_path_entry(argv0: str, search_path: str) -> str | None:
+    """Resolve an exact filename from the immutable plan PATH.
+
+    ``shutil.which`` follows Windows ``PATHEXT`` rules and therefore ignores an
+    extensionless executable fixture. Command-plan identity, however, binds the
+    exact file bytes selected from the declared PATH. This bounded fallback
+    checks only literal PATH entries and never consults the ambient process PATH.
+    """
+
+    if not search_path:
+        return None
+    for raw_entry in search_path.split(os.pathsep):
+        entry = raw_entry.strip().strip('"')
+        if not entry:
+            continue
+        candidate = Path(entry).expanduser() / argv0
+        try:
+            if candidate.is_file():
+                return str(candidate)
+        except OSError:
+            continue
+    return None
+
+
 def _resolve_executable(argv0: str, cwd: Path, *, search_path: str) -> Path:
     if not isinstance(argv0, str) or not argv0 or "\x00" in argv0:
         raise SecurityError("command plan executable must be a non-empty string")
     candidate = Path(argv0).expanduser()
-    explicit_relative = candidate.parent != Path(".") or argv0.startswith(
-        (f".{os.sep}", f"..{os.sep}")
-    )
+    explicit_relative = candidate.parent != Path(".") or _has_explicit_relative_prefix(argv0)
     found: str | None
     if candidate.is_absolute():
         found = str(candidate)
@@ -42,6 +69,8 @@ def _resolve_executable(argv0: str, cwd: Path, *, search_path: str) -> Path:
         found = str(cwd / candidate)
     else:
         found = shutil.which(argv0, path=search_path)
+        if found is None:
+            found = _search_exact_path_entry(argv0, search_path)
     if not found:
         raise SecurityError(f"command plan executable is unavailable: {argv0}")
     try:
