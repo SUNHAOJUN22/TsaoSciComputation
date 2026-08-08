@@ -1,4 +1,4 @@
-name: One-time launch SciComputation clean-source repair v2
+name: One-time launch SciComputation clean-source repair v3
 
 on:
   push:
@@ -9,8 +9,8 @@ permissions:
   issues: write
 
 jobs:
-  repair-and-launch:
-    if: contains(github.event.head_commit.message || '', '[run-scicomputation-clean-repair-v2]')
+  repair-and-publish:
+    if: contains(github.event.head_commit.message || '', '[run-scicomputation-clean-repair-v3]')
     runs-on: ubuntu-24.04
     timeout-minutes: 75
     steps:
@@ -35,20 +35,12 @@ jobs:
           python - <<'PY'
           from pathlib import Path
 
-          source = Path('/tmp/scicomputation-controller.yml').read_text(
-              encoding='utf-8'
-          ).splitlines()
+          source = Path('/tmp/scicomputation-controller.yml').read_text(encoding='utf-8').splitlines()
 
           def extract(step_name: str, target: str) -> None:
               marker = f'- name: {step_name}'
-              index = next(
-                  i for i, line in enumerate(source)
-                  if line.strip() == marker
-              )
-              run_index = next(
-                  i for i in range(index + 1, len(source))
-                  if source[i].strip() == 'run: |'
-              )
+              index = next(i for i, line in enumerate(source) if line.strip() == marker)
+              run_index = next(i for i in range(index + 1, len(source)) if source[i].strip() == 'run: |')
               run_indent = len(source[run_index]) - len(source[run_index].lstrip())
               body: list[str] = []
               for line in source[run_index + 1:]:
@@ -60,23 +52,11 @@ jobs:
                   raise SystemExit(f'empty run script for {step_name!r}')
               Path(target).write_text('\n'.join(body) + '\n', encoding='utf-8')
 
-          extract(
-              'Remove harness files and regenerate exact evidence',
-              '/tmp/scicomputation-prepare.sh',
-          )
-          extract(
-              'Run clean-source qualification',
-              '/tmp/scicomputation-validate.sh',
-          )
-          extract(
-              'Generate isolated six-hour harness bound to clean source',
-              '/tmp/scicomputation-harness.sh',
-          )
+          extract('Remove harness files and regenerate exact evidence', '/tmp/scicomputation-prepare.sh')
+          extract('Run clean-source qualification', '/tmp/scicomputation-validate.sh')
+          extract('Generate isolated six-hour harness bound to clean source', '/tmp/scicomputation-harness.sh')
           PY
-          chmod +x \
-            /tmp/scicomputation-prepare.sh \
-            /tmp/scicomputation-validate.sh \
-            /tmp/scicomputation-harness.sh
+          chmod +x /tmp/scicomputation-prepare.sh /tmp/scicomputation-validate.sh /tmp/scicomputation-harness.sh
 
       - name: Regenerate evidence and qualify clean source
         shell: bash
@@ -109,15 +89,6 @@ jobs:
           set -euo pipefail
           bash /tmp/scicomputation-harness.sh
 
-      - name: Start clean-source six-hour qualification
-        shell: bash
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          sleep 15
-          gh issue comment 162 --repo "$GITHUB_REPOSITORY" --body '/run-six-hour-active-v4'
-
       - name: Record launcher result
         if: always()
         shell: bash
@@ -127,11 +98,4 @@ jobs:
           HARNESS_SHA: ${{ steps.harness.outputs.harness_sha }}
         run: |
           set -euo pipefail
-          gh issue comment 162 --repo "$GITHUB_REPOSITORY" --body "SCICOMPUTATION_CLEAN_SOURCE_LAUNCHER_V2: **${{ job.status }}**
-
-- clean qualified source: \`${CLEAN_SHA:-UNPUBLISHED}\`
-- isolated harness commit: \`${HARNESS_SHA:-UNPUBLISHED}\`
-- six-hour command: \`/run-six-hour-active-v4\`
-- prior failed source contributes \`0 ns\`
-
-Manifest, security, acceleration, native, quality, package and performance Gates remain unchanged."
+          gh issue comment 162 --repo "$GITHUB_REPOSITORY" --body "SCICOMPUTATION_REPAIR_V3 status=${{ job.status }} clean_sha=${CLEAN_SHA:-UNPUBLISHED} harness_sha=${HARNESS_SHA:-UNPUBLISHED} next=/run-six-hour-active-v4 previous_active_ns=0"
