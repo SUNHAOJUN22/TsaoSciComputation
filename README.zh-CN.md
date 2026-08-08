@@ -12,6 +12,17 @@
 
 </div>
 
+<!-- LOCALIZED_VISION_ZH:START -->
+## 中文项目愿景图：从基本方程到可复现科学计算
+
+<p align="center">
+  <img src="docs/localized-vision/scicomputation-vision-zh.svg" width="100%" alt="TsaoSciComputation 中文跨尺度科学计算愿景与数理架构">
+</p>
+
+> 图中方程对应合同、执行身份、收敛、不确定度和验收模块；图不代表 VASP、Gaussian、GROMACS、OpenFOAM 或 Aspen 已经运行。
+
+<!-- LOCALIZED_VISION_ZH:END -->
+
 ## 当前交付状态
 
 当前软件基线已经达到仓库级验收与交付条件：

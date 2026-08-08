@@ -12,6 +12,17 @@
 
 </div>
 
+<!-- LOCALIZED_VISION_EN:START -->
+## Project vision: from governing equations to reproducible computation
+
+<p align="center">
+  <img src="docs/localized-vision/scicomputation-vision-en.svg" width="100%" alt="TsaoSciComputation English multiscale computation vision and mathematical architecture">
+</p>
+
+> The equations map to contract, execution-identity, convergence, uncertainty and acceptance modules. The figure does not claim that VASP, Gaussian, GROMACS, OpenFOAM or Aspen has run.
+
+<!-- LOCALIZED_VISION_EN:END -->
+
 ## Delivery status
 
 TsaoSciComputation is a deliverable software control plane with an explicit boundary between **repository qualification** and **external scientific execution**.
