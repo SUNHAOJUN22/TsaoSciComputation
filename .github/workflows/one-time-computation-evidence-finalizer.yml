@@ -1,0 +1,66 @@
+name: One-time computation evidence finalizer
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/computation-evidence-finalizer.trigger
+
+permissions:
+  contents: write
+
+concurrency:
+  group: tsao-computation-evidence-finalizer
+  cancel-in-progress: false
+
+jobs:
+  finalize:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - name: Check out acceptance branch
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: agent/final-acceptance-20260807
+          fetch-depth: 0
+          persist-credentials: true
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+          cache: pip
+      - name: Install exact qualification dependencies
+        run: python -m pip install -e '.[validation,quality,security]'
+      - name: Regenerate source-bound evidence and qualify clean tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m ruff format tsao_computation scripts tests _bootstrap.py
+          python -m ruff check tsao_computation scripts tests _bootstrap.py
+          python scripts/build_acceleration_audits.py
+          python scripts/build_manifest.py
+          python scripts/final_acceptance_preflight.py --root . --json
+          python scripts/verify_all.py --profile core
+          python scripts/verify_all.py --profile quality
+          python scripts/verify_all.py --profile package
+      - name: Publish exact branch evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git diff --cached --check
+          git commit -m 'docs: regenerate exact source-bound acceptance evidence'
+          git push origin HEAD:agent/final-acceptance-20260807
+      - name: Remove one-time controller from main
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          git switch --force-create main origin/main
+          git rm .github/workflows/one-time-computation-evidence-finalizer.yml .github/computation-evidence-finalizer.trigger
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'chore: remove one-time computation evidence finalizer'
+          git push origin HEAD:main
