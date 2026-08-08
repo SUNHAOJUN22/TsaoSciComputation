@@ -36,11 +36,6 @@
       "sha256": "3df770971d50d2df680f50b254caebfb9c4088fa9b3c5813fe869640bafc22d1"
     },
     {
-      "bytes": 13424,
-      "path": ".github/localized-readme-vision.py",
-      "sha256": "39b73b58459be3fbd2b84316558779ccada431eaa6ba013511cf98c4783359c5"
-    },
-    {
       "bytes": 4079,
       "path": ".github/workflows/ci.yml",
       "sha256": "842b4c2bb590be80556b7d21bd113919cf617a5fa104a10dd0f84e499fdc14a3"
@@ -54,11 +49,6 @@
       "bytes": 1398,
       "path": ".github/workflows/dependency-audit.yml",
       "sha256": "15d510e1f5228c7de316c385f6ae91044ce9fa30cbced49a30a85f6a21e9a1bb"
-    },
-    {
-      "bytes": 1502,
-      "path": ".github/workflows/localized-readme-vision-once.yml",
-      "sha256": "b97f59ef266819d35c6671fec9b25fe82cfbc9ff7aacaaad79527e8371d7f3c1"
     },
     {
       "bytes": 5555,
@@ -1536,14 +1526,14 @@
       "sha256": "3cba9107d95c2ded64789dc95d72c60ce75d46fd805aa6c1dfd6dd347f2444f1"
     },
     {
-      "bytes": 9375,
+      "bytes": 9052,
       "path": "docs/localized-vision/scicomputation-vision-en.svg",
-      "sha256": "f8d3946dd76b3a13b23debe8e0379d8c5c3e6b08ea3d10416b54e4d0a9edb974"
+      "sha256": "54608805f891379c90eaacfdf6cc397452e6f2d127bc5b35fe1157792ac94754"
     },
     {
-      "bytes": 9203,
+      "bytes": 8880,
       "path": "docs/localized-vision/scicomputation-vision-zh.svg",
-      "sha256": "aa59e25cee657aa636ac4e303258457b91b755168b2838441561259561601ae3"
+      "sha256": "8abcd494db0a760d288147d9179d182cdceaff6d66204d17bb2a4cb5ea54737d"
     },
     {
       "bytes": 2044,
@@ -1828,17 +1818,17 @@
     {
       "bytes": 52899,
       "path": "reports/ACCELERATION_OPPORTUNITIES_FULL_TREE_V4.json",
-      "sha256": "f428056ba01b8fb2773fc3bf7cabeed2509ce119fa507a0cc4b21211e3bd6f24"
+      "sha256": "d072b3d0e3965ab2e24627001fdb86e13ade6fdbe1f30968f60144524758b892"
     },
     {
       "bytes": 5059,
       "path": "reports/ACCELERATION_OPPORTUNITIES_PRODUCTION_V4.json",
-      "sha256": "d426564e16490e5a7517adaf3430d45764f6a99025437fc5a38615e0929d2276"
+      "sha256": "cf68b3f765acf0f1133326d676c612c69cc300c5a6e06b68bca25b19d600c249"
     },
     {
       "bytes": 5059,
       "path": "reports/ACCELERATION_OPPORTUNITIES_V2.json",
-      "sha256": "d426564e16490e5a7517adaf3430d45764f6a99025437fc5a38615e0929d2276"
+      "sha256": "cf68b3f765acf0f1133326d676c612c69cc300c5a6e06b68bca25b19d600c249"
     },
     {
       "bytes": 1196,
