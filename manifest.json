@@ -51,11 +51,6 @@
       "sha256": "15d510e1f5228c7de316c385f6ae91044ce9fa30cbced49a30a85f6a21e9a1bb"
     },
     {
-      "bytes": 4034,
-      "path": ".github/workflows/one-time-launch-clean-source-repair-v2.yml",
-      "sha256": "8248ebf38a15cdfaea0e8657325813dcff72d97a7a70cd5b0f30ae8c09215207"
-    },
-    {
       "bytes": 5555,
       "path": ".github/workflows/release.yml",
       "sha256": "b0ebf6572cd48fb93dd5f3c16f235e299fe865dd4779aa45dd561f18c295eb8f"
@@ -1633,7 +1628,7 @@
     {
       "bytes": 72,
       "path": "evidence/security-scan.json",
-      "sha256": "5427d45eeba9f1faa7771151ca75a623ffbdbff8b2801b8e07db471e01cc47e1"
+      "sha256": "f1b44fb759eaf65885a39a6ad979b0028a67e4f8a3ba91b2fcb6cd4c7dd8bb5a"
     },
     {
       "bytes": 573,
