@@ -37,6 +37,14 @@ def test_exact_path_entry_search_is_bounded_to_declared_path(tmp_path: Path) -> 
     ) == str(executable)
 
 
+def test_exact_path_search_skips_blank_declared_entries(tmp_path: Path) -> None:
+    path_bin = tmp_path / "path-bin"
+    executable = _literal_executable(path_bin / "solver")
+    search_path = os.pathsep.join(("", "   ", '""', str(path_bin)))
+
+    assert runner._search_exact_path_entry("solver", search_path) == str(executable)
+
+
 def test_resolver_uses_literal_immutable_path_fallback(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
