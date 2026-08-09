@@ -44,15 +44,37 @@ jobs:
           python - <<'PY'
           from pathlib import Path
 
-          path = Path('.github/workflows/ci.yml')
-          text = path.read_text(encoding='utf-8')
+          workflow = Path('.github/workflows/ci.yml')
+          text = workflow.read_text(encoding='utf-8')
           needle = '    continue-on-error: true\n'
           if text.count(needle) != 1:
               raise SystemExit(f'expected exactly one benchmark continue-on-error line, found {text.count(needle)}')
           text = text.replace(needle, '', 1)
           if 'continue-on-error:' in text:
               raise SystemExit('continue-on-error remains in CI workflow')
-          path.write_text(text, encoding='utf-8', newline='\n')
+          workflow.write_text(text, encoding='utf-8', newline='\n')
+
+          policy = Path('tests/test_ci_policy.py')
+          policy_text = policy.read_text(encoding='utf-8')
+          old = '''def test_benchmark_is_observational_not_a_release_gate() -> None:
+    text = (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
+    quality = text.split("\\n  quality:\\n", 1)[1].split("\\n  package:\\n", 1)[0]
+    benchmark = text.split("\\n  benchmark:\\n", 1)[1]
+    assert "--profile benchmark" not in quality
+    assert "continue-on-error: true" in benchmark
+    assert "--profile benchmark" in benchmark
+'''
+          new = '''def test_benchmark_is_blocking_but_separate_from_quality() -> None:
+    text = (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
+    quality = text.split("\\n  quality:\\n", 1)[1].split("\\n  package:\\n", 1)[0]
+    benchmark = text.split("\\n  benchmark:\\n", 1)[1].split("\\n  performance:\\n", 1)[0]
+    assert "--profile benchmark" not in quality
+    assert "--profile benchmark" in benchmark
+    assert "continue-on-error:" not in benchmark
+'''
+          if policy_text.count(old) != 1:
+              raise SystemExit('legacy observational benchmark policy test was not found exactly once')
+          policy.write_text(policy_text.replace(old, new, 1), encoding='utf-8', newline='\n')
           PY
           rm .github/workflows/v4-fail-closed-hardening-once.yml
           git diff --check
@@ -89,6 +111,7 @@ jobs:
           git add -A \
             .github/workflows/ci.yml \
             .github/workflows/v4-fail-closed-hardening-once.yml \
+            tests/test_ci_policy.py \
             manifest.json \
             evidence/security-scan.json
           git commit -m 'ci: make benchmark qualification fail closed'
@@ -122,4 +145,4 @@ jobs:
           OUTCOME: ${{ job.status }}
           CANDIDATE: ${{ steps.candidate.outputs.sha }}
         run: |
-          gh issue comment "$ISSUE" --body "V4_FAIL_CLOSED_HARDENING_V2 outcome=${OUTCOME} candidate=${CANDIDATE:-UNPUBLISHED} run=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID} controller=self_removed benchmark=blocking manifest=exact-tree"
+          gh issue comment "$ISSUE" --body "V4_FAIL_CLOSED_HARDENING_V2 outcome=${OUTCOME} candidate=${CANDIDATE:-UNPUBLISHED} run=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID} controller=self_removed benchmark=blocking policy_test=updated manifest=exact-tree"
