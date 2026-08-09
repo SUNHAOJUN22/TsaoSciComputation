@@ -6,13 +6,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_benchmark_is_observational_not_a_release_gate() -> None:
+def test_benchmark_is_blocking_but_separate_from_quality() -> None:
     text = (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
     quality = text.split("\n  quality:\n", 1)[1].split("\n  package:\n", 1)[0]
-    benchmark = text.split("\n  benchmark:\n", 1)[1]
+    benchmark = text.split("\n  benchmark:\n", 1)[1].split("\n  performance:\n", 1)[0]
     assert "--profile benchmark" not in quality
-    assert "continue-on-error: true" in benchmark
     assert "--profile benchmark" in benchmark
+    assert "continue-on-error:" not in benchmark
 
 
 def test_uploaded_artifact_names_are_unique_per_attempt() -> None:

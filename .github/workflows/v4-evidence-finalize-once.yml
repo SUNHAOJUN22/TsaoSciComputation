@@ -1,0 +1,91 @@
+name: V4 evidence finalization once
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: v4-evidence-finalization-once
+  cancel-in-progress: false
+
+jobs:
+  finalize:
+    if: >-
+      github.event.issue.pull_request == null &&
+      github.event.comment.user.login == github.repository_owner &&
+      contains(github.event.comment.body, '/finalize-v4-scicomputation-evidence')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+          cache: pip
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Install exact validation environment
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check -e '.[validation,quality,security]'
+          python -m pip check
+      - name: Rebuild derived evidence and repository identity
+        run: |
+          set -euo pipefail
+          python scripts/build_acceleration_audits.py
+          node scripts/refresh-current-main-readme.mjs --check
+          python scripts/verify_all.py --profile quality
+          python scripts/verify_all.py --profile core
+          python scripts/verify_all.py --profile benchmark
+          python scripts/verify_all.py --profile package
+          git diff --check
+      - name: Commit non-workflow evidence candidate
+        id: candidate
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git reset .github/workflows/v4-evidence-finalize-once.yml
+          test -z "$(git diff --cached --name-only -- .github/workflows)"
+          git commit -m 'ci: synchronize fail-closed qualification evidence'
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+      - name: Requalify immutable candidate
+        run: |
+          set -euo pipefail
+          node scripts/refresh-current-main-readme.mjs --check
+          python scripts/verify_all.py --profile quality
+          python scripts/verify_all.py --profile core
+          python scripts/verify_all.py --profile benchmark
+          python scripts/verify_all.py --profile package
+          git diff --exit-code
+          git diff --check
+      - name: Publish exact non-workflow candidate
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          expected_parent="$(git rev-parse HEAD^)"
+          remote_main="$(git rev-parse origin/main)"
+          if [[ "$expected_parent" != "$remote_main" ]]; then
+            echo "STALE_MAIN expected_parent=$expected_parent remote_main=$remote_main" >&2
+            exit 3
+          fi
+          git push origin HEAD:main
+      - name: Publish machine result
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE: ${{ github.event.issue.number }}
+          OUTCOME: ${{ job.status }}
+          CANDIDATE: ${{ steps.candidate.outputs.sha }}
+        run: |
+          gh issue comment "$ISSUE" --body "V4_SCICOMPUTATION_EVIDENCE_FINALIZE outcome=${OUTCOME} candidate=${CANDIDATE:-UNPUBLISHED} run=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID} workflow_changes=false profiles=quality+core+benchmark+package"
