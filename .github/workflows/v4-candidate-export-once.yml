@@ -17,7 +17,7 @@ jobs:
     if: >-
       github.event.issue.pull_request == null &&
       github.event.comment.user.login == github.repository_owner &&
-      contains(github.event.comment.body, '/export-v4-fail-closed-candidate')
+      contains(github.event.comment.body, '/export-v4-fail-closed-candidate-v2')
     runs-on: ubuntu-24.04
     timeout-minutes: 150
     steps:
@@ -38,27 +38,54 @@ jobs:
           set -euo pipefail
           python -m pip install --disable-pip-version-check -e '.[validation,quality,security]'
           python -m pip check
-      - name: Extract and execute the reviewed fail-closed transformation
+      - name: Apply reviewed fail-closed workflow and policy transformation
         run: |
           set -euo pipefail
           python - <<'PY'
           from pathlib import Path
-          import textwrap
+          import re
 
-          controller = Path('.github/workflows/v4-fail-closed-hardening-once.yml')
-          text = controller.read_text(encoding='utf-8')
-          marker = "          python - <<'PY'\n"
-          start = text.index(marker) + len(marker)
-          end = text.index("\n          PY\n", start)
-          Path('/tmp/scicomputation-v4-transform.py').write_text(
-              textwrap.dedent(text[start:end]) + '\n',
-              encoding='utf-8',
-              newline='\n',
+          workflow = Path('.github/workflows/ci.yml')
+          workflow_text = workflow.read_text(encoding='utf-8')
+          directive = '    continue-on-error: true\n'
+          if workflow_text.count(directive) != 1:
+              raise SystemExit(
+                  'expected exactly one benchmark continue-on-error line, '
+                  f'found {workflow_text.count(directive)}'
+              )
+          workflow_text = workflow_text.replace(directive, '', 1)
+          if 'continue-on-error:' in workflow_text:
+              raise SystemExit('continue-on-error remains in CI workflow')
+          workflow.write_text(workflow_text, encoding='utf-8', newline='\n')
+
+          policy = Path('tests/test_ci_policy.py')
+          policy_text = policy.read_text(encoding='utf-8')
+          pattern = (
+              r'def test_benchmark_is_observational_not_a_release_gate\(\) -> None:\n'
+              r'.*?(?=\ndef test_uploaded_artifact_names_are_unique_per_attempt\(\) -> None:)'
           )
+          replacement = (
+              'def test_benchmark_is_blocking_but_separate_from_quality() -> None:\n'
+              '    text = (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")\n'
+              '    quality = text.split("\\n  quality:\\n", 1)[1].split("\\n  package:\\n", 1)[0]\n'
+              '    benchmark = text.split("\\n  benchmark:\\n", 1)[1].split("\\n  performance:\\n", 1)[0]\n'
+              '    assert "--profile benchmark" not in quality\n'
+              '    assert "--profile benchmark" in benchmark\n'
+              '    assert "continue-on-error:" not in benchmark\n'
+          )
+          policy_text, count = re.subn(
+              pattern,
+              lambda _match: replacement,
+              policy_text,
+              count=1,
+              flags=re.DOTALL,
+          )
+          if count != 1:
+              raise SystemExit(f'legacy benchmark policy function match count: {count}')
+          policy.write_text(policy_text, encoding='utf-8', newline='\n')
           PY
-          rm .github/workflows/v4-candidate-export-once.yml
-          python /tmp/scicomputation-v4-transform.py
           rm .github/workflows/v4-fail-closed-hardening-once.yml
+          rm .github/workflows/v4-candidate-export-once.yml
           git diff --check
       - name: Regenerate all exact-tree identities before committing
         run: |
@@ -155,4 +182,4 @@ jobs:
           OUTCOME: ${{ job.status }}
           CANDIDATE: ${{ steps.candidate.outputs.sha }}
         run: |
-          gh issue comment "$ISSUE" --body "V4_SCICOMPUTATION_EXACT_EXPORT outcome=${OUTCOME} candidate=${CANDIDATE:-UNPUBLISHED} run=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID} bundle=uploaded benchmark=blocking policy_test=blocking manifest=exact-tree controllers=removed"
+          gh issue comment "$ISSUE" --body "V4_SCICOMPUTATION_EXACT_EXPORT_V2 outcome=${OUTCOME} candidate=${CANDIDATE:-UNPUBLISHED} run=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID} bundle=uploaded benchmark=blocking policy_test=blocking manifest=exact-tree controllers=removed"
