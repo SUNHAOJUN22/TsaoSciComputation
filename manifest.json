@@ -36,9 +36,9 @@
       "sha256": "3df770971d50d2df680f50b254caebfb9c4088fa9b3c5813fe869640bafc22d1"
     },
     {
-      "bytes": 4052,
+      "bytes": 4051,
       "path": ".github/workflows/ci.yml",
-      "sha256": "804baafdfb362a718ae16d9c0b5251764b1c1b14b8e26a40abc8d0eae090e128"
+      "sha256": "ad605429df96976200395fa2473513c28b8480cc9e66c3f437f3f0fd7920dc8b"
     },
     {
       "bytes": 706,
@@ -64,16 +64,6 @@
       "bytes": 1226,
       "path": ".github/workflows/scorecard.yml",
       "sha256": "6930e10bdfeac63d3d9966f88e8d2a94df67214b63789aaf7e984a8ee6dfe3db"
-    },
-    {
-      "bytes": 3617,
-      "path": ".github/workflows/v4-evidence-finalize-once.yml",
-      "sha256": "918b9d9eef1fcc7838114ab1038c8d8ff27ea6929673ed509ad76e315d3875fd"
-    },
-    {
-      "bytes": 4560,
-      "path": ".github/workflows/v4-publication-cleanup-once.yml",
-      "sha256": "23f1e7f065340fdfcf4e2ee95ca832a928e8a9e7259ae63e45c512020296b0f1"
     },
     {
       "bytes": 193,
@@ -1668,7 +1658,7 @@
     {
       "bytes": 72,
       "path": "evidence/security-scan.json",
-      "sha256": "0d5fd4805d42f7d3a145a5155abd803261b960c9e7a87369a8509dc629630096"
+      "sha256": "03ce2f6cb5f039d81c6bc29b48d816b974c5feea43f5269be08fca652d781107"
     },
     {
       "bytes": 573,
