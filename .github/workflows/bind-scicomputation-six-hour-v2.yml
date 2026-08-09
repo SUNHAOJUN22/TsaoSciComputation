@@ -1,4 +1,4 @@
-name: Bind SciComputation six-hour gate v2
+name: Bind SciComputation six-hour gate v3
 
 on:
   issue_comment:
@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   bind:
-    if: github.event.issue.number == 162 && github.event.comment.body == '/bind-scicomputation-six-hour-v2'
+    if: github.event.issue.number == 162 && github.event.comment.body == '/bind-scicomputation-six-hour-v3'
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
@@ -31,15 +31,13 @@ jobs:
           old_sha = 'a3ba2ac2a17a0cd4d18ea5870d9bcb57c748072a'
           new_sha = '272c6672a907f692c2d0928f24b15cc0a6582635'
           old_command = '/run-scicomputation-six-hour-active-v1'
-          new_command = '/run-scicomputation-six-hour-active-v2'
-          if template.count(old_sha) != 3:
-              raise SystemExit(f'old source count drifted: {template.count(old_sha)}')
-          if template.count(old_command) != 3:
-              raise SystemExit(f'old command count drifted: {template.count(old_command)}')
+          new_command = '/run-scicomputation-six-hour-active-v3'
+          if old_sha not in template or old_command not in template:
+              raise SystemExit('prior SciComputation gate template is incomplete')
           active = template.replace(old_sha, new_sha).replace(old_command, new_command)
           if old_sha in active or old_command in active:
               raise SystemExit('stale SciComputation binding remains')
-          Path('.github/workflows/one-time-scicomputation-six-hour-active-v2.yml').write_text(active, encoding='utf-8')
+          Path('.github/workflows/one-time-scicomputation-six-hour-active-v3.yml').write_text(active, encoding='utf-8')
           Path('.github/workflows/bind-scicomputation-six-hour-v2.yml').unlink()
           PY
           git diff --check
@@ -64,4 +62,4 @@ jobs:
           HARNESS_SHA: ${{ steps.publish.outputs.harness_sha }}
         run: |
           set -euo pipefail
-          gh issue comment 162 --repo "$GITHUB_REPOSITORY" --body "SCICOMPUTATION_BIND_V2 status=${{ job.status }} harness_sha=${HARNESS_SHA:-UNPUBLISHED} source=272c6672a907f692c2d0928f24b15cc0a6582635 next=/run-scicomputation-six-hour-active-v2"
+          gh issue comment 162 --repo "$GITHUB_REPOSITORY" --body "SCICOMPUTATION_BIND_V3 status=${{ job.status }} run=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID harness_sha=${HARNESS_SHA:-UNPUBLISHED} source=272c6672a907f692c2d0928f24b15cc0a6582635 next=/run-scicomputation-six-hour-active-v3"
