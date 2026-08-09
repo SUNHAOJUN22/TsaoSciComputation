@@ -36,9 +36,9 @@
       "sha256": "3df770971d50d2df680f50b254caebfb9c4088fa9b3c5813fe869640bafc22d1"
     },
     {
-      "bytes": 4079,
+      "bytes": 4052,
       "path": ".github/workflows/ci.yml",
-      "sha256": "842b4c2bb590be80556b7d21bd113919cf617a5fa104a10dd0f84e499fdc14a3"
+      "sha256": "804baafdfb362a718ae16d9c0b5251764b1c1b14b8e26a40abc8d0eae090e128"
     },
     {
       "bytes": 706,
@@ -64,6 +64,16 @@
       "bytes": 1226,
       "path": ".github/workflows/scorecard.yml",
       "sha256": "6930e10bdfeac63d3d9966f88e8d2a94df67214b63789aaf7e984a8ee6dfe3db"
+    },
+    {
+      "bytes": 3617,
+      "path": ".github/workflows/v4-evidence-finalize-once.yml",
+      "sha256": "918b9d9eef1fcc7838114ab1038c8d8ff27ea6929673ed509ad76e315d3875fd"
+    },
+    {
+      "bytes": 4560,
+      "path": ".github/workflows/v4-publication-cleanup-once.yml",
+      "sha256": "23f1e7f065340fdfcf4e2ee95ca832a928e8a9e7259ae63e45c512020296b0f1"
     },
     {
       "bytes": 193,
@@ -1658,7 +1668,7 @@
     {
       "bytes": 72,
       "path": "evidence/security-scan.json",
-      "sha256": "f1b44fb759eaf65885a39a6ad979b0028a67e4f8a3ba91b2fcb6cd4c7dd8bb5a"
+      "sha256": "0d5fd4805d42f7d3a145a5155abd803261b960c9e7a87369a8509dc629630096"
     },
     {
       "bytes": 573,
@@ -1853,17 +1863,17 @@
     {
       "bytes": 52899,
       "path": "reports/ACCELERATION_OPPORTUNITIES_FULL_TREE_V4.json",
-      "sha256": "cb3bd4254091dc0c7771f71e77bb1274cf3d5489ea4b6487c1cc792b80ed57d7"
+      "sha256": "fa2879954355e86243587ffe91df692ab97013a7b48e8f95a98a1a46ca863547"
     },
     {
       "bytes": 5059,
       "path": "reports/ACCELERATION_OPPORTUNITIES_PRODUCTION_V4.json",
-      "sha256": "73cf0e9a88e28aa7ee63f34929ed880b6490b3ecc6042595fbb4066ec6e22a01"
+      "sha256": "2e55b4bd6169664b3802e0534e6e3b5dc8bb42224d92dbdfc4d102670a5dc647"
     },
     {
       "bytes": 5059,
       "path": "reports/ACCELERATION_OPPORTUNITIES_V2.json",
-      "sha256": "73cf0e9a88e28aa7ee63f34929ed880b6490b3ecc6042595fbb4066ec6e22a01"
+      "sha256": "2e55b4bd6169664b3802e0534e6e3b5dc8bb42224d92dbdfc4d102670a5dc647"
     },
     {
       "bytes": 1196,
@@ -2506,9 +2516,9 @@
       "sha256": "9d19a7bec5f3ce82b407aac065e02e4bb1d9cb20b7bf8be3a0bb0c60d760ca40"
     },
     {
-      "bytes": 1302,
+      "bytes": 1337,
       "path": "tests/test_ci_policy.py",
-      "sha256": "d09e3046c223599822beccaa4d2da248869fe9ccea56c2cb680316aaadff3486"
+      "sha256": "64d6d3c0317a04dba14aafeed914a20473a69d7123c27a4632b0c3f86372dcf4"
     },
     {
       "bytes": 3073,
