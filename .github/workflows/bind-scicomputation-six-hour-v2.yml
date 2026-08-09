@@ -1,65 +1,206 @@
-name: Bind SciComputation six-hour gate v3
+name: SciComputation six-hour active qualification v4
 
 on:
   issue_comment:
     types: [created]
 
 permissions:
-  contents: write
+  contents: read
   issues: write
 
+env:
+  TESTED_SHA: 272c6672a907f692c2d0928f24b15cc0a6582635
+
 jobs:
-  bind:
-    if: github.event.issue.number == 162 && github.event.comment.body == '/bind-scicomputation-six-hour-v3'
+  stage-1:
+    if: github.event.issue.number == 162 && github.event.comment.body == '/run-scicomputation-six-hour-active-v4'
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    timeout-minutes: 210
+    outputs:
+      active_ns: ${{ steps.soak.outputs.active_ns }}
+      cycles: ${{ steps.soak.outputs.cycles }}
+      tested_sha: ${{ steps.target.outputs.tested_sha }}
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Check out harness
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           ref: main
+          path: harness
+          persist-credentials: false
+      - name: Check out exact clean source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ env.TESTED_SHA }}
+          path: source
           fetch-depth: 0
-
-      - name: Bind prior validated gate to exact clean source
+          persist-credentials: false
+      - name: Bind exact source
+        id: target
         shell: bash
         run: |
           set -euo pipefail
-          git show 74b9b26a8882a2321ac5a241df75ca0d3ae13cc8:.github/workflows/one-time-scicomputation-six-hour-active.yml > /tmp/scicomputation-active.yml
-          python - <<'PY'
-          from pathlib import Path
-
-          template = Path('/tmp/scicomputation-active.yml').read_text(encoding='utf-8')
-          old_sha = 'a3ba2ac2a17a0cd4d18ea5870d9bcb57c748072a'
-          new_sha = '272c6672a907f692c2d0928f24b15cc0a6582635'
-          old_command = '/run-scicomputation-six-hour-active-v1'
-          new_command = '/run-scicomputation-six-hour-active-v3'
-          if old_sha not in template or old_command not in template:
-              raise SystemExit('prior SciComputation gate template is incomplete')
-          active = template.replace(old_sha, new_sha).replace(old_command, new_command)
-          if old_sha in active or old_command in active:
-              raise SystemExit('stale SciComputation binding remains')
-          Path('.github/workflows/one-time-scicomputation-six-hour-active-v3.yml').write_text(active, encoding='utf-8')
-          Path('.github/workflows/bind-scicomputation-six-hour-v2.yml').unlink()
-          PY
-          git diff --check
-
-      - name: Publish bound gate
-        id: publish
+          tested_sha=$(git -C source rev-parse HEAD)
+          test "$tested_sha" = "$TESTED_SHA"
+          echo "tested_sha=$tested_sha" >> "$GITHUB_OUTPUT"
+      - name: Record run start
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh issue comment 162 --repo "$GITHUB_REPOSITORY" --body "SciComputation six-hour active qualification v4: RUNNING; run=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID; source=$TESTED_SHA; required_active_ns=21600000000000; duration_basis=MONOTONIC_ACTIVE_TEST_EXECUTION_ONLY"
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: source/pyproject.toml
+      - name: Install qualification environment
         shell: bash
         run: |
           set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
-          git commit -m "ci: bind SciComputation six-hour gate to clean source"
-          git push origin HEAD:main
-          echo "harness_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          cd source
+          python -m pip install -e '.[validation,quality,security]'
+      - name: Write deterministic cycle
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > "$RUNNER_TEMP/scicomputation-cycle.sh" <<'CYCLE'
+          set -euo pipefail
+          cd "$GITHUB_WORKSPACE/source"
+          python scripts/verify_all.py --profile core
+          python scripts/verify_native_core.py
+          python scripts/verify_all.py --profile quality
+          python -m pytest -q tests/test_performance_v9.py tests/test_performance_optimizations.py
+          python scripts/run_large_parser_regression.py
+          python scripts/build_manifest.py --check
+          git diff --exit-code
+          CYCLE
+          chmod +x "$RUNNER_TEMP/scicomputation-cycle.sh"
+      - name: Accumulate active qualification runtime
+        id: soak
+        shell: bash
+        run: |
+          set -euo pipefail
+          python harness/.github/scripts/run_active_soak.py \
+            --cycle-script "$RUNNER_TEMP/scicomputation-cycle.sh" \
+            --evidence-dir "$RUNNER_TEMP/scicomputation-six-hour-evidence" \
+            --initial-ns 0 \
+            --target-ns 9000000000000 \
+            --stage 1 \
+            --tested-sha "$TESTED_SHA"
+      - name: Upload stage 1 evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: scicomputation-six-hour-stage-1-${{ github.run_id }}
+          path: ${{ runner.temp }}/scicomputation-six-hour-evidence/
+          if-no-files-found: error
+          retention-days: 30
 
-      - name: Record binding result
+  stage-2:
+    needs: stage-1
+    if: github.event.issue.number == 162 && github.event.comment.body == '/run-scicomputation-six-hour-active-v4'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 300
+    outputs:
+      active_ns: ${{ steps.soak.outputs.active_ns }}
+      cycles: ${{ steps.soak.outputs.cycles }}
+      tested_sha: ${{ needs.stage-1.outputs.tested_sha }}
+    steps:
+      - name: Check out harness
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: main
+          path: harness
+          persist-credentials: false
+      - name: Check out exact clean source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ needs.stage-1.outputs.tested_sha }}
+          path: source
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: source/pyproject.toml
+      - name: Install qualification environment
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd source
+          python -m pip install -e '.[validation,quality,security]'
+      - name: Write deterministic cycle
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > "$RUNNER_TEMP/scicomputation-cycle.sh" <<'CYCLE'
+          set -euo pipefail
+          cd "$GITHUB_WORKSPACE/source"
+          python scripts/verify_all.py --profile core
+          python scripts/verify_native_core.py
+          python scripts/verify_all.py --profile quality
+          python -m pytest -q tests/test_performance_v9.py tests/test_performance_optimizations.py
+          python scripts/run_large_parser_regression.py
+          python scripts/build_manifest.py --check
+          git diff --exit-code
+          CYCLE
+          chmod +x "$RUNNER_TEMP/scicomputation-cycle.sh"
+      - name: Accumulate active qualification runtime
+        id: soak
+        shell: bash
+        run: |
+          set -euo pipefail
+          python harness/.github/scripts/run_active_soak.py \
+            --cycle-script "$RUNNER_TEMP/scicomputation-cycle.sh" \
+            --evidence-dir "$RUNNER_TEMP/scicomputation-six-hour-evidence" \
+            --initial-ns "${{ needs.stage-1.outputs.active_ns }}" \
+            --target-ns 21600000000000 \
+            --stage 2 \
+            --tested-sha "${{ needs.stage-1.outputs.tested_sha }}"
+      - name: Upload final evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: scicomputation-six-hour-final-${{ github.run_id }}
+          path: ${{ runner.temp }}/scicomputation-six-hour-evidence/
+          if-no-files-found: error
+          retention-days: 30
+
+  duration-gate:
+    needs: [stage-1, stage-2]
+    if: always() && github.event.issue.number == 162 && github.event.comment.body == '/run-scicomputation-six-hour-active-v4'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Enforce six active hours
+        shell: bash
+        env:
+          STAGE1_RESULT: ${{ needs.stage-1.result }}
+          STAGE2_RESULT: ${{ needs.stage-2.result }}
+          ACTIVE_NS: ${{ needs.stage-2.outputs.active_ns }}
+          TESTED_SHA: ${{ needs.stage-2.outputs.tested_sha }}
+        run: |
+          set -euo pipefail
+          test "$STAGE1_RESULT" = success
+          test "$STAGE2_RESULT" = success
+          test "${ACTIVE_NS:-0}" -ge 21600000000000
+          test -n "$TESTED_SHA"
+      - name: Record machine ledger
         if: always()
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
-          HARNESS_SHA: ${{ steps.publish.outputs.harness_sha }}
+          STAGE1_RESULT: ${{ needs.stage-1.result }}
+          STAGE2_RESULT: ${{ needs.stage-2.result }}
+          ACTIVE_NS: ${{ needs.stage-2.outputs.active_ns }}
+          TESTED_SHA: ${{ needs.stage-2.outputs.tested_sha }}
+          STAGE1_CYCLES: ${{ needs.stage-1.outputs.cycles }}
+          STAGE2_CYCLES: ${{ needs.stage-2.outputs.cycles }}
         run: |
           set -euo pipefail
-          gh issue comment 162 --repo "$GITHUB_REPOSITORY" --body "SCICOMPUTATION_BIND_V3 status=${{ job.status }} run=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID harness_sha=${HARNESS_SHA:-UNPUBLISHED} source=272c6672a907f692c2d0928f24b15cc0a6582635 next=/run-scicomputation-six-hour-active-v3"
+          verdict=FAIL
+          if [[ "$STAGE1_RESULT" == success && "$STAGE2_RESULT" == success ]] && [[ "${ACTIVE_NS:-0}" -ge 21600000000000 ]]; then verdict=PASS; fi
+          gh issue comment 162 --repo "$GITHUB_REPOSITORY" --body "SciComputation six-hour active qualification v4: $verdict; run=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID; stage1=$STAGE1_RESULT; stage2=$STAGE2_RESULT; active_ns=${ACTIVE_NS:-0}; required_active_ns=21600000000000; source=${TESTED_SHA:-UNRESOLVED}; cycles=${STAGE1_CYCLES:-0}+${STAGE2_CYCLES:-0}; duration_basis=MONOTONIC_ACTIVE_TEST_EXECUTION_ONLY"
+          test "$verdict" = PASS
