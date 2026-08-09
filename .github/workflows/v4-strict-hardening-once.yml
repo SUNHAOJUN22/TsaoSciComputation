@@ -1,0 +1,115 @@
+name: V4 strict fail-closed hardening once
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: v4-strict-hardening-once
+  cancel-in-progress: false
+
+jobs:
+  harden:
+    if: >-
+      github.event.issue.pull_request == null &&
+      github.event.comment.user.login == github.repository_owner &&
+      contains(github.event.comment.body, '/run-v4-strict-hardening')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+          cache: pip
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Install qualification environment
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check -e '.[validation,quality,security]'
+          python -m pip check
+      - name: Create controller-free fail-closed candidate
+        id: candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          workflow = Path('.github/workflows/ci.yml')
+          text = workflow.read_text(encoding='utf-8')
+          needle = '    continue-on-error: true\n'
+          if text.count(needle) != 1:
+              raise SystemExit(
+                  f'expected exactly one continue-on-error directive, found {text.count(needle)}'
+              )
+          text = text.replace(needle, '', 1)
+          workflow.write_text(text, encoding='utf-8', newline='\n')
+          Path('.github/workflows/v4-strict-hardening-once.yml').unlink()
+          PY
+          git diff --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A .github/workflows/ci.yml .github/workflows/v4-strict-hardening-once.yml
+          git commit -m 'ci: make benchmark qualification fail closed'
+          echo "candidate_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+      - name: Run complete code, numerical, documentation and package gates
+        run: |
+          set -euo pipefail
+          node scripts/refresh-current-main-readme.mjs --check
+          python scripts/verify_all.py --profile core
+          python scripts/verify_all.py --profile quality
+          python scripts/verify_all.py --profile benchmark
+          python scripts/verify_all.py --profile package
+          python - <<'PY'
+          from pathlib import Path
+          text = Path('.github/workflows/ci.yml').read_text(encoding='utf-8')
+          forbidden = ('continue-on-error:', '|| true', 'pytest ... || exit 0')
+          found = [token for token in forbidden if token in text]
+          if found:
+              raise SystemExit(f'forbidden fail-open workflow constructs remain: {found}')
+          PY
+          git diff --exit-code
+          git diff --check
+      - name: Prove sole remote main branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git ls-remote --heads origin > /tmp/branches.txt
+          python - <<'PY'
+          from pathlib import Path
+          refs = [line.split()[1] for line in Path('/tmp/branches.txt').read_text().splitlines() if line.strip()]
+          if refs != ['refs/heads/main']:
+              raise SystemExit(f'unexpected remote branches: {refs}')
+          PY
+      - name: Publish exact qualified candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          expected_parent="$(git rev-parse HEAD^)"
+          remote_main="$(git rev-parse origin/main)"
+          if [[ "$expected_parent" != "$remote_main" ]]; then
+            echo "STALE_MAIN expected_parent=$expected_parent remote_main=$remote_main" >&2
+            exit 3
+          fi
+          git push origin HEAD:main
+      - name: Publish machine result
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+          OUTCOME: ${{ job.status }}
+          CANDIDATE: ${{ steps.candidate.outputs.candidate_sha }}
+        run: |
+          gh issue comment "$ISSUE" --body "V4_STRICT_HARDENING outcome=${OUTCOME} candidate=${CANDIDATE:-UNPUBLISHED} run=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID} controller=self_removed branch=main-only"
