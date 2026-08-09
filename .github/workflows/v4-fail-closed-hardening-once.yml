@@ -17,9 +17,9 @@ jobs:
     if: >-
       github.event.issue.pull_request == null &&
       github.event.comment.user.login == github.repository_owner &&
-      contains(github.event.comment.body, '/v4-fail-closed-hardening')
+      contains(github.event.comment.body, '/v4-fail-closed-hardening-v2')
     runs-on: ubuntu-24.04
-    timeout-minutes: 90
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
@@ -38,7 +38,7 @@ jobs:
           set -euo pipefail
           python -m pip install --disable-pip-version-check -e '.[validation,quality,security]'
           python -m pip check
-      - name: Remove non-blocking benchmark semantics and controller
+      - name: Create controller-free source candidate in the worktree
         run: |
           set -euo pipefail
           python - <<'PY'
@@ -56,21 +56,51 @@ jobs:
           PY
           rm .github/workflows/v4-fail-closed-hardening-once.yml
           git diff --check
-      - name: Create exact controller-free candidate
+      - name: Regenerate exact-tree identities and qualify pre-commit tree
+        run: |
+          set -euo pipefail
+          node scripts/refresh-current-main-readme.mjs --check
+          python scripts/verify_all.py --profile core
+          python scripts/verify_all.py --profile quality
+          python scripts/verify_all.py --profile benchmark
+          python scripts/verify_all.py --profile package
+          python - <<'PY'
+          from pathlib import Path
+          text = Path('.github/workflows/ci.yml').read_text(encoding='utf-8')
+          forbidden = ('continue-on-error:', '|| true', 'pytest ... || exit 0')
+          found = [token for token in forbidden if token in text]
+          if found:
+              raise SystemExit(f'forbidden fail-open workflow constructs remain: {found}')
+          PY
+          git ls-remote --heads origin > /tmp/scicomputation-v4-branches.txt
+          python - <<'PY'
+          from pathlib import Path
+          refs = [line.split()[1] for line in Path('/tmp/scicomputation-v4-branches.txt').read_text().splitlines() if line.strip()]
+          if refs != ['refs/heads/main']:
+              raise SystemExit(f'unexpected remote branches: {refs}')
+          PY
+          git diff --check
+      - name: Commit exact generated candidate
         id: candidate
         run: |
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -A .github/workflows/ci.yml .github/workflows/v4-fail-closed-hardening-once.yml
+          git add -A \
+            .github/workflows/ci.yml \
+            .github/workflows/v4-fail-closed-hardening-once.yml \
+            manifest.json \
+            evidence/security-scan.json
           git commit -m 'ci: make benchmark qualification fail closed'
           echo 'sha='"$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
-      - name: Qualify exact candidate
+      - name: Requalify immutable candidate without drift
         run: |
           set -euo pipefail
           node scripts/refresh-current-main-readme.mjs --check
+          python scripts/verify_all.py --profile core
           python scripts/verify_all.py --profile quality
           python scripts/verify_all.py --profile benchmark
+          python scripts/verify_all.py --profile package
           git diff --exit-code
           git diff --check
       - name: Publish exact qualified candidate
@@ -92,4 +122,4 @@ jobs:
           OUTCOME: ${{ job.status }}
           CANDIDATE: ${{ steps.candidate.outputs.sha }}
         run: |
-          gh issue comment "$ISSUE" --body "V4_FAIL_CLOSED_HARDENING outcome=${OUTCOME} candidate=${CANDIDATE:-UNPUBLISHED} run=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID} controller=self_removed benchmark=blocking"
+          gh issue comment "$ISSUE" --body "V4_FAIL_CLOSED_HARDENING_V2 outcome=${OUTCOME} candidate=${CANDIDATE:-UNPUBLISHED} run=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID} controller=self_removed benchmark=blocking manifest=exact-tree"
