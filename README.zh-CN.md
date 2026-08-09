@@ -407,3 +407,36 @@ python scripts/verify_all.py --profile benchmark
 ## 许可证与引用
 
 采用 MIT 许可证。引用元数据见 [`CITATION.cff`](CITATION.cff)，第三方边界见 [`THIRD_PARTY.md`](THIRD_PARTY.md)。
+
+<!-- CURRENT_MAIN_ACCEPTANCE_V2:START -->
+## 当前 `main`：代码—数学—证据闭环
+
+<p align="center"><img src="docs/current-main/tsao-scicomputation-current-main-zh.svg" width="100%" alt="当前 `main`：代码—数学—证据闭环"></p>
+
+> 本节由仓库脚本根据当前代码合同生成；图像是文档概念设计，不是求解器或实验结果。
+
+### 核心数理合同
+
+$$
+admit(C) = 1_schema · 1_identity · 1_inputs · 1_resources · 1_policy
+$$
+
+$$
+H_bundle = SHA256(B_solver ∥ B_inputs ∥ B_env ∥ B_contract ∥ B_reference)
+$$
+
+$$
+δ_rel = |y − y_ref| / max(|y_ref|, ε) ≤ τ_eq
+$$
+
+### 使用策略
+
+1. 先运行永久 CI，再运行 current-main 精确树验收。
+2. 数值、容差和不确定度入口必须是有限实数，Boolean 不得充当 0/1。
+3. 执行身份、输入、环境、参考与合同共同进入证据哈希。
+4. 任何新提交都会使旧 SHA 的六小时证据失效。
+
+> **责任边界：** 仓库是计算控制面与资格框架；第三方 DFT、MD、CFD、FEM 和流程求解器保持 EXTERNAL_HOLD。
+
+执行提示词：[SIX_REPOSITORY_PARALLEL_6H_ACCEPTANCE_PROMPT_V2.md](docs/SIX_REPOSITORY_PARALLEL_6H_ACCEPTANCE_PROMPT_V2.md)
+<!-- CURRENT_MAIN_ACCEPTANCE_V2:END -->

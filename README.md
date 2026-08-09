@@ -431,3 +431,36 @@ The remote baseline covers repository software, deterministic fixtures and nativ
 ## License and citation
 
 MIT licensed. Citation metadata is in [`CITATION.cff`](CITATION.cff); third-party boundaries are documented in [`THIRD_PARTY.md`](THIRD_PARTY.md).
+
+<!-- CURRENT_MAIN_ACCEPTANCE_V2:START -->
+## Current `main`: code–mathematics–evidence loop
+
+<p align="center"><img src="docs/current-main/tsao-scicomputation-current-main-en.svg" width="100%" alt="Current `main`: code–mathematics–evidence loop"></p>
+
+> This section is generated from current code contracts; the visual is conceptual documentation, not solver or experimental output.
+
+### Core mathematical contracts
+
+$$
+admit(C) = 1_schema · 1_identity · 1_inputs · 1_resources · 1_policy
+$$
+
+$$
+H_bundle = SHA256(B_solver ∥ B_inputs ∥ B_env ∥ B_contract ∥ B_reference)
+$$
+
+$$
+δ_rel = |y − y_ref| / max(|y_ref|, ε) ≤ τ_eq
+$$
+
+### Usage strategy
+
+1. Run permanent CI before exact-tree current-main qualification.
+2. Scientific values, tolerances and uncertainties must be finite reals; Boolean is not 0/1 evidence.
+3. Execution identity, inputs, environment, references and contracts enter the evidence hash.
+4. Any new commit invalidates six-hour evidence bound to an older SHA.
+
+> **Responsibility boundary：** The repository is a computation control plane and qualification framework; third-party DFT, MD, CFD, FEM and process solvers remain EXTERNAL_HOLD.
+
+Execution prompt：[SIX_REPOSITORY_PARALLEL_6H_ACCEPTANCE_PROMPT_V2.md](docs/SIX_REPOSITORY_PARALLEL_6H_ACCEPTANCE_PROMPT_V2.md)
+<!-- CURRENT_MAIN_ACCEPTANCE_V2:END -->

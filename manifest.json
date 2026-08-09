@@ -46,6 +46,11 @@
       "sha256": "af58a03ac70f1f182d779202b62d89bc3ebcb3496e98cdd0a8632a3ff2fb8678"
     },
     {
+      "bytes": 2974,
+      "path": ".github/workflows/current-main-readme-refresh.yml",
+      "sha256": "c7e46665d179b50a30dcb08ccf7b43f677bfb52647a76abd6806c0b8572da2d2"
+    },
+    {
       "bytes": 1398,
       "path": ".github/workflows/dependency-audit.yml",
       "sha256": "15d510e1f5228c7de316c385f6ae91044ce9fa30cbced49a30a85f6a21e9a1bb"
@@ -101,14 +106,14 @@
       "sha256": "16c346cf3277689776977c544135b0669d83db66ccbe0ad0142db295f5a39e3b"
     },
     {
-      "bytes": 19219,
+      "bytes": 20578,
       "path": "README.md",
-      "sha256": "69a90e671aa9401928dd1b56c3d8f45e0964ff564b17296bdb3f4c6ac0f15523"
+      "sha256": "a9331863d430d8187e880b8a0ee48eab6fed2b35d928176821457632b19375d2"
     },
     {
-      "bytes": 16781,
+      "bytes": 18031,
       "path": "README.zh-CN.md",
-      "sha256": "5afe84cbd57a23a72dd79672af548915e2d35cc57bb27becc9bff8d9ced71860"
+      "sha256": "3569ff6a7f9787618ba3c267cfdff77307ce72414cd67e9f037bd3791fb0c9fa"
     },
     {
       "bytes": 7408,
@@ -414,6 +419,11 @@
       "bytes": 1095,
       "path": "adapters/vasp/adapter.yaml",
       "sha256": "f3e18e1a303411566df5f3ff5c451863c5de064f812bc2bd8dfde5feed700977"
+    },
+    {
+      "bytes": 532,
+      "path": "artifacts/current-main/readme-visual-audit.json",
+      "sha256": "f7abd8f25a955bdcf1fbb2e4d3868d95d321847df720c51b0ad4781821b21147"
     },
     {
       "bytes": 3250,
@@ -1476,9 +1486,19 @@
       "sha256": "3838c23e97cf92019b8a7f49df1122d19b41b0e7e2957de24e7cd1cc9e88ecd0"
     },
     {
+      "bytes": 1176,
+      "path": "docs/CURRENT_MAIN_ACCEPTANCE.md",
+      "sha256": "ac51bd661348c39a5a3af4be7f1566330194ad8c417a12aab3b842d79ca62b34"
+    },
+    {
       "bytes": 7435,
       "path": "docs/SIX_REPOSITORY_PARALLEL_6H_ACCEPTANCE_PROMPT.md",
       "sha256": "93122899436c01681fcf0c883194ee56a619de57e8fbe53d8df85da8de6add6f"
+    },
+    {
+      "bytes": 9135,
+      "path": "docs/SIX_REPOSITORY_PARALLEL_6H_ACCEPTANCE_PROMPT_V2.md",
+      "sha256": "d408699e84d31f353dc725352be4b888ffbb0e967ba88c905455914fc51b8c0f"
     },
     {
       "bytes": 11904,
@@ -1524,6 +1544,16 @@
       "bytes": 3587,
       "path": "docs/coverage-matrix.md",
       "sha256": "a5f7725469e714b793a7278194c8a7b36e8abede94fe0aa32c90221ee61e06f9"
+    },
+    {
+      "bytes": 5399,
+      "path": "docs/current-main/tsao-scicomputation-current-main-en.svg",
+      "sha256": "fd53c374f7d83665ba6b8d0749c94f5444bd9ea06a4f7c61314a4c4250e751e7"
+    },
+    {
+      "bytes": 5221,
+      "path": "docs/current-main/tsao-scicomputation-current-main-zh.svg",
+      "sha256": "26919c60f800eb81268ad8ad53fecb04434563a5662eb9a864f71a4cb6b45985"
     },
     {
       "bytes": 1674,
@@ -2159,6 +2189,11 @@
       "bytes": 3389,
       "path": "scripts/quality_check.py",
       "sha256": "59087ebec8ed1890c9a8dc2d3c06ffeb16e1b3bdad0e48e3ccf268b06f5dd74e"
+    },
+    {
+      "bytes": 13525,
+      "path": "scripts/refresh-current-main-readme.mjs",
+      "sha256": "0f1d1720cbde96c81c7efccda99cfdfef619281f29dbfa0ec6674ec64fa4fe7e"
     },
     {
       "bytes": 1033,
