@@ -17,7 +17,7 @@ jobs:
     if: >-
       github.event.issue.pull_request == null &&
       github.event.comment.user.login == github.repository_owner &&
-      contains(github.event.comment.body, '/v4-fail-closed-hardening-v2')
+      contains(github.event.comment.body, '/v4-fail-closed-hardening-v3')
     runs-on: ubuntu-24.04
     timeout-minutes: 120
     steps:
@@ -38,21 +38,24 @@ jobs:
           set -euo pipefail
           python -m pip install --disable-pip-version-check -e '.[validation,quality,security]'
           python -m pip check
-      - name: Create controller-free source candidate in the worktree
+      - name: Create controller-free fail-closed policy worktree
         run: |
           set -euo pipefail
           python - <<'PY'
           from pathlib import Path
 
           workflow = Path('.github/workflows/ci.yml')
-          text = workflow.read_text(encoding='utf-8')
-          needle = '    continue-on-error: true\n'
-          if text.count(needle) != 1:
-              raise SystemExit(f'expected exactly one benchmark continue-on-error line, found {text.count(needle)}')
-          text = text.replace(needle, '', 1)
-          if 'continue-on-error:' in text:
+          workflow_text = workflow.read_text(encoding='utf-8')
+          directive = '    continue-on-error: true\n'
+          if workflow_text.count(directive) != 1:
+              raise SystemExit(
+                  f'expected exactly one benchmark continue-on-error line, '
+                  f'found {workflow_text.count(directive)}'
+              )
+          workflow_text = workflow_text.replace(directive, '', 1)
+          if 'continue-on-error:' in workflow_text:
               raise SystemExit('continue-on-error remains in CI workflow')
-          workflow.write_text(text, encoding='utf-8', newline='\n')
+          workflow.write_text(workflow_text, encoding='utf-8', newline='\n')
 
           policy = Path('tests/test_ci_policy.py')
           policy_text = policy.read_text(encoding='utf-8')
@@ -67,23 +70,29 @@ jobs:
           new = '''def test_benchmark_is_blocking_but_separate_from_quality() -> None:
     text = (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
     quality = text.split("\\n  quality:\\n", 1)[1].split("\\n  package:\\n", 1)[0]
-    benchmark = text.split("\\n  benchmark:\\n", 1)[1].split("\\n  performance:\\n", 1)[0]
+    benchmark = text.split("\\n  benchmark:\\n", 1)[1]
     assert "--profile benchmark" not in quality
     assert "--profile benchmark" in benchmark
     assert "continue-on-error:" not in benchmark
 '''
           if policy_text.count(old) != 1:
-              raise SystemExit('legacy observational benchmark policy test was not found exactly once')
-          policy.write_text(policy_text.replace(old, new, 1), encoding='utf-8', newline='\n')
+              raise SystemExit(
+                  'legacy observational benchmark policy test was not found exactly once'
+              )
+          policy.write_text(
+              policy_text.replace(old, new, 1),
+              encoding='utf-8',
+              newline='\n',
+          )
           PY
           rm .github/workflows/v4-fail-closed-hardening-once.yml
           git diff --check
-      - name: Regenerate exact-tree identities and qualify pre-commit tree
+      - name: Regenerate exact-tree identity before core checks
         run: |
           set -euo pipefail
           node scripts/refresh-current-main-readme.mjs --check
-          python scripts/verify_all.py --profile core
           python scripts/verify_all.py --profile quality
+          python scripts/verify_all.py --profile core
           python scripts/verify_all.py --profile benchmark
           python scripts/verify_all.py --profile package
           python - <<'PY'
@@ -97,7 +106,11 @@ jobs:
           git ls-remote --heads origin > /tmp/scicomputation-v4-branches.txt
           python - <<'PY'
           from pathlib import Path
-          refs = [line.split()[1] for line in Path('/tmp/scicomputation-v4-branches.txt').read_text().splitlines() if line.strip()]
+          refs = [
+              line.split()[1]
+              for line in Path('/tmp/scicomputation-v4-branches.txt').read_text().splitlines()
+              if line.strip()
+          ]
           if refs != ['refs/heads/main']:
               raise SystemExit(f'unexpected remote branches: {refs}')
           PY
@@ -120,8 +133,8 @@ jobs:
         run: |
           set -euo pipefail
           node scripts/refresh-current-main-readme.mjs --check
-          python scripts/verify_all.py --profile core
           python scripts/verify_all.py --profile quality
+          python scripts/verify_all.py --profile core
           python scripts/verify_all.py --profile benchmark
           python scripts/verify_all.py --profile package
           git diff --exit-code
@@ -145,4 +158,4 @@ jobs:
           OUTCOME: ${{ job.status }}
           CANDIDATE: ${{ steps.candidate.outputs.sha }}
         run: |
-          gh issue comment "$ISSUE" --body "V4_FAIL_CLOSED_HARDENING_V2 outcome=${OUTCOME} candidate=${CANDIDATE:-UNPUBLISHED} run=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID} controller=self_removed benchmark=blocking policy_test=updated manifest=exact-tree"
+          gh issue comment "$ISSUE" --body "V4_FAIL_CLOSED_HARDENING_V3 outcome=${OUTCOME} candidate=${CANDIDATE:-UNPUBLISHED} run=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID} controller=self_removed benchmark=blocking policy_test=blocking manifest=exact-tree"
