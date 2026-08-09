@@ -17,7 +17,7 @@ jobs:
     if: >-
       github.event.issue.pull_request == null &&
       github.event.comment.user.login == github.repository_owner &&
-      contains(github.event.comment.body, '/export-v4-fail-closed-candidate-v3')
+      contains(github.event.comment.body, '/export-v4-fail-closed-candidate-v4')
     runs-on: ubuntu-24.04
     timeout-minutes: 150
     steps:
@@ -88,10 +88,11 @@ jobs:
           rm .github/workflows/v4-fail-closed-hardening-once.yml
           rm .github/workflows/v4-candidate-export-once.yml
           git diff --check
-      - name: Regenerate all exact-tree identities before committing
+      - name: Regenerate exact acceleration and repository identities
         run: |
           set -euo pipefail
           node scripts/refresh-current-main-readme.mjs --check
+          python scripts/build_acceleration_audits.py
           python scripts/verify_all.py --profile quality
           python scripts/verify_all.py --profile core
           python scripts/verify_all.py --profile benchmark
@@ -118,6 +119,7 @@ jobs:
         run: |
           set -euo pipefail
           node scripts/refresh-current-main-readme.mjs --check
+          python scripts/build_acceleration_audits.py --check
           python scripts/verify_all.py --profile quality
           python scripts/verify_all.py --profile core
           python scripts/verify_all.py --profile benchmark
@@ -183,4 +185,4 @@ jobs:
           OUTCOME: ${{ job.status }}
           CANDIDATE: ${{ steps.candidate.outputs.sha }}
         run: |
-          gh issue comment "$ISSUE" --body "V4_SCICOMPUTATION_EXACT_EXPORT_V3 outcome=${OUTCOME} candidate=${CANDIDATE:-UNPUBLISHED} run=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID} bundle=uploaded benchmark=blocking policy_test=blocking formatted=true manifest=exact-tree controllers=removed"
+          gh issue comment "$ISSUE" --body "V4_SCICOMPUTATION_EXACT_EXPORT_V4 outcome=${OUTCOME} candidate=${CANDIDATE:-UNPUBLISHED} run=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID} bundle=uploaded benchmark=blocking policy_test=blocking acceleration=regenerated manifest=exact-tree controllers=removed"
