@@ -38,7 +38,7 @@ jobs:
           set -euo pipefail
           python -m pip install --disable-pip-version-check -e '.[validation,quality,security]'
           python -m pip check
-      - name: Run all native verification profiles
+      - name: Run all native verification profiles and regenerate exact evidence
         shell: bash
         run: |
           set -euo pipefail
@@ -47,9 +47,12 @@ jobs:
           python scripts/verify_all.py --profile core
           python scripts/verify_all.py --profile benchmark
           python scripts/verify_all.py --profile package
+          git add evidence/security-scan.json manifest.json
           git diff --exit-code
           git diff --check --cached
-          test "$(git diff --cached --name-only)" = '.github/workflows/current-main-qualification-once.yml'
+          expected=$'.github/workflows/current-main-qualification-once.yml\nevidence/security-scan.json\nmanifest.json'
+          test "$(git diff --cached --name-only)" = "$expected"
+          python scripts/build_manifest.py --check
       - name: Publish exact qualified clean tree
         id: publish
         shell: bash
@@ -60,7 +63,7 @@ jobs:
           test "$remote_sha" = "$parent"
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git commit -m 'chore(ci): remove completed current-main qualifier'
+          git commit -m 'chore(ci): bind evidence to final clean tree'
           qualified="$(git rev-parse HEAD)"
           test "$(git rev-parse HEAD^)" = "$parent"
           git push origin HEAD:main
@@ -73,4 +76,4 @@ jobs:
           QUALIFIED: ${{ steps.publish.outputs.qualified }}
         shell: bash
         run: |
-          gh issue comment 163 --body "CURRENT_MAIN_EXACT_QUALIFICATION outcome=${OUTCOME} tested_parent=${GITHUB_SHA} qualified=${QUALIFIED:-UNPUBLISHED} run=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID} profiles=quality+core+benchmark+package controller=self-removed"
+          gh issue comment 163 --body "CURRENT_MAIN_EXACT_QUALIFICATION outcome=${OUTCOME} tested_parent=${GITHUB_SHA} qualified=${QUALIFIED:-UNPUBLISHED} run=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID} profiles=quality+core+benchmark+package evidence=regenerated-exact-tree controller=self-removed"
