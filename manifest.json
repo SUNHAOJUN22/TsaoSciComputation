@@ -36,19 +36,14 @@
       "sha256": "3df770971d50d2df680f50b254caebfb9c4088fa9b3c5813fe869640bafc22d1"
     },
     {
-      "bytes": 4051,
+      "bytes": 4052,
       "path": ".github/workflows/ci.yml",
-      "sha256": "ad605429df96976200395fa2473513c28b8480cc9e66c3f437f3f0fd7920dc8b"
+      "sha256": "804baafdfb362a718ae16d9c0b5251764b1c1b14b8e26a40abc8d0eae090e128"
     },
     {
       "bytes": 706,
       "path": ".github/workflows/codeql.yml",
       "sha256": "af58a03ac70f1f182d779202b62d89bc3ebcb3496e98cdd0a8632a3ff2fb8678"
-    },
-    {
-      "bytes": 2974,
-      "path": ".github/workflows/current-main-readme-refresh.yml",
-      "sha256": "c7e46665d179b50a30dcb08ccf7b43f677bfb52647a76abd6806c0b8572da2d2"
     },
     {
       "bytes": 1398,
@@ -1658,7 +1653,7 @@
     {
       "bytes": 72,
       "path": "evidence/security-scan.json",
-      "sha256": "03ce2f6cb5f039d81c6bc29b48d816b974c5feea43f5269be08fca652d781107"
+      "sha256": "8fb792eafaccd197b50ac48fcb143c0d6203a2981f133d7ba24222fac710bec5"
     },
     {
       "bytes": 573,
