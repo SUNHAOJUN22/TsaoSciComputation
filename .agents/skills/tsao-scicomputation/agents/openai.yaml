@@ -1,0 +1,6 @@
+interface:
+  display_name: "Tsao Scientific Computation"
+  short_description: "Evidence-bound scientific execution and validation"
+  default_prompt: "Use $tsao-scicomputation to validate the numerical and execution evidence without promoting software PASS to scientific acceptance."
+policy:
+  allow_implicit_invocation: true
