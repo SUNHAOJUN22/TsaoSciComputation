@@ -53,6 +53,8 @@ jobs:
           git diff --check
       - name: Regenerate exact-tree acceleration reports
         run: python scripts/build_acceleration_audits.py --root .
+      - name: Regenerate exact-tree repository manifest
+        run: python scripts/build_manifest.py
       - name: Validate canonical Skill and bilingual assets
         shell: bash
         run: |
@@ -109,7 +111,11 @@ jobs:
       - name: Dependency consistency
         run: python -m pip check
       - name: Verify generated reports remain current
-        run: python scripts/build_acceleration_audits.py --root . --check
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/build_acceleration_audits.py --root . --check
+          python scripts/build_manifest.py --check
       - name: Clean ignored runtime outputs
         shell: bash
         run: git clean -fdX
