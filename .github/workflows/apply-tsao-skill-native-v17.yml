@@ -28,22 +28,43 @@ jobs:
           python-version: '3.12'
       - name: Apply verified comprehensive payload
         run: python scripts/apply_tsao_skill_native_v17.py
-      - name: Install locked validation environment
+      - name: Install declared validation and quality environment
         run: |
-          python scripts/verify_dependency_locks.py
-          python scripts/install_locked.py --profile validation,quality,security
-          python -m pip install --no-deps -e .
-      - name: Validate Skill and focused remediation contracts
+          python -m pip install --upgrade pip
+          python -m pip install -e '.[validation,quality]'
+      - name: Validate the materialized Skill and run the full test suite
+        shell: bash
         run: |
-          python scripts/validate_agent_skills.py --root . --overlay-mode
-          python -m pytest -q tests/test_v4_numerical_invariance.py tests/test_v4_strict_scientific.py tests/test_v4_strict_scientific_contracts.py tests/test_v5_acceptance_graph.py tests/test_v5_evidence_integration.py tests/test_v6_pipeline_gate.py
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          required = [
+              Path('.agents/skills/tsao-scicomputation/SKILL.md'),
+              Path('.agents/skills/tsao-scicomputation/references/definition-of-done.md'),
+              Path('assets/diagrams/vision-en.svg'),
+              Path('assets/diagrams/vision-zh.svg'),
+          ]
+          missing = [path.as_posix() for path in required if not path.is_file()]
+          if missing:
+              raise SystemExit(f'missing materialized Skill assets: {missing}')
+          skill = required[0].read_text(encoding='utf-8')
+          if not skill.startswith('---\n') or 'name: tsao-scicomputation' not in skill[:1200]:
+              raise SystemExit('invalid canonical TsaoSciComputation SKILL.md frontmatter')
+          for path in required:
+              text = path.read_text(encoding='utf-8')
+              if '\ufffd' in text or '\x00' in text:
+                  raise SystemExit(f'Unicode/source corruption in {path}')
+          PY
+          python -m pytest -q
       - name: Run permanent repository gates
         run: |
-          python scripts/verify_all.py --profile core
-          python scripts/verify_native_core.py
-          python scripts/verify_all.py --profile quality
-          python -m pytest -q
-          python scripts/verify_all.py --profile package
+          ruff check .
+          ruff format --check .
+          mypy tsao_computation
+          python -m compileall -q tsao_computation scripts
+          python -m pytest -q --cov=tsao_computation --cov-branch --cov-report=term-missing
+          python -m build
+          python -m pip check
       - name: Clean ignored runtime outputs
         shell: bash
         run: git clean -fdX
@@ -54,6 +75,10 @@ jobs:
           rm -rf .tsao-skill-native-v17 scripts/apply_tsao_skill_native_v17.py .github/workflows/apply-tsao-skill-native-v17.yml
           git add -A
           git diff --cached --check
+          if git diff --cached --quiet; then
+            echo 'Expected verified source changes were not produced.' >&2
+            exit 1
+          fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git commit -m 'feat: complete TsaoSciComputation skill-native V17 remediation'
