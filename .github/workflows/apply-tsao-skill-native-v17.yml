@@ -26,13 +26,13 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Apply verified comprehensive payload
+        run: python scripts/apply_tsao_skill_native_v17.py
       - name: Install locked validation environment
         run: |
           python scripts/verify_dependency_locks.py
           python scripts/install_locked.py --profile validation,quality,security
           python -m pip install --no-deps -e .
-      - name: Apply verified comprehensive payload
-        run: python scripts/apply_tsao_skill_native_v17.py
       - name: Validate Skill and focused remediation contracts
         run: |
           python scripts/validate_agent_skills.py --root . --overlay-mode
