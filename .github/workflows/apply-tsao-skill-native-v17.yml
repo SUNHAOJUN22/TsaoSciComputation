@@ -1,4 +1,5 @@
 name: Apply comprehensive skill-native V17
+
 on:
   push:
     branches: [main]
@@ -6,15 +7,16 @@ on:
       - .tsao-skill-native-v17/payload.tar.gz
       - scripts/apply_tsao_skill_native_v17.py
       - .github/workflows/apply-tsao-skill-native-v17.yml
-  schedule:
-    - cron: '*/5 * * * *'
   workflow_dispatch:
+
 permissions:
   contents: write
   issues: write
+
 concurrency:
   group: scicomputation-skill-native-v17
   cancel-in-progress: false
+
 jobs:
   apply-test-commit:
     runs-on: ubuntu-24.04
@@ -28,13 +30,20 @@ jobs:
           python-version: '3.12'
       - name: Apply verified comprehensive payload
         run: python scripts/apply_tsao_skill_native_v17.py
-      - name: Remove temporary and non-authoritative workflow surfaces
+      - name: Remove one-shot and non-authoritative surfaces before validation
         shell: bash
-        run: rm -f .github/workflows/agent-skill-portability.yml .github/workflows/apply-tsao-skill-native-v17.yml
+        run: |
+          set -euo pipefail
+          rm -rf .tsao-skill-native-v17
+          rm -f scripts/apply_tsao_skill_native_v17.py
+          rm -f .github/workflows/agent-skill-portability.yml
+          rm -f .github/workflows/apply-tsao-skill-native-v17.yml
       - name: Install declared validation and quality environment
         run: |
           python -m pip install --upgrade pip
           python -m pip install -e '.[validation,quality]'
+      - name: Regenerate exact-tree acceleration reports
+        run: python scripts/build_acceleration_audits.py --root .
       - name: Validate canonical Skill and bilingual assets
         shell: bash
         run: |
@@ -92,14 +101,15 @@ jobs:
           python -m build 2>&1 | tee /tmp/v17-build.log
       - name: Dependency consistency
         run: python -m pip check
+      - name: Verify generated reports remain current
+        run: python scripts/build_acceleration_audits.py --root . --check
       - name: Clean ignored runtime outputs
         shell: bash
         run: git clean -fdX
-      - name: Commit verified source and remove one-shot payload
+      - name: Commit verified final source to main
         shell: bash
         run: |
           set -euo pipefail
-          rm -rf .tsao-skill-native-v17 scripts/apply_tsao_skill_native_v17.py
           git add -A
           git diff --cached --check
           if git diff --cached --quiet; then
