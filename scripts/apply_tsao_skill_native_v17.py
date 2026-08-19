@@ -15,7 +15,6 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 PAYLOAD = ROOT / ".tsao-skill-native-v17"
 EXPECTED_BLOB_SHA = "1d9080672032dcafe4badbfb1540802b3da20e31"
-EXPECTED_FILE_MARKER = Path("tsao_computation/contracts/strict_scientific.py")
 REMOVE = [
     ".github/V15_FINAL_QUALIFICATION.md",
     "V15_RELEASE_NOTES.md",
@@ -51,21 +50,17 @@ def safe_extract(tf: tarfile.TarFile, target: Path) -> None:
 
 
 def locate_payload_root(extracted: Path) -> Path:
-    candidates = [
-        files_dir
-        for files_dir in extracted.rglob("files")
-        if files_dir.is_dir() and (files_dir / EXPECTED_FILE_MARKER).is_file()
-    ]
-    if (extracted / "files" / EXPECTED_FILE_MARKER).is_file():
-        candidates.append(extracted / "files")
-    unique = sorted({candidate.resolve() for candidate in candidates})
-    if len(unique) != 1:
-        all_files = sorted(path.as_posix() for path in extracted.rglob("files") if path.is_dir())
+    if (extracted / "files").is_dir():
+        return extracted
+    candidates = sorted(
+        {files_dir.parent.resolve() for files_dir in extracted.rglob("files") if files_dir.is_dir()}
+    )
+    if len(candidates) != 1:
         raise RuntimeError(
-            "payload layout invalid: expected exactly one TsaoSciComputation files/ root; "
-            f"matched {len(unique)}; discovered files directories: {all_files[:20]}"
+            "payload layout invalid: expected exactly one files/ root, "
+            f"found {len(candidates)}: {[candidate.as_posix() for candidate in candidates[:20]]}"
         )
-    return unique[0].parent
+    return candidates[0]
 
 
 def load_apply(path: Path):
