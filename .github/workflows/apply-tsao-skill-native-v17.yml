@@ -59,19 +59,37 @@ jobs:
                   raise SystemExit(f'Unicode/source corruption in {path}')
           PY
       - name: Run full repository tests
-        run: python -m pytest -q
+        shell: bash
+        run: |
+          set -o pipefail
+          python -m pytest -vv --maxfail=20 2>&1 | tee /tmp/v17-pytest.log
       - name: Ruff lint
-        run: ruff check .
+        shell: bash
+        run: |
+          set -o pipefail
+          ruff check . 2>&1 | tee /tmp/v17-ruff.log
       - name: Ruff formatting
-        run: ruff format --check .
+        shell: bash
+        run: |
+          set -o pipefail
+          ruff format --check . 2>&1 | tee /tmp/v17-ruff-format.log
       - name: Strict mypy
-        run: mypy tsao_computation
+        shell: bash
+        run: |
+          set -o pipefail
+          mypy tsao_computation 2>&1 | tee /tmp/v17-mypy.log
       - name: Compile Python sources
         run: python -m compileall -q tsao_computation scripts
       - name: Coverage gate
-        run: python -m pytest -q --cov=tsao_computation --cov-branch --cov-report=term-missing
+        shell: bash
+        run: |
+          set -o pipefail
+          python -m pytest -q --cov=tsao_computation --cov-branch --cov-report=term-missing 2>&1 | tee /tmp/v17-coverage.log
       - name: Build distributions
-        run: python -m build
+        shell: bash
+        run: |
+          set -o pipefail
+          python -m build 2>&1 | tee /tmp/v17-build.log
       - name: Dependency consistency
         run: python -m pip check
       - name: Clean ignored runtime outputs
@@ -99,4 +117,10 @@ jobs:
         shell: bash
         run: |
           printf 'Workflow run: %s/actions/runs/%s\nCommit: %s\n' '${{ github.server_url }}/${{ github.repository }}' '${{ github.run_id }}' '${{ github.sha }}' > /tmp/v17-failure.txt
+          for log in /tmp/v17-*.log; do
+            if [[ -f "$log" ]]; then
+              printf '\n===== %s =====\n' "$(basename "$log")" >> /tmp/v17-failure.txt
+              tail -n 220 "$log" >> /tmp/v17-failure.txt
+            fi
+          done
           gh issue create --title 'V17 remediation workflow failed (run ${{ github.run_id }})' --body-file /tmp/v17-failure.txt
