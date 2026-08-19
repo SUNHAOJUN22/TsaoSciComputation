@@ -42,6 +42,15 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install -e '.[validation,quality]'
+      - name: Normalize materialized Python surfaces
+        shell: bash
+        run: |
+          set -euo pipefail
+          ruff check . --fix --exit-zero 2>&1 | tee /tmp/v17-normalize-ruff-1.log
+          ruff format . 2>&1 | tee /tmp/v17-normalize-format-1.log
+          ruff check . --fix --exit-zero 2>&1 | tee /tmp/v17-normalize-ruff-2.log
+          ruff format . 2>&1 | tee /tmp/v17-normalize-format-2.log
+          git diff --check
       - name: Regenerate exact-tree acceleration reports
         run: python scripts/build_acceleration_audits.py --root .
       - name: Validate canonical Skill and bilingual assets
