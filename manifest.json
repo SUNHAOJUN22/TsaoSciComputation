@@ -1,6 +1,61 @@
 {
   "files": [
     {
+      "bytes": 3228,
+      "path": ".agents/skills/tsao-scicomputation/SKILL.md",
+      "sha256": "e4eb8f4125fe8b23ca50c65143f3441d4db12b0f4640e4b8b5c029a2c663cd0f"
+    },
+    {
+      "bytes": 318,
+      "path": ".agents/skills/tsao-scicomputation/agents/openai.yaml",
+      "sha256": "fc79cb1503aa8b16f73ee2244325b9cd2ab657ff9b96d5bb7fa13d592ab847ef"
+    },
+    {
+      "bytes": 722,
+      "path": ".agents/skills/tsao-scicomputation/evals/ACTUAL_MODEL_EVAL.md",
+      "sha256": "e4270be15ed3b89d9baf819c1f1f2a9f80fe733926b6807756179b49fc8c4501"
+    },
+    {
+      "bytes": 4032,
+      "path": ".agents/skills/tsao-scicomputation/evals/MODEL_CAPTURE_TEMPLATE.json",
+      "sha256": "bf48c0ef4e9e2248bc267c06e442ef15b6812f50a306f17d9e854ef82c9a1640"
+    },
+    {
+      "bytes": 295,
+      "path": ".agents/skills/tsao-scicomputation/evals/MODEL_EVAL_STATUS.json",
+      "sha256": "e17c087e382acc78877929f7c2d854f710022abb667e635beb2b7a537032ee23"
+    },
+    {
+      "bytes": 612,
+      "path": ".agents/skills/tsao-scicomputation/evals/README.md",
+      "sha256": "56fcfea8ed2354cdad265c651504eb48f5acb289f2d16e63fe4279a1097309f6"
+    },
+    {
+      "bytes": 5837,
+      "path": ".agents/skills/tsao-scicomputation/evals/evals.json",
+      "sha256": "facbf457eaa47c6772eceae372bb237a5e8e893063d36d251a90b9e5c7cd414a"
+    },
+    {
+      "bytes": 5266,
+      "path": ".agents/skills/tsao-scicomputation/evals/score_model_routing.py",
+      "sha256": "f6a6a37d3204ade8e4843778acda3ba2f925f2b7c89bd075cbec8efdec3dde40"
+    },
+    {
+      "bytes": 2038,
+      "path": ".agents/skills/tsao-scicomputation/evals/submission-cases.json",
+      "sha256": "d0484be02bdad96b93fd5cc7c68e4ba0ed5d047a87ad5475a6102208ad1042ca"
+    },
+    {
+      "bytes": 891,
+      "path": ".agents/skills/tsao-scicomputation/references/definition-of-done.md",
+      "sha256": "4359c083f6b18e498ec3c3712209e57f403c28b185e36c617e9bdf81bd8f9cae"
+    },
+    {
+      "bytes": 476,
+      "path": ".agents/skills/tsao-scicomputation/references/verification.md",
+      "sha256": "6689aeca1cf7690dc35f0845f91e5b1f04d29eadf1e1f63d39f65e5f7dc0d381"
+    },
+    {
       "bytes": 356,
       "path": ".gitattributes",
       "sha256": "b2f26f95023598ab18a03ce9120e2d535bb0d4623801583e4831fe5b05da1706"
@@ -34,6 +89,11 @@
       "bytes": 856,
       "path": ".github/PULL_REQUEST_TEMPLATE.md",
       "sha256": "3df770971d50d2df680f50b254caebfb9c4088fa9b3c5813fe869640bafc22d1"
+    },
+    {
+      "bytes": 461,
+      "path": ".github/V17_FINAL_QUALIFICATION_2026-08-19.md",
+      "sha256": "f01065794764000070bdbbd0164a59593313cfc90f11c123c617ee647413e2cc"
     },
     {
       "bytes": 4052,
@@ -419,6 +479,16 @@
       "bytes": 532,
       "path": "artifacts/current-main/readme-visual-audit.json",
       "sha256": "f7abd8f25a955bdcf1fbb2e4d3868d95d321847df720c51b0ad4781821b21147"
+    },
+    {
+      "bytes": 3982,
+      "path": "assets/diagrams/vision-en.svg",
+      "sha256": "4c301ebac4342d37f75b1b63464a8c9db70f2bb5bb79cff51f3b5f12c9be3d47"
+    },
+    {
+      "bytes": 3902,
+      "path": "assets/diagrams/vision-zh.svg",
+      "sha256": "95e74b8e65fd94f74251281ea4d5d180dc6521d625cfe6f916e02f9427f4052d"
     },
     {
       "bytes": 3250,
@@ -1653,7 +1723,7 @@
     {
       "bytes": 72,
       "path": "evidence/security-scan.json",
-      "sha256": "8fb792eafaccd197b50ac48fcb143c0d6203a2981f133d7ba24222fac710bec5"
+      "sha256": "36fd9dacfc0126e1fb65090720d6b7d1a5e457b2d5a033d07df0891443d35b7d"
     },
     {
       "bytes": 573,
@@ -1848,17 +1918,17 @@
     {
       "bytes": 52899,
       "path": "reports/ACCELERATION_OPPORTUNITIES_FULL_TREE_V4.json",
-      "sha256": "fa2879954355e86243587ffe91df692ab97013a7b48e8f95a98a1a46ca863547"
+      "sha256": "bdac4b2473e91f8053b9ba331330cdd243c29008ab17c0f6e75914b0193e15f7"
     },
     {
       "bytes": 5059,
       "path": "reports/ACCELERATION_OPPORTUNITIES_PRODUCTION_V4.json",
-      "sha256": "2e55b4bd6169664b3802e0534e6e3b5dc8bb42224d92dbdfc4d102670a5dc647"
+      "sha256": "37853c41557ac395f68ecde9ad2cce26fe8cb96aeda357b94b3450c8c4f2b499"
     },
     {
       "bytes": 5059,
       "path": "reports/ACCELERATION_OPPORTUNITIES_V2.json",
-      "sha256": "2e55b4bd6169664b3802e0534e6e3b5dc8bb42224d92dbdfc4d102670a5dc647"
+      "sha256": "37853c41557ac395f68ecde9ad2cce26fe8cb96aeda357b94b3450c8c4f2b499"
     },
     {
       "bytes": 1196,

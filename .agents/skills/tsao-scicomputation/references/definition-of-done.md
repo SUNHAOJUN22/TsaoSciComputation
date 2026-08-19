@@ -1,9 +1,14 @@
 # Definition of done
 
-- Finite, dimensioned quantities are used end to end.
-- Unit representation changes do not change convergence or balance decisions.
-- External execution consumes a signed, scoped, expiring, one-time capability.
-- Timeout, cancellation, and output-limit paths clean up the full process tree.
-- Provenance records are append-safe and hash-verifiable.
-- Scientific acceptance requires independent evidence and approval.
-- Missing external evidence remains `EXTERNAL_EXECUTION_NOT_VERIFIED`.
+- Strict quantities, convergence, execution, evidence and acceptance remain separate machine states.
+- Timeout, cancellation and output overflow terminate the full process tree and retain bounded evidence.
+- The ledger survives concurrent append tests without loss or silent reordering.
+- Repository-native CI and real solver/HPC evidence are recorded separately; unresolved execution remains `EXTERNAL_EXECUTION_NOT_VERIFIED`.
+
+## Evidence scopes
+
+- **Bundle-level:** deterministic overlay, static Skill, contract, Unicode, visual and archive checks.
+- **Repository-native:** the repository's own lock, lint, type, unit, integration, package and platform gates on an exact checkout.
+- **External:** licensed software, solver/HPC, laboratory, engineering/HSE, regulatory or qualified-human evidence when required.
+
+A lower evidence scope must never claim a higher one.
