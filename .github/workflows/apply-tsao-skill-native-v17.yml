@@ -1,0 +1,68 @@
+name: Apply comprehensive skill-native V17
+on:
+  push:
+    branches: [main]
+    paths:
+      - .tsao-skill-native-v17/payload.tar.gz
+      - scripts/apply_tsao_skill_native_v17.py
+      - .github/workflows/apply-tsao-skill-native-v17.yml
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+  issues: write
+concurrency:
+  group: scicomputation-skill-native-v17
+  cancel-in-progress: false
+jobs:
+  apply-test-commit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 70
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install locked validation environment
+        run: |
+          python scripts/verify_dependency_locks.py
+          python scripts/install_locked.py --profile validation,quality,security
+          python -m pip install --no-deps -e .
+      - name: Apply verified comprehensive payload
+        run: python scripts/apply_tsao_skill_native_v17.py
+      - name: Validate Skill and focused remediation contracts
+        run: |
+          python scripts/validate_agent_skills.py --root . --overlay-mode
+          python -m pytest -q tests/test_v4_numerical_invariance.py tests/test_v4_strict_scientific.py tests/test_v4_strict_scientific_contracts.py tests/test_v5_acceptance_graph.py tests/test_v5_evidence_integration.py tests/test_v6_pipeline_gate.py
+      - name: Run permanent repository gates
+        run: |
+          python scripts/verify_all.py --profile core
+          python scripts/verify_native_core.py
+          python scripts/verify_all.py --profile quality
+          python -m pytest -q
+          python scripts/verify_all.py --profile package
+      - name: Clean ignored runtime outputs
+        shell: bash
+        run: git clean -fdX
+      - name: Commit verified source and remove one-shot payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf .tsao-skill-native-v17 scripts/apply_tsao_skill_native_v17.py .github/workflows/apply-tsao-skill-native-v17.yml
+          git add -A
+          git diff --cached --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'feat: complete TsaoSciComputation skill-native V17 remediation'
+          git push origin HEAD:main
+      - name: Open diagnostic issue on failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          printf 'Workflow run: %s/actions/runs/%s\nCommit: %s\n' '${{ github.server_url }}/${{ github.repository }}' '${{ github.run_id }}' '${{ github.sha }}' > /tmp/v17-failure.txt
+          gh issue create --title 'V17 remediation workflow failed (run ${{ github.run_id }})' --body-file /tmp/v17-failure.txt
