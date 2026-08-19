@@ -20,7 +20,7 @@ concurrency:
 jobs:
   apply-test-commit:
     runs-on: ubuntu-24.04
-    timeout-minutes: 75
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
@@ -76,38 +76,36 @@ jobs:
               if '\ufffd' in text or '\x00' in text:
                   raise SystemExit(f'Unicode/source corruption in {path}')
           PY
-      - name: Run full repository tests
+      - name: Native core qualification
         shell: bash
         run: |
           set -o pipefail
-          python -m pytest -vv --maxfail=20 2>&1 | tee /tmp/v17-pytest.log
-      - name: Ruff lint
+          python scripts/verify_all.py --profile core 2>&1 | tee /tmp/v17-core.log
+      - name: Native runtime qualification
         shell: bash
         run: |
           set -o pipefail
-          ruff check . 2>&1 | tee /tmp/v17-ruff.log
-      - name: Ruff formatting
+          python scripts/verify_native_core.py 2>&1 | tee /tmp/v17-native.log
+      - name: Native quality qualification
         shell: bash
         run: |
           set -o pipefail
-          ruff format --check . 2>&1 | tee /tmp/v17-ruff-format.log
-      - name: Strict mypy
+          python scripts/verify_all.py --profile quality 2>&1 | tee /tmp/v17-quality.log
+      - name: Native package qualification
         shell: bash
         run: |
           set -o pipefail
-          mypy tsao_computation 2>&1 | tee /tmp/v17-mypy.log
-      - name: Compile Python sources
-        run: python -m compileall -q tsao_computation scripts
-      - name: Coverage gate
+          python scripts/verify_all.py --profile package 2>&1 | tee /tmp/v17-package.log
+      - name: Native benchmark qualification
         shell: bash
         run: |
           set -o pipefail
-          python -m pytest -q --cov=tsao_computation --cov-branch --cov-report=term-missing 2>&1 | tee /tmp/v17-coverage.log
-      - name: Build distributions
+          python scripts/verify_all.py --profile benchmark 2>&1 | tee /tmp/v17-benchmark.log
+      - name: Large parser regression
         shell: bash
         run: |
           set -o pipefail
-          python -m build 2>&1 | tee /tmp/v17-build.log
+          python scripts/run_large_parser_regression.py 2>&1 | tee /tmp/v17-large-parser.log
       - name: Dependency consistency
         run: python -m pip check
       - name: Verify generated reports remain current
