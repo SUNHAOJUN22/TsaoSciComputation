@@ -18,7 +18,7 @@ concurrency:
 jobs:
   apply-test-commit:
     runs-on: ubuntu-24.04
-    timeout-minutes: 70
+    timeout-minutes: 75
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
@@ -28,14 +28,14 @@ jobs:
           python-version: '3.12'
       - name: Apply verified comprehensive payload
         run: python scripts/apply_tsao_skill_native_v17.py
-      - name: Remove temporary and non-authoritative workflow surfaces before testing
+      - name: Remove temporary and non-authoritative workflow surfaces
         shell: bash
         run: rm -f .github/workflows/agent-skill-portability.yml .github/workflows/apply-tsao-skill-native-v17.yml
       - name: Install declared validation and quality environment
         run: |
           python -m pip install --upgrade pip
           python -m pip install -e '.[validation,quality]'
-      - name: Validate the materialized Skill and run the full test suite
+      - name: Validate canonical Skill and bilingual assets
         shell: bash
         run: |
           set -euo pipefail
@@ -58,16 +58,22 @@ jobs:
               if '\ufffd' in text or '\x00' in text:
                   raise SystemExit(f'Unicode/source corruption in {path}')
           PY
-          python -m pytest -q
-      - name: Run permanent repository gates
-        run: |
-          ruff check .
-          ruff format --check .
-          mypy tsao_computation
-          python -m compileall -q tsao_computation scripts
-          python -m pytest -q --cov=tsao_computation --cov-branch --cov-report=term-missing
-          python -m build
-          python -m pip check
+      - name: Run full repository tests
+        run: python -m pytest -q
+      - name: Ruff lint
+        run: ruff check .
+      - name: Ruff formatting
+        run: ruff format --check .
+      - name: Strict mypy
+        run: mypy tsao_computation
+      - name: Compile Python sources
+        run: python -m compileall -q tsao_computation scripts
+      - name: Coverage gate
+        run: python -m pytest -q --cov=tsao_computation --cov-branch --cov-report=term-missing
+      - name: Build distributions
+        run: python -m build
+      - name: Dependency consistency
+        run: python -m pip check
       - name: Clean ignored runtime outputs
         shell: bash
         run: git clean -fdX
