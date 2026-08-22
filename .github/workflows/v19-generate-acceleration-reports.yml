@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   issues: write
 
 jobs:
@@ -37,11 +37,25 @@ jobs:
             reports/ACCELERATION_OPPORTUNITIES_V2.json
           if-no-files-found: error
           retention-days: 2
-      - name: Publish temporary artifact locator
+      - name: Create detached report blobs and publish locator
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
+          set -euo pipefail
+          create_blob() {
+            local path="$1"
+            local encoded
+            encoded="$(base64 -w0 "$path")"
+            gh api --method POST \
+              "repos/${GITHUB_REPOSITORY}/git/blobs" \
+              -f encoding=base64 \
+              -f content="$encoded" \
+              --jq .sha
+          }
+          production_sha="$(create_blob reports/ACCELERATION_OPPORTUNITIES_PRODUCTION_V4.json)"
+          full_sha="$(create_blob reports/ACCELERATION_OPPORTUNITIES_FULL_TREE_V4.json)"
+          compatibility_sha="$(create_blob reports/ACCELERATION_OPPORTUNITIES_V2.json)"
           gh issue create \
-            --title 'Temporary SciComputation V19 acceleration reports ${{ github.run_id }}' \
-            --body 'Artifact: scicomputation-v19-acceleration-reports-${{ github.run_id }}; run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}; commit: ${{ github.sha }}'
+            --title 'Temporary SciComputation V19 report blobs ${{ github.run_id }}' \
+            --body "run=${{ github.run_id }} commit=${{ github.sha }} production_blob=${production_sha} full_tree_blob=${full_sha} compatibility_blob=${compatibility_sha}"
