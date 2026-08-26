@@ -1,0 +1,80 @@
+name: One-shot SciComputation evidence convergence
+
+on:
+  push:
+    branches:
+      - remediation/ci-evidence-convergence
+
+permissions:
+  contents: write
+
+concurrency:
+  group: scicomputation-evidence-convergence
+  cancel-in-progress: false
+
+jobs:
+  regenerate:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Check out exact remediation branch
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: remediation/ci-evidence-convergence
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.13'
+
+      - name: Install repository validation stack
+        run: python -m pip install -e '.[validation,quality]'
+
+      - name: Regenerate deterministic evidence without the one-shot workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm .github/workflows/remediation-regenerate-evidence.yml
+          python scripts/build_acceleration_audits.py
+          python scripts/quality_check.py
+          python scripts/security_scan.py
+          python scripts/build_manifest.py
+          python scripts/build_acceleration_audits.py --check
+          python scripts/build_manifest.py --check
+          python -m ruff check tsao_computation scripts tests _bootstrap.py
+          python -m ruff format --check tsao_computation scripts tests _bootstrap.py
+          python -m pytest -q \
+            tests/test_skill_spec_and_workflow_security.py \
+            tests/test_skill_interoperability_v19.py
+          git diff --check
+
+      - name: Verify and commit the closed evidence set
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import subprocess
+
+          allowed = {
+              '.github/workflows/remediation-regenerate-evidence.yml',
+              'evidence/quality-check.json',
+              'evidence/security-scan.json',
+              'manifest.json',
+              'reports/ACCELERATION_OPPORTUNITIES_FULL_TREE_V4.json',
+              'reports/ACCELERATION_OPPORTUNITIES_PRODUCTION_V4.json',
+              'reports/ACCELERATION_OPPORTUNITIES_V2.json',
+          }
+          actual = set(subprocess.check_output(['git', 'diff', '--name-only'], text=True).splitlines())
+          if '.github/workflows/remediation-regenerate-evidence.yml' not in actual:
+              raise SystemExit('one-shot workflow was not removed')
+          unexpected = actual - allowed
+          if unexpected:
+              raise SystemExit(f'unexpected generated diff: {sorted(unexpected)!r}')
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "chore(evidence): refresh manifest after formatter repair"
+          git push origin HEAD:remediation/ci-evidence-convergence
