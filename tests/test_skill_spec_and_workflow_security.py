@@ -84,9 +84,7 @@ def test_scorecard_workflow_is_pinned_least_privilege_and_sarif_preserving() -> 
     assert "sarif_file: results.sarif" in workflow
     assert "pull_request_target:" not in workflow
     assert "workflow_run:" not in workflow
-    _assert_workflow_actions_are_pinned(
-        ROOT / ".github" / "workflows" / "scorecard.yml", workflow
-    )
+    _assert_workflow_actions_are_pinned(ROOT / ".github" / "workflows" / "scorecard.yml", workflow)
 
 
 def test_quality_gate_executes_skill_validation() -> None:
