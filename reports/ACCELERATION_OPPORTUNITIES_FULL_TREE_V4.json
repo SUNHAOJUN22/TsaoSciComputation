@@ -19,7 +19,7 @@
   "language_lines": {
     "c": 70,
     "cpp": 197,
-    "python": 23162
+    "python": 23160
   },
   "opportunities": [
     {
@@ -1277,7 +1277,7 @@
         "network filesystem",
         "stale cache"
       ],
-      "candidate_id": "a81b210688263d99f6dd74fafe16c60cad113453cbecf06433d0c617e68fca28",
+      "candidate_id": "e5d19a1450fa25ea24233fd7f9fcb88266b61ca23acf299a4caf6b4e247b663a",
       "category": "filesystem-scan",
       "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
       "confidence": "medium",
@@ -1295,7 +1295,7 @@
       "path": "tests/test_skill_spec_and_workflow_security.py",
       "runtime_status": "unprofiled",
       "score": 45,
-      "source_sha256": "127cc0a2295223fbe76c4b0fd9cd5219fc6f3d3c2d21cf89959449b0c23c0cae",
+      "source_sha256": "e7711b94fc48bf75498f1215a8f8c5549cd02326bc0f252981c9d607d2e155f4",
       "symbol": "test_workflows_pin_actions_and_avoid_privileged_untrusted_triggers"
     }
   ],
@@ -1306,6 +1306,6 @@
   "root": ".",
   "scope": "full-tree",
   "source_files": 179,
-  "source_lines": 23429,
-  "source_tree_sha256": "3fa6f710680868708158110cb5c6e0b22fb9a002433815e42539b661660935b8"
+  "source_lines": 23427,
+  "source_tree_sha256": "5e5e502b97cd2cad86ff294cd79d929a7cd90ae9f7847a03f978a67bef365bdc"
 }

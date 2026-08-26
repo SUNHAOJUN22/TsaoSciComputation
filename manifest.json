@@ -1923,17 +1923,17 @@
     {
       "bytes": 52899,
       "path": "reports/ACCELERATION_OPPORTUNITIES_FULL_TREE_V4.json",
-      "sha256": "397357aba54619b214a59fbb87a9691748e33bbc7d6447f153723103356d5d6a"
+      "sha256": "d47aa14d6e910416f97ed7ed0c246aaa36717b595e6ee11d28e9f31d1461cf0e"
     },
     {
       "bytes": 5059,
       "path": "reports/ACCELERATION_OPPORTUNITIES_PRODUCTION_V4.json",
-      "sha256": "75d50f4700f42810b5787238af3c4cbb84f133018f48bb0e56d17c9b86db5aba"
+      "sha256": "106a3fc90df08a8a9b5fc373622d01e79cc337aaacdb896becbaf77fe62da868"
     },
     {
       "bytes": 5059,
       "path": "reports/ACCELERATION_OPPORTUNITIES_V2.json",
-      "sha256": "75d50f4700f42810b5787238af3c4cbb84f133018f48bb0e56d17c9b86db5aba"
+      "sha256": "106a3fc90df08a8a9b5fc373622d01e79cc337aaacdb896becbaf77fe62da868"
     },
     {
       "bytes": 1196,
@@ -2736,9 +2736,9 @@
       "sha256": "7abc96f4e56786b886701e2186022b8f930fcaab9ea9dcd8e4f5d0e58a627cf6"
     },
     {
-      "bytes": 3836,
+      "bytes": 3822,
       "path": "tests/test_skill_spec_and_workflow_security.py",
-      "sha256": "127cc0a2295223fbe76c4b0fd9cd5219fc6f3d3c2d21cf89959449b0c23c0cae"
+      "sha256": "e7711b94fc48bf75498f1215a8f8c5549cd02326bc0f252981c9d607d2e155f4"
     },
     {
       "bytes": 11521,

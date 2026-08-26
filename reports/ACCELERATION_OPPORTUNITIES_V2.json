@@ -18,7 +18,7 @@
   "language_lines": {
     "c": 70,
     "cpp": 197,
-    "python": 23162
+    "python": 23160
   },
   "opportunities": [
     {
@@ -127,6 +127,6 @@
   "root": ".",
   "scope": "production",
   "source_files": 179,
-  "source_lines": 23429,
-  "source_tree_sha256": "3fa6f710680868708158110cb5c6e0b22fb9a002433815e42539b661660935b8"
+  "source_lines": 23427,
+  "source_tree_sha256": "5e5e502b97cd2cad86ff294cd79d929a7cd90ae9f7847a03f978a67bef365bdc"
 }
