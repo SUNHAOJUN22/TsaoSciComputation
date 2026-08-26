@@ -51,6 +51,11 @@
       "sha256": "4359c083f6b18e498ec3c3712209e57f403c28b185e36c617e9bdf81bd8f9cae"
     },
     {
+      "bytes": 1253,
+      "path": ".agents/skills/tsao-scicomputation/references/interoperability-v1.json",
+      "sha256": "255784deb5b3a8963c080362b1c164696bf44b95e0ce3c0d5b851277b33092b6"
+    },
+    {
       "bytes": 476,
       "path": ".agents/skills/tsao-scicomputation/references/verification.md",
       "sha256": "6689aeca1cf7690dc35f0845f91e5b1f04d29eadf1e1f63d39f65e5f7dc0d381"
@@ -1713,7 +1718,7 @@
     {
       "bytes": 152,
       "path": "evidence/quality-check.json",
-      "sha256": "3a3e53f43d0b5e6439e44627b48e7cb2ce3a2e2612c8fde47f741b7851197944"
+      "sha256": "6658cf81b9ac0a4cb346a018c1fb55cdf2e92254397946e7d38cbbfef6a2f2bb"
     },
     {
       "bytes": 3174,
@@ -1723,7 +1728,7 @@
     {
       "bytes": 72,
       "path": "evidence/security-scan.json",
-      "sha256": "36fd9dacfc0126e1fb65090720d6b7d1a5e457b2d5a033d07df0891443d35b7d"
+      "sha256": "44cc89a89335348afa0be324b2cc181cdfd8100d6763a23a603ae6b59c490779"
     },
     {
       "bytes": 573,
@@ -1918,17 +1923,17 @@
     {
       "bytes": 52899,
       "path": "reports/ACCELERATION_OPPORTUNITIES_FULL_TREE_V4.json",
-      "sha256": "bdac4b2473e91f8053b9ba331330cdd243c29008ab17c0f6e75914b0193e15f7"
+      "sha256": "397357aba54619b214a59fbb87a9691748e33bbc7d6447f153723103356d5d6a"
     },
     {
       "bytes": 5059,
       "path": "reports/ACCELERATION_OPPORTUNITIES_PRODUCTION_V4.json",
-      "sha256": "37853c41557ac395f68ecde9ad2cce26fe8cb96aeda357b94b3450c8c4f2b499"
+      "sha256": "75d50f4700f42810b5787238af3c4cbb84f133018f48bb0e56d17c9b86db5aba"
     },
     {
       "bytes": 5059,
       "path": "reports/ACCELERATION_OPPORTUNITIES_V2.json",
-      "sha256": "37853c41557ac395f68ecde9ad2cce26fe8cb96aeda357b94b3450c8c4f2b499"
+      "sha256": "75d50f4700f42810b5787238af3c4cbb84f133018f48bb0e56d17c9b86db5aba"
     },
     {
       "bytes": 1196,
@@ -2726,9 +2731,14 @@
       "sha256": "90d3712ebcad190a046d6a6278ac8c497fddd3b2859dd04b67d7533fd8834075"
     },
     {
-      "bytes": 3407,
+      "bytes": 1855,
+      "path": "tests/test_skill_interoperability_v19.py",
+      "sha256": "7abc96f4e56786b886701e2186022b8f930fcaab9ea9dcd8e4f5d0e58a627cf6"
+    },
+    {
+      "bytes": 3836,
       "path": "tests/test_skill_spec_and_workflow_security.py",
-      "sha256": "d9c738bd5bebf830d548f988e02309949749734bf84bedd235d353963cf7d005"
+      "sha256": "127cc0a2295223fbe76c4b0fd9cd5219fc6f3d3c2d21cf89959449b0c23c0cae"
     },
     {
       "bytes": 11521,

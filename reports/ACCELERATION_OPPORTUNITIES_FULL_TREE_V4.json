@@ -19,7 +19,7 @@
   "language_lines": {
     "c": 70,
     "cpp": 197,
-    "python": 23149
+    "python": 23162
   },
   "opportunities": [
     {
@@ -1277,7 +1277,7 @@
         "network filesystem",
         "stale cache"
       ],
-      "candidate_id": "748c8eac43adeb8365a8b5e764d731bdaa681a7decdf59076828a8d252bc5a4c",
+      "candidate_id": "a81b210688263d99f6dd74fafe16c60cad113453cbecf06433d0c617e68fca28",
       "category": "filesystem-scan",
       "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
       "confidence": "medium",
@@ -1291,11 +1291,11 @@
       "file_scope": "test",
       "first_action": "reduce repeated passes, cache stable metadata, and stream results; GPU migration is usually unsuitable",
       "library_candidates": [],
-      "line": 34,
+      "line": 46,
       "path": "tests/test_skill_spec_and_workflow_security.py",
       "runtime_status": "unprofiled",
       "score": 45,
-      "source_sha256": "d9c738bd5bebf830d548f988e02309949749734bf84bedd235d353963cf7d005",
+      "source_sha256": "127cc0a2295223fbe76c4b0fd9cd5219fc6f3d3c2d21cf89959449b0c23c0cae",
       "symbol": "test_workflows_pin_actions_and_avoid_privileged_untrusted_triggers"
     }
   ],
@@ -1306,6 +1306,6 @@
   "root": ".",
   "scope": "full-tree",
   "source_files": 179,
-  "source_lines": 23416,
-  "source_tree_sha256": "5879c8aef14bd8db733f7a9775db87b10b930609251debe8b0bd3711d509de96"
+  "source_lines": 23429,
+  "source_tree_sha256": "3fa6f710680868708158110cb5c6e0b22fb9a002433815e42539b661660935b8"
 }
