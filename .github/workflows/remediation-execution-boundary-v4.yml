@@ -166,7 +166,10 @@ jobs:
           python -m ruff format --check tsao_computation scripts tests _bootstrap.py
           python -m mypy --python-version 3.13 tsao_computation scripts
           python -m bandit -q -r tsao_computation scripts -x tests
-          python scripts/verify_all.py --profile core
+          if ! python scripts/verify_all.py --profile core; then
+            python -m coverage report -m
+            exit 1
+          fi
           python scripts/verify_all.py --profile quality
           python scripts/verify_all.py --profile package
           test -z "$(find .github/workflows -maxdepth 1 -type f -name 'remediation-*.yml' -print -quit)"
