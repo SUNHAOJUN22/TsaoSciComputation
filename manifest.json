@@ -1718,7 +1718,7 @@
     {
       "bytes": 152,
       "path": "evidence/quality-check.json",
-      "sha256": "58bb494e7c9658748f15843e675953df8fdcca5946b90209c85e387d54b9d42d"
+      "sha256": "6592ac5f35aa8d6328563660c19fd8d51fe832ceadf148a98b5b0aaf7e3ed4b6"
     },
     {
       "bytes": 3174,
@@ -1728,7 +1728,7 @@
     {
       "bytes": 72,
       "path": "evidence/security-scan.json",
-      "sha256": "31f107ebfd657b4c380e000665da58f9c6caf65f88249aca89ed493e17c4dbf5"
+      "sha256": "415a7727d0d0c85ca3093dc2971360941908325ccc11c0fc516e957d00cc0ffe"
     },
     {
       "bytes": 573,
@@ -1876,9 +1876,9 @@
       "sha256": "ccd4e6b996a3342360714fe805eb3f810f343f55badf04846eacff5ee089123c"
     },
     {
-      "bytes": 2577,
+      "bytes": 2537,
       "path": "pyproject.toml",
-      "sha256": "f3db019c1cf681b48ba9f8d48987f8d1955a9c0d1c50eb5fd8d66a07f51a81a4"
+      "sha256": "40b53135c10ce8a63693a2aef56e3a8ec8ed454027604373e4cd81396a4af8e3"
     },
     {
       "bytes": 262,
@@ -1921,19 +1921,19 @@
       "sha256": "06c63ceb866c0853965bdc1154473e756f0a7a95de14419fe854ce981da0c9ac"
     },
     {
-      "bytes": 54204,
+      "bytes": 52899,
       "path": "reports/ACCELERATION_OPPORTUNITIES_FULL_TREE_V4.json",
-      "sha256": "3ed1579c30836bee11771c1da71e1f2f06e5444f257cccf698fc1c4780dbf18c"
+      "sha256": "03b13de0f01072c62403076ba4605348a8eaf9f53f5c9fdbc02b0aaccecdede6"
     },
     {
-      "bytes": 6364,
+      "bytes": 5059,
       "path": "reports/ACCELERATION_OPPORTUNITIES_PRODUCTION_V4.json",
-      "sha256": "83d41aa3f00ef3b0ae34550e8aefac1dc88fdcdbe3af8cf268cd2bf6a71b9c32"
+      "sha256": "2dc16b193e99306fc8ff3647622611ec687939245a7071634abe4d076b3b1995"
     },
     {
-      "bytes": 6364,
+      "bytes": 5059,
       "path": "reports/ACCELERATION_OPPORTUNITIES_V2.json",
-      "sha256": "83d41aa3f00ef3b0ae34550e8aefac1dc88fdcdbe3af8cf268cd2bf6a71b9c32"
+      "sha256": "2dc16b193e99306fc8ff3647622611ec687939245a7071634abe4d076b3b1995"
     },
     {
       "bytes": 1196,
@@ -2844,11 +2844,6 @@
       "bytes": 48,
       "path": "tsao_computation/__main__.py",
       "sha256": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d"
-    },
-    {
-      "bytes": 1609,
-      "path": "tsao_computation/_rg_compat.py",
-      "sha256": "ebf8e303aefe9078750ff3c83762980f11349a743d34ee68db2f708cad77c850"
     },
     {
       "bytes": 1475,
