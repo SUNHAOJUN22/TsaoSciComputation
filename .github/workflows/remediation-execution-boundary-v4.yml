@@ -32,24 +32,15 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
         with:
-          python-version: '3.12'
+          python-version: '3.13'
           cache: pip
 
-      - name: Install repository dependencies
-        shell: bash
+      - name: Install declared qualification stack
         run: |
-          set -euo pipefail
-          if test -f requirements-ci.lock; then
-            python -m pip install --disable-pip-version-check -r requirements-ci.lock
-          elif test -f requirements-dev.txt; then
-            python -m pip install --disable-pip-version-check -r requirements-dev.txt
-          elif test -f requirements.txt; then
-            python -m pip install --disable-pip-version-check -r requirements.txt
-          fi
-          python -m pip install --disable-pip-version-check -e . --no-deps
+          python -m pip install --disable-pip-version-check -e '.[validation,quality,security]'
           python -m pip check
 
-      - name: Execute reviewed v3 transformation and normalize all receipts
+      - name: Materialize reviewed P1 source and normalize contracts
         shell: bash
         run: |
           set -euo pipefail
@@ -66,19 +57,38 @@ jobs:
           program = textwrap.dedent(workflow[start:end])
           exec(compile(program, str(source), 'exec'), {'__name__': '__main__'})
 
-          roots = [
-              p.parent
-              for p in Path('.').glob('*/__init__.py')
-              if not any(part.startswith('.') or part in {'tests', 'scripts', 'docs'} for part in p.parts)
-          ]
-          roots.sort(
-              key=lambda path: (
-                  0 if 'computation' in path.name.casefold() else 1,
-                  0 if 'tsao' in path.name.casefold() else 1,
-                  path.name,
-              )
+          package = Path('tsao_computation')
+          init_path = package / '__init__.py'
+          init_text = init_path.read_text(encoding='utf-8')
+          exports = (
+              'BoundedOutputAccumulator',
+              'ConcurrentProvenanceLedger',
+              'ExecutionBudget',
+              'ExternalExecutionCapability',
+              'SignedExecutionReceipt',
+              'AcceptanceEnvelope',
+              'ScientificQuantity',
+              'acceptance_is_verified',
+              'require_verified_acceptance',
           )
-          package = roots[0]
+          for name in exports:
+              init_text = init_text.replace(f'    {name},', f'    {name} as {name},')
+          init_path.write_text(init_text, encoding='utf-8')
+
+          boundary = package / 'execution_boundary.py'
+          boundary_text = boundary.read_text(encoding='utf-8')
+          old = '''            except FileExistsError:
+                if time.monotonic() >= deadline:
+                    raise TimeoutError("provenance ledger lock timed out")
+'''
+          new = '''            except FileExistsError as exc:
+                if time.monotonic() >= deadline:
+                    raise TimeoutError("provenance ledger lock timed out") from exc
+'''
+          if old not in boundary_text:
+              raise SystemExit('expected lock timeout block not found')
+          boundary.write_text(boundary_text.replace(old, new), encoding='utf-8')
+
           patched = []
           for contract in package.rglob('contracts_v17.py'):
               text = contract.read_text(encoding='utf-8')
@@ -97,69 +107,53 @@ jobs:
                   },
                   indent=2,
                   sort_keys=True,
-              )
-              + '\n',
+              ) + '\n',
               encoding='utf-8',
           )
           PY
-          rm -f .github/workflows/remediation-*.yml
+          find .github/workflows -maxdepth 1 -type f -name 'remediation-*.yml' -delete
+          git show origin/main:.github/workflows/ci.yml > .github/workflows/ci.yml
+          git show origin/main:.github/workflows/codeql.yml > .github/workflows/codeql.yml
 
-      - name: Canonical formatting and deterministic evidence refresh
+      - name: Canonicalize source and rebuild deterministic evidence
         shell: bash
         run: |
           set -euo pipefail
-          python -m ruff format .
-          python -m ruff check --fix .
-          python - <<'PY'
-          from pathlib import Path
-          import subprocess
+          python -m ruff format tsao_computation scripts tests _bootstrap.py
+          python -m ruff check --fix tsao_computation scripts tests _bootstrap.py
+          python scripts/build_acceleration_audits.py
+          python scripts/quality_check.py
+          python scripts/security_scan.py
+          python scripts/build_manifest.py
+          python scripts/build_acceleration_audits.py --check
+          python scripts/build_manifest.py --check
 
-          tokens = ('manifest', 'quality', 'security', 'audit', 'evidence', 'checksum')
-          for script in sorted(Path('scripts').glob('*.py')):
-              if not any(token in script.name.casefold() for token in tokens):
-                  continue
-              probe = subprocess.run(
-                  ['python', str(script), '--help'],
-                  text=True,
-                  capture_output=True,
-              )
-              help_text = probe.stdout + probe.stderr
-              flag = '--write' if '--write' in help_text else None
-              if flag is None and '--generate' in help_text:
-                  flag = '--generate'
-              if flag is not None:
-                  subprocess.run(['python', str(script), flag], check=True)
-          PY
-          git add -A
-
-      - name: Execute full deterministic qualification
+      - name: Run complete qualification
         shell: bash
         run: |
           set -euo pipefail
-          python -m compileall -q .
-          python -m pytest -q -p hypothesis.extra.pytestplugin
-          python -m ruff format --check .
-          python -m ruff check .
-          git diff --check
-
-      - name: Verify exact bounded source tree
-        shell: bash
-        run: |
-          set -euo pipefail
-          test -z "$(find .github/workflows -maxdepth 1 -name 'remediation-*' -print -quit)"
-          python -m json.tool reports/SCIENTIFIC_QUANTITY_ACCEPTANCE_CONVERGENCE.json >/dev/null
-          python -m json.tool reports/EXECUTION_BOUNDARY_CONVERGENCE.json >/dev/null
+          python -m pytest -q
+          python -m ruff check tsao_computation scripts tests _bootstrap.py
+          python -m ruff format --check tsao_computation scripts tests _bootstrap.py
+          python -m mypy --python-version 3.13 tsao_computation scripts
+          python -m bandit -q -r tsao_computation scripts -x tests
+          python scripts/verify_all.py --profile core
+          python scripts/verify_all.py --profile quality
+          python scripts/verify_all.py --profile package
+          test -z "$(find .github/workflows -maxdepth 1 -type f -name 'remediation-*.yml' -print -quit)"
           rg -n 'class ScientificQuantity' --glob 'scientific_quantity.py'
           rg -n 'class ExternalExecutionCapability' --glob 'execution_boundary.py'
           rg -n 'class ConcurrentProvenanceLedger' --glob 'execution_boundary.py'
           rg -n 'real_external_execution.*NOT_VERIFIED' reports/EXECUTION_BOUNDARY_CONVERGENCE.json
+          git diff --check
 
-      - name: Commit exact review tree
+      - name: Commit tested non-workflow production tree
         shell: bash
         run: |
           set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git restore --source=HEAD --staged --worktree .github/workflows
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -A
-          git commit -m "fix(execution): require signed bounded replayable runs"
+          git commit -m 'fix(execution): require signed bounded replayable runs'
           git push origin HEAD:remediation/ci-evidence-convergence
