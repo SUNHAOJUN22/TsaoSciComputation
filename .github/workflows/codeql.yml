@@ -54,6 +54,40 @@ jobs:
           PY
           find .github/workflows -maxdepth 1 -type f -name 'remediation-*.yml' -delete
           git show origin/main:.github/workflows/codeql.yml > .github/workflows/codeql.yml
+          python - <<'PY'
+          from pathlib import Path
+
+          init_path = Path('tsao_computation/__init__.py')
+          text = init_path.read_text(encoding='utf-8')
+          exports = (
+              'BoundedOutputAccumulator',
+              'ConcurrentProvenanceLedger',
+              'ExecutionBudget',
+              'ExternalExecutionCapability',
+              'SignedExecutionReceipt',
+              'AcceptanceEnvelope',
+              'ScientificQuantity',
+              'acceptance_is_verified',
+              'require_verified_acceptance',
+          )
+          for name in exports:
+              text = text.replace(f'    {name},', f'    {name} as {name},')
+          init_path.write_text(text, encoding='utf-8')
+
+          boundary = Path('tsao_computation/execution_boundary.py')
+          text = boundary.read_text(encoding='utf-8')
+          old = '''            except FileExistsError:
+                if time.monotonic() >= deadline:
+                    raise TimeoutError("provenance ledger lock timed out")
+'''
+          new = '''            except FileExistsError as exc:
+                if time.monotonic() >= deadline:
+                    raise TimeoutError("provenance ledger lock timed out") from exc
+'''
+          if old not in text:
+              raise SystemExit('expected lock timeout block not found')
+          boundary.write_text(text.replace(old, new), encoding='utf-8')
+          PY
 
       - name: Canonicalize source and rebuild deterministic evidence
         shell: bash
