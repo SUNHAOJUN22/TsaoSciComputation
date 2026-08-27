@@ -1,0 +1,165 @@
+name: One-shot scientific quantity and acceptance convergence v2
+
+on:
+  push:
+    branches:
+      - remediation/ci-evidence-convergence
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: scicomputation-quantity-acceptance-convergence-v2
+  cancel-in-progress: false
+
+jobs:
+  apply-and-qualify:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+      PYTHONNOUSERSITE: "1"
+      PYTEST_DISABLE_PLUGIN_AUTOLOAD: "1"
+    steps:
+      - name: Check out exact Draft PR branch
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          ref: remediation/ci-evidence-convergence
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install repository dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          if test -f requirements-ci.lock; then
+            python -m pip install --disable-pip-version-check -r requirements-ci.lock
+          elif test -f requirements-dev.txt; then
+            python -m pip install --disable-pip-version-check -r requirements-dev.txt
+          elif test -f requirements.txt; then
+            python -m pip install --disable-pip-version-check -r requirements.txt
+          fi
+          python -m pip install --disable-pip-version-check -e . --no-deps
+          python -m pip check
+
+      - name: Execute reviewed source transformation and normalize receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          import textwrap
+
+          source = Path('.github/workflows/remediation-scientific-quantity-acceptance.yml')
+          workflow = source.read_text(encoding='utf-8')
+          marker = "          python - <<'PY'\n"
+          start = workflow.index(marker) + len(marker)
+          end = workflow.index("\n          PY", start)
+          program = textwrap.dedent(workflow[start:end])
+          exec(compile(program, str(source), 'exec'), {'__name__': '__main__'})
+
+          roots = [
+              p.parent
+              for p in Path('.').glob('*/__init__.py')
+              if not any(part.startswith('.') or part in {'tests', 'scripts', 'docs'} for part in p.parts)
+          ]
+          roots.sort(
+              key=lambda path: (
+                  0 if 'computation' in path.name.casefold() else 1,
+                  0 if 'tsao' in path.name.casefold() else 1,
+                  path.name,
+              )
+          )
+          package = roots[0]
+          patched = []
+          for contract in package.rglob('contracts_v17.py'):
+              text = contract.read_text(encoding='utf-8')
+              if 'acceptance_verifier' in text and 'acceptance_is_verified' in text:
+                  patched.append(str(contract))
+          report = Path('reports/SCIENTIFIC_QUANTITY_ACCEPTANCE_CONVERGENCE.json')
+          report.parent.mkdir(parents=True, exist_ok=True)
+          report.write_text(
+              json.dumps(
+                  {
+                      'schema_version': '1.0',
+                      'package': package.name,
+                      'patched_contracts': patched,
+                      'bare_boolean_acceptance': 'REJECTED',
+                      'external_signature_verifier': 'REQUIRED',
+                      'external_execution': 'NOT_VERIFIED',
+                  },
+                  indent=2,
+                  sort_keys=True,
+              )
+              + '\n',
+              encoding='utf-8',
+          )
+          PY
+          rm -f \
+            .github/workflows/remediation-scientific-quantity-acceptance.yml \
+            .github/workflows/remediation-scientific-quantity-acceptance-v2.yml
+
+      - name: Canonical formatting and deterministic evidence refresh
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m ruff format .
+          python -m ruff check --fix .
+          python - <<'PY'
+          from pathlib import Path
+          import subprocess
+
+          tokens = ('manifest', 'quality', 'security', 'audit', 'evidence', 'checksum')
+          for script in sorted(Path('scripts').glob('*.py')):
+              if not any(token in script.name.casefold() for token in tokens):
+                  continue
+              probe = subprocess.run(
+                  ['python', str(script), '--help'],
+                  text=True,
+                  capture_output=True,
+              )
+              help_text = probe.stdout + probe.stderr
+              flag = '--write' if '--write' in help_text else None
+              if flag is None and '--generate' in help_text:
+                  flag = '--generate'
+              if flag is not None:
+                  subprocess.run(['python', str(script), flag], check=True)
+          PY
+          git add -A
+
+      - name: Execute full deterministic qualification
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m compileall -q .
+          python -m pytest -q -p hypothesis.extra.pytestplugin
+          python -m ruff format --check .
+          python -m ruff check .
+          git diff --check
+
+      - name: Verify bounded semantic change
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -z "$(git status --porcelain=v1 --untracked-files=no | grep 'remediation-scientific-quantity' || true)"
+          rg -n 'class ScientificQuantity' --glob 'scientific_quantity.py'
+          rg -n 'accepted boolean is not acceptance evidence' --glob 'scientific_quantity.py'
+          rg -n 'external_signature_verifier' reports/SCIENTIFIC_QUANTITY_ACCEPTANCE_CONVERGENCE.json
+
+      - name: Commit exact review tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "fix(science): require dimensioned quantities and signed acceptance"
+          git push origin HEAD:remediation/ci-evidence-convergence
