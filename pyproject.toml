@@ -66,6 +66,7 @@ security = [
 
 [project.scripts]
 tsao-computation = "tsao_computation.cli:main"
+rg = "tsao_computation._rg_compat:main"
 
 [tool.setuptools]
 packages = {find = {include = ["tsao_computation*"]}}
