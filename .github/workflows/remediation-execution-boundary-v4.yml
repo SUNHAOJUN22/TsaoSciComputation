@@ -92,6 +92,16 @@ jobs:
           )
           init_path.write_text(init_text, encoding='utf-8')
 
+          quantity_path = package / 'scientific_quantity.py'
+          quantity_text = quantity_path.read_text(encoding='utf-8')
+          redundant_ignore = 'dimension=tuple(raw_dimension),  # type: ignore[arg-type]'
+          if redundant_ignore not in quantity_text:
+              raise SystemExit('expected redundant dimension type-ignore was not found')
+          quantity_path.write_text(
+              quantity_text.replace(redundant_ignore, 'dimension=tuple(raw_dimension),'),
+              encoding='utf-8',
+          )
+
           boundary = package / 'execution_boundary.py'
           boundary_text = boundary.read_text(encoding='utf-8')
           old = (
