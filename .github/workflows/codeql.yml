@@ -1,5 +1,6 @@
 name: CodeQL
 
+# Temporary exact-branch finalizer; the clean commit restores the permanent CodeQL workflow from main.
 on:
   pull_request:
     branches: [main]
