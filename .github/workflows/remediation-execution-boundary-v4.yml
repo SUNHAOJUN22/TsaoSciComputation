@@ -73,6 +73,16 @@ jobs:
           )
           for name in exports:
               init_text = init_text.replace(f'    {name},', f'    {name} as {name},')
+
+          import_marker = 'from .execution_boundary import ('
+          if import_marker not in init_text:
+              raise SystemExit('expected execution-boundary export block not found')
+          prefix, remainder = init_text.split(import_marker, 1)
+          import_block = import_marker + remainder
+          guarded_block = '\n'.join(
+              f'    {line}' if line else '' for line in import_block.splitlines()
+          )
+          init_text = prefix.rstrip() + '\n\nif __package__:\n' + guarded_block + '\n'
           init_path.write_text(init_text, encoding='utf-8')
 
           boundary = package / 'execution_boundary.py'
