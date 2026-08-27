@@ -7,19 +7,19 @@
   "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
   "file_scope_counts": {
     "benchmark": 9,
-    "production": 63,
-    "test": 68,
+    "production": 65,
+    "test": 71,
     "tooling": 39
   },
   "language_files": {
     "c": 1,
     "cpp": 2,
-    "python": 176
+    "python": 181
   },
   "language_lines": {
     "c": 70,
     "cpp": 197,
-    "python": 23149
+    "python": 24274
   },
   "opportunities": [
     {
@@ -1277,7 +1277,7 @@
         "network filesystem",
         "stale cache"
       ],
-      "candidate_id": "748c8eac43adeb8365a8b5e764d731bdaa681a7decdf59076828a8d252bc5a4c",
+      "candidate_id": "e5d19a1450fa25ea24233fd7f9fcb88266b61ca23acf299a4caf6b4e247b663a",
       "category": "filesystem-scan",
       "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
       "confidence": "medium",
@@ -1291,21 +1291,21 @@
       "file_scope": "test",
       "first_action": "reduce repeated passes, cache stable metadata, and stream results; GPU migration is usually unsuitable",
       "library_candidates": [],
-      "line": 34,
+      "line": 46,
       "path": "tests/test_skill_spec_and_workflow_security.py",
       "runtime_status": "unprofiled",
       "score": 45,
-      "source_sha256": "d9c738bd5bebf830d548f988e02309949749734bf84bedd235d353963cf7d005",
+      "source_sha256": "e7711b94fc48bf75498f1215a8f8c5549cd02326bc0f252981c9d607d2e155f4",
       "symbol": "test_workflows_pin_actions_and_avoid_privileged_untrusted_triggers"
     }
   ],
   "opportunity_count": 37,
   "parse_failures": [],
-  "python_files_analyzed": 176,
+  "python_files_analyzed": 181,
   "python_files_excluded": 0,
   "root": ".",
   "scope": "full-tree",
-  "source_files": 179,
-  "source_lines": 23416,
-  "source_tree_sha256": "5879c8aef14bd8db733f7a9775db87b10b930609251debe8b0bd3711d509de96"
+  "source_files": 184,
+  "source_lines": 24541,
+  "source_tree_sha256": "43312ff6b9ef0e7c73ae0986d78058e808bef3f7a14cb29daf164173540bd7c5"
 }
