@@ -1,0 +1,498 @@
+name: One-shot scientific quantity and acceptance convergence
+
+on:
+  push:
+    branches:
+      - remediation/ci-evidence-convergence
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: scicomputation-quantity-acceptance-convergence
+  cancel-in-progress: false
+
+jobs:
+  apply-and-qualify:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+      PYTHONNOUSERSITE: "1"
+      PYTEST_DISABLE_PLUGIN_AUTOLOAD: "1"
+    steps:
+      - name: Check out exact Draft PR branch
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          ref: remediation/ci-evidence-convergence
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install repository dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          if test -f requirements-ci.lock; then
+            python -m pip install --disable-pip-version-check -r requirements-ci.lock
+          elif test -f requirements-dev.txt; then
+            python -m pip install --disable-pip-version-check -r requirements-dev.txt
+          elif test -f requirements.txt; then
+            python -m pip install --disable-pip-version-check -r requirements.txt
+          fi
+          python -m pip install --disable-pip-version-check -e . --no-deps
+          python -m pip check
+
+      - name: Add dimensioned quantities and signed acceptance contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from __future__ import annotations
+
+          from pathlib import Path
+          import re
+          import textwrap
+
+          roots = []
+          for init in Path('.').glob('*/__init__.py'):
+              if any(part.startswith('.') or part in {'tests', 'scripts', 'docs'} for part in init.parts):
+                  continue
+              roots.append(init.parent)
+          if not roots:
+              raise SystemExit('no importable package root found')
+          roots.sort(
+              key=lambda path: (
+                  0 if 'computation' in path.name.casefold() else 1,
+                  0 if 'tsao' in path.name.casefold() else 1,
+                  path.name,
+              )
+          )
+          package = roots[0]
+          module = package / 'scientific_quantity.py'
+          module.write_text(
+              textwrap.dedent(
+                  '''\
+                  """Dimensioned scientific quantities and fail-closed human acceptance."""
+
+                  from __future__ import annotations
+
+                  from collections.abc import Callable, Mapping, Sequence
+                  from dataclasses import dataclass
+                  from datetime import datetime, timezone
+                  from decimal import Decimal, InvalidOperation
+                  from hashlib import sha256
+                  import json
+                  import re
+                  from typing import Any, Literal, TypeAlias
+
+                  QuantityBasis: TypeAlias = Literal[
+                      "MEASURED", "CALCULATED", "SIMULATED", "REFERENCE", "DERIVED"
+                  ]
+                  AcceptanceVerifier: TypeAlias = Callable[[bytes, str, str], bool]
+                  _DIGEST = re.compile(r"[0-9a-f]{64}")
+
+
+                  def _decimal(value: object, *, field: str) -> Decimal:
+                      if isinstance(value, bool):
+                          raise TypeError(f"{field} must be numeric, not boolean")
+                      try:
+                          result = Decimal(str(value))
+                      except (InvalidOperation, ValueError, TypeError) as exc:
+                          raise ValueError(f"{field} is not a valid decimal quantity") from exc
+                      if not result.is_finite():
+                          raise ValueError(f"{field} must be finite")
+                      return result
+
+
+                  @dataclass(frozen=True, slots=True)
+                  class ScientificQuantity:
+                      value: Decimal
+                      unit: str
+                      dimension: tuple[int, ...]
+                      source_id: str
+                      basis: QuantityBasis = "MEASURED"
+                      uncertainty: Decimal | None = None
+
+                      def __post_init__(self) -> None:
+                          value = _decimal(self.value, field="value")
+                          unit = self.unit.strip()
+                          source_id = self.source_id.strip()
+                          if not unit:
+                              raise ValueError("unit must not be blank")
+                          if not source_id:
+                              raise ValueError("source_id must not be blank")
+                          if not self.dimension or any(
+                              isinstance(power, bool) or not isinstance(power, int)
+                              for power in self.dimension
+                          ):
+                              raise ValueError("dimension must be a non-empty integer exponent vector")
+                          if self.basis not in {
+                              "MEASURED", "CALCULATED", "SIMULATED", "REFERENCE", "DERIVED"
+                          }:
+                              raise ValueError(f"unsupported quantity basis: {self.basis}")
+                          uncertainty = None
+                          if self.uncertainty is not None:
+                              uncertainty = _decimal(self.uncertainty, field="uncertainty")
+                              if uncertainty < 0:
+                                  raise ValueError("uncertainty must be non-negative")
+                          object.__setattr__(self, "value", value)
+                          object.__setattr__(self, "unit", unit)
+                          object.__setattr__(self, "source_id", source_id)
+                          object.__setattr__(self, "uncertainty", uncertainty)
+
+                      @classmethod
+                      def from_mapping(cls, payload: Mapping[str, object]) -> "ScientificQuantity":
+                          required = {"value", "unit", "dimension", "source_id"}
+                          missing = sorted(required - payload.keys())
+                          if missing:
+                              raise ValueError(f"scientific quantity missing fields: {missing}")
+                          raw_dimension = payload["dimension"]
+                          if isinstance(raw_dimension, (str, bytes)) or not isinstance(
+                              raw_dimension, Sequence
+                          ):
+                              raise TypeError("dimension must be an integer sequence")
+                          return cls(
+                              value=_decimal(payload["value"], field="value"),
+                              unit=str(payload["unit"]),
+                              dimension=tuple(raw_dimension),  # type: ignore[arg-type]
+                              source_id=str(payload["source_id"]),
+                              basis=str(payload.get("basis", "MEASURED")),  # type: ignore[arg-type]
+                              uncertainty=(
+                                  None
+                                  if payload.get("uncertainty") is None
+                                  else _decimal(payload["uncertainty"], field="uncertainty")
+                              ),
+                          )
+
+                      def convert(
+                          self,
+                          *,
+                          factor: Decimal | int | float | str,
+                          unit: str,
+                          dimension: Sequence[int],
+                          source_id: str | None = None,
+                      ) -> "ScientificQuantity":
+                          target_dimension = tuple(dimension)
+                          if target_dimension != self.dimension:
+                              raise ValueError("cannot convert between incompatible dimensions")
+                          scale = _decimal(factor, field="factor")
+                          if scale <= 0:
+                              raise ValueError("conversion factor must be positive")
+                          return ScientificQuantity(
+                              value=self.value * scale,
+                              unit=unit,
+                              dimension=target_dimension,
+                              source_id=source_id or self.source_id,
+                              basis="DERIVED",
+                              uncertainty=(
+                                  None if self.uncertainty is None else self.uncertainty * scale
+                              ),
+                          )
+
+                      def canonical_payload(self) -> dict[str, object]:
+                          return {
+                              "value": str(self.value),
+                              "unit": self.unit,
+                              "dimension": list(self.dimension),
+                              "source_id": self.source_id,
+                              "basis": self.basis,
+                              "uncertainty": (
+                                  None if self.uncertainty is None else str(self.uncertainty)
+                              ),
+                          }
+
+                      @property
+                      def digest(self) -> str:
+                          encoded = json.dumps(
+                              self.canonical_payload(),
+                              sort_keys=True,
+                              separators=(",", ":"),
+                              ensure_ascii=False,
+                          ).encode("utf-8")
+                          return sha256(encoded).hexdigest()
+
+
+                  @dataclass(frozen=True, slots=True)
+                  class AcceptanceEnvelope:
+                      decision: Literal["ACCEPTED", "REJECTED"]
+                      reviewer_id: str
+                      reviewed_at: datetime
+                      evidence_digest: str
+                      signature: str
+                      signature_scheme: str
+
+                      @classmethod
+                      def from_mapping(cls, payload: Mapping[str, object]) -> "AcceptanceEnvelope":
+                          if payload.get("accepted") is True and not payload.get("signature"):
+                              raise ValueError("accepted boolean is not acceptance evidence")
+                          reviewed_at = datetime.fromisoformat(str(payload["reviewed_at"]))
+                          if reviewed_at.tzinfo is None or reviewed_at.utcoffset() is None:
+                              raise ValueError("reviewed_at must be timezone-aware")
+                          envelope = cls(
+                              decision=str(payload["decision"]),  # type: ignore[arg-type]
+                              reviewer_id=str(payload["reviewer_id"]).strip(),
+                              reviewed_at=reviewed_at.astimezone(timezone.utc),
+                              evidence_digest=str(payload["evidence_digest"]).casefold(),
+                              signature=str(payload["signature"]).strip(),
+                              signature_scheme=str(payload["signature_scheme"]).strip(),
+                          )
+                          if envelope.decision not in {"ACCEPTED", "REJECTED"}:
+                              raise ValueError("decision must be ACCEPTED or REJECTED")
+                          if not envelope.reviewer_id:
+                              raise ValueError("reviewer_id must not be blank")
+                          if _DIGEST.fullmatch(envelope.evidence_digest) is None:
+                              raise ValueError("evidence_digest must be a SHA-256 hex digest")
+                          if not envelope.signature or not envelope.signature_scheme:
+                              raise ValueError("signature and signature_scheme are required")
+                          return envelope
+
+                      def canonical_bytes(self) -> bytes:
+                          payload = {
+                              "decision": self.decision,
+                              "reviewer_id": self.reviewer_id,
+                              "reviewed_at": self.reviewed_at.isoformat(),
+                              "evidence_digest": self.evidence_digest,
+                              "signature_scheme": self.signature_scheme,
+                          }
+                          return json.dumps(
+                              payload,
+                              sort_keys=True,
+                              separators=(",", ":"),
+                              ensure_ascii=False,
+                          ).encode("utf-8")
+
+
+                  def acceptance_is_verified(
+                      payload: Mapping[str, object],
+                      *,
+                      verifier: AcceptanceVerifier | None = None,
+                  ) -> bool:
+                      if verifier is None:
+                          return False
+                      try:
+                          envelope = AcceptanceEnvelope.from_mapping(payload)
+                      except (KeyError, TypeError, ValueError):
+                          return False
+                      if envelope.decision != "ACCEPTED":
+                          return False
+                      try:
+                          return bool(
+                              verifier(
+                                  envelope.canonical_bytes(),
+                                  envelope.signature,
+                                  envelope.reviewer_id,
+                              )
+                          )
+                      except Exception:
+                          return False
+
+
+                  def require_verified_acceptance(
+                      payload: Mapping[str, object],
+                      *,
+                      verifier: AcceptanceVerifier | None = None,
+                  ) -> AcceptanceEnvelope:
+                      if not acceptance_is_verified(payload, verifier=verifier):
+                          raise PermissionError("cryptographically verified human acceptance is required")
+                      return AcceptanceEnvelope.from_mapping(payload)
+                  '''
+              ),
+              encoding='utf-8',
+          )
+
+          init = package / '__init__.py'
+          init_text = init.read_text(encoding='utf-8')
+          export = textwrap.dedent(
+              '''
+
+              from .scientific_quantity import (
+                  AcceptanceEnvelope,
+                  ScientificQuantity,
+                  acceptance_is_verified,
+                  require_verified_acceptance,
+              )
+              '''
+          )
+          if 'from .scientific_quantity import' not in init_text:
+              init.write_text(init_text.rstrip() + export + '\n', encoding='utf-8')
+
+          patched = []
+          for contract in package.rglob('contracts_v17.py'):
+              text = contract.read_text(encoding='utf-8')
+              original = text
+              if 'bool(event.payload.get("qualified_approver"))' in text:
+                  if 'acceptance_is_verified' not in text:
+                      marker = 'from __future__ import annotations\n'
+                      text = text.replace(
+                          marker,
+                          marker + '\nfrom .scientific_quantity import AcceptanceVerifier, acceptance_is_verified\n',
+                          1,
+                      )
+                  text = text.replace(
+                      'def replay_state(events: Iterable[ReplayEvent]) -> str:',
+                      'def replay_state(\n    events: Iterable[ReplayEvent],\n    *,\n    acceptance_verifier: AcceptanceVerifier | None = None,\n) -> str:',
+                  )
+                  text = text.replace(
+                      'human_acceptance = bool(event.payload.get("qualified_approver"))',
+                      'human_acceptance = acceptance_is_verified(\n                event.payload, verifier=acceptance_verifier\n            )',
+                  )
+              if text != original:
+                  contract.write_text(text, encoding='utf-8')
+                  patched.append(str(contract))
+
+          test = Path('tests/test_scientific_quantity_acceptance_contract.py')
+          test.write_text(
+              textwrap.dedent(
+                  f'''\
+                  from __future__ import annotations
+
+                  from datetime import datetime, timezone
+                  from decimal import Decimal
+
+                  import pytest
+
+                  from {package.name}.scientific_quantity import (
+                      AcceptanceEnvelope,
+                      ScientificQuantity,
+                      acceptance_is_verified,
+                  )
+
+
+                  def test_scientific_quantity_rejects_bare_or_dimensionless_payloads() -> None:
+                      with pytest.raises(ValueError, match="missing fields"):
+                          ScientificQuantity.from_mapping({{"value": 12.0}})
+                      with pytest.raises(ValueError, match="dimension"):
+                          ScientificQuantity(
+                              value=Decimal("12"), unit="MPa", dimension=(), source_id="run-1"
+                          )
+
+
+                  def test_quantity_conversion_requires_dimension_compatibility() -> None:
+                      value = ScientificQuantity(
+                          value=Decimal("1.25"),
+                          unit="MPa",
+                          dimension=(-1, 1, -2, 0, 0, 0, 0),
+                          source_id="solver-output:42",
+                          uncertainty=Decimal("0.05"),
+                      )
+                      converted = value.convert(
+                          factor=Decimal("1000000"),
+                          unit="Pa",
+                          dimension=value.dimension,
+                      )
+                      assert converted.value == Decimal("1250000.00")
+                      assert converted.uncertainty == Decimal("50000.00")
+                      with pytest.raises(ValueError, match="incompatible"):
+                          value.convert(factor=1, unit="K", dimension=(0, 0, 0, 1, 0, 0, 0))
+
+
+                  def test_boolean_self_attestation_is_always_held() -> None:
+                      assert not acceptance_is_verified({{"accepted": True}})
+                      assert not acceptance_is_verified(
+                          {{"accepted": True}}, verifier=lambda *_: True
+                      )
+
+
+                  def test_acceptance_requires_external_signature_verification() -> None:
+                      payload = {{
+                          "decision": "ACCEPTED",
+                          "reviewer_id": "reviewer:qualified:7",
+                          "reviewed_at": datetime.now(timezone.utc).isoformat(),
+                          "evidence_digest": "a" * 64,
+                          "signature": "external-signature",
+                          "signature_scheme": "EXTERNAL-DETACHED-V1",
+                      }}
+                      assert not acceptance_is_verified(payload)
+                      assert acceptance_is_verified(
+                          payload,
+                          verifier=lambda message, signature, reviewer: (
+                              bool(message)
+                              and signature == "external-signature"
+                              and reviewer == "reviewer:qualified:7"
+                          ),
+                      )
+                      envelope = AcceptanceEnvelope.from_mapping(payload)
+                      assert envelope.decision == "ACCEPTED"
+                  '''
+              ),
+              encoding='utf-8',
+          )
+
+          report = Path('reports/SCIENTIFIC_QUANTITY_ACCEPTANCE_CONVERGENCE.json')
+          report.parent.mkdir(parents=True, exist_ok=True)
+          report.write_text(
+              '{\n'
+              f'  "package": "{package.name}",\n'
+              f'  "patched_contracts": {patched!r},\n'
+              '  "bare_boolean_acceptance": "REJECTED",\n'
+              '  "external_signature_verifier": "REQUIRED"\n'
+              '}\n',
+              encoding='utf-8',
+          )
+          PY
+
+          rm .github/workflows/remediation-scientific-quantity-acceptance.yml
+
+      - name: Format source and refresh deterministic evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m ruff format .
+          python -m ruff check --fix .
+          python - <<'PY'
+          from pathlib import Path
+          import subprocess
+
+          tokens = ('manifest', 'quality', 'security', 'audit', 'evidence', 'checksum')
+          for script in sorted(Path('scripts').glob('*.py')):
+              if not any(token in script.name.casefold() for token in tokens):
+                  continue
+              help_run = subprocess.run(
+                  ['python', str(script), '--help'],
+                  text=True,
+                  capture_output=True,
+              )
+              help_text = help_run.stdout + help_run.stderr
+              flag = '--write' if '--write' in help_text else None
+              if flag is None and '--generate' in help_text:
+                  flag = '--generate'
+              if flag is not None:
+                  subprocess.run(['python', str(script), flag], check=True)
+          PY
+          git add -A
+
+      - name: Execute full deterministic qualification
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m compileall -q .
+          python -m pytest -q -p hypothesis.extra.pytestplugin
+          python -m ruff format --check .
+          python -m ruff check .
+          if test -f mypy.ini || rg -q '\[tool\.mypy\]' pyproject.toml; then
+            python -m mypy scripts "$(python - <<'PY'
+          from pathlib import Path
+          roots = [p.parent for p in Path('.').glob('*/__init__.py') if 'tests' not in p.parts]
+          roots.sort(key=lambda p: (0 if 'computation' in p.name.casefold() else 1, p.name))
+          print(roots[0])
+          PY
+          )"
+          fi
+          git diff --check
+
+      - name: Commit exact review tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "fix(science): require dimensioned quantities and signed acceptance"
+          git push origin HEAD:remediation/ci-evidence-convergence
