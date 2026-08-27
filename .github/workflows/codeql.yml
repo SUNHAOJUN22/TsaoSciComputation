@@ -2,19 +2,20 @@ name: CodeQL
 
 # Temporary exact-branch finalizer; the clean commit restores the permanent CodeQL workflow from main.
 on:
-  pull_request:
-    branches: [main]
+  push:
+    branches:
+      - remediation/ci-evidence-convergence
 
 permissions:
   contents: write
 
 concurrency:
-  group: scicomputation-p1-finalize-${{ github.ref }}
+  group: scicomputation-p1-finalize
   cancel-in-progress: false
 
 jobs:
   finalize-p1-contracts:
-    if: github.actor != 'github-actions[bot]' && github.event.pull_request.head.ref == 'remediation/ci-evidence-convergence'
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-24.04
     timeout-minutes: 100
     env:
