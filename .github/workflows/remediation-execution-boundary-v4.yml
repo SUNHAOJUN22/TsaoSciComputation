@@ -77,14 +77,16 @@ jobs:
 
           boundary = package / 'execution_boundary.py'
           boundary_text = boundary.read_text(encoding='utf-8')
-          old = '''            except FileExistsError:
-                if time.monotonic() >= deadline:
-                    raise TimeoutError("provenance ledger lock timed out")
-'''
-          new = '''            except FileExistsError as exc:
-                if time.monotonic() >= deadline:
-                    raise TimeoutError("provenance ledger lock timed out") from exc
-'''
+          old = (
+              '            except FileExistsError:\n'
+              '                if time.monotonic() >= deadline:\n'
+              '                    raise TimeoutError("provenance ledger lock timed out")\n'
+          )
+          new = (
+              '            except FileExistsError as exc:\n'
+              '                if time.monotonic() >= deadline:\n'
+              '                    raise TimeoutError("provenance ledger lock timed out") from exc\n'
+          )
           if old not in boundary_text:
               raise SystemExit('expected lock timeout block not found')
           boundary.write_text(boundary_text.replace(old, new), encoding='utf-8')
