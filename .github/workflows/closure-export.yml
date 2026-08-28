@@ -1,35 +1,64 @@
-name: Temporary closure source export
+name: One-shot SciComputation closure qualification
 
 on:
   push:
     branches: [closure/20260828-hashing-readme]
 
 permissions:
-  contents: read
+  contents: write
+
+concurrency:
+  group: scicomputation-closure-20260828
+  cancel-in-progress: false
 
 jobs:
-  export:
+  apply-test-commit:
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    timeout-minutes: 100
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+      PYTHONNOUSERSITE: "1"
+      PYTEST_DISABLE_PLUGIN_AUTOLOAD: "1"
+      PIP_DISABLE_PIP_VERSION_CHECK: "1"
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
         with:
+          ref: closure/20260828-hashing-readme
           fetch-depth: 0
-          persist-credentials: false
-      - name: Archive exact tracked tree
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: "3.13"
+          cache: pip
+      - name: Apply reviewed non-workflow patch
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
-          test -z "$(git status --porcelain=v1)"
-          mkdir -p artifacts
-          prefix="${GITHUB_REPOSITORY#*/}-${GITHUB_SHA}/"
-          git archive --format=tar.gz --prefix="$prefix" "$GITHUB_SHA" -o artifacts/closure-source.tar.gz
-          sha256sum artifacts/closure-source.tar.gz > artifacts/closure-source.sha256
-          printf '{"repository":"%s","sha":"%s","tree":"%s"}\n' "$GITHUB_REPOSITORY" "$GITHUB_SHA" "$(git rev-parse HEAD^{tree})" > artifacts/closure-source.json
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
-        with:
-          name: closure-source-${{ github.sha }}
-          path: artifacts/closure-source.*
-          if-no-files-found: error
-          retention-days: 3
+          gzip -dc .github/closure/nonworkflow.patch.gz > /tmp/closure.patch
+          git apply --index --binary /tmp/closure.patch
+          rm -rf .github/closure
+          git add -A
+      - name: Qualify hashing and evidence closure
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install -e '.[validation,quality,security]'
+          python -m pip check
+          python -m pytest -q -p no:cacheprovider
+          python -m ruff check tsao_computation scripts tests _bootstrap.py
+          python -m ruff format --check tsao_computation scripts tests _bootstrap.py
+          python -m mypy --python-version 3.13 tsao_computation scripts
+          python -m bandit -q -r tsao_computation scripts -x tests
+          python scripts/build_acceleration_audits.py --check
+          python scripts/build_manifest.py --check
+          python scripts/quality_check.py --check
+          python scripts/security_scan.py --check
+          git diff --check
+      - name: Commit qualified source changes
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "refactor(closure): unify digests and remove evidence workflow redundancy"
+          git push origin HEAD:closure/20260828-hashing-readme
