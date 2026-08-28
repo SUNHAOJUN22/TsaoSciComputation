@@ -35,10 +35,12 @@ jobs:
           rm -f .github/workflows/closure-export.yml
           rm -f .github/workflows/finalize-tracked-manifest.yml
           rm -f .github/workflows/sync-closure-evidence.yml
+          git add -A
           python scripts/build_acceleration_audits.py
           python scripts/build_acceleration_audits.py --check
           python scripts/quality_check.py
           python scripts/security_scan.py
+          git add -A
           python scripts/build_manifest.py
           python scripts/build_manifest.py --check
           python scripts/verify_all.py --profile core
