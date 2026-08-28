@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import heapq
 import os
+import subprocess
 from collections.abc import Iterator
 from pathlib import Path
 
@@ -38,6 +39,8 @@ def is_excluded_path(relative: Path) -> bool:
 
 
 def iter_repository_entries(root: Path) -> Iterator[Path]:
+    """Yield non-generated filesystem entries for runtime and performance audits."""
+
     root = root.resolve()
     pending: list[tuple[str, Path, Path, bool, bool]] = []
 
@@ -69,6 +72,31 @@ def iter_repository_entries(root: Path) -> Iterator[Path]:
             yield path
 
 
+def iter_tracked_entries(root: Path) -> Iterator[Path]:
+    """Yield the exact Git-index file set, independent of CI runtime by-products."""
+
+    root = root.resolve()
+    completed = subprocess.run(
+        ["git", "-C", str(root), "ls-files", "-z", "--cached"],
+        check=False,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    if completed.returncode != 0:
+        detail = completed.stderr.decode("utf-8", errors="replace").strip()
+        raise RuntimeError(f"unable to enumerate tracked repository files: {detail}")
+    for encoded in completed.stdout.split(b"\0"):
+        if not encoded:
+            continue
+        relative = Path(os.fsdecode(encoded))
+        if is_excluded_path(relative):
+            continue
+        path = root / relative
+        if not path.exists() and not path.is_symlink():
+            raise FileNotFoundError(f"tracked repository file is missing: {relative.as_posix()}")
+        yield path
+
+
 def _file_size_and_sha256(path: Path) -> tuple[int, str]:
     with path.open("rb") as handle:
         size = os.fstat(handle.fileno()).st_size
@@ -80,21 +108,30 @@ def _file_size_and_sha256(path: Path) -> tuple[int, str]:
         return size, digest.hexdigest()
 
 
-def file_manifest(root: Path) -> list[dict[str, str | int]]:
+def _manifest_from_entries(root: Path, entries: Iterator[Path]) -> list[dict[str, str | int]]:
     root = root.resolve()
     records: list[dict[str, str | int]] = []
-    for path in iter_repository_entries(root):
+    for path in entries:
         relative = path.relative_to(root)
         if path.is_symlink():
             raise ValueError(f"repository manifest contains symlink: {relative.as_posix()}")
         if not path.is_file():
             continue
         size, digest = _file_size_and_sha256(path)
-        records.append(
-            {
-                "path": relative.as_posix(),
-                "bytes": size,
-                "sha256": digest,
-            }
-        )
+        records.append({"path": relative.as_posix(), "bytes": size, "sha256": digest})
+    records.sort(key=lambda record: str(record["path"]))
     return records
+
+
+def file_manifest(root: Path) -> list[dict[str, str | int]]:
+    """Manifest the bounded filesystem view used by runtime audits."""
+
+    resolved = root.resolve()
+    return _manifest_from_entries(resolved, iter_repository_entries(resolved))
+
+
+def tracked_file_manifest(root: Path) -> list[dict[str, str | int]]:
+    """Manifest only version-controlled files for deterministic release evidence."""
+
+    resolved = root.resolve()
+    return _manifest_from_entries(resolved, iter_tracked_entries(resolved))
