@@ -1,44 +1,13 @@
-name: Finalize tracked-tree evidence
+name: Finalize tracked manifest (closure-disabled)
 
 on:
-  push:
-    branches: [closure/20260828-hashing-readme]
   workflow_dispatch:
 
 permissions:
-  contents: write
-
-concurrency:
-  group: finalize-tracked-manifest
-  cancel-in-progress: false
+  contents: read
 
 jobs:
-  finalize:
+  disabled:
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
-        with:
-          fetch-depth: 0
-          ref: closure/20260828-hashing-readme
-      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
-        with:
-          python-version: '3.13'
-      - name: Regenerate exact tracked-tree evidence and self-delete
-        shell: bash
-        run: |
-          set -euo pipefail
-          rm .github/workflows/finalize-tracked-manifest.yml
-          python scripts/quality_check.py
-          python scripts/security_scan.py
-          python scripts/build_acceleration_audits.py
-          python scripts/build_resource_broker_evidence.py
-          python scripts/build_manifest.py
-          python scripts/build_manifest.py --check
-          python -m pytest -q tests/test_hashing_contract.py tests/test_tracked_manifest.py
-          git add -A
-          git diff --cached --check
-          git config user.name 'SUNHAOJUN22'
-          git config user.email '116634523+SUNHAOJUN22@users.noreply.github.com'
-          git commit -m 'chore(evidence): finalize tracked-tree manifest'
-          git push origin HEAD:closure/20260828-hashing-readme
+      - run: echo 'Superseded by sync-closure-evidence during final closure.'
