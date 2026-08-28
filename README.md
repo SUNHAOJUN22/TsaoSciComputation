@@ -276,6 +276,10 @@ $$
 
 Missing any component downgrades the claim or retains a hold.
 
+### Canonical evidence digests
+
+Structured evidence, execution bindings, accelerator plans, and performance profiles now share `tsao_computation.hashing`. Canonical JSON uses sorted keys, compact separators, UTF-8 bytes, and rejects NaN/Infinity; file digests stream bounded chunks. This removes subsystem-specific SHA-256 encoders and prevents digest drift without changing public evidence schemas.
+
 ## Qualification and delivery diagrams
 
 The following AI-assisted information designs are deterministic repository-owned SVG sources. They explain code and qualification logic; they are not fabricated solver output.

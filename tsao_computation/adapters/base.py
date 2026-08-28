@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import hashlib
 import os
 import re
 import shutil
@@ -12,6 +11,7 @@ from types import MappingProxyType
 from typing import Any
 
 from ..errors import ContractError, SecurityError
+from ..hashing import file_sha256
 from ..immutable import freeze_json
 from ..security.process import probe_python_modules
 
@@ -107,14 +107,6 @@ def _missing_python_modules(executable: str, modules: tuple[str, ...]) -> tuple[
         return modules
 
 
-def _sha256(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as handle:
-        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
-            digest.update(chunk)
-    return digest.hexdigest()
-
-
 @dataclass(frozen=True, slots=True)
 class Adapter:
     record: dict[str, Any]
@@ -197,7 +189,7 @@ class Adapter:
             environment={},
             claim_boundary="Command prepared only; execution requires hash-bound authorization and scientific acceptance requires separate evidence.",
             adapter_slug=self.slug,
-            input_sha256=_sha256(source),
+            input_sha256=file_sha256(source),
             execute_allowed=False,
             input_path=source,
         )
