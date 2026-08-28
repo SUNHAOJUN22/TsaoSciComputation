@@ -5,11 +5,11 @@ import json
 from pathlib import Path
 
 import _bootstrap  # noqa: F401
-from tsao_computation.provenance.manifest import file_manifest
+from tsao_computation.provenance.manifest import tracked_file_manifest
 
 
 def render(root: Path) -> str:
-    records = [record for record in file_manifest(root) if record["path"] != "manifest.json"]
+    records = [record for record in tracked_file_manifest(root) if record["path"] != "manifest.json"]
     return json.dumps({"schema_version": "1.0", "files": records}, indent=2, sort_keys=True) + "\n"
 
 
