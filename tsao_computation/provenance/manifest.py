@@ -3,7 +3,8 @@ from __future__ import annotations
 import hashlib
 import heapq
 import os
-import subprocess
+import shutil
+import subprocess  # nosec B404 -- fixed argv, no shell, repository-local metadata only
 from collections.abc import Iterator
 from pathlib import Path
 
@@ -76,11 +77,14 @@ def iter_tracked_entries(root: Path) -> Iterator[Path]:
     """Yield the exact Git-index file set, independent of CI runtime by-products."""
 
     root = root.resolve()
+    git_executable = shutil.which("git")
+    if git_executable is None:
+        raise RuntimeError("unable to enumerate tracked repository files: git executable not found")
     completed = subprocess.run(
-        ["git", "-C", str(root), "ls-files", "-z", "--cached"],
+        [git_executable, "-C", str(root), "ls-files", "-z", "--cached"],
         check=False,
         capture_output=True,
-    )
+    )  # nosec B603 -- fixed executable/argv, shell=False, no untrusted command construction
     if completed.returncode != 0:
         detail = completed.stderr.decode("utf-8", errors="replace").strip()
         raise RuntimeError(f"unable to enumerate tracked repository files: {detail}")
