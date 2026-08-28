@@ -1,26 +1,64 @@
 {
   "category_counts": {
-    "external-solver-dispatch": 1,
+    "external-solver-dispatch": 2,
     "filesystem-scan": 2
   },
   "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
   "file_scope_counts": {
     "benchmark": 9,
     "production": 66,
-    "test": 72,
+    "test": 73,
     "tooling": 39
   },
   "language_files": {
     "c": 1,
     "cpp": 2,
-    "python": 183
+    "python": 184
   },
   "language_lines": {
     "c": 70,
     "cpp": 197,
-    "python": 24325
+    "python": 24399
   },
   "opportunities": [
+    {
+      "backend_candidates": [
+        "cpu",
+        "openmp",
+        "mpi",
+        "cuda",
+        "hip",
+        "sycl"
+      ],
+      "blockers": [
+        "license or scheduler limits",
+        "oversubscription",
+        "unsupported solver backend"
+      ],
+      "candidate_id": "d8b6d3621053f3ee0361434630d7353c6fa80d95fc0458ba3e71aab88d5472d6",
+      "category": "external-solver-dispatch",
+      "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
+      "confidence": "high",
+      "current_pattern": "external command or solver dispatch",
+      "decision": "profile",
+      "evidence_requirements": [
+        "solver build features",
+        "command provenance",
+        "same-input end-to-end timing"
+      ],
+      "file_scope": "production",
+      "first_action": "batch independent cases and prefer the solver's native MPI/GPU backend before custom kernels",
+      "library_candidates": [
+        "mpi",
+        "nccl"
+      ],
+      "line": 79,
+      "path": "tsao_computation/provenance/manifest.py",
+      "runtime_status": "unprofiled",
+      "score": 68,
+      "source_sha256": "c8d2bab99a0d9e0d3ed19d9a8da5328aace5d2cff5d77dc990093763ed5380d2",
+      "symbol": "iter_tracked_entries"
+    },
     {
       "backend_candidates": [
         "cpu",
@@ -120,13 +158,13 @@
       "symbol": "audit_repository"
     }
   ],
-  "opportunity_count": 3,
+  "opportunity_count": 4,
   "parse_failures": [],
   "python_files_analyzed": 64,
-  "python_files_excluded": 119,
+  "python_files_excluded": 120,
   "root": ".",
   "scope": "production",
-  "source_files": 186,
-  "source_lines": 24592,
-  "source_tree_sha256": "d214856e7a4082a4d7e34412f76eab0015bfe642492b9f9a64d269b2d320af87"
+  "source_files": 187,
+  "source_lines": 24666,
+  "source_tree_sha256": "4d14d52d86391ac09b9867d17879c3f1d3dc1a571e922051222735f600f48189"
 }

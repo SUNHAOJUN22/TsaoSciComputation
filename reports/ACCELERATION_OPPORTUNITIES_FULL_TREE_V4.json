@@ -1,6 +1,6 @@
 {
   "category_counts": {
-    "external-solver-dispatch": 14,
+    "external-solver-dispatch": 16,
     "filesystem-scan": 17,
     "numeric-python-loop": 6
   },
@@ -8,18 +8,18 @@
   "file_scope_counts": {
     "benchmark": 9,
     "production": 66,
-    "test": 72,
+    "test": 73,
     "tooling": 39
   },
   "language_files": {
     "c": 1,
     "cpp": 2,
-    "python": 183
+    "python": 184
   },
   "language_lines": {
     "c": 70,
     "cpp": 197,
-    "python": 24325
+    "python": 24399
   },
   "opportunities": [
     {
@@ -764,6 +764,82 @@
         "oversubscription",
         "unsupported solver backend"
       ],
+      "candidate_id": "6d941dba4c4174c35c6bbd24f9b34aab00e032a16c105550892cc0931066ee2c",
+      "category": "external-solver-dispatch",
+      "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
+      "confidence": "high",
+      "current_pattern": "external command or solver dispatch",
+      "decision": "diagnostic-only",
+      "evidence_requirements": [
+        "solver build features",
+        "command provenance",
+        "same-input end-to-end timing"
+      ],
+      "file_scope": "test",
+      "first_action": "batch independent cases and prefer the solver's native MPI/GPU backend before custom kernels",
+      "library_candidates": [
+        "mpi",
+        "nccl"
+      ],
+      "line": 12,
+      "path": "tests/test_tracked_manifest.py",
+      "runtime_status": "unprofiled",
+      "score": 68,
+      "source_sha256": "b0e401ce22ef24f789b9879f84acea0e04308d05192a0c9921e36405faf3072d",
+      "symbol": "_git"
+    },
+    {
+      "backend_candidates": [
+        "cpu",
+        "openmp",
+        "mpi",
+        "cuda",
+        "hip",
+        "sycl"
+      ],
+      "blockers": [
+        "license or scheduler limits",
+        "oversubscription",
+        "unsupported solver backend"
+      ],
+      "candidate_id": "d8b6d3621053f3ee0361434630d7353c6fa80d95fc0458ba3e71aab88d5472d6",
+      "category": "external-solver-dispatch",
+      "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
+      "confidence": "high",
+      "current_pattern": "external command or solver dispatch",
+      "decision": "profile",
+      "evidence_requirements": [
+        "solver build features",
+        "command provenance",
+        "same-input end-to-end timing"
+      ],
+      "file_scope": "production",
+      "first_action": "batch independent cases and prefer the solver's native MPI/GPU backend before custom kernels",
+      "library_candidates": [
+        "mpi",
+        "nccl"
+      ],
+      "line": 79,
+      "path": "tsao_computation/provenance/manifest.py",
+      "runtime_status": "unprofiled",
+      "score": 68,
+      "source_sha256": "c8d2bab99a0d9e0d3ed19d9a8da5328aace5d2cff5d77dc990093763ed5380d2",
+      "symbol": "iter_tracked_entries"
+    },
+    {
+      "backend_candidates": [
+        "cpu",
+        "openmp",
+        "mpi",
+        "cuda",
+        "hip",
+        "sycl"
+      ],
+      "blockers": [
+        "license or scheduler limits",
+        "oversubscription",
+        "unsupported solver backend"
+      ],
       "candidate_id": "fb464600a79bb0c2e65440717aa20f1465a15c142f8974a89f3f6aedccc83436",
       "category": "external-solver-dispatch",
       "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
@@ -1299,13 +1375,13 @@
       "symbol": "test_workflows_pin_actions_and_avoid_privileged_untrusted_triggers"
     }
   ],
-  "opportunity_count": 37,
+  "opportunity_count": 39,
   "parse_failures": [],
-  "python_files_analyzed": 183,
+  "python_files_analyzed": 184,
   "python_files_excluded": 0,
   "root": ".",
   "scope": "full-tree",
-  "source_files": 186,
-  "source_lines": 24592,
-  "source_tree_sha256": "d214856e7a4082a4d7e34412f76eab0015bfe642492b9f9a64d269b2d320af87"
+  "source_files": 187,
+  "source_lines": 24666,
+  "source_tree_sha256": "4d14d52d86391ac09b9867d17879c3f1d3dc1a571e922051222735f600f48189"
 }
