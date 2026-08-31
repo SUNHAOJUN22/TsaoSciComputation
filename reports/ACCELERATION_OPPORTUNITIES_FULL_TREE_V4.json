@@ -1,25 +1,25 @@
 {
   "category_counts": {
-    "external-solver-dispatch": 14,
+    "external-solver-dispatch": 16,
     "filesystem-scan": 17,
     "numeric-python-loop": 6
   },
   "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
   "file_scope_counts": {
     "benchmark": 9,
-    "production": 65,
-    "test": 71,
+    "production": 66,
+    "test": 73,
     "tooling": 39
   },
   "language_files": {
     "c": 1,
     "cpp": 2,
-    "python": 181
+    "python": 184
   },
   "language_lines": {
     "c": 70,
     "cpp": 197,
-    "python": 24274
+    "python": 24405
   },
   "opportunities": [
     {
@@ -764,6 +764,82 @@
         "oversubscription",
         "unsupported solver backend"
       ],
+      "candidate_id": "6d941dba4c4174c35c6bbd24f9b34aab00e032a16c105550892cc0931066ee2c",
+      "category": "external-solver-dispatch",
+      "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
+      "confidence": "high",
+      "current_pattern": "external command or solver dispatch",
+      "decision": "diagnostic-only",
+      "evidence_requirements": [
+        "solver build features",
+        "command provenance",
+        "same-input end-to-end timing"
+      ],
+      "file_scope": "test",
+      "first_action": "batch independent cases and prefer the solver's native MPI/GPU backend before custom kernels",
+      "library_candidates": [
+        "mpi",
+        "nccl"
+      ],
+      "line": 12,
+      "path": "tests/test_tracked_manifest.py",
+      "runtime_status": "unprofiled",
+      "score": 68,
+      "source_sha256": "b0e401ce22ef24f789b9879f84acea0e04308d05192a0c9921e36405faf3072d",
+      "symbol": "_git"
+    },
+    {
+      "backend_candidates": [
+        "cpu",
+        "openmp",
+        "mpi",
+        "cuda",
+        "hip",
+        "sycl"
+      ],
+      "blockers": [
+        "license or scheduler limits",
+        "oversubscription",
+        "unsupported solver backend"
+      ],
+      "candidate_id": "24702217705bf05936a531c20798e02acc39133152fcd0aa1325799e273733e9",
+      "category": "external-solver-dispatch",
+      "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
+      "confidence": "high",
+      "current_pattern": "external command or solver dispatch",
+      "decision": "profile",
+      "evidence_requirements": [
+        "solver build features",
+        "command provenance",
+        "same-input end-to-end timing"
+      ],
+      "file_scope": "production",
+      "first_action": "batch independent cases and prefer the solver's native MPI/GPU backend before custom kernels",
+      "library_candidates": [
+        "mpi",
+        "nccl"
+      ],
+      "line": 83,
+      "path": "tsao_computation/provenance/manifest.py",
+      "runtime_status": "unprofiled",
+      "score": 68,
+      "source_sha256": "84dc93ba433ac5fbcee07a1a810d2873375d7d7d71b131de6505ceac8f3aecd4",
+      "symbol": "iter_tracked_entries"
+    },
+    {
+      "backend_candidates": [
+        "cpu",
+        "openmp",
+        "mpi",
+        "cuda",
+        "hip",
+        "sycl"
+      ],
+      "blockers": [
+        "license or scheduler limits",
+        "oversubscription",
+        "unsupported solver backend"
+      ],
       "candidate_id": "fb464600a79bb0c2e65440717aa20f1465a15c142f8974a89f3f6aedccc83436",
       "category": "external-solver-dispatch",
       "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
@@ -1299,13 +1375,13 @@
       "symbol": "test_workflows_pin_actions_and_avoid_privileged_untrusted_triggers"
     }
   ],
-  "opportunity_count": 37,
+  "opportunity_count": 39,
   "parse_failures": [],
-  "python_files_analyzed": 181,
+  "python_files_analyzed": 184,
   "python_files_excluded": 0,
   "root": ".",
   "scope": "full-tree",
-  "source_files": 184,
-  "source_lines": 24541,
-  "source_tree_sha256": "43312ff6b9ef0e7c73ae0986d78058e808bef3f7a14cb29daf164173540bd7c5"
+  "source_files": 187,
+  "source_lines": 24672,
+  "source_tree_sha256": "a879fe11c6860798f3526ef783106c859f253820286f999662f5f5382f14ad74"
 }

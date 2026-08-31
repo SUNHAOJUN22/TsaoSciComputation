@@ -1,13 +1,12 @@
 from __future__ import annotations
 
-import hashlib
-import json
 from collections.abc import Mapping
 from dataclasses import asdict, dataclass
 from functools import cache
 from typing import Any
 
 from ..errors import ContractError
+from ..hashing import canonical_json_sha256
 from ..immutable import freeze_json, thaw_json
 from ..registries import accelerators as accelerator_records
 from ..registries import adapters as adapter_records
@@ -36,13 +35,8 @@ _LOCAL_PLACEMENTS = {
 }
 
 
-def _json_sha256(value: object) -> str:
-    encoded = json.dumps(value, sort_keys=True, separators=(",", ":"), allow_nan=False)
-    return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
-
-
 def _request_sha256(request: ComputeResourceRequest) -> str:
-    return _json_sha256(request.to_dict())
+    return canonical_json_sha256(request.to_dict())
 
 
 @dataclass(frozen=True, slots=True)
@@ -404,8 +398,8 @@ def plan_acceleration(
     )
     request_payload = request.to_dict()
     request_digest = _request_sha256(request)
-    inventory_digest = _json_sha256(detected.to_dict())
-    profile_digest = _json_sha256(record)
+    inventory_digest = canonical_json_sha256(detected.to_dict())
+    profile_digest = canonical_json_sha256(record)
     reason = (
         f"selected {selected.value} for {adapter_slug}; "
         f"supported={sorted(item.value for item in supported)}; "
@@ -458,7 +452,7 @@ def plan_acceleration(
         "execution_qualification_status": execution_qualification_status,
         "fallback_used": fallback,
     }
-    plan_digest = _json_sha256(plan_identity)
+    plan_digest = canonical_json_sha256(plan_identity)
     return AccelerationPlan(
         adapter_slug=adapter_slug,
         workflow=str(record.get("workflow", "")),

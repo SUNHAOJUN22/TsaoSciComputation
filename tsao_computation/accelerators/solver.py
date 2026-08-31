@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import hashlib
 import json
 import os
 import re
@@ -12,6 +11,7 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 
 from ..errors import ContractError, SecurityError
+from ..hashing import canonical_json_sha256, file_sha256, text_sha256
 from ..registries import accelerators as accelerator_records
 from ..registries import adapters as adapter_records
 from ..security.process import (
@@ -20,7 +20,6 @@ from ..security.process import (
     read_only_probe_arguments_allowed,
 )
 
-_READ_CHUNK_BYTES = 1024 * 1024
 _MAX_VERSION_EXCERPT_CHARS = 4096
 _SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 _QUALIFICATION_STATUSES = frozenset(
@@ -46,19 +45,6 @@ def _string_tuple(value: object, field_name: str) -> tuple[str, ...]:
     if len(set(parsed)) != len(parsed):
         raise ContractError(f"{field_name} must contain unique values")
     return parsed
-
-
-def _json_sha256(value: object) -> str:
-    encoded = json.dumps(value, sort_keys=True, separators=(",", ":"), allow_nan=False)
-    return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
-
-
-def _sha256_file(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as handle:
-        for chunk in iter(lambda: handle.read(_READ_CHUNK_BYTES), b""):
-            digest.update(chunk)
-    return digest.hexdigest()
 
 
 def _record(slug: str, records: Iterable[Mapping[str, object]], kind: str) -> Mapping[str, object]:
@@ -280,7 +266,7 @@ class SolverCapabilityEvidence:
 
     @property
     def evidence_sha256(self) -> str:
-        return _json_sha256(self._identity_dict())
+        return canonical_json_sha256(self._identity_dict())
 
     def to_dict(self) -> dict[str, object]:
         payload = self._identity_dict()
@@ -420,7 +406,7 @@ def probe_solver_capability(
             missing_modules = module_probe(_probe_interpreter(executable), required_modules)
         except SecurityError:
             missing_modules = required_modules
-        executable_sha256 = _sha256_file(executable)
+        executable_sha256 = file_sha256(executable)
         size_bytes = executable.stat().st_size
         version_arguments: tuple[str, ...] = ()
         version_returncode: int | None = None
@@ -441,7 +427,7 @@ def probe_solver_capability(
             version_returncode = returncode
             text = _version_text(stdout, stderr)
             if text:
-                version_text_sha256 = hashlib.sha256(text.encode("utf-8")).hexdigest()
+                version_text_sha256 = text_sha256(text)
                 version_excerpt = text[:_MAX_VERSION_EXCERPT_CHARS]
             probe_reason = (
                 "bounded declared version/help probe completed"

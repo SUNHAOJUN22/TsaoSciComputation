@@ -1,14 +1,15 @@
 from __future__ import annotations
 
-import hashlib
-import json
 import math
 from dataclasses import asdict, dataclass
 
+from ..hashing import canonical_json_sha256
+
 
 def canonical_sha256(value: object) -> str:
-    encoded = json.dumps(value, sort_keys=True, separators=(",", ":"), allow_nan=False)
-    return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
+    """Backward-compatible alias for the shared canonical digest contract."""
+
+    return canonical_json_sha256(value)
 
 
 def _finite_non_negative(value: float, field_name: str) -> float:

@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import hashlib
-import json
 import os
 import shutil
 from collections.abc import Mapping
@@ -10,6 +8,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from ..errors import SecurityError
+from ..hashing import canonical_json_sha256, file_sha256, text_sha256
 from ..security.process import (
     _authorized_run,
     _issue_process_execution_permit,
@@ -18,14 +17,6 @@ from ..security.process import (
 from .typing_compat import CommandPlanLike
 
 _AUTHORIZATION_SEAL = object()
-
-
-def _sha256_file(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as handle:
-        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
-            digest.update(chunk)
-    return digest.hexdigest()
 
 
 def _has_explicit_relative_prefix(value: str) -> bool:
@@ -98,7 +89,7 @@ def _input_binding(plan: CommandPlanLike, cwd: Path) -> tuple[str | None, str | 
         raise SecurityError(f"command plan input file is unavailable: {raw_path}") from error
     if not resolved.is_file():
         raise SecurityError(f"command plan input file is unavailable: {raw_path}")
-    actual_sha256 = _sha256_file(resolved)
+    actual_sha256 = file_sha256(resolved)
     if declared_sha256 is not None and declared_sha256 != actual_sha256:
         raise SecurityError("command plan input file does not match its declared SHA-256")
     return str(resolved), actual_sha256
@@ -121,7 +112,7 @@ def _bound_plan(
     executable = _resolve_executable(
         plan.argv[0], cwd, search_path=normalized_environment.get("PATH", "")
     )
-    executable_sha256 = _sha256_file(executable)
+    executable_sha256 = file_sha256(executable)
     input_path, input_sha256 = _input_binding(plan, cwd)
     normalized_argv = [str(executable), *plan.argv[1:]]
     payload = {
@@ -133,8 +124,7 @@ def _bound_plan(
         "input_path": input_path,
         "input_sha256": input_sha256,
     }
-    encoded = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
-    digest = hashlib.sha256(encoded.encode("utf-8")).hexdigest()
+    digest = canonical_json_sha256(payload)
     return (
         digest,
         str(executable),
@@ -165,7 +155,7 @@ class ExecutionAuthorization:
 
     @property
     def authorization_sha256(self) -> str:
-        encoded = json.dumps(
+        return canonical_json_sha256(
             {
                 "plan_sha256": self.plan_sha256,
                 "executable_sha256": self.executable_sha256,
@@ -173,11 +163,8 @@ class ExecutionAuthorization:
                 "authorized_by": self.authorized_by,
                 "purpose": self.purpose,
                 "explicit_authorization": self.explicit_authorization,
-            },
-            sort_keys=True,
-            separators=(",", ":"),
+            }
         )
-        return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
 
 
 def authorize_plan(
@@ -249,8 +236,8 @@ def run_plan(
     return ExecutionRecord(
         tuple(argv),
         result.returncode,
-        hashlib.sha256(result.stdout.encode()).hexdigest(),
-        hashlib.sha256(result.stderr.encode()).hexdigest(),
+        text_sha256(result.stdout),
+        text_sha256(result.stderr),
         started,
         completed_at,
         result.returncode == 0,

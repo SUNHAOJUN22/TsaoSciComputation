@@ -1,13 +1,12 @@
 from __future__ import annotations
 
-import hashlib
-import json
 import threading
 from collections.abc import Iterator, Mapping
 from contextlib import contextmanager
 from dataclasses import asdict, dataclass
 
 from ..errors import SecurityError
+from ..hashing import canonical_json_sha256
 
 
 def _positive_int(value: int, field_name: str) -> int:
@@ -38,11 +37,6 @@ def _license_tokens(
     return tuple(sorted(normalized))
 
 
-def _sha256(value: object) -> str:
-    encoded = json.dumps(value, sort_keys=True, separators=(",", ":"), allow_nan=False)
-    return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
-
-
 @dataclass(frozen=True, slots=True)
 class ExecutionResourceClaim:
     cpu_cores: int = 1
@@ -70,7 +64,7 @@ class ExecutionResourceClaim:
 
     @property
     def sha256(self) -> str:
-        return _sha256(self.to_dict())
+        return canonical_json_sha256(self.to_dict())
 
 
 @dataclass(frozen=True, slots=True)
@@ -100,7 +94,7 @@ class ExecutionResourceCapacity:
 
     @property
     def sha256(self) -> str:
-        return _sha256(self.to_dict())
+        return canonical_json_sha256(self.to_dict())
 
 
 class ExecutionResourceBroker:
