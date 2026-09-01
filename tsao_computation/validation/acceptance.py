@@ -28,9 +28,9 @@ def acceptance_gate(
     """Separate software readiness from externally verifiable acceptance.
 
     Caller-declared strings and ``human_approval_required=False`` cannot create an
-    accepted state.  Acceptance requires a finite core gate set, an exact artifact
-    digest, and at least one independently identified, time-bounded attestation
-    whose HMAC verifies against a key supplied outside the record.
+    accepted state. Acceptance requires the core software/scientific gates, an
+    exact artifact digest, and at least one independently identified, time-bounded
+    attestation whose HMAC verifies against a key supplied outside the record.
     """
 
     missing = [key for key in REQUIRED if record.get(key) is not True]
@@ -68,7 +68,9 @@ def acceptance_gate(
         approval_failures.append("approvals_not_a_sequence")
 
     if verified_count == 0:
-        missing.append("verified_human_approval")
+        # Preserve the stable generic reason code while exposing the stricter
+        # qualification requirement for downstream diagnostics.
+        missing.extend(("human_approval", "verified_human_approval"))
 
     unique_missing = sorted(set(missing))
     return {
