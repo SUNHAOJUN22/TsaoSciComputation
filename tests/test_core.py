@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 import pytest
@@ -18,10 +19,12 @@ from tsao_computation.security import atomic_write_text, confined_path
 from tsao_computation.state import ScientificStateMachine
 from tsao_computation.uncertainty import combine_independent
 from tsao_computation.validation import (
+    APPROVAL_SCHEMA_VERSION,
     acceptance_gate,
     balance_check,
     convergence_check,
     finite_values,
+    sign_approval_attestation,
     unit_known,
 )
 from tsao_computation.workflows import WorkflowEngine
@@ -141,7 +144,25 @@ def test_017_acceptance_fail_closed():
 
 @pytest.mark.integration
 def test_018_acceptance_pass():
-    r = {
+    artifact_sha256 = "a" * 64
+    key = b"test-only-independent-review-key"
+    approval = sign_approval_attestation(
+        {
+            "schema_version": APPROVAL_SCHEMA_VERSION,
+            "issuer": "institutional-review-service",
+            "approver": "domain-expert-02",
+            "requester": "calculation-author-01",
+            "role": "independent-domain-reviewer",
+            "scope": "scientific-result-acceptance",
+            "artifact_sha256": artifact_sha256,
+            "issued_at": "2026-08-31T00:00:00Z",
+            "expires_at": "2026-09-02T00:00:00Z",
+            "nonce": "acceptance-core-0001",
+            "key_id": "review-key-1",
+        },
+        secret_key=key,
+    )
+    record = {
         k: True
         for k in (
             "completed",
@@ -153,7 +174,15 @@ def test_018_acceptance_pass():
             "evidence_bound",
         )
     }
-    assert acceptance_gate(r)["accepted"] is True
+    record["artifact_sha256"] = artifact_sha256
+    record["approvals"] = [approval]
+    result = acceptance_gate(
+        record,
+        trusted_approval_keys={"review-key-1": key},
+        now=datetime(2026, 9, 1, tzinfo=timezone.utc),
+    )
+    assert result["accepted"] is True
+    assert result["verified_approval_count"] == 1
 
 
 @pytest.mark.integration
