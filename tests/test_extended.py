@@ -232,7 +232,7 @@ def test_uncertainty_budget_and_invalid_components() -> None:
         combine_independent(float("inf"))
 
 
-def test_acceptance_requires_human_approval() -> None:
+def test_acceptance_rejects_caller_declared_approval() -> None:
     record = {
         key: True
         for key in (
@@ -245,12 +245,15 @@ def test_acceptance_requires_human_approval() -> None:
             "evidence_bound",
         )
     }
-    record["human_approval_required"] = True
+    record["artifact_sha256"] = "a" * 64
+    record["human_approval_required"] = False
+    record["approvals"] = ["expert"]
     result = acceptance_gate(record)
+    assert result["software_ready"] is True
     assert result["accepted"] is False
     assert "human_approval" in result["missing"]
-    record["approvals"] = ["expert"]
-    assert acceptance_gate(record)["accepted"] is True
+    assert "verified_human_approval" in result["missing"]
+    assert result["caller_approval_flag_authoritative"] is False
 
 
 def test_convergence_invalid_input() -> None:

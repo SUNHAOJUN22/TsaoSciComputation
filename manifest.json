@@ -181,6 +181,11 @@
       "sha256": "86c77d0146cf8df57e43c972237fe601420289674920204df34de623966ea246"
     },
     {
+      "bytes": 1639,
+      "path": "README_FINAL_DEBUG.md",
+      "sha256": "65d1a372bb87367b0d510e14ac4c9f752cc589aa8f9015780c54cc1e8ceb7722"
+    },
+    {
       "bytes": 3578,
       "path": "SECURITY.md",
       "sha256": "71d1a9d46399a071060fe13d115d1d470cc4309504a6e03e164e50134b600e64"
@@ -1718,7 +1723,7 @@
     {
       "bytes": 152,
       "path": "evidence/quality-check.json",
-      "sha256": "1cfa7d702e21f811b0d140a9e47ad80ba11e69b8d8136ce8db1629e1c621dda1"
+      "sha256": "128587f034ced363fd4ed689bfafd4938811ca4b5bdd5f613c93ec5ed227340b"
     },
     {
       "bytes": 3174,
@@ -1728,7 +1733,7 @@
     {
       "bytes": 72,
       "path": "evidence/security-scan.json",
-      "sha256": "263031c82c2c7374c797a1e0bbe273746e6d5de13347ac2150e9568f38eabd92"
+      "sha256": "1983e8d8a695983c1b546c9d0a071f5a40e51ef3faf2e37b5e4b9983fbf33cac"
     },
     {
       "bytes": 573,
@@ -1923,17 +1928,17 @@
     {
       "bytes": 55786,
       "path": "reports/ACCELERATION_OPPORTUNITIES_FULL_TREE_V4.json",
-      "sha256": "c5e598f558493589c0f53f04b3ec7749a2a856f98b4161978e6eb03749307dd3"
+      "sha256": "7f77442824a863c0a514bb40ca4602b28fa64c4e03f691e1cf4e0a913cc87d46"
     },
     {
       "bytes": 6514,
       "path": "reports/ACCELERATION_OPPORTUNITIES_PRODUCTION_V4.json",
-      "sha256": "ce501272a7d6597c130487fd89bc98f7e16a7ad2f22a463c71c5d8b6cfa28dec"
+      "sha256": "0ce8eaa2874e4b1e69247b8f61d582b5f49c587d992c8028da80b6f9c77e6f49"
     },
     {
       "bytes": 6514,
       "path": "reports/ACCELERATION_OPPORTUNITIES_V2.json",
-      "sha256": "ce501272a7d6597c130487fd89bc98f7e16a7ad2f22a463c71c5d8b6cfa28dec"
+      "sha256": "0ce8eaa2874e4b1e69247b8f61d582b5f49c587d992c8028da80b6f9c77e6f49"
     },
     {
       "bytes": 1196,
@@ -2576,6 +2581,11 @@
       "sha256": "8fd705979f8901b16abc7a643cee47219526e278e64f895044755af1213d638d"
     },
     {
+      "bytes": 7212,
+      "path": "tests/test_approval_attestation_boundaries.py",
+      "sha256": "b3bc459d08653028fc362d02e5e220aa4e17b7a4017ff5414a3831854595b69d"
+    },
+    {
       "bytes": 1025,
       "path": "tests/test_canonical_text_writes.py",
       "sha256": "bbe98b5b78342ce8bf67a3ad08b210ecd436c63ef1b46192bc8436e5cf6f2aed"
@@ -2606,9 +2616,9 @@
       "sha256": "d3151c9d0a67b07dc7c114e36d5b962c8a52232796832c03177d8d1674ce44a8"
     },
     {
-      "bytes": 6265,
+      "bytes": 7360,
       "path": "tests/test_core.py",
-      "sha256": "56b427b73fe26aff935745c6ee9cf225e1f9d22d3dfa1598d67aac5e0d877ba1"
+      "sha256": "4ef08c114377664c5bf131c178df1cc002c008adaf1324fc0b3a764cf60fe138"
     },
     {
       "bytes": 2283,
@@ -2646,9 +2656,9 @@
       "sha256": "6d8d293b12eb1d1ad20a9a10910554b9b9a9a0f52d90130bb121d67c846acca5"
     },
     {
-      "bytes": 15875,
+      "bytes": 16038,
       "path": "tests/test_extended.py",
-      "sha256": "17603d3c5940eb0eb60d014a0e413c74a91ce69205dab23074ce4fff5b51b587"
+      "sha256": "65aeb4e623ff8cd7971e590c80259884bc3899ce74743420177a2e4736ff95fd"
     },
     {
       "bytes": 8677,
@@ -2821,9 +2831,9 @@
       "sha256": "b0afa5d1f1292beacb02911c19447f704a529722985bf00bba4979da01bcc112"
     },
     {
-      "bytes": 3267,
+      "bytes": 5614,
       "path": "tests/test_validation_fail_closed.py",
-      "sha256": "cdc40f9bad9707858b0011bc82200932f9f7468569dece1f96e0286a3ad87850"
+      "sha256": "9e6764cbe4eeeefca09b0e4d003e751848582a95c587f147a79ebe9256c94c4c"
     },
     {
       "bytes": 3138,
@@ -3156,14 +3166,19 @@
       "sha256": "055ce3e3cc38893f91365b98ced0237ebd000472f23e8d119c80218f77da859c"
     },
     {
-      "bytes": 384,
+      "bytes": 614,
       "path": "tsao_computation/validation/__init__.py",
-      "sha256": "65ab574cf95a2679ce975bf63a4175530f96e0e63fe1bbc9cd26e484822d482c"
+      "sha256": "4acd87f3455715bf2c37cdff84fe399809ff8f6e14dafc43dabe7f29dcec9401"
     },
     {
-      "bytes": 813,
+      "bytes": 2986,
       "path": "tsao_computation/validation/acceptance.py",
-      "sha256": "47673f10be51ea1bff8209f55549bcfc046262727d09fb47d536dc6d65f0f656"
+      "sha256": "5d7e3fb3eaf2135a054c60ca422af31da31436999757eeafed10785773d8810c"
+    },
+    {
+      "bytes": 4885,
+      "path": "tsao_computation/validation/approval_attestation.py",
+      "sha256": "d2137020bf5c85ad336806b26e87cd508022aad9621bbd7706a9f17ef57eb1d0"
     },
     {
       "bytes": 4182,
