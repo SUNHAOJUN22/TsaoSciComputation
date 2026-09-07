@@ -224,3 +224,113 @@ def test_acceptance_keeps_software_readiness_separate_from_acceptance() -> None:
     assert result["accepted"] is False
     assert "converged" in result["missing"]
     assert result["verified_approval_count"] == 1
+
+
+@pytest.mark.parametrize(
+    "extra",
+    ({1}, object(), float("nan"), float("inf"), -float("inf"), {1: "one", "two": 2}),
+)
+def test_malformed_additional_payload_is_rejected_without_raising(extra: object) -> None:
+    approval = {**signed_approval(), "extra": extra}
+    valid, reason = verify_approval_attestation(
+        approval, trusted_keys={"review-key-1": KEY}, artifact_sha256=ARTIFACT, now=NOW
+    )
+    assert (valid, reason) == (False, "approval_payload_invalid")
+    result = acceptance_gate(
+        ready_record(approval), trusted_approval_keys={"review-key-1": KEY}, now=NOW
+    )
+    assert result["accepted"] is False
+    assert result["approval_failures"] == ["approval_payload_invalid"]
+
+
+def test_circular_payload_is_rejected_without_raising() -> None:
+    extra: list[object] = []
+    extra.append(extra)
+    valid, reason = verify_approval_attestation(
+        {**signed_approval(), "extra": extra},
+        trusted_keys={"review-key-1": KEY},
+        artifact_sha256=ARTIFACT,
+        now=NOW,
+    )
+    assert (valid, reason) == (False, "approval_payload_invalid")
+
+
+def test_serializer_recursion_failure_is_rejected(monkeypatch: pytest.MonkeyPatch) -> None:
+    approval = signed_approval()
+
+    def exhausted_encoder(value: object) -> bytes:
+        raise RecursionError("encoder nesting limit reached")
+
+    monkeypatch.setattr(
+        "tsao_computation.validation.approval_attestation.canonical_json_bytes",
+        exhausted_encoder,
+    )
+    assert verify_approval_attestation(
+        approval, trusted_keys={"review-key-1": KEY}, artifact_sha256=ARTIFACT, now=NOW
+    ) == (False, "approval_payload_invalid")
+
+
+@pytest.mark.parametrize("invalid_first", (True, False))
+def test_invalid_approval_cannot_reserve_a_valid_approvals_nonce(invalid_first: bool) -> None:
+    valid = signed_approval()
+    invalid = {**valid, "signature": "0" * 64}
+    ordered = (invalid, valid) if invalid_first else (valid, invalid)
+    result = acceptance_gate(
+        ready_record(*ordered), trusted_approval_keys={"review-key-1": KEY}, now=NOW
+    )
+    assert result["accepted"] is True
+    assert result["verified_approval_count"] == 1
+    assert result["approval_failures"] == ["approval_signature_mismatch"]
+
+
+@pytest.mark.parametrize(
+    ("delta", "reason"),
+    (
+        ({"scope": "download-artifact"}, "approval_scope_mismatch"),
+        ({"role": "request-author"}, "approval_role_mismatch"),
+    ),
+)
+def test_signature_alone_does_not_authorize_an_unrelated_scope_or_role(
+    delta: dict[str, str], reason: str
+) -> None:
+    unrelated = signed_approval(**delta)
+    result = acceptance_gate(
+        ready_record(unrelated), trusted_approval_keys={"review-key-1": KEY}, now=NOW
+    )
+    assert result["accepted"] is False
+    assert result["approval_failures"] == [reason]
+    # Rejected scopes/roles must not poison a subsequent valid approval either.
+    result = acceptance_gate(
+        ready_record(unrelated, signed_approval()),
+        trusted_approval_keys={"review-key-1": KEY},
+        now=NOW,
+    )
+    assert result["accepted"] is True
+    assert result["verified_approval_count"] == 1
+
+
+@pytest.mark.parametrize("invalid_now", (False, 0, "2026-09-01T12:00:00Z"))
+def test_invalid_clock_input_does_not_fall_back_to_wall_clock(invalid_now: Any) -> None:
+    valid, reason = verify_approval_attestation(
+        signed_approval(),
+        trusted_keys={"review-key-1": KEY},
+        artifact_sha256=ARTIFACT,
+        now=invalid_now,
+    )
+    assert (valid, reason) == (False, "approval_now_not_timezone_aware")
+
+
+def test_utc_timestamp_overflow_is_rejected() -> None:
+    approval = {**signed_approval(), "issued_at": "0001-01-01T00:00:00+14:00"}
+    assert verify_approval_attestation(
+        approval, trusted_keys={"review-key-1": KEY}, artifact_sha256=ARTIFACT, now=NOW
+    ) == (False, "approval_structure_invalid")
+
+
+def test_untrusted_key_container_is_rejected() -> None:
+    assert verify_approval_attestation(
+        signed_approval(),
+        trusted_keys=None,  # type: ignore[arg-type]
+        artifact_sha256=ARTIFACT,
+        now=NOW,
+    ) == (False, "approval_key_untrusted")

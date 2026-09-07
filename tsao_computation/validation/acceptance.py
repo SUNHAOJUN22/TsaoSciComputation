@@ -47,23 +47,29 @@ def acceptance_gate(
     seen_nonces: set[str] = set()
     if isinstance(approvals, (list, tuple)):
         for approval in approvals:
-            if isinstance(approval, Mapping):
-                nonce = approval.get("nonce")
-                if isinstance(nonce, str) and nonce in seen_nonces:
-                    approval_failures.append("approval_nonce_reused")
-                    continue
-                if isinstance(nonce, str):
-                    seen_nonces.add(nonce)
             valid, reason = verify_approval_attestation(
                 approval,
                 trusted_keys=trusted_keys,
                 artifact_sha256=artifact_sha256,
                 now=now,
             )
-            if valid:
-                verified_count += 1
-            else:
+            if not valid:
                 approval_failures.append(reason)
+                continue
+            # A valid signature proves integrity, not authorization for this gate.
+            # Reserve nonces only after verification and acceptance-scope checks.
+            if approval["scope"] != "scientific-result-acceptance":
+                approval_failures.append("approval_scope_mismatch")
+                continue
+            if approval["role"] != "independent-domain-reviewer":
+                approval_failures.append("approval_role_mismatch")
+                continue
+            nonce = str(approval["nonce"])
+            if nonce in seen_nonces:
+                approval_failures.append("approval_nonce_reused")
+                continue
+            seen_nonces.add(nonce)
+            verified_count += 1
     else:
         approval_failures.append("approvals_not_a_sequence")
 

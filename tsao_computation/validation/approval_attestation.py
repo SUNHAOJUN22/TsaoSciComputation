@@ -2,15 +2,15 @@ from __future__ import annotations
 
 import hashlib
 import hmac
-import json
 import re
 from collections.abc import Mapping
 from datetime import datetime, timezone
 from typing import Any
 
+from tsao_computation.hashing import canonical_json_bytes
+
 APPROVAL_SCHEMA_VERSION = "tsao-computation.approval-attestation.v1"
 _SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
-_SIGNATURE_RE = re.compile(r"^[0-9a-f]{64}$")
 _REQUIRED_TEXT_FIELDS = (
     "issuer",
     "approver",
@@ -43,16 +43,10 @@ def _unsigned_payload(attestation: Mapping[str, Any]) -> dict[str, Any]:
 
 
 def _canonical_bytes(attestation: Mapping[str, Any]) -> bytes:
-    return json.dumps(
-        _unsigned_payload(attestation),
-        sort_keys=True,
-        separators=(",", ":"),
-        ensure_ascii=True,
-        allow_nan=False,
-    ).encode("utf-8")
+    return canonical_json_bytes(_unsigned_payload(attestation))
 
 
-def _validate_structure(attestation: Mapping[str, Any]) -> None:
+def _validate_structure(attestation: Mapping[str, Any]) -> tuple[datetime, datetime]:
     if attestation.get("schema_version") != APPROVAL_SCHEMA_VERSION:
         raise ValueError("approval schema_version is not supported")
     for field in _REQUIRED_TEXT_FIELDS:
@@ -70,6 +64,7 @@ def _validate_structure(attestation: Mapping[str, Any]) -> None:
     expires_at = _parse_timestamp(str(attestation["expires_at"]))
     if not issued_at < expires_at:
         raise ValueError("approval expires_at must be later than issued_at")
+    return issued_at, expires_at
 
 
 def sign_approval_attestation(
@@ -103,33 +98,40 @@ def verify_approval_attestation(
     if not isinstance(attestation, Mapping):
         return False, "approval_not_an_object"
     try:
-        _validate_structure(attestation)
-    except (TypeError, ValueError):
+        issued_at, expires_at = _validate_structure(attestation)
+    except (TypeError, ValueError, OverflowError):
         return False, "approval_structure_invalid"
     if attestation.get("artifact_sha256") != artifact_sha256:
         return False, "approval_artifact_mismatch"
     signature = attestation.get("signature")
-    if not isinstance(signature, str) or _SIGNATURE_RE.fullmatch(signature) is None:
+    if not isinstance(signature, str) or _SHA256_RE.fullmatch(signature) is None:
         return False, "approval_signature_invalid"
     key_id = str(attestation["key_id"])
+    if not isinstance(trusted_keys, Mapping):
+        return False, "approval_key_untrusted"
     secret_key = trusted_keys.get(key_id)
     if not isinstance(secret_key, bytes) or not secret_key:
         return False, "approval_key_untrusted"
-    current_time = now or datetime.now(timezone.utc)
-    if current_time.tzinfo is None or current_time.utcoffset() is None:
+    current_time = datetime.now(timezone.utc) if now is None else now
+    if (
+        not isinstance(current_time, datetime)
+        or current_time.tzinfo is None
+        or current_time.utcoffset() is None
+    ):
         return False, "approval_now_not_timezone_aware"
-    issued_at = _parse_timestamp(str(attestation["issued_at"]))
-    expires_at = _parse_timestamp(str(attestation["expires_at"]))
-    current_time = current_time.astimezone(timezone.utc)
+    try:
+        current_time = current_time.astimezone(timezone.utc)
+    except (ValueError, OverflowError):
+        return False, "approval_now_invalid"
     if current_time < issued_at:
         return False, "approval_not_yet_valid"
     if current_time >= expires_at:
         return False, "approval_expired"
-    expected = hmac.new(
-        secret_key,
-        _canonical_bytes(attestation),
-        hashlib.sha256,
-    ).hexdigest()
+    try:
+        canonical_payload = _canonical_bytes(attestation)
+    except (TypeError, ValueError, OverflowError, RecursionError):
+        return False, "approval_payload_invalid"
+    expected = hmac.new(secret_key, canonical_payload, hashlib.sha256).hexdigest()
     if not hmac.compare_digest(signature, expected):
         return False, "approval_signature_mismatch"
     return True, "verified"

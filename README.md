@@ -6,7 +6,7 @@
 
 **Evidence-governed scientific-computation orchestration from equations and solver identity to reproducible delivery.**
 
-![version](https://img.shields.io/badge/version-3.0.4-2563eb) ![capabilities](https://img.shields.io/badge/capabilities-164-7c3aed) ![adapters](https://img.shields.io/badge/adapters-27-ea580c) ![workflows](https://img.shields.io/badge/workflows-20-0891b2) ![tests](https://img.shields.io/badge/tests-845%20qualified%20%2B%205%20incremental-16a34a) ![coverage](https://img.shields.io/badge/coverage-95.25%25%20qualified-0891b2)
+![version](https://img.shields.io/badge/version-3.0.4-2563eb) ![capabilities](https://img.shields.io/badge/capabilities-164-7c3aed) ![adapters](https://img.shields.io/badge/adapters-27-ea580c) ![workflows](https://img.shields.io/badge/workflows-20-0891b2) ![tests](https://img.shields.io/badge/tests-exact%20commit%20CI-16a34a) ![coverage policy](https://img.shields.io/badge/coverage%20minimum-95%25-0891b2)
 
 [中文说明](README.zh-CN.md) · [Root Skill](SKILL.md) · [Capabilities](capability-index/README.md) · [Visual atlas](assets/visuals/README.md) · [Validation](docs/scientific-validation.md) · [Architecture](docs/architecture.md) · [Delivery prompt](docs/autonomous-software-hardening-prompt.md)
 
@@ -28,8 +28,7 @@
 TsaoSciComputation is a deliverable software control plane with an explicit boundary between **repository qualification** and **external scientific execution**.
 
 - **164 capabilities**, **27 external adapters**, **20 machine-readable workflows**, **23 methods**, **13 acceleration strategies** and **7 trusted local functions**;
-- the accepted remote baseline contains **845 deterministic tests** at **95.25% total coverage**;
-- this acceptance increment adds **5 scalar-validation regression cases**, all passing in the reconstructed source qualification suite;
+- test counts and measured coverage are taken from the complete CI run for the exact commit being reviewed; the enforced total-coverage floor is **95.00%**;
 - Ruff, Mypy, Bandit, repository security scanning, controlled mutation, Schema, Manifest, reproducible source/Wheel, isolated installation, SBOM and native C ABI checks remain the release gates;
 - `main` is the sole authoritative branch;
 - real third-party solver correctness remains **`EXTERNAL_HOLD`** until binaries, licenses, fixed inputs, hardware fingerprints, reference values and scientific tolerances are supplied.
@@ -364,7 +363,7 @@ python -m tsao_computation profile-performance \
 ```
 
 <!-- ACCELERATION_AUDIT_SUMMARY:START -->
-The governed audit inventories **171 Python files** and **3 native-language files** after the scalar-validation increment. Production and full-tree reports remain source-hash-bound and `unprofiled` until runtime evidence exists; neither report claims external-solver or GPU speedup.
+The [production audit](reports/ACCELERATION_OPPORTUNITIES_PRODUCTION_V4.json) and [full-tree audit](reports/ACCELERATION_OPPORTUNITIES_FULL_TREE_V4.json) contain the generated source counts and hashes. Unprofiled code is not evidence of external-solver or GPU speedup.
 <!-- ACCELERATION_AUDIT_SUMMARY:END -->
 
 Architecture, CUDA-X selection rules and C++ migration gates: [`docs/accelerated-native-backend.md`](docs/accelerated-native-backend.md). Native verification: `python scripts/verify_native_core.py`.
@@ -380,39 +379,30 @@ python scripts/verify_all.py --profile benchmark
 
 `all` covers linting, formatting, typing, security, pytest, coverage, mutation, analytical fixtures, Schema/registry checks, generated-file consistency, reproducible source/Wheel builds, isolated installation, SBOMs, checksums and release manifests. `benchmark` is orchestration telemetry, not external-solver performance evidence.
 
-### Incremental scalar-hardening evidence
-
-| Check | Result |
-|---|---:|
-| New regression cases | 5 passed |
-| Reconstructed source suite | 830 passed, 0 failed |
-| Reconstructed coverage | 95.08% total |
-| Scientific reference fixtures | 8/8 passed |
-| Repository security scan | 597 files, 0 findings |
-| Schema / adapter metadata | PASS / PASS |
-| C++20 C ABI / CTest / Python bridge | PASS / 1 of 1 / PASS |
-
-The reconstructed suite starts from the retained release-candidate source artifact; the prior current-main software baseline remains the authoritative 845-test remote qualification. A new remote full-tree run must not be inferred from this local incremental evidence.
-
 <!-- CURRENT_MAIN_VERIFICATION:START -->
-### Accepted remote baseline
+### Exact-commit qualification
 
-| Current-main item | Result |
-|---|---:|
+| Metadata | Value |
+|---|---|
 | Version | 3.0.4 |
-| Capabilities / adapters / workflows | 164 / 27 / 20 |
-| Tests | 845 passed, 0 failed |
-| Total coverage | 95.25% |
-| Controlled mutation probes | 64/64 killed |
-| Scientific reference benchmarks | 8/8 passed |
-| Repository security findings | 0 |
-| Source archives / Wheel | reproducible / byte-identical + isolated install |
-| C++20 C ABI / CTest / Python bridge | PASS / 1 of 1 / PASS |
-| Scientific visual assets | 43 self-contained SVGs / 12 featured |
-| Remote branches | `main` only |
 
-The remote baseline covers repository software, deterministic fixtures and native interoperability. The scalar increment is separately identified above; external solver correctness, licenses, accelerator equivalence and production performance remain `EXTERNAL_HOLD`.
+Use the permanent [CI workflow](.github/workflows/ci.yml) and its run artifacts for the SHA being deployed. Historical reports under `reports/` are snapshots, not certificates for a newer commit. Full pytest, the 95% coverage floor, critical-module coverage, generated-file checks, Ruff, mypy, Bandit, mutation probes, source/Wheel reproducibility, native C ABI and platform matrices remain mandatory. No narrow contract run or previous successful commit substitutes for this chain.
 <!-- CURRENT_MAIN_VERIFICATION:END -->
+
+### External approval contract
+
+`software_ready` aggregates the declared completion, parsing, convergence, physical-validation, uncertainty, applicability and evidence flags. It is not independently issued scientific approval.
+
+`accepted` additionally requires a valid artifact SHA-256 and at least one time-valid HMAC-SHA256 attestation verified with a trusted key supplied outside the record. The acceptance gate requires scope `scientific-result-acceptance` and role `independent-domain-reviewer`; approver and requester identifiers must differ. Deployments must provision trusted keys and resolve those identities independently.
+
+Malformed JSON payloads, non-finite values, circular references and serializer failures return structured rejection reasons. Invalid signatures or unrelated scopes/roles cannot reserve a nonce and suppress a later valid approval. Duplicate valid approvals count once **within one decision**. This is not a persistent cross-request replay database, key-revocation service, or proof of institutional identity; integrations requiring those controls must supply them externally. Verification is intentionally repeatable for an unchanged artifact during its approval window.
+
+Focused regression command:
+
+```bash
+python -m pytest -q tests/test_approval_attestation_boundaries.py tests/test_validation_fail_closed.py
+```
+
 
 ## Trust states
 

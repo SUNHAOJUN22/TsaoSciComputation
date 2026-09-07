@@ -6,7 +6,7 @@
 
 **从方程、求解器身份到可重复交付的证据治理型科学计算编排系统。**
 
-![version](https://img.shields.io/badge/version-3.0.4-2563eb) ![capabilities](https://img.shields.io/badge/capabilities-164-7c3aed) ![adapters](https://img.shields.io/badge/adapters-27-ea580c) ![workflows](https://img.shields.io/badge/workflows-20-0891b2) ![tests](https://img.shields.io/badge/tests-845%20passed-16a34a) ![coverage](https://img.shields.io/badge/coverage-95.25%25-0891b2)
+![version](https://img.shields.io/badge/version-3.0.4-2563eb) ![capabilities](https://img.shields.io/badge/capabilities-164-7c3aed) ![adapters](https://img.shields.io/badge/adapters-27-ea580c) ![workflows](https://img.shields.io/badge/workflows-20-0891b2) ![tests](https://img.shields.io/badge/tests-exact%20commit%20CI-16a34a) ![coverage policy](https://img.shields.io/badge/coverage%20minimum-95%25-0891b2)
 
 [English](README.md) · [根 Skill](SKILL.md) · [能力索引](capability-index/README.md) · [视觉图谱](assets/visuals/README.md) · [科学验证](docs/scientific-validation.md) · [系统架构](docs/architecture.md) · [本轮交付 Prompt](docs/autonomous-software-hardening-prompt.md)
 
@@ -28,7 +28,7 @@
 当前软件基线已经达到仓库级验收与交付条件：
 
 - **164 项能力**、**27 个外部适配器**、**20 套机器可读工作流**；
-- **845 项确定性测试全部通过**，总覆盖率 **95.25%**；
+- 测试数量和实测覆盖率以待部署精确提交的完整 CI 工件为准；总覆盖率门槛保持 **95.00%**；
 - Ruff、Mypy、Bandit、仓库安全扫描、受控变异、Schema、Manifest、可重复源码/Wheel、隔离安装、SBOM 与原生 C ABI 验证全部通过；
 - 远端仅保留唯一权威分支 **`main`**；
 - 第三方求解器真实执行仍保持 **`EXTERNAL_HOLD`**，直至提供真实二进制、许可证、固定输入、硬件指纹、参考结果与科学容差。
@@ -353,7 +353,7 @@ python -m tsao_computation profile-performance \
 ```
 
 <!-- ACCELERATION_AUDIT_SUMMARY:START -->
-受治理审计统计 **170 个 Python 文件**和 **3 个原生语言文件**。生产范围与全树报告均绑定源码哈希，在获得运行时证据前保持 `unprofiled`；两类报告均不声明外部求解器或 GPU 加速。
+源码数量与摘要以自动生成的[生产审计](reports/ACCELERATION_OPPORTUNITIES_PRODUCTION_V4.json)和[全树审计](reports/ACCELERATION_OPPORTUNITIES_FULL_TREE_V4.json)为准。未完成实测剖析的代码不构成外部求解器或 GPU 加速证据。
 <!-- ACCELERATION_AUDIT_SUMMARY:END -->
 
 架构、CUDA-X 选型与 C++ 迁移门禁见 [`docs/accelerated-native-backend.md`](docs/accelerated-native-backend.md)。原生验证命令：`python scripts/verify_native_core.py`。
@@ -370,25 +370,29 @@ python scripts/verify_all.py --profile benchmark
 `all` 覆盖质量、lint、format、类型、安全、测试、覆盖率、受控变异、科学参考夹具、Schema/注册表、生成文件一致性、可重复源码/Wheel、隔离安装、SBOM、校验和与发布清单。`benchmark` 仅提供环境相关的编排遥测，不是外部求解器性能证据。
 
 <!-- CURRENT_MAIN_VERIFICATION:START -->
-### 当前可交付基线
+### 精确提交的软件资格
 
-| 资格项目 | 结果 |
-|---|---:|
+| 元数据 | 数值 |
+|---|---|
 | 版本 | 3.0.4 |
-| 能力 / 适配器 / 工作流 | 164 / 27 / 20 |
-| 自动测试 | 845 通过，0 失败 |
-| 总覆盖率 | 95.25%（要求：95.00%） |
-| Ruff / Mypy / Bandit | PASS / 105 个源文件 / PASS |
-| 受控变异探针 | 64/64 被识别 |
-| 科学参考基准 | 8/8 通过 |
-| 仓库安全发现 | 0 |
-| 源码包 / Wheel | 可重复 / 字节一致并通过隔离安装 |
-| C++20 C ABI / CTest / Python 桥 | PASS / 1/1 / PASS |
-| 科研视觉资产 | 43 幅自包含 SVG / 12 幅首页展示 |
-| 远端分支 | 仅 `main` |
 
-该资格边界覆盖仓库软件、确定性夹具和原生互操作。外部求解器正确性、许可证、加速器等价与生产性能在真实证据到位前继续保持 `EXTERNAL_HOLD`。
+以永久 [CI 工作流](.github/workflows/ci.yml) 对待部署 SHA 的结果及工件为准。`reports/` 中的历史报告只是对应版本的快照，不能为新提交提供证明。完整 pytest、95% 总覆盖率门槛、关键模块覆盖率、生成文件校验、Ruff、mypy、Bandit、变异探针、源码包/Wheel 可重复构建、原生 C ABI 和平台矩阵仍是必要门禁。单一合同测试或前一提交的成功结果不能替代完整验证链。
 <!-- CURRENT_MAIN_VERIFICATION:END -->
+
+### 外部批准合同
+
+`software_ready` 汇总调用记录声明的完成、解析、收敛、物理验证、不确定度、适用性与证据绑定状态，不等于独立科学批准。
+
+`accepted` 还要求合法的制品 SHA-256，以及使用记录外部可信密钥验证、处于有效期内的 HMAC-SHA256 鉴证。接受门要求作用域为 `scientific-result-acceptance`，角色为 `independent-domain-reviewer`，批准者与请求者标识不同；可信密钥配置及真实身份解析由部署方独立完成。
+
+非法 JSON 载荷、非有限值、循环引用及序列化失败返回结构化拒绝原因。无效签名或不匹配的作用域、角色不会抢占 nonce 并阻止后续有效审批。重复有效审批仅在**单次决策内**去重，不代表已实现跨请求防重放数据库、密钥撤销服务或机构身份认证。需要这些控制的系统必须外部提供；对同一制品在批准有效期内重复验证是允许的。
+
+专项回归命令：
+
+```bash
+python -m pytest -q tests/test_approval_attestation_boundaries.py tests/test_validation_fail_closed.py
+```
+
 
 ## 信任边界
 
