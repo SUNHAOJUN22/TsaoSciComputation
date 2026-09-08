@@ -38,7 +38,9 @@ def test_hash_digest_does_not_depend_on_requested_buffer(tmp_path: Path, chunk_s
     "timeout",
     [-1.0, float("nan"), float("inf"), float("-inf"), True, "1", None, 10**1000],
 )
-def test_invalid_lock_timeout_rejected_before_filesystem_change(tmp_path: Path, timeout: Any) -> None:
+def test_invalid_lock_timeout_rejected_before_filesystem_change(
+    tmp_path: Path, timeout: Any
+) -> None:
     path = tmp_path / "not-created" / "ledger.jsonl"
     with pytest.raises(ValueError, match="lock_timeout"):
         ConcurrentProvenanceLedger(path, lock_timeout=timeout)
@@ -46,7 +48,9 @@ def test_invalid_lock_timeout_rejected_before_filesystem_change(tmp_path: Path, 
 
 
 @pytest.mark.parametrize("timeout", [0.0, 0.01, 1, 10.0])
-def test_valid_lock_timeout_preserves_append_and_verification(tmp_path: Path, timeout: float) -> None:
+def test_valid_lock_timeout_preserves_append_and_verification(
+    tmp_path: Path, timeout: float
+) -> None:
     ledger = ConcurrentProvenanceLedger(tmp_path / "ledger.jsonl", lock_timeout=timeout)
     ledger.append("result", {"value": 1.0})
     events = ledger.read()

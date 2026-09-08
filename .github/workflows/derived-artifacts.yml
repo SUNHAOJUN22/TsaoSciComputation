@@ -4,7 +4,11 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: [.github/workflows/derived-artifacts.yml]
+    paths:
+      - .github/workflows/derived-artifacts.yml
+      - tsao_computation/**
+      - scripts/**
+      - tests/**
 
 permissions:
   contents: read
