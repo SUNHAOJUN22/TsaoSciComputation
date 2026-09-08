@@ -116,6 +116,11 @@
       "sha256": "15d510e1f5228c7de316c385f6ae91044ce9fa30cbced49a30a85f6a21e9a1bb"
     },
     {
+      "bytes": 4866,
+      "path": ".github/workflows/derived-artifacts.yml",
+      "sha256": "e1f657e44775332000bb8587bd7f39e27ed1aa0a7ae52625f99d73588b7ecc75"
+    },
+    {
       "bytes": 5555,
       "path": ".github/workflows/release.yml",
       "sha256": "b0ebf6572cd48fb93dd5f3c16f235e299fe865dd4779aa45dd561f18c295eb8f"
@@ -1723,7 +1728,7 @@
     {
       "bytes": 152,
       "path": "evidence/quality-check.json",
-      "sha256": "128587f034ced363fd4ed689bfafd4938811ca4b5bdd5f613c93ec5ed227340b"
+      "sha256": "f56748f5caa9fc5260d74f30b7136bec6c76290639416f7b8dc98bf228bcb5d5"
     },
     {
       "bytes": 3174,
@@ -1733,7 +1738,7 @@
     {
       "bytes": 72,
       "path": "evidence/security-scan.json",
-      "sha256": "1983e8d8a695983c1b546c9d0a071f5a40e51ef3faf2e37b5e4b9983fbf33cac"
+      "sha256": "f1a61c2f53d1cea8aefb3cd3e685911c97231c554828f419a67a1d5dcb369a8f"
     },
     {
       "bytes": 573,
@@ -1928,17 +1933,17 @@
     {
       "bytes": 55786,
       "path": "reports/ACCELERATION_OPPORTUNITIES_FULL_TREE_V4.json",
-      "sha256": "61b8c937777a94cf54feb4a1ed88467b5374208e516920732d04b077c4431df7"
+      "sha256": "cc095e7e9bfc8ad01ecde87c4b38bb81612c7ef6f9a20beae5879a4659989cac"
     },
     {
       "bytes": 6514,
       "path": "reports/ACCELERATION_OPPORTUNITIES_PRODUCTION_V4.json",
-      "sha256": "bd5c41c061b26d1a5a73e528957d3d4e3a3f8e21a1efcf797904040bcb14f7f2"
+      "sha256": "a95ea7e434e9097cd4414f4fc56bebf2106d602d38475879bd3d976cab8d6334"
     },
     {
       "bytes": 6514,
       "path": "reports/ACCELERATION_OPPORTUNITIES_V2.json",
-      "sha256": "bd5c41c061b26d1a5a73e528957d3d4e3a3f8e21a1efcf797904040bcb14f7f2"
+      "sha256": "a95ea7e434e9097cd4414f4fc56bebf2106d602d38475879bd3d976cab8d6334"
     },
     {
       "bytes": 1196,
@@ -2636,6 +2641,11 @@
       "sha256": "8c381ce1df4b465b76847966336886f794ca2ae6dee7c1c3f6236d420b773259"
     },
     {
+      "bytes": 2094,
+      "path": "tests/test_execution_boundary_regressions.py",
+      "sha256": "11e9c9bdf8a5380489585fde9beba4102b9354599059a7007ce4c8eb662499e5"
+    },
+    {
       "bytes": 10880,
       "path": "tests/test_execution_evidence_hardening.py",
       "sha256": "3ff8c71985fe28e43c5e2ad3e202601902f575f66efb71261aa805fdd126db7a"
@@ -2684,6 +2694,11 @@
       "bytes": 6159,
       "path": "tests/test_install_skill.py",
       "sha256": "be1dfef1ed0693f318397722c36a53b5b8ea00232077bee287183959fdbf4854"
+    },
+    {
+      "bytes": 2015,
+      "path": "tests/test_io_budget_boundaries.py",
+      "sha256": "5a2020986017b913e296cf52940b470c7852ae396628016b5754c9cd46e55da9"
     },
     {
       "bytes": 2946,
@@ -3011,14 +3026,14 @@
       "sha256": "601b7027a0893d53f921d01df0c6d3ba5c00fe9970d1b8fe47d0dcd874d5c169"
     },
     {
-      "bytes": 13177,
+      "bytes": 14640,
       "path": "tsao_computation/execution_boundary.py",
-      "sha256": "d9ccae63c3723afc7cafebf8e0d556656b5f0fd15cfba9c4cc1db2d1759865fa"
+      "sha256": "f78fe53a3503a66a54156d262759172d0ddb88f535fa73805b1706de5ac01346"
     },
     {
-      "bytes": 1788,
+      "bytes": 2768,
       "path": "tsao_computation/hashing.py",
-      "sha256": "ad7bbbde3033f31c02486da011c812320342ee0553c7a99210147de7f0ec998f"
+      "sha256": "34987993042cdb2feb20c2845a3a1676f047264e84ec935ed5e3108cc4b150f2"
     },
     {
       "bytes": 3223,
