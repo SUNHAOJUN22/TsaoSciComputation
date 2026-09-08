@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 import os
 import threading
 import time
@@ -12,6 +11,8 @@ from datetime import datetime, timezone
 from hashlib import sha256
 from pathlib import Path
 from typing import TypeAlias
+
+from .hashing import canonical_json_bytes, strict_json_loads
 
 SignatureVerifier: TypeAlias = Callable[[bytes, str, str], bool]
 
@@ -39,12 +40,7 @@ def _utc(value: datetime, *, field: str) -> datetime:
 
 
 def _canonical(payload: Mapping[str, object]) -> bytes:
-    return json.dumps(
-        dict(payload),
-        sort_keys=True,
-        separators=(",", ":"),
-        ensure_ascii=False,
-    ).encode("utf-8")
+    return canonical_json_bytes(dict(payload), ensure_ascii=False)
 
 
 @dataclass(frozen=True, slots=True)
@@ -125,7 +121,7 @@ class ExternalExecutionCapability:
         if verifier is None:
             return False
         current = _utc(now or datetime.now(timezone.utc), field="now")
-        if current < self.not_before or current > self.expires_at:
+        if current < self.not_before or current >= self.expires_at:
             return False
         if command_digest.casefold() != self.command_digest:
             return False
@@ -302,7 +298,24 @@ class ConcurrentProvenanceLedger:
         for line in self.path.read_text(encoding="utf-8").splitlines():
             if not line.strip():
                 continue
-            raw = json.loads(line)
+            try:
+                raw = strict_json_loads(line)
+                if not isinstance(raw, dict):
+                    raise ValueError("event must be an object")
+                required = {"sequence", "previous_hash", "event_type", "payload", "event_hash"}
+                if set(raw) != required:
+                    raise ValueError("invalid event fields")
+                if type(raw["sequence"]) is not int or raw["sequence"] < 0:
+                    raise ValueError("invalid event sequence")
+                if not isinstance(raw["payload"], dict):
+                    raise ValueError("event payload must be an object")
+                if not all(
+                    isinstance(raw[key], str) and raw[key]
+                    for key in ("previous_hash", "event_type", "event_hash")
+                ):
+                    raise ValueError("invalid event metadata")
+            except (ValueError, TypeError, OverflowError, RecursionError) as exc:
+                raise ProvenanceIntegrityError("invalid JSON event record") from exc
             events.append(
                 ProvenanceEvent(
                     sequence=int(raw["sequence"]),
@@ -334,6 +347,10 @@ class ConcurrentProvenanceLedger:
     ) -> ProvenanceEvent:
         if not event_type.strip():
             raise ValueError("event_type must not be blank")
+        # Freeze caller-owned nested data before computing a digest or writing.
+        snapshot = strict_json_loads(_canonical(payload))
+        if not isinstance(snapshot, dict):
+            raise ValueError("payload must be an object")
         with self._thread_lock:
             descriptor = self._acquire_file_lock()
             try:
@@ -344,7 +361,7 @@ class ConcurrentProvenanceLedger:
                     sequence=len(events),
                     previous_hash=previous,
                     event_type=event_type.strip(),
-                    payload=dict(payload),
+                    payload=snapshot,
                     event_hash="",
                 )
                 event = ProvenanceEvent(
@@ -362,15 +379,7 @@ class ConcurrentProvenanceLedger:
                     "event_hash": event.event_hash,
                 }
                 with self.path.open("a", encoding="utf-8") as stream:
-                    stream.write(
-                        json.dumps(
-                            record,
-                            sort_keys=True,
-                            separators=(",", ":"),
-                            ensure_ascii=False,
-                        )
-                        + "\n"
-                    )
+                    stream.write(_canonical(record).decode("utf-8") + "\n")
                     stream.flush()
                     os.fsync(stream.fileno())
                 return event

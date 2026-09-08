@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 from pathlib import Path
 
 _DEFAULT_CHUNK_SIZE = 1024 * 1024
@@ -51,3 +52,31 @@ def text_sha256(value: str) -> str:
     if not isinstance(value, str):
         raise TypeError("value must be a string")
     return hashlib.sha256(value.encode("utf-8")).hexdigest()
+
+
+def strict_json_loads(value: str | bytes) -> object:
+    """Read exchange JSON without duplicate keys or non-finite numeric values."""
+
+    def reject_constant(token: str) -> object:
+        raise ValueError(f"non-finite JSON constant: {token}")
+
+    def finite_float(token: str) -> float:
+        number = float(token)
+        if not math.isfinite(number):
+            raise ValueError("JSON number exceeds the finite float range")
+        return number
+
+    def unique_object(pairs: list[tuple[str, object]]) -> dict[str, object]:
+        result: dict[str, object] = {}
+        for key, item in pairs:
+            if key in result:
+                raise ValueError(f"duplicate JSON key: {key}")
+            result[key] = item
+        return result
+
+    return json.loads(
+        value,
+        parse_constant=reject_constant,
+        parse_float=finite_float,
+        object_pairs_hook=unique_object,
+    )
