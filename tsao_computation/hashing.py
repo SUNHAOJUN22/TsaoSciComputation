@@ -39,9 +39,10 @@ def file_sha256(path: str | Path, *, chunk_size: int = _DEFAULT_CHUNK_SIZE) -> s
 
     if isinstance(chunk_size, bool) or not isinstance(chunk_size, int) or chunk_size < 1:
         raise ValueError("chunk_size must be a positive integer")
+    buffer_size = min(chunk_size, _DEFAULT_CHUNK_SIZE)
     digest = hashlib.sha256()
     with Path(path).open("rb") as handle:
-        for chunk in iter(lambda: handle.read(chunk_size), b""):
+        for chunk in iter(lambda: handle.read(buffer_size), b""):
             digest.update(chunk)
     return digest.hexdigest()
 

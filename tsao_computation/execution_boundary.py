@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 import os
 import threading
 import time
@@ -267,10 +268,18 @@ class ProvenanceEvent:
 
 class ConcurrentProvenanceLedger:
     def __init__(self, path: str | Path, *, lock_timeout: float = 10.0) -> None:
+        if isinstance(lock_timeout, bool) or not isinstance(lock_timeout, (int, float)):
+            raise ValueError("lock_timeout must be a finite non-negative number")
+        try:
+            timeout = float(lock_timeout)
+        except OverflowError as exc:
+            raise ValueError("lock_timeout must be a finite non-negative number") from exc
+        if not math.isfinite(timeout) or timeout < 0:
+            raise ValueError("lock_timeout must be a finite non-negative number")
         self.path = Path(path)
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self.lock_path = self.path.with_suffix(self.path.suffix + ".lock")
-        self.lock_timeout = lock_timeout
+        self.lock_timeout = timeout
         self._thread_lock = threading.Lock()
 
     def _acquire_file_lock(self) -> int:
