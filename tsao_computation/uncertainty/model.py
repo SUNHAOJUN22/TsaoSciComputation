@@ -38,4 +38,7 @@ class UncertaintyBudget:
 
 
 def combine_independent(*components: float) -> float:
-    return math.hypot(*(_component(value) for value in components))
+    combined = math.hypot(*(_component(value) for value in components))
+    if not math.isfinite(combined):
+        raise ValueError("combined uncertainty exceeds the finite floating-point range")
+    return combined
