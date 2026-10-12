@@ -1,311 +1,114 @@
 #!/usr/bin/env node
-
+/** Deterministic bilingual documentation; figures describe contracts, not runs. */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-
 const ROOT = resolve(fileURLToPath(new URL('..', import.meta.url)));
 const PROFILE = {
-  slug: 'tsao-scicomputation',
-  title: 'TsaoSciComputation',
-  readmes: [
-    { path: 'README.md', language: 'en' },
-    { path: 'README.zh-CN.md', language: 'zh' },
-  ],
-  taglineZh: '从计算合同、执行身份与收敛门到可重复多尺度交付',
-  taglineEn: 'From calculation contracts, execution identity and convergence gates to reproducible multiscale delivery',
-  stagesZh: [
-    ['问题与合同', '目标、方法、数据与容差'],
-    ['执行身份', '求解器、输入与环境哈希'],
-    ['资源准入', 'CPU/GPU/许可证与工作目录'],
-    ['数值验收', '解析、收敛、守恒与等价'],
-    ['证据交付', 'UQ、适用域与责任主体'],
-  ],
-  stagesEn: [
-    ['Question and contract', 'Objective, method, data, tolerances'],
-    ['Execution identity', 'Solver, input and environment hashes'],
-    ['Resource admission', 'CPU/GPU/licence and working directory'],
-    ['Numerical acceptance', 'Parsing, convergence, conservation, parity'],
-    ['Evidence delivery', 'UQ, applicability and authority'],
-  ],
-  formulas: [
-    'admit(C) = 1_schema · 1_identity · 1_inputs · 1_resources · 1_policy',
-    'H_bundle = SHA256(B_solver ∥ B_inputs ∥ B_env ∥ B_contract ∥ B_reference)',
-    'δ_rel = |y − y_ref| / max(|y_ref|, ε) ≤ τ_eq',
-  ],
-  codePaths: [
-    'tsao_computation/adapters/base.py',
-    'tsao_computation/execution/runner.py',
-    'tsao_computation/validation/numerical.py',
-  ],
-  boundaryZh: '仓库是计算控制面与资格框架；第三方 DFT、MD、CFD、FEM 和流程求解器保持 EXTERNAL_HOLD。',
-  boundaryEn: 'The repository is a computation control plane and qualification framework; third-party DFT, MD, CFD, FEM and process solvers remain EXTERNAL_HOLD.',
+ "slug":"tsao-scicomputation","title":"TsaoSciComputation",
+ "code":["tsao_computation/adapters/base.py","tsao_computation/execution/runner.py","tsao_computation/validation/numerical.py"],
+ "readmes":[{"path":"README.md","lang":"en"},{"path":"README.zh-CN.md","lang":"zh"}],
+ "zh":{"tagline":"从计算合同、执行身份与收敛门到可重复多尺度交付","stages":[["问题与合同","目标、方法、数据与容差"],["执行身份","求解器、输入与环境哈希"],["资源准入","CPU/GPU/许可证与工作目录"],["数值验收","解析、收敛、守恒与等价"],["证据交付","UQ、适用域与责任主体"]],"boundary":"仓库是计算控制面与资格框架；第三方 DFT、MD、CFD、FEM 和流程求解器保持 EXTERNAL_HOLD。","strategy":["先核对安装环境、输入结构、单位、有效范围与执行权限。","按上面的源码锚点区分原生实现、解释性合同和外部执行要求。","先运行快速回归和完整质量门，再用固定提交执行长期回归。","逐项保存原始日志、机器报告和限制；任何缺失证据不得写成 PASS。"]},
+ "en":{"tagline":"From calculation contracts, execution identity and convergence gates to reproducible multiscale delivery","stages":[["Question and contract","Objective, method, data, tolerances"],["Execution identity","Solver, input and environment hashes"],["Resource admission","CPU/GPU/licence and working directory"],["Numerical acceptance","Parsing, convergence, conservation, parity"],["Evidence delivery","UQ, applicability and authority"]],"boundary":"The repository is a computation control plane and qualification framework; third-party DFT, MD, CFD, FEM and process solvers remain EXTERNAL_HOLD.","strategy":["Check the installation environment, input structure, units, applicability and execution permissions.","Use the source mappings above to distinguish native implementation, explanatory contracts and external execution requirements.","Run focused regression and full quality gates before long-duration testing of pinned commits.","Preserve original logs, machine-readable reports and limitations; missing evidence must never be reported as PASS."]},
+ "math":[
+  {"latex":"u_c=\\sqrt{u_{\\mathrm{stat}}^2+u_{\\mathrm{model}}^2+u_{\\mathrm{num}}^2}","plain":["u_c² = u_stat² + u_model² + u_num²"],"zh":{"name":"独立标准不确定度","note":"各分量必须有限、非负，并使用同一输出单位；平方和要求分量互不相关。实现使用 `math.hypot` 避免直接平方造成的中间溢出，并拒绝不可表示的最终结果。相关项必须另行采用协方差传播，不能套用该接口。"},"en":{"name":"Independent uncertainty","note":"Components must be finite, nonnegative and expressed in the same output units. Quadrature assumes uncorrelated contributions. The implementation uses math.hypot to avoid intermediate squaring overflow and rejects unrepresentable totals. Correlated contributions require covariance propagation, not this interface."},"code":["tsao_computation/uncertainty/model.py"]},
+  {"latex":"\\Delta=|x_n-x_{n-1}|,\\qquad \\tau=\\max\\!\\left(a,r\\max(|x_n|,|x_{n-1}|,1)\\right),\\qquad\\Delta\\le\\tau","plain":["Δ = |x_n − x_(n−1)|","τ = max(a, r · max(|x_n|,|x_(n−1)|,1))"],"zh":{"name":"末两点收敛检查","note":"该门比较末两个有限数值，绝对容差为 a、相对容差为 r；阈值使用 `max`，不是两项相加。数值尺度的下限 1 按输入单位解释，因此应先规范单位或无量纲化。通过末两点检查不证明轨迹整体收敛或统计采样充分。"},"en":{"name":"Last-pair convergence","note":"This gate compares the final two finite values using absolute tolerance a and relative tolerance r. Its threshold uses max, not an additive tolerance. The scale floor of one is expressed in the chosen input units, so normalize units or nondimensionalize first. Passing the last pair does not prove global trajectory convergence or adequate sampling."},"code":["tsao_computation/validation/numerical.py"]},
+  {"latex":"C_{\\mathrm{accept}}=C_{\\mathrm{identity}}\\land C_{\\mathrm{input}}\\land C_{\\mathrm{finite}}\\land C_{\\mathrm{policy}}","plain":["accept = identity ∧ inputs","∧ finite outputs ∧ declared policy"],"zh":{"name":"控制面验收合同","note":"这是执行层和适配器约束的解释性组合，不是一个拟合分数或所有引擎共享的单一函数。必须分别保存引擎版本、输入校验和、解析证据和适用的验收规则；仅发现软件、生成输入文件或解析示例不等于完成外部科学计算。"},"en":{"name":"Control-plane contract","note":"This is an explanatory composition of runner and adapter requirements, not a fitted score or a single function shared by every engine. Preserve engine versions, input hashes, parser evidence and applicable acceptance policies separately. Software discovery, generated inputs and parsed examples are not external scientific execution."},"code":["tsao_computation/adapters/base.py","tsao_computation/execution/runner.py"]}
+ ],
+ "commands":["python scripts/verify_all.py --profile core","python scripts/verify_all.py --profile quality","python scripts/verify_native_core.py"],"accent":"#67e8f9"
 };
-
 const START = '<!-- CURRENT_MAIN_ACCEPTANCE_V2:START -->';
 const END = '<!-- CURRENT_MAIN_ACCEPTANCE_V2:END -->';
-const badTokens = ['\uFFFD', 'Ã', 'Â', 'â€', '锟斤拷'];
+const esc = (value) => String(value).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&apos;');
+const normalized = (value) => value.normalize('NFC').replaceAll('\r\n', '\n');
 
-function escapeXml(value) {
-  return value
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&apos;');
+// Conservative em-width estimates determine wrapping; browser QA checks glyph bounds.
+function widthEm(text) {
+  return [...text].reduce((sum, char) => sum + (/\p{Script=Han}/u.test(char) ? 1 : /[MW@%]/u.test(char) ? 0.95 : /[il.,:;!| ]/u.test(char) ? 0.34 : 0.65), 0);
 }
-
-function cleanText(label, text, failures) {
-  if (text !== text.normalize('NFC')) failures.push(`${label}: text is not NFC-normalized`);
-  for (const token of badTokens) {
-    if (text.includes(token)) failures.push(`${label}: probable mojibake ${JSON.stringify(token)}`);
-  }
-  for (const character of text) {
-    const code = character.codePointAt(0);
-    if (code === undefined) continue;
-    if ((code < 32 && !['\n', '\r', '\t'].includes(character)) || code === 127) {
-      failures.push(`${label}: forbidden control U+${code.toString(16).padStart(4, '0')}`);
-      break;
-    }
-  }
-}
-
-function svg(language) {
-  const zh = language === 'zh';
-  const subtitle = zh ? PROFILE.taglineZh : PROFILE.taglineEn;
-  const stages = zh ? PROFILE.stagesZh : PROFILE.stagesEn;
-  const boundary = zh ? PROFILE.boundaryZh : PROFILE.boundaryEn;
-  const badge = zh
-    ? 'AI辅助概念设计 · 非科学数据 · 公式对应软件合同而非运行结果'
-    : 'AI-ASSISTED CONCEPTUAL DESIGN · NOT SCIENTIFIC DATA';
-  const cards = [];
-  const arrows = [];
-  stages.forEach(([heading, detail], index) => {
-    const x = 45 + index * 310;
-    cards.push(
-      `<g><rect x="${x}" y="228" width="270" height="214" rx="28" `
-      + 'fill="url(#card)" stroke="#22d3ee" stroke-width="2"/>'
-      + `<text x="${x + 24}" y="278" class="stage">${escapeXml(heading)}</text>`
-      + `<text x="${x + 24}" y="322" class="detail">${escapeXml(detail)}</text>`
-      + `<text x="${x + 24}" y="392" class="index">0${index + 1}</text></g>`,
-    );
-    if (index < stages.length - 1) {
-      arrows.push(
-        `<path d="M ${x + 274} 335 H ${x + 304}" stroke="#38bdf8" `
-        + 'stroke-width="5" marker-end="url(#arrow)"/>',
-      );
-    }
-  });
-  const formulaCards = PROFILE.formulas.map((formula, index) => {
-    const x = 45 + index * 505;
-    const label = zh ? '代码合同' : 'CODE CONTRACT';
-    return `<g><rect x="${x}" y="520" width="465" height="130" rx="22" `
-      + 'fill="#08152f" stroke="#a78bfa" stroke-width="2"/>'
-      + `<text x="${x + 24}" y="574" class="formula">${escapeXml(formula)}</text>`
-      + `<text x="${x + 24}" y="620" class="micro">${label} 0${index + 1}</text></g>`;
-  });
-  const title = `${PROFILE.title} ${zh ? '当前主线验收架构' : 'current-main acceptance architecture'}`;
-  return `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
-  <title id="title">${escapeXml(title)}</title>
-  <desc id="desc">${escapeXml(subtitle)}. ${escapeXml(boundary)}</desc>
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#020617"/><stop offset="0.5" stop-color="#082f49"/><stop offset="1" stop-color="#1e1b4b"/>
-    </linearGradient>
-    <linearGradient id="card" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#0c4a6e"/><stop offset="1" stop-color="#172554"/>
-    </linearGradient>
-    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
-      <path d="M 0 0 L 10 5 L 0 10 z" fill="#38bdf8"/>
-    </marker>
-    <style>
-      text{font-family:"Noto Sans CJK SC","Microsoft YaHei","PingFang SC","Noto Sans",Arial,sans-serif;fill:#e5f2ff}
-      .title{font-size:54px;font-weight:800}.subtitle{font-size:24px;fill:#a5f3fc}.stage{font-size:25px;font-weight:750}
-      .detail{font-size:17px;fill:#c7d2fe}.index{font-size:58px;font-weight:800;fill:#155e75}
-      .formula{font-family:"STIX Two Math","Cambria Math","Noto Sans Math","Noto Sans CJK SC",sans-serif;font-size:19px;fill:#ede9fe}
-      .micro{font-size:14px;letter-spacing:2px;fill:#67e8f9}.boundary{font-size:18px;fill:#dbeafe}.badge{font-size:16px;fill:#93c5fd}
-    </style>
-  </defs>
-  <rect width="1600" height="900" fill="url(#bg)"/>
-  <circle cx="1390" cy="90" r="122" fill="#0ea5e9" opacity="0.16"/>
-  <circle cx="220" cy="790" r="170" fill="#7c3aed" opacity="0.12"/>
-  <text x="48" y="88" class="title">${escapeXml(PROFILE.title)}</text>
-  <text x="48" y="132" class="subtitle">${escapeXml(subtitle)}</text>
-  <text x="48" y="184" class="badge">${escapeXml(badge)}</text>
-  ${arrows.join('')}
-  ${cards.join('')}
-  ${formulaCards.join('')}
-  <rect x="45" y="710" width="1510" height="104" rx="24" fill="#071124" stroke="#334155"/>
-  <text x="76" y="756" class="micro">${zh ? '资格边界' : 'QUALIFICATION BOUNDARY'}</text>
-  <text x="76" y="790" class="boundary">${escapeXml(boundary)}</text>
-  <text x="48" y="866" class="micro">CURRENT MAIN · EXACT TREE · FINITE NUMERICS · BILINGUAL EVIDENCE</text>
-</svg>
-`;
-}
-
-function readmeBlock(language) {
-  const zh = language === 'zh';
-  const image = `docs/current-main/${PROFILE.slug}-current-main-${language}.svg`;
-  const heading = zh
-    ? '当前 `main`：代码—数学—证据闭环'
-    : 'Current `main`: code–mathematics–evidence loop';
-  const intro = zh
-    ? '本节由仓库脚本根据当前代码合同生成；图像是文档概念设计，不是求解器或实验结果。'
-    : 'This section is generated from current code contracts; the visual is conceptual documentation, not solver or experimental output.';
-  const strategy = zh
-    ? [
-        '先运行永久 CI，再运行 current-main 精确树验收。',
-        '数值、容差和不确定度入口必须是有限实数，Boolean 不得充当 0/1。',
-        '执行身份、输入、环境、参考与合同共同进入证据哈希。',
-        '任何新提交都会使旧 SHA 的六小时证据失效。',
-      ]
-    : [
-        'Run permanent CI before exact-tree current-main qualification.',
-        'Scientific values, tolerances and uncertainties must be finite reals; Boolean is not 0/1 evidence.',
-        'Execution identity, inputs, environment, references and contracts enter the evidence hash.',
-        'Any new commit invalidates six-hour evidence bound to an older SHA.',
-      ];
-  const formulas = PROFILE.formulas.map((formula) => `$$\n${formula}\n$$`).join('\n\n');
-  return [
-    START,
-    `## ${heading}`,
-    '',
-    `<p align="center"><img src="${image}" width="100%" alt="${heading}"></p>`,
-    '',
-    `> ${intro}`,
-    '',
-    `### ${zh ? '核心数理合同' : 'Core mathematical contracts'}`,
-    '',
-    formulas,
-    '',
-    `### ${zh ? '使用策略' : 'Usage strategy'}`,
-    '',
-    ...strategy.map((item, index) => `${index + 1}. ${item}`),
-    '',
-    `> **${zh ? '责任边界' : 'Responsibility boundary'}：** ${zh ? PROFILE.boundaryZh : PROFILE.boundaryEn}`,
-    '',
-    `${zh ? '执行提示词' : 'Execution prompt'}：[`
-      + 'SIX_REPOSITORY_PARALLEL_6H_ACCEPTANCE_PROMPT_V2.md]('
-      + 'docs/SIX_REPOSITORY_PARALLEL_6H_ACCEPTANCE_PROMPT_V2.md)',
-    END,
-  ].join('\n');
-}
-
-function inject(original, block) {
-  const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/gu, '\\$&');
-  const pattern = new RegExp(`${escapeRegex(START)}[\\s\\S]*?${escapeRegex(END)}`, 'u');
-  const normalized = `${original.trimEnd()}\n`;
-  if (pattern.test(normalized)) {
-    return `${normalized.replace(pattern, () => block).trimEnd()}\n`;
-  }
-  return `${normalized}\n${block}\n`;
-}
-
-function annex() {
-  const rows = PROFILE.codePaths
-    .map((path) => `| \`${path}\` | current implementation anchor |`)
-    .join('\n');
-  return `# ${PROFILE.title} current-main acceptance / 当前主线验收
-
-This annex is generated by \`scripts/refresh-current-main-readme.mjs\`.
-本附录由仓库脚本生成，记录当前 \`main\` 的代码—数学—证据关系。
-
-## Formula-to-code anchors / 公式到代码锚点
-
-| Implementation path / 实现路径 | Contract |
-|---|---|
-${rows}
-
-## Acceptance identity / 验收身份
-
-$$
-H_accept = SHA256(code ∥ docs ∥ visuals ∥ tests ∥ environment)
-$$
-
-PASS is valid only for the immutable SHA tested by the workflow. Any later commit requires a new run.
-PASS 只对工作流实际测试的不可变 SHA 有效；任何后续提交都必须重新运行。
-
-## Boundary / 边界
-
-- ${PROFILE.boundaryEn}
-- ${PROFILE.boundaryZh}
-`;
-}
-
-function validateSvg(label, text, failures) {
-  const root = text.match(/<svg\b([^>]*)>/u)?.[1] ?? '';
-  if (!root) failures.push(`${label}: missing SVG root`);
-  if (!/\bviewBox="0 0 1600 900"/u.test(root)) failures.push(`${label}: invalid viewBox`);
-  if (!/\brole="img"/u.test(root)) failures.push(`${label}: role=img is required`);
-  if (!/<title\b[^>]*>[^<]+<\/title>/u.test(text)) failures.push(`${label}: title is required`);
-  if (!/<desc\b[^>]*>[^<]+<\/desc>/u.test(text)) failures.push(`${label}: desc is required`);
-  if (/<script\b|<foreignObject\b|\son[a-z]+\s*=|javascript:/iu.test(text)) {
-    failures.push(`${label}: active SVG content is forbidden`);
-  }
-  if (/(?:href|xlink:href)\s*=\s*["'](?:https?:|\/\/|data:)/iu.test(text)) {
-    failures.push(`${label}: external SVG resource is forbidden`);
-  }
-}
-
-function main() {
-  const write = process.argv.includes('--write');
-  const check = process.argv.includes('--check') || !write;
-  const failures = [];
-  const outputs = new Map([
-    [`docs/current-main/${PROFILE.slug}-current-main-zh.svg`, svg('zh')],
-    [`docs/current-main/${PROFILE.slug}-current-main-en.svg`, svg('en')],
-    ['docs/CURRENT_MAIN_ACCEPTANCE.md', annex()],
-  ]);
-
-  for (const path of PROFILE.codePaths) {
-    if (!existsSync(join(ROOT, path))) failures.push(`missing code anchor: ${path}`);
-  }
-  for (const spec of PROFILE.readmes) {
-    const absolute = join(ROOT, spec.path);
-    if (!existsSync(absolute)) {
-      failures.push(`missing README: ${spec.path}`);
-      continue;
-    }
-    const original = readFileSync(absolute, 'utf8');
-    outputs.set(spec.path, inject(original, readmeBlock(spec.language)));
-  }
-
-  if (write && failures.length === 0) {
-    for (const [relativePath, content] of outputs) {
-      const absolute = join(ROOT, relativePath);
-      mkdirSync(dirname(absolute), { recursive: true });
-      writeFileSync(absolute, content, 'utf8');
-    }
-  }
-
-  if (check || write) {
-    for (const [relativePath, expected] of outputs) {
-      const absolute = join(ROOT, relativePath);
-      if (!existsSync(absolute)) {
-        failures.push(`missing generated output: ${relativePath}`);
-        continue;
+function lines(text, width, size) {
+  const output = []; let line = '';
+  for (const word of String(text).match(/\p{Script=Han}|[^\p{Script=Han}\s]+|\s+/gu) ?? []) {
+    if (line && widthEm(line + word) * size > width) { output.push(line.trim()); line = ''; }
+    if (widthEm(word) * size > width) {
+      for (const char of word) {
+        if (line && widthEm(line + char) * size > width) { output.push(line.trim()); line = ''; }
+        line += char;
       }
-      const actual = readFileSync(absolute, 'utf8');
-      if (actual !== expected) failures.push(`stale generated output: ${relativePath}`);
-      cleanText(relativePath, actual, failures);
-      if (relativePath.endsWith('.svg')) validateSvg(relativePath, actual, failures);
-    }
+    } else line += word;
   }
-
-  const report = {
-    schemaVersion: 'current-main-readme-visual-audit-2.0.0',
-    project: PROFILE.title,
-    generatedFiles: [...outputs.keys()].sort(),
-    codeAnchors: PROFILE.codePaths,
-    failures,
-    acceptance: failures.length ? 'FAIL' : 'PASS',
-  };
-  const artifact = join(ROOT, 'artifacts/current-main/readme-visual-audit.json');
-  mkdirSync(dirname(artifact), { recursive: true });
-  writeFileSync(artifact, `${JSON.stringify(report, null, 2)}\n`, 'utf8');
-  console.log(JSON.stringify(report, null, 2));
-  if (failures.length) process.exitCode = 1;
+  if (line.trim()) output.push(line.trim());
+  return output;
 }
-
-main();
+function textBlock(value, x, baseline, width, size, leading, maxLines, color = '#dbeafe', weight = 400) {
+  const wrapped = lines(value, width, size);
+  if (wrapped.length > maxLines) throw Error(`Text exceeds its layout box: ${value}`);
+  return `<text x="${x}" y="${baseline}" font-size="${size}" font-weight="${weight}" fill="${color}" data-box="${x},${baseline - size * 1.3},${width},${leading * maxLines + size * 0.5}">${wrapped.map((line, index) => `<tspan x="${x}" dy="${index ? leading : 0}">${esc(line)}</tspan>`).join('')}</text>`;
+}
+function visual(lang) {
+  const t = PROFILE[lang], zh = lang === 'zh', accent = PROFILE.accent;
+  const stages = t.stages.map(([heading, detail], index) => {
+    const x = 46 + 307 * index;
+    return `<g><rect x="${x}" y="246" width="278" height="220" rx="20" fill="#0f2038" stroke="${accent}" stroke-opacity=".5"/><circle cx="${x + 31}" cy="279" r="15" fill="${accent}" fill-opacity=".16"/><text x="${x + 31}" y="284" text-anchor="middle" font-size="13" fill="${accent}">0${index + 1}</text>${textBlock(heading, x + 20, 326, 237, 23, 28, 2, '#f8fafc', 700)}${textBlock(detail, x + 20, 399, 237, 17, 25, 2)}</g>`;
+  }).join('');
+  const arrows = [0, 1, 2, 3].map((index) => `<path d="M${327 + 307 * index} 357h21" fill="none" stroke="${accent}" stroke-width="2" marker-end="url(#arrow)"/>`).join('');
+  const equations = PROFILE.math.map((formula, index) => {
+    const x = 46 + 506 * index;
+    return `<g><rect x="${x}" y="510" width="476" height="161" rx="20" fill="#101827" stroke="#64748b" stroke-opacity=".65"/>${textBlock(`${String(index + 1).padStart(2, '0')}  ${formula[lang].name}`, x + 22, 544, 432, 17, 22, 1, accent, 650)}${formula.plain.map((line, row) => textBlock(line, x + 22, 588 + row * 29, 432, 19, 26, 1, '#f8fafc')).join('')}</g>`;
+  }).join('');
+  const boundary = textBlock(t.boundary, 73, 767, 1440, 18, 27, 2);
+  return normalized(`<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc" lang="${zh ? 'zh-CN' : 'en'}">
+<title id="title">${esc(PROFILE.title)} — ${zh ? '代码与数学合同' : 'Code and mathematical contracts'}</title>
+<desc id="desc">${esc(t.tagline)} ${esc(t.boundary)}</desc>
+<defs><linearGradient id="background" x2="1" y2="1"><stop stop-color="#070e1d"/><stop offset="1" stop-color="#172338"/></linearGradient><pattern id="grid" width="44" height="44" patternUnits="userSpaceOnUse"><path d="M44 0H0V44" fill="none" stroke="#cbd5e1" stroke-opacity=".055"/></pattern><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 1L9 5L0 9" fill="none" stroke="${accent}" stroke-width="1.4"/></marker><style>text{font-family:"Noto Sans CJK SC","Microsoft YaHei","PingFang SC","Noto Sans",Arial,sans-serif}</style></defs>
+<rect width="1600" height="900" fill="url(#background)"/><rect width="1600" height="900" fill="url(#grid)"/><circle cx="1444" cy="70" r="178" fill="${accent}" opacity=".07"/>
+<path d="M1350 26L1480 75L1410 162L1539 203M1480 75L1570 20M1410 162L1310 175" fill="none" stroke="${accent}" stroke-opacity=".22" stroke-width="2"/>
+${textBlock(PROFILE.title, 48, 82, 1400, 49, 54, 1, '#f8fafc', 750)}
+${textBlock(t.tagline, 49, 130, 1465, 22, 30, 2, accent)}
+${textBlock(zh ? '概念架构图 · 非测量数据 · 不代表外部求解已经执行' : 'CONCEPTUAL ARCHITECTURE · NOT MEASURED DATA · NOT PROOF OF EXTERNAL EXECUTION', 49, 214, 1470, 15, 23, 1, '#94a3b8')}
+${arrows}${stages}${equations}
+<rect x="46" y="712" width="1488" height="111" rx="18" fill="#080f1b" stroke="#334155"/>
+${textBlock(zh ? '资格与解释边界' : 'QUALIFICATION AND INTERPRETATION', 73, 741, 1440, 13, 20, 1, accent, 650)}${boundary}
+${textBlock(zh ? '固定源码 · 有限数值 · 可复现证据 · 人工审阅' : 'PINNED SOURCE · FINITE NUMERICS · REPRODUCIBLE EVIDENCE · HUMAN REVIEW', 49, 871, 1470, 14, 20, 1, '#94a3b8')}
+</svg>
+`);
+}
+function mathSection(lang) {
+  return PROFILE.math.map((formula) => {
+    const t = formula[lang];
+    return `#### ${t.name}\n\n$$\n${formula.latex}\n$$\n\n${t.note}\n\n${lang === 'zh' ? '源码对应' : 'Source mapping'}: ${formula.code.map((path) => `[\`${path}\`](${path})`).join(' · ')}`;
+  }).join('\n\n');
+}
+function section(lang, markers = true) {
+  const zh = lang === 'zh', t = PROFILE[lang];
+  return [markers ? START : '', `## ${zh ? '当前实现：代码、数学与使用策略' : 'Current implementation: code, mathematics and usage'}`, '',
+    `![${zh ? '中文代码与数学合同概念图' : 'English code and mathematical-contract concept'}](docs/current-main/${PROFILE.slug}-current-main-${lang}.svg)`, '',
+    `> ${t.boundary}`, '', mathSection(lang), '', `### ${zh ? '使用与验收顺序' : 'Usage and acceptance sequence'}`, '',
+    ...t.strategy.map((item, index) => `${index + 1}. ${item}`), '', '```bash', ...PROFILE.commands, '```', '',
+    zh ? '每次修复均须绑定新提交重新测试。基线回归、两段各三小时的重复回归、浏览器图形检查和外部工程认证是不同证据，不可互相替代。没有原始回执时，不宣称已完成六小时验收。' : 'Retest every changed commit. Baseline regression, two three-hour regression segments, browser visual checks and external engineering qualification are distinct evidence classes. Without original receipts, no six-hour completion is claimed.', '',
+    `${zh ? '源码锚点' : 'Implementation anchors'}: ${PROFILE.code.map((path) => `[\`${path}\`](${path})`).join(' · ')}`, '', markers ? END : '',
+  ].join('\n').trim();
+}
+function inject(original, generated) {
+  const start = original.indexOf(START), end = original.indexOf(END);
+  if ((start === -1) !== (end === -1) || end < start) throw Error('Unbalanced generated-section markers');
+  const text = start === -1 ? `${original.trimEnd()}\n\n${generated}\n` : original.slice(0, start) + generated + original.slice(end + END.length);
+  return normalized(text.trimEnd() + '\n');
+}
+const output = new Map(['zh', 'en'].map((lang) => [`docs/current-main/${PROFILE.slug}-current-main-${lang}.svg`, visual(lang)]));
+for (const spec of PROFILE.readmes) {
+  const content = spec.lang === 'bi' ? `${START}\n${section('zh', false)}\n\n${section('en', false)}\n${END}` : section(spec.lang);
+  output.set(spec.path, inject(readFileSync(join(ROOT, spec.path), 'utf8'), content));
+}
+output.set('docs/CURRENT_MAIN_ACCEPTANCE.md', `# ${PROFILE.title} — code-backed documentation\n\n${PROFILE.code.map((path) => `- [\`${path}\`](../${path})`).join('\n')}\n\n${PROFILE.zh.boundary}\n\n${PROFILE.en.boundary}\n\nThe equations and diagrams document the declared implementation and its interpretation limits. They are not an execution attestation.\n`);
+for (const path of new Set([...PROFILE.code, ...PROFILE.math.flatMap((formula) => formula.code)])) if (!existsSync(join(ROOT, path))) throw Error(`Missing source mapping: ${path}`);
+const bad = [String.fromCodePoint(0xfffd), String.fromCodePoint(0x951f, 0x65a4, 0x62f7)];
+for (const [path, content] of output) {
+  if (bad.some((token) => content.includes(token))) throw Error(`Invalid text: ${path}`);
+  if (path.endsWith('.svg') && /<script\b|<foreignObject\b|\son[a-z]+\s*=|javascript:|(?:href|xlink:href)\s*=\s*["'](?:https?:|\/\/|data:)/iu.test(content)) throw Error(`Active or external SVG content: ${path}`);
+}
+if (process.argv.includes('--write')) for (const [path, content] of output) { mkdirSync(dirname(join(ROOT, path)), { recursive: true }); writeFileSync(join(ROOT, path), content, 'utf8'); }
+const stale = [...output].filter(([path, content]) => !existsSync(join(ROOT, path)) || readFileSync(join(ROOT, path), 'utf8') !== content).map(([path]) => path);
+if (stale.length) throw Error(`Stale documentation: ${stale.join(', ')}`);
+console.log(JSON.stringify({ schemaVersion: 'readme-mathematics-v6', project: PROFILE.title, files: [...output.keys()], status: 'PASS', scope: 'source mapping, deterministic generation and text integrity; not external scientific acceptance' }, null, 2));
