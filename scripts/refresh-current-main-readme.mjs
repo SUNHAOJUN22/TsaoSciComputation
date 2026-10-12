@@ -17,6 +17,25 @@ const PROFILE = {
  ],
  "commands":["python scripts/verify_all.py --profile core","python scripts/verify_all.py --profile quality","python scripts/verify_native_core.py"],"accent":"#67e8f9"
 };
+PROFILE.math.push({
+  "latex": "E_{n+1}=E_n\\mathbin{\\Vert}[e_{n+1}],\\quad \\lvert\\operatorname{UTF8}(E_{n+1})\\rvert\\le64\\times2^{20}\\;\\mathrm{bytes}",
+  "plain": [
+    "lock → validate → append",
+    "→ atomic replace → unlock"
+  ],
+  "zh": {
+    "name": "可追溯事件的串行追加",
+    "note": "事件必须是 JSON 对象；嵌套重复键、NaN、Infinity、浮点溢出和非 UTF-8 输入拒绝进入账本。协作写入者通过排他侧车锁串行执行读—追加—原子替换，避免多个进程覆盖彼此的事件。此为本地文件协议，不是分布式数据库事务；64 MiB 上界到达时需要显式归档。等待锁最多 10 秒，崩溃遗留锁不会被自动抢占；维护者应确认写入者已退出并备份账本后再恢复。"
+  },
+  "en": {
+    "name": "Serialized provenance append",
+    "note": "Events must be JSON objects; nested duplicate keys, NaN, Infinity, overflowing floating-point numbers and non-UTF-8 input are rejected. Cooperating writers serialize read–append–atomic-replace operations through an exclusive sidecar lock, preventing lost updates. This is a local-file protocol, not a distributed database transaction; explicit archival is required at the 64 MiB bound. Lock acquisition times out after 10 seconds. An abandoned lock is not stolen automatically; confirm the writer has exited and back up the ledger before recovery."
+  },
+  "code": [
+    "tsao_computation/provenance/ledger.py",
+    "tests/test_provenance_ledger_integrity.py"
+  ]
+});
 const START = '<!-- CURRENT_MAIN_ACCEPTANCE_V2:START -->';
 const END = '<!-- CURRENT_MAIN_ACCEPTANCE_V2:END -->';
 const esc = (value) => String(value).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&apos;');
@@ -52,7 +71,7 @@ function visual(lang) {
     return `<g><rect x="${x}" y="246" width="278" height="220" rx="20" fill="#0f2038" stroke="${accent}" stroke-opacity=".5"/><circle cx="${x + 31}" cy="279" r="15" fill="${accent}" fill-opacity=".16"/><text x="${x + 31}" y="284" text-anchor="middle" font-size="13" fill="${accent}">0${index + 1}</text>${textBlock(heading, x + 20, 326, 237, 23, 28, 2, '#f8fafc', 700)}${textBlock(detail, x + 20, 399, 237, 17, 25, 2)}</g>`;
   }).join('');
   const arrows = [0, 1, 2, 3].map((index) => `<path d="M${327 + 307 * index} 357h21" fill="none" stroke="${accent}" stroke-width="2" marker-end="url(#arrow)"/>`).join('');
-  const equations = PROFILE.math.map((formula, index) => {
+  const equations = PROFILE.math.slice(0, 3).map((formula, index) => {
     const x = 46 + 506 * index;
     return `<g><rect x="${x}" y="510" width="476" height="161" rx="20" fill="#101827" stroke="#64748b" stroke-opacity=".65"/>${textBlock(`${String(index + 1).padStart(2, '0')}  ${formula[lang].name}`, x + 22, 544, 432, 17, 22, 1, accent, 650)}${formula.plain.map((line, row) => textBlock(line, x + 22, 588 + row * 29, 432, 19, 26, 1, '#f8fafc')).join('')}</g>`;
   }).join('');
