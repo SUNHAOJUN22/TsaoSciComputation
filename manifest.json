@@ -121,6 +121,11 @@
       "sha256": "e1f657e44775332000bb8587bd7f39e27ed1aa0a7ae52625f99d73588b7ecc75"
     },
     {
+      "bytes": 505,
+      "path": ".github/workflows/refresh-mathematical-docs.yml",
+      "sha256": "5b631ad04f5eea1f0f11cf262b185e35f2554a9b764d73c54e312ec5086eb1f0"
+    },
+    {
       "bytes": 5555,
       "path": ".github/workflows/release.yml",
       "sha256": "b0ebf6572cd48fb93dd5f3c16f235e299fe865dd4779aa45dd561f18c295eb8f"
@@ -171,14 +176,14 @@
       "sha256": "16c346cf3277689776977c544135b0669d83db66ccbe0ad0142db295f5a39e3b"
     },
     {
-      "bytes": 21253,
+      "bytes": 23199,
       "path": "README.md",
-      "sha256": "5be477c3ecb05f3b340c9eb79c4d17dcc3c91f21b9b41eea4806b9fc7b37eb62"
+      "sha256": "ac8ede2d37c05ad557a5cbaf3a4626226baa4f3fd8347707f2129d74f2b4bd10"
     },
     {
-      "bytes": 19365,
+      "bytes": 21102,
       "path": "README.zh-CN.md",
-      "sha256": "d824375117825e8044f20af22cb0a0671072fdb071a419a3ab724feb829b744d"
+      "sha256": "1729aa2277d8645356c7287763ec346c36659f8113c79590581f9c1572264266"
     },
     {
       "bytes": 7408,
@@ -1566,9 +1571,9 @@
       "sha256": "3838c23e97cf92019b8a7f49df1122d19b41b0e7e2957de24e7cd1cc9e88ecd0"
     },
     {
-      "bytes": 1176,
+      "bytes": 705,
       "path": "docs/CURRENT_MAIN_ACCEPTANCE.md",
-      "sha256": "ac51bd661348c39a5a3af4be7f1566330194ad8c417a12aab3b842d79ca62b34"
+      "sha256": "3dd18488b267a1c5dd2a8cd044eae117e3c3ef117644704a8ddddccd24967bf9"
     },
     {
       "bytes": 7435,
@@ -1626,14 +1631,14 @@
       "sha256": "a5f7725469e714b793a7278194c8a7b36e8abede94fe0aa32c90221ee61e06f9"
     },
     {
-      "bytes": 5399,
+      "bytes": 8136,
       "path": "docs/current-main/tsao-scicomputation-current-main-en.svg",
-      "sha256": "fd53c374f7d83665ba6b8d0749c94f5444bd9ea06a4f7c61314a4c4250e751e7"
+      "sha256": "b4cbed62a016405e3d2b62a13e42ac0755ebd6a204471f00fdd37f8b2471b781"
     },
     {
-      "bytes": 5221,
+      "bytes": 7616,
       "path": "docs/current-main/tsao-scicomputation-current-main-zh.svg",
-      "sha256": "26919c60f800eb81268ad8ad53fecb04434563a5662eb9a864f71a4cb6b45985"
+      "sha256": "49fda58aff527ed019d4d0acd1bce59f6551e7bb7254224298aee31f447738a8"
     },
     {
       "bytes": 1674,
@@ -1738,7 +1743,7 @@
     {
       "bytes": 72,
       "path": "evidence/security-scan.json",
-      "sha256": "4aaa048bf00733f41f21153ca26fad512ccbf8fce34a254d82d98ab9678d4a9c"
+      "sha256": "94ce53c59fbad24fdd1f6c729a7b8b9ab1b23e1cb032c39ffb565d13d7958332"
     },
     {
       "bytes": 573,
@@ -2281,9 +2286,9 @@
       "sha256": "59087ebec8ed1890c9a8dc2d3c06ffeb16e1b3bdad0e48e3ccf268b06f5dd74e"
     },
     {
-      "bytes": 13525,
+      "bytes": 14908,
       "path": "scripts/refresh-current-main-readme.mjs",
-      "sha256": "0f1d1720cbde96c81c7efccda99cfdfef619281f29dbfa0ec6674ec64fa4fe7e"
+      "sha256": "bc3bc7023d07980fda227b7e7c52f0b0038a84868b0d74ec78eb3aa6960a4019"
     },
     {
       "bytes": 1033,

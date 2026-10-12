@@ -417,34 +417,57 @@ python -m pytest -q tests/test_approval_attestation_boundaries.py tests/test_val
 采用 MIT 许可证。引用元数据见 [`CITATION.cff`](CITATION.cff)，第三方边界见 [`THIRD_PARTY.md`](THIRD_PARTY.md)。
 
 <!-- CURRENT_MAIN_ACCEPTANCE_V2:START -->
-## 当前 `main`：代码—数学—证据闭环
+## 当前实现：代码、数学与使用策略
 
-<p align="center"><img src="docs/current-main/tsao-scicomputation-current-main-zh.svg" width="100%" alt="当前 `main`：代码—数学—证据闭环"></p>
+![中文代码与数学合同概念图](docs/current-main/tsao-scicomputation-current-main-zh.svg)
 
-> 本节由仓库脚本根据当前代码合同生成；图像是文档概念设计，不是求解器或实验结果。
+> 仓库是计算控制面与资格框架；第三方 DFT、MD、CFD、FEM 和流程求解器保持 EXTERNAL_HOLD。
 
-### 核心数理合同
-
-$$
-admit(C) = 1_schema · 1_identity · 1_inputs · 1_resources · 1_policy
-$$
+#### 独立标准不确定度
 
 $$
-H_bundle = SHA256(B_solver ∥ B_inputs ∥ B_env ∥ B_contract ∥ B_reference)
+u_c=\sqrt{u_{\mathrm{stat}}^2+u_{\mathrm{model}}^2+u_{\mathrm{num}}^2}
 $$
 
+各分量必须有限、非负，并使用同一输出单位；平方和要求分量互不相关。实现使用 `math.hypot` 避免直接平方造成的中间溢出，并拒绝不可表示的最终结果。相关项必须另行采用协方差传播，不能套用该接口。
+
+源码对应: [`tsao_computation/uncertainty/model.py`](tsao_computation/uncertainty/model.py)
+
+#### 末两点收敛检查
+
 $$
-δ_rel = |y − y_ref| / max(|y_ref|, ε) ≤ τ_eq
+\Delta=|x_n-x_{n-1}|,\qquad \tau=\max\!\left(a,r\max(|x_n|,|x_{n-1}|,1)\right),\qquad\Delta\le\tau
 $$
 
-### 使用策略
+该门比较末两个有限数值，绝对容差为 a、相对容差为 r；阈值使用 `max`，不是两项相加。数值尺度的下限 1 按输入单位解释，因此应先规范单位或无量纲化。通过末两点检查不证明轨迹整体收敛或统计采样充分。
 
-1. 先运行永久 CI，再运行 current-main 精确树验收。
-2. 数值、容差和不确定度入口必须是有限实数，Boolean 不得充当 0/1。
-3. 执行身份、输入、环境、参考与合同共同进入证据哈希。
-4. 任何新提交都会使旧 SHA 的六小时证据失效。
+源码对应: [`tsao_computation/validation/numerical.py`](tsao_computation/validation/numerical.py)
 
-> **责任边界：** 仓库是计算控制面与资格框架；第三方 DFT、MD、CFD、FEM 和流程求解器保持 EXTERNAL_HOLD。
+#### 控制面验收合同
 
-执行提示词：[SIX_REPOSITORY_PARALLEL_6H_ACCEPTANCE_PROMPT_V2.md](docs/SIX_REPOSITORY_PARALLEL_6H_ACCEPTANCE_PROMPT_V2.md)
+$$
+C_{\mathrm{accept}}=C_{\mathrm{identity}}\land C_{\mathrm{input}}\land C_{\mathrm{finite}}\land C_{\mathrm{policy}}
+$$
+
+这是执行层和适配器约束的解释性组合，不是一个拟合分数或所有引擎共享的单一函数。必须分别保存引擎版本、输入校验和、解析证据和适用的验收规则；仅发现软件、生成输入文件或解析示例不等于完成外部科学计算。
+
+源码对应: [`tsao_computation/adapters/base.py`](tsao_computation/adapters/base.py) · [`tsao_computation/execution/runner.py`](tsao_computation/execution/runner.py)
+
+### 使用与验收顺序
+
+1. 先核对安装环境、输入结构、单位、有效范围与执行权限。
+2. 按上面的源码锚点区分原生实现、解释性合同和外部执行要求。
+3. 先运行快速回归和完整质量门，再用固定提交执行长期回归。
+4. 逐项保存原始日志、机器报告和限制；任何缺失证据不得写成 PASS。
+
+```bash
+python scripts/verify_all.py --profile core
+python scripts/verify_all.py --profile quality
+python scripts/verify_native_core.py
+```
+
+每次修复均须绑定新提交重新测试。基线回归、两段各三小时的重复回归、浏览器图形检查和外部工程认证是不同证据，不可互相替代。没有原始回执时，不宣称已完成六小时验收。
+
+源码锚点: [`tsao_computation/adapters/base.py`](tsao_computation/adapters/base.py) · [`tsao_computation/execution/runner.py`](tsao_computation/execution/runner.py) · [`tsao_computation/validation/numerical.py`](tsao_computation/validation/numerical.py)
+
 <!-- CURRENT_MAIN_ACCEPTANCE_V2:END -->

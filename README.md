@@ -427,34 +427,57 @@ python -m pytest -q tests/test_approval_attestation_boundaries.py tests/test_val
 MIT licensed. Citation metadata is in [`CITATION.cff`](CITATION.cff); third-party boundaries are documented in [`THIRD_PARTY.md`](THIRD_PARTY.md).
 
 <!-- CURRENT_MAIN_ACCEPTANCE_V2:START -->
-## Current `main`: code–mathematics–evidence loop
+## Current implementation: code, mathematics and usage
 
-<p align="center"><img src="docs/current-main/tsao-scicomputation-current-main-en.svg" width="100%" alt="Current `main`: code–mathematics–evidence loop"></p>
+![English code and mathematical-contract concept](docs/current-main/tsao-scicomputation-current-main-en.svg)
 
-> This section is generated from current code contracts; the visual is conceptual documentation, not solver or experimental output.
+> The repository is a computation control plane and qualification framework; third-party DFT, MD, CFD, FEM and process solvers remain EXTERNAL_HOLD.
 
-### Core mathematical contracts
-
-$$
-admit(C) = 1_schema · 1_identity · 1_inputs · 1_resources · 1_policy
-$$
+#### Independent uncertainty
 
 $$
-H_bundle = SHA256(B_solver ∥ B_inputs ∥ B_env ∥ B_contract ∥ B_reference)
+u_c=\sqrt{u_{\mathrm{stat}}^2+u_{\mathrm{model}}^2+u_{\mathrm{num}}^2}
 $$
 
+Components must be finite, nonnegative and expressed in the same output units. Quadrature assumes uncorrelated contributions. The implementation uses math.hypot to avoid intermediate squaring overflow and rejects unrepresentable totals. Correlated contributions require covariance propagation, not this interface.
+
+Source mapping: [`tsao_computation/uncertainty/model.py`](tsao_computation/uncertainty/model.py)
+
+#### Last-pair convergence
+
 $$
-δ_rel = |y − y_ref| / max(|y_ref|, ε) ≤ τ_eq
+\Delta=|x_n-x_{n-1}|,\qquad \tau=\max\!\left(a,r\max(|x_n|,|x_{n-1}|,1)\right),\qquad\Delta\le\tau
 $$
 
-### Usage strategy
+This gate compares the final two finite values using absolute tolerance a and relative tolerance r. Its threshold uses max, not an additive tolerance. The scale floor of one is expressed in the chosen input units, so normalize units or nondimensionalize first. Passing the last pair does not prove global trajectory convergence or adequate sampling.
 
-1. Run permanent CI before exact-tree current-main qualification.
-2. Scientific values, tolerances and uncertainties must be finite reals; Boolean is not 0/1 evidence.
-3. Execution identity, inputs, environment, references and contracts enter the evidence hash.
-4. Any new commit invalidates six-hour evidence bound to an older SHA.
+Source mapping: [`tsao_computation/validation/numerical.py`](tsao_computation/validation/numerical.py)
 
-> **Responsibility boundary：** The repository is a computation control plane and qualification framework; third-party DFT, MD, CFD, FEM and process solvers remain EXTERNAL_HOLD.
+#### Control-plane contract
 
-Execution prompt：[SIX_REPOSITORY_PARALLEL_6H_ACCEPTANCE_PROMPT_V2.md](docs/SIX_REPOSITORY_PARALLEL_6H_ACCEPTANCE_PROMPT_V2.md)
+$$
+C_{\mathrm{accept}}=C_{\mathrm{identity}}\land C_{\mathrm{input}}\land C_{\mathrm{finite}}\land C_{\mathrm{policy}}
+$$
+
+This is an explanatory composition of runner and adapter requirements, not a fitted score or a single function shared by every engine. Preserve engine versions, input hashes, parser evidence and applicable acceptance policies separately. Software discovery, generated inputs and parsed examples are not external scientific execution.
+
+Source mapping: [`tsao_computation/adapters/base.py`](tsao_computation/adapters/base.py) · [`tsao_computation/execution/runner.py`](tsao_computation/execution/runner.py)
+
+### Usage and acceptance sequence
+
+1. Check the installation environment, input structure, units, applicability and execution permissions.
+2. Use the source mappings above to distinguish native implementation, explanatory contracts and external execution requirements.
+3. Run focused regression and full quality gates before long-duration testing of pinned commits.
+4. Preserve original logs, machine-readable reports and limitations; missing evidence must never be reported as PASS.
+
+```bash
+python scripts/verify_all.py --profile core
+python scripts/verify_all.py --profile quality
+python scripts/verify_native_core.py
+```
+
+Retest every changed commit. Baseline regression, two three-hour regression segments, browser visual checks and external engineering qualification are distinct evidence classes. Without original receipts, no six-hour completion is claimed.
+
+Implementation anchors: [`tsao_computation/adapters/base.py`](tsao_computation/adapters/base.py) · [`tsao_computation/execution/runner.py`](tsao_computation/execution/runner.py) · [`tsao_computation/validation/numerical.py`](tsao_computation/validation/numerical.py)
+
 <!-- CURRENT_MAIN_ACCEPTANCE_V2:END -->
