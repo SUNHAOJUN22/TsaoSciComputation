@@ -453,6 +453,16 @@ $$
 
 源码对应: [`tsao_computation/adapters/base.py`](tsao_computation/adapters/base.py) · [`tsao_computation/execution/runner.py`](tsao_computation/execution/runner.py)
 
+#### 可追溯事件的串行追加
+
+$$
+E_{n+1}=E_n\mathbin{\Vert}[e_{n+1}],\quad \lvert\operatorname{UTF8}(E_{n+1})\rvert\le64\times2^{20}\;\mathrm{bytes}
+$$
+
+事件必须是 JSON 对象；嵌套重复键、NaN、Infinity、浮点溢出和非 UTF-8 输入拒绝进入账本。协作写入者通过排他侧车锁串行执行读—追加—原子替换，避免多个进程覆盖彼此的事件。此为本地文件协议，不是分布式数据库事务；64 MiB 上界到达时需要显式归档。等待锁最多 10 秒，崩溃遗留锁不会被自动抢占；维护者应确认写入者已退出并备份账本后再恢复。
+
+源码对应: [`tsao_computation/provenance/ledger.py`](tsao_computation/provenance/ledger.py) · [`tests/test_provenance_ledger_integrity.py`](tests/test_provenance_ledger_integrity.py)
+
 ### 使用与验收顺序
 
 1. 先核对安装环境、输入结构、单位、有效范围与执行权限。

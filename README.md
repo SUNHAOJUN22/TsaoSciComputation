@@ -463,6 +463,16 @@ This is an explanatory composition of runner and adapter requirements, not a fit
 
 Source mapping: [`tsao_computation/adapters/base.py`](tsao_computation/adapters/base.py) · [`tsao_computation/execution/runner.py`](tsao_computation/execution/runner.py)
 
+#### Serialized provenance append
+
+$$
+E_{n+1}=E_n\mathbin{\Vert}[e_{n+1}],\quad \lvert\operatorname{UTF8}(E_{n+1})\rvert\le64\times2^{20}\;\mathrm{bytes}
+$$
+
+Events must be JSON objects; nested duplicate keys, NaN, Infinity, overflowing floating-point numbers and non-UTF-8 input are rejected. Cooperating writers serialize read–append–atomic-replace operations through an exclusive sidecar lock, preventing lost updates. This is a local-file protocol, not a distributed database transaction; explicit archival is required at the 64 MiB bound. Lock acquisition times out after 10 seconds. An abandoned lock is not stolen automatically; confirm the writer has exited and back up the ledger before recovery.
+
+Source mapping: [`tsao_computation/provenance/ledger.py`](tsao_computation/provenance/ledger.py) · [`tests/test_provenance_ledger_integrity.py`](tests/test_provenance_ledger_integrity.py)
+
 ### Usage and acceptance sequence
 
 1. Check the installation environment, input structure, units, applicability and execution permissions.

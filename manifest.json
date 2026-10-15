@@ -121,11 +121,6 @@
       "sha256": "e1f657e44775332000bb8587bd7f39e27ed1aa0a7ae52625f99d73588b7ecc75"
     },
     {
-      "bytes": 505,
-      "path": ".github/workflows/refresh-mathematical-docs.yml",
-      "sha256": "5b631ad04f5eea1f0f11cf262b185e35f2554a9b764d73c54e312ec5086eb1f0"
-    },
-    {
       "bytes": 5555,
       "path": ".github/workflows/release.yml",
       "sha256": "b0ebf6572cd48fb93dd5f3c16f235e299fe865dd4779aa45dd561f18c295eb8f"
@@ -176,14 +171,14 @@
       "sha256": "16c346cf3277689776977c544135b0669d83db66ccbe0ad0142db295f5a39e3b"
     },
     {
-      "bytes": 23199,
+      "bytes": 24100,
       "path": "README.md",
-      "sha256": "ac8ede2d37c05ad557a5cbaf3a4626226baa4f3fd8347707f2129d74f2b4bd10"
+      "sha256": "64895d255be3e035f71fc19244bc0428c2b1382a1c068e973f05f98a3d90f3c6"
     },
     {
-      "bytes": 21102,
+      "bytes": 21922,
       "path": "README.zh-CN.md",
-      "sha256": "1729aa2277d8645356c7287763ec346c36659f8113c79590581f9c1572264266"
+      "sha256": "fe5e6127d6ac3e53b56935edc5133dac43084a723ca8c2463f062bdccbd80e54"
     },
     {
       "bytes": 7408,
@@ -1646,14 +1641,14 @@
       "sha256": "3cba9107d95c2ded64789dc95d72c60ce75d46fd805aa6c1dfd6dd347f2444f1"
     },
     {
-      "bytes": 9052,
+      "bytes": 6399,
       "path": "docs/localized-vision/scicomputation-vision-en.svg",
-      "sha256": "54608805f891379c90eaacfdf6cc397452e6f2d127bc5b35fe1157792ac94754"
+      "sha256": "492147c6d8fee5feea772f8467b3895a3d9df7293e64f445dbf734acee34af11"
     },
     {
-      "bytes": 8880,
+      "bytes": 6399,
       "path": "docs/localized-vision/scicomputation-vision-zh.svg",
-      "sha256": "8abcd494db0a760d288147d9179d182cdceaff6d66204d17bb2a4cb5ea54737d"
+      "sha256": "c53905ecb668d83d19343dabf8fdb368ca9cd725e64484ebead91b8f2b62edf0"
     },
     {
       "bytes": 2044,
@@ -1733,7 +1728,7 @@
     {
       "bytes": 152,
       "path": "evidence/quality-check.json",
-      "sha256": "c1b23328019b92b672536246886093824ebae82e91588fc3d9b3ef8e7ec9ce40"
+      "sha256": "86b14fa78268a53d0dce2529886fd37a8dce728c8ba391fb117ea847878eea5c"
     },
     {
       "bytes": 3174,
@@ -1938,17 +1933,17 @@
     {
       "bytes": 55786,
       "path": "reports/ACCELERATION_OPPORTUNITIES_FULL_TREE_V4.json",
-      "sha256": "4ed336e26852b6aedf84020f5b8827467d2053cdce6f0e15e8f3ccd077faa8fb"
+      "sha256": "45b974482e6994c1b71d5290471268c63dbb0d0ec04df3641f3b5feed7b579f1"
     },
     {
       "bytes": 6514,
       "path": "reports/ACCELERATION_OPPORTUNITIES_PRODUCTION_V4.json",
-      "sha256": "f113d8c2188b1e16c45a38bfee14f4e8858172b5f6eb239ccf634e3550594e8d"
+      "sha256": "2d8f425be3d39ed3f00eb5995c35c3a5ea8b50be3680de813772db108d3b1623"
     },
     {
       "bytes": 6514,
       "path": "reports/ACCELERATION_OPPORTUNITIES_V2.json",
-      "sha256": "f113d8c2188b1e16c45a38bfee14f4e8858172b5f6eb239ccf634e3550594e8d"
+      "sha256": "2d8f425be3d39ed3f00eb5995c35c3a5ea8b50be3680de813772db108d3b1623"
     },
     {
       "bytes": 1196,
@@ -2286,9 +2281,9 @@
       "sha256": "59087ebec8ed1890c9a8dc2d3c06ffeb16e1b3bdad0e48e3ccf268b06f5dd74e"
     },
     {
-      "bytes": 14908,
+      "bytes": 16454,
       "path": "scripts/refresh-current-main-readme.mjs",
-      "sha256": "bc3bc7023d07980fda227b7e7c52f0b0038a84868b0d74ec78eb3aa6960a4019"
+      "sha256": "5e0f614572f9966c438bfce861a2abe3ceb8a45d18c9f758b4f0fc283fb8cf75"
     },
     {
       "bytes": 1033,
@@ -2746,6 +2741,11 @@
       "sha256": "69a8f842b882ad62323ee379f3df6185bbcebc065d3c972f7fa9082bcf7c2507"
     },
     {
+      "bytes": 5028,
+      "path": "tests/test_provenance_ledger_integrity.py",
+      "sha256": "ead5022f2ee3b75d48d4eeac402050dccf66d8f5af6067f368f90026597de7ef"
+    },
+    {
       "bytes": 1612,
       "path": "tests/test_python_compatibility.py",
       "sha256": "f46c1d35f8e9611e6c3d29de68819198d33e31913d4b58a2bf44c52ab00e4ded"
@@ -3111,9 +3111,9 @@
       "sha256": "7ee3ec1cb071be84ee716bedfc023975282f9b716c6ff026b7e5b3e96d6bf3aa"
     },
     {
-      "bytes": 792,
+      "bytes": 3638,
       "path": "tsao_computation/provenance/ledger.py",
-      "sha256": "8288cce44fb955900645cf2844067f0fdc0eebe86919bff93b8ba16c137ab60e"
+      "sha256": "a14510f66d2b3b1e5925f30a06c22a14459d8cbb002806d44791bc75a7066848"
     },
     {
       "bytes": 4737,
