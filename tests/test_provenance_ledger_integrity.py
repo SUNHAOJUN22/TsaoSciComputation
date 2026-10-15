@@ -14,7 +14,9 @@ def _write_events(path: str, worker: int) -> None:
         append_event(Path(path), {"worker": worker, "index": index})
 
 
-@pytest.mark.parametrize("text", ['{"x":1,"x":2}', '{"x":NaN}', '{"x":Infinity}', '{"x":1e400}', 'null', '[]', '3'])
+@pytest.mark.parametrize(
+    "text", ['{"x":1,"x":2}', '{"x":NaN}', '{"x":Infinity}', '{"x":1e400}', "null", "[]", "3"]
+)
 def test_ambiguous_or_nonobject_records_fail_closed(tmp_path: Path, text: str) -> None:
     path = tmp_path / "events.jsonl"
     path.write_text(text + "\n", encoding="utf-8")
@@ -68,7 +70,9 @@ def test_empty_lines_and_valid_finite_fraction_are_preserved(tmp_path: Path) -> 
     assert read_events(path) == [{"nested": {"value": 1.25}}]
 
 
-def test_directory_and_symlink_inputs_are_rejected(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_directory_and_symlink_inputs_are_rejected(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     with pytest.raises(ValueError, match="regular file"):
         read_events(tmp_path)
     path = tmp_path / "events.jsonl"
@@ -78,7 +82,9 @@ def test_directory_and_symlink_inputs_are_rejected(tmp_path: Path, monkeypatch: 
         read_events(path)
 
 
-def test_size_bounds_apply_to_existing_and_new_records(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_size_bounds_apply_to_existing_and_new_records(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     from tsao_computation.provenance import ledger
 
     path = tmp_path / "events.jsonl"
@@ -94,7 +100,9 @@ def test_size_bounds_apply_to_existing_and_new_records(tmp_path: Path, monkeypat
     assert not path.with_name(path.name + ".lock").exists()
 
 
-def test_existing_lock_times_out_without_stealing_it(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_existing_lock_times_out_without_stealing_it(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     from tsao_computation.provenance import ledger
 
     path = tmp_path / "events.jsonl"
@@ -107,7 +115,9 @@ def test_existing_lock_times_out_without_stealing_it(tmp_path: Path, monkeypatch
     assert not path.exists()
 
 
-def test_write_failure_releases_lock_and_nonobject_input_is_rejected(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_write_failure_releases_lock_and_nonobject_input_is_rejected(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     from tsao_computation.provenance import ledger
 
     path = tmp_path / "events.jsonl"
