@@ -452,6 +452,12 @@ def audit_repository_acceleration(
         if not path.is_file() or path.is_symlink():
             continue
         relative = path.relative_to(resolved_root)
+        # Generated/dependency trees are outside the source inventory in every
+        # scope.  Exclude them before reading, hashing or counting any language.
+        # Tests and tooling still contribute to the shared source-tree identity;
+        # the selected scope only controls Python candidate analysis below.
+        if _is_excluded(relative, scope="full-tree"):
+            continue
         language = _LANGUAGE_SUFFIXES.get(path.suffix.casefold())
         if language is None:
             continue

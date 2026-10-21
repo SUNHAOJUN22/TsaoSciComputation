@@ -59,6 +59,50 @@ def test_production_and_full_tree_audits_have_explicit_scope(tmp_path: Path) -> 
     assert all(len(item.source_sha256) == 64 for item in full_tree.opportunities)
 
 
+@pytest.mark.parametrize("environment", [".venv", "venv", "vendor/site-packages"])
+def test_environment_sources_do_not_change_inventory_or_tree_identity(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, environment: str
+) -> None:
+    sources = {
+        "core.py": "def calculate(a):\n    return a * a\n",
+        "scripts/tool.py": "from pathlib import Path\nlist(Path('.').glob('*'))\n",
+        "tests/test_core.py": "def test_core():\n    assert 2 * 2 == 4\n",
+        "native/kernel.cpp": "double square(double x) { return x * x; }\n",
+    }
+    for relative, text in sources.items():
+        path = tmp_path / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+    clean = {
+        scope: audit_repository_acceleration(tmp_path, scope=scope).to_dict()
+        for scope in ("production", "full-tree")
+    }
+    assert clean["production"]["source_files"] == clean["full-tree"]["source_files"] == 4
+    assert clean["production"]["source_tree_sha256"] == clean["full-tree"]["source_tree_sha256"]
+    assert clean["production"]["python_files_analyzed"] == 1
+    assert clean["full-tree"]["python_files_analyzed"] == 3
+
+    dependency_root = tmp_path / environment
+    dependency_root.mkdir(parents=True)
+    for name, text in {
+        "dependency.py": "import numpy as np\nnp.linalg.solve(a, b)\n",
+        "dependency.c": "int dependency(void) { return 1; }\n",
+        "dependency.f90": "program dependency\nend program dependency\n",
+    }.items():
+        (dependency_root / name).write_text(text, encoding="utf-8")
+
+    read_bytes = Path.read_bytes
+
+    def checked_read(path: Path) -> bytes:
+        if dependency_root in path.parents:
+            raise AssertionError("excluded dependency source must not be read")
+        return read_bytes(path)
+
+    monkeypatch.setattr(Path, "read_bytes", checked_read)
+    for scope, expected in clean.items():
+        assert audit_repository_acceleration(tmp_path, scope=scope).to_dict() == expected
+
+
 def test_probe_records_detected_library_versions_without_importing() -> None:
     found = {"cupy", "cuequivariance", "mpi4py"}
     versions = {

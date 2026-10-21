@@ -18,7 +18,7 @@
   "language_lines": {
     "c": 70,
     "cpp": 197,
-    "python": 26333
+    "python": 26383
   },
   "opportunities": [
     {
@@ -106,7 +106,7 @@
         "network filesystem",
         "stale cache"
       ],
-      "candidate_id": "044297b50313a3221c148b977483eda3bd25780168d57ed74c1f12fe2d4dc6fa",
+      "candidate_id": "1c03f92a62176a0ae37bd09b243f17b11d0bee0e0fbe7d95b76e66147b55162e",
       "category": "filesystem-scan",
       "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
       "confidence": "medium",
@@ -124,7 +124,7 @@
       "path": "tsao_computation/accelerators/audit.py",
       "runtime_status": "unprofiled",
       "score": 47,
-      "source_sha256": "f736d90fcb6fd9df44a1ee0adb4e08c8584939bc29138fcb60a27d6b1b69ef40",
+      "source_sha256": "7c6cdf91aa0aa6348b2b369397345b64af79e52f6f695edeeb73f26910ce02c1",
       "symbol": "audit_repository_acceleration"
     },
     {
@@ -165,6 +165,6 @@
   "root": ".",
   "scope": "production",
   "source_files": 196,
-  "source_lines": 26600,
-  "source_tree_sha256": "ae1b9fb6fd1b0cf24e92769bc6272187d334b4f9c65237bd052832f7e49518bd"
+  "source_lines": 26650,
+  "source_tree_sha256": "54c9ae0b01f5e4aa3c61ca0df0975ca5ac719f62ee8b3f90617abd6dfea656ee"
 }
