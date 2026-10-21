@@ -78,7 +78,7 @@ def test_explicit_positive_convergence_is_recognized_but_not_validated() -> None
     parsed = Adapter({"slug": "generic"}).parse(
         "SCF converged after 12 cycles; calculation completed"
     )
-    assert parsed == {
+    assert {key: parsed[key] for key in ("completed", "converged", "raw_length", "validated")} == {
         "completed": True,
         "converged": True,
         "raw_length": len("SCF converged after 12 cycles; calculation completed"),

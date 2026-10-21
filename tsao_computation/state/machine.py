@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any
 
 from ..errors import StateTransitionError
+from ..immutable import freeze_json
+from ..validation.acceptance import acceptance_gate
 
 CANONICAL_STATES = (
     "proposed",
@@ -51,22 +54,36 @@ def canonical_state(state: str) -> str:
     return LEGACY_STATE_ALIASES.get(state, state)
 
 
-@dataclass(slots=True)
+@dataclass(frozen=True, slots=True)
 class ScientificStateMachine:
     state: str = "proposed"
-    events: list[dict[str, Any]] = field(default_factory=list)
+    events: tuple[dict[str, Any], ...] = field(default_factory=tuple)
 
     def __post_init__(self) -> None:
-        self.state = canonical_state(self.state)
+        object.__setattr__(self, "state", canonical_state(self.state))
+        object.__setattr__(self, "events", tuple(freeze_json(event) for event in self.events))
         if self.state not in STATES:
             raise StateTransitionError(f"unknown initial state: {self.state}")
+        if self.state == "scientifically-accepted":
+            raise StateTransitionError(
+                "accepted state must be reached through a verified transition"
+            )
 
     def can_transition(self, target: str) -> bool:
         normalized = canonical_state(target)
         return normalized in TRANSITIONS[self.state]
 
-    def transition(self, target: str, *, evidence: str, actor: str = "system") -> dict[str, Any]:
-        if not evidence.strip():
+    def transition(
+        self,
+        target: str,
+        *,
+        evidence: str,
+        actor: str = "system",
+        acceptance_record: Mapping[str, Any] | None = None,
+        trusted_approval_keys: Mapping[str, bytes] | None = None,
+        now: datetime | None = None,
+    ) -> dict[str, Any]:
+        if not isinstance(evidence, str) or not evidence.strip():
             raise StateTransitionError("state transitions require evidence")
         normalized = canonical_state(target)
         if normalized not in STATES or not self.can_transition(normalized):
@@ -74,7 +91,22 @@ class ScientificStateMachine:
             raise StateTransitionError(
                 f"illegal transition: {self.state} -> {normalized}; allowed targets: {allowed}"
             )
-        event = {
+        acceptance = None
+        if normalized == "scientifically-accepted":
+            acceptance = acceptance_gate(
+                dict(acceptance_record or {}),
+                trusted_approval_keys=trusted_approval_keys,
+                now=now,
+            )
+            if not acceptance["accepted"]:
+                raise StateTransitionError(
+                    f"scientific acceptance requires verified evidence: {acceptance['missing']}"
+                )
+            if evidence != acceptance_record["artifact_sha256"]:  # type: ignore[index]
+                raise StateTransitionError(
+                    "transition evidence must match the accepted artifact digest"
+                )
+        event: dict[str, Any] = {
             "from": self.state,
             "to": normalized,
             "requested_to": target,
@@ -82,6 +114,9 @@ class ScientificStateMachine:
             "actor": actor,
             "timestamp": datetime.now(timezone.utc).isoformat(),
         }
-        self.state = normalized
-        self.events.append(event)
-        return event
+        if acceptance is not None:
+            event["acceptance"] = acceptance
+        immutable_event = freeze_json(event)
+        object.__setattr__(self, "state", normalized)
+        object.__setattr__(self, "events", (*self.events, immutable_event))
+        return immutable_event

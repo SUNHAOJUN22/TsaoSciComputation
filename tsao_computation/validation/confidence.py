@@ -2,7 +2,11 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from dataclasses import asdict, dataclass
+from datetime import datetime
 from typing import Any
+
+from .acceptance import acceptance_gate
+from .approval_attestation import verify_approval_attestation
 
 LEVEL_ORDER = ("C0", "C1", "C2", "C3", "C4", "C5")
 LEVEL_REQUIREMENTS: dict[str, tuple[str, ...]] = {
@@ -74,29 +78,69 @@ class ConfidenceAssessment:
         return payload
 
 
-def _valid_approvals(value: object) -> bool:
-    return (
-        isinstance(value, (list, tuple))
-        and bool(value)
-        and all(isinstance(item, str) and bool(item.strip()) for item in value)
-    )
+_GOVERNANCE_SCOPES = {
+    "decision_scope_confirmed": ("engineering-decision", "independent-domain-reviewer"),
+    "safety_review_completed": ("safety-review", "safety-reviewer"),
+    "independent_reproduction": ("independent-reproduction", "independent-reproducer"),
+}
 
 
-def _requirement_satisfied(record: Mapping[str, Any], requirement: str) -> bool:
-    if requirement == "approvals":
-        return _valid_approvals(record.get(requirement))
-    return record.get(requirement) is True
+def assess_confidence(
+    record: Mapping[str, Any],
+    *,
+    trusted_approval_keys: Mapping[str, bytes] | None = None,
+    now: datetime | None = None,
+) -> ConfidenceAssessment:
+    """Classify evidence; C4/C5 require artifact-bound external verification.
 
-
-def assess_confidence(record: Mapping[str, Any]) -> ConfidenceAssessment:
+    Trust keys are supplied by the consumer, never read from the result record.
+    C5 additionally requires signed, scope-specific governance attestations.
+    """
     if not isinstance(record, Mapping):
         raise TypeError("confidence input must be a mapping")
+    accepted = acceptance_gate(dict(record), trusted_approval_keys=trusted_approval_keys, now=now)[
+        "accepted"
+    ]
+    governance: set[str] = set()
+    seen_nonces: set[str] = set()
+    approvals = record.get("approvals", ())
+    decision_scope = record.get("decision_scope")
+    if accepted and isinstance(approvals, (list, tuple)):
+        for approval in approvals:
+            valid, _ = verify_approval_attestation(
+                approval,
+                trusted_keys=trusted_approval_keys or {},
+                artifact_sha256=record["artifact_sha256"],
+                now=now,
+            )
+            if not valid:
+                continue
+            nonce = approval["nonce"]
+            if nonce in seen_nonces:
+                continue
+            seen_nonces.add(nonce)
+            for requirement, (scope, role) in _GOVERNANCE_SCOPES.items():
+                if (
+                    approval["scope"] == scope
+                    and approval["role"] == role
+                    and isinstance(decision_scope, str)
+                    and bool(decision_scope.strip())
+                    and approval.get("decision_scope") == decision_scope
+                ):
+                    governance.add(requirement)
+
+    def requirement_satisfied(requirement: str) -> bool:
+        if requirement == "approvals":
+            return bool(accepted)
+        if requirement in _GOVERNANCE_SCOPES:
+            return record.get(requirement) is True and requirement in governance
+        return record.get(requirement) is True
 
     level = "UNASSESSED"
     satisfied: tuple[str, ...] = ()
     for candidate in LEVEL_ORDER:
         requirements = LEVEL_REQUIREMENTS[candidate]
-        if all(_requirement_satisfied(record, item) for item in requirements):
+        if all(requirement_satisfied(item) for item in requirements):
             level = candidate
             satisfied = requirements
         else:
@@ -105,11 +149,7 @@ def assess_confidence(record: Mapping[str, Any]) -> ConfidenceAssessment:
     rank = LEVEL_ORDER.index(level) if level in LEVEL_ORDER else -1
     next_level = LEVEL_ORDER[rank + 1] if rank + 1 < len(LEVEL_ORDER) else None
     missing = (
-        tuple(
-            item
-            for item in LEVEL_REQUIREMENTS[next_level]
-            if not _requirement_satisfied(record, item)
-        )
+        tuple(item for item in LEVEL_REQUIREMENTS[next_level] if not requirement_satisfied(item))
         if next_level is not None
         else ()
     )

@@ -21,6 +21,7 @@ This adapter provides discovery, input/output contracts, conservative parsing, a
 
 - No live third-party solver execution is claimed by this certification.
 - Adapter presence does not establish solver availability or model applicability.
+- Generic positional-input commands are disabled; this adapter needs an engine-specific execution implementation.
 
 `A5` is reserved for a versioned live-solver smoke test with fixture hashes and platform evidence. Levels `A0`–`A4` do not establish installed solver availability.
 

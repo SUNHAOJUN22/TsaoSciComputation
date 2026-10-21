@@ -16,7 +16,7 @@
 ## 中文项目愿景图：从基本方程到可复现科学计算
 
 <p align="center">
-  <img src="docs/localized-vision/scicomputation-vision-zh.svg" width="100%" alt="TsaoSciComputation 中文跨尺度科学计算愿景与数理架构">
+  <img src="docs/assets/vision-zh.png" width="100%" alt="TsaoSciComputation 中文跨尺度科学计算愿景与数理架构">
 </p>
 
 > 图中方程对应合同、执行身份、收敛、不确定度和验收模块；图不代表 VASP、Gaussian、GROMACS、OpenFOAM 或 Aspen 已经运行。
@@ -25,15 +25,15 @@
 
 ## 当前交付状态
 
-当前软件基线已经达到仓库级验收与交付条件：
+当前实现和交付门禁如下，是否通过以待部署提交对应的完整证据为准：
 
 - **164 项能力**、**27 个外部适配器**、**20 套机器可读工作流**；
 - 测试数量和实测覆盖率以待部署精确提交的完整 CI 工件为准；总覆盖率门槛保持 **95.00%**；
-- Ruff、Mypy、Bandit、仓库安全扫描、受控变异、Schema、Manifest、可重复源码/Wheel、隔离安装、SBOM 与原生 C ABI 验证全部通过；
+- Ruff、Mypy、Bandit、仓库安全扫描、受控变异、Schema、Manifest、可重复源码/Wheel、隔离安装、SBOM 与原生 C ABI 验证均属于必需交付门禁；
 - 远端仅保留唯一权威分支 **`main`**；
 - 第三方求解器真实执行仍保持 **`EXTERNAL_HOLD`**，直至提供真实二进制、许可证、固定输入、硬件指纹、参考结果与科学容差。
 
-这一区分是刻意设计的：**软件交付已经完成，外部科学执行必须继续服从证据。**
+软件资格、外部求解器资格和科学结论分别记录，历史成功报告不能替代新提交的验证。
 
 ## 仓库的真实定位
 
@@ -122,141 +122,154 @@ python -m tsao_computation plan-acceleration gromacs \
 
 ## 数理运行模型
 
-以下公式对应仓库真实控制逻辑，而不是为了展示而堆砌，也不能代替求解器自身的控制方程。
+下列公式逐项对应所链接的 Python 实现。愿景图里的 DFT、MD、CFD、FEM 和流程模型表达预期应用场景；本仓库负责编排这些外部引擎，未在内部实现其控制方程求解器。
 
-### 1. 计算合同的约束状态表示
+### 1. 显式计算合同
 
-受治理计算可表示为
-
-$$
-\mathcal{C}=(Q,M,D,R,E,V,U,A),
-$$
-
-其中 $Q$ 为科学问题，$M$ 为方法，$D$ 为输入数据，$R$ 为资源请求，$E$ 为执行证据，$V$ 为验证规范，$U$ 为不确定度模型，$A$ 为验收权限。只有全部必要谓词成立时，路由才可准入：
+[`CalculationContract`](tsao_computation/contracts/calculation.py) 记录问题、体系、工况和观测量，并附带假设、模型对象、尺度、方法、边界与初始条件、参数来源、收敛与验证计划、不确定度、计算资源、预期产物、审查节点及接受标准。结构预检要求必需字段均已提供：
 
 $$
-\operatorname{admit}(\mathcal{C})=
-\mathbf{1}_{\text{Schema}}
-\mathbf{1}_{\text{身份}}
-\mathbf{1}_{\text{输入}}
-\mathbf{1}_{\text{资源}}
-\mathbf{1}_{\text{策略}}.
+G_{\mathrm{preflight}}=\bigwedge_{f\in F_{\mathrm{required}}}\operatorname{present}(f).
 $$
 
-任一项失败，准入值即为零；缺失证据不会被解释为通过。
+这是一项完整性检查。非空的假设、参数来源或验证方案仍需领域审查；规划模块不会把经验闭合关系提升成物理定律，也不会补造缺失的求解器数据。
 
-### 2. 可重复身份绑定
+### 2. 数量、单位和量纲绑定
 
-执行证据包使用规范哈希绑定：
-
-$$
-H_{\text{bundle}}=
-\operatorname{SHA256}(B_{\text{solver}}\parallel B_{\text{inputs}}
-\parallel B_{\text{env}}\parallel B_{\text{contract}}
-\parallel B_{\text{reference}}).
-$$
-
-可执行文件、输入字节、规范化环境、合同或参考证据任一变化，都会改变证据包身份。一个身份获得的授权不能静默转移给另一个身份。
-
-### 3. 收敛与停止条件
-
-通用迭代收敛条件为
+[`ScientificQuantity`](tsao_computation/scientific_quantity.py) 将有限 Decimal 数值、受控单位、七维整数量纲、来源标识、数据依据和可选的非负不确定度绑定在同一记录中。量纲顺序固定为**长度、质量、时间、温度、物质的量、电流、发光强度**：
 
 $$
-\lVert x_{k+1}-x_k\rVert
-\leq \varepsilon_{\mathrm{abs}}
-+\varepsilon_{\mathrm{rel}}\lVert x_k\rVert.
+\mathbf d=(d_L,d_M,d_T,d_{\Theta},d_N,d_I,d_J),\qquad
+[\mathrm{Pa}]=L^{-1}MT^{-2},\qquad [\mathrm{Pa\,s}]=L^{-1}MT^{-1}.
 $$
 
-系统明确区分：
+带版本的[单位注册表](tsao_computation/quantity_units.py) 同时确定量纲与换算系数。能量 `J/eV/hartree` 和摩尔能 `J/mol/kJ/mol` 的量纲不同；两者之间需要显式的物质的量或粒子数模型，不能靠改单位标签完成转换。
 
-```text
-执行完成 ≠ 解析成功 ≠ 数值收敛 ≠ 验证通过 ≠ 科学接受
+以规范值 $x_c=a_s(x_s+b_s)$、$x_c=a_t(x_t+b_t)$ 表示仿射换算，代码执行：
+
+$$
+x_t=\frac{a_s(x_s+b_s)}{a_t}-b_t,\qquad
+u_t=\left|\frac{a_s}{a_t}\right|u_s.
+$$
+
+标准不确定度只应用比例系数，不应用温标偏移。华氏温标采用有理系数计算，绝对温度和温差分开建模。例如 $32\,{}^\circ\mathrm F=273.15\,\mathrm K$，而 $1.8\,{}^\circ\mathrm F$ 的不确定度转换为 $1\,\mathrm K$。绝对温度不得低于或等于零开尔文，负温差仍合法。未知单位、与注册表矛盾的调用者系数、布尔值、非有限值以及非零 Decimal 的十进制指数超出 $[-308,308]$ 都会被拒绝。
+
+```python
+from decimal import Decimal
+from tsao_computation.scientific_quantity import ScientificQuantity
+
+pressure = ScientificQuantity(
+    value=Decimal("1.25"), unit="MPa",
+    dimension=(-1, 1, -2, 0, 0, 0, 0),
+    source_id="instrument:pressure-01", uncertainty=Decimal("0.05"),
+)
+pressure_pa = pressure.convert(unit="Pa", dimension=pressure.dimension)
+assert pressure_pa.value == Decimal("1250000")
+assert pressure_pa.uncertainty == Decimal("50000")
+assert pressure_pa.source_quantity_digest == pressure.digest
 ```
 
-零返回码只能说明进程完成；收敛必须指定可观测量、范数和容差。
+派生记录保留父记录摘要，依据类型为 `DERIVED`。反序列化入口 `from_mapping()` 会重新检查单位、量纲及注册表元数据，不直接信任输入标签。
 
-### 4. 数值等价判据
+### 3. 有限数域与实际收敛判据
 
-候选后端与可信参考之间的相对误差为
-
-$$
-\delta_{\mathrm{rel}}=
-\frac{|y_{\mathrm{candidate}}-y_{\mathrm{reference}}|}
-{\max(|y_{\mathrm{reference}}|,\epsilon)}.
-$$
-
-所有受治理可观测量均满足容差后，才可接受后端等价：
+[`convergence_check`](tsao_computation/validation/numerical.py) 遍历全部输入，拒绝布尔值和非有限观测，然后比较**最后两个**有效值。当前实现的阈值是取最大值，不能写成绝对项与相对项相加：
 
 $$
-\max_j\delta_{\mathrm{rel},j}\leq\tau_{\mathrm{eq}}.
+\Delta=|x_n-x_{n-1}|,\quad s=\max(|x_n|,|x_{n-1}|,1),\quad
+\tau=\max(\tau_{\mathrm{abs}},\tau_{\mathrm{rel}}s),\quad
+G_{\mathrm{conv}}=(\Delta\leq\tau).
 $$
 
-因此资格顺序固定为
+两个容差均须有限且非负。少于两个观测或任一观测非法时检查失败。这项局部检查不能证明收敛阶、稳态、网格独立性、非线性方程残差或全局最优性；需要将这些条件单独写入计算合同并提供证据。受信任调用层会在序列化和哈希前，把非法浮点哨兵转为 JSON 可表达的失败证据。
+
+### 4. 守恒残差明确累计项的符号
+
+[`balance_check`](tsao_computation/validation/physical.py) 按相同单位、相同时间基准执行标量守恒检查：
 
 $$
-\text{身份与完整性}\rightarrow
-\text{CPU 正确性}\rightarrow
-\text{GPU/MPI 数值等价}\rightarrow
-\text{性能资格}.
+r=I-O-A,\qquad
+r_{\mathrm{norm}}=\frac{|r|}{\max(|I|,|O|,|A|,1)},\qquad
+G_{\mathrm{balance}}=(r_{\mathrm{norm}}\leq\varepsilon).
 $$
 
-### 5. 守恒与物理残差
+其中 $A$ 是累计项，正值表示控制体中有物料或能量积累。输入、输出、累计项和容差都必须有限，容差不能为负。该函数不推断反应化学、不汇总不同物理基准的流量，也不自动把质量流量改成摩尔流量；单位不兼容应在进入标量残差计算前拒绝。
 
-稳态平衡残差可写为
+### 5. 独立不确定度及适用条件
 
-$$
-R_{\mathrm{cons}}=
-\left|\sum_iF_i^{\mathrm{in}}-
-\sum_jF_j^{\mathrm{out}}+S\right|,
-$$
-
-其中 $S$ 是明确声明的生成或消耗项。验收要求
+[`combine_independent`](tsao_computation/uncertainty/model.py) 使用 `math.hypot` 稳定计算平方和开根号：
 
 $$
-R_{\mathrm{cons}}\leq\tau_{\mathrm{cons}}.
+u_c=\sqrt{u_{\mathrm{stat}}^2+u_{\mathrm{model}}^2+u_{\mathrm{num}}^2},\qquad u_i\geq0.
 $$
 
-内部科学参考测试使用解析解、守恒律和不变量，覆盖传热、流体、反应工程、分子动力学、统计力学、静电场与多物理场。
-
-### 6. 不确定度传播与适用域
-
-对于 $y=f(x_1,\ldots,x_n)$，在输入不确定度相互独立的近似下，
+各分量必须已经采用相同单位，并代表可比较的标准不确定度。实现拒绝非有限分量及溢出的合成结果，不估计相关性。存在相关性时，应由具体模型实现：
 
 $$
-u_y^2\approx
-\sum_i\left(\frac{\partial f}{\partial x_i}\right)^2u_{x_i}^2.
+u_y^2=\mathbf J\,\boldsymbol\Sigma\,\mathbf J^{\mathsf T},
 $$
 
-即使 $u_y$ 很小，也不能自动接受结果；还必须满足适用域：
+其中 $\mathbf J$ 为灵敏度行向量，$\boldsymbol\Sigma$ 为输入协方差矩阵。协方差传播是需要扩展的模型计算，不是 `combine_independent` 已实现的功能。采样误差、模型形式误差和数值误差应先分别保存，确认解释和单位后再合成。
+
+### 6. 跨模型交接同时约束数值与证据
+
+[`HandoffRecord`](tsao_computation/contracts/handoff.py) 将源模型、接收模型、观测量、值、单位、工况、参考态、统计/模型不确定度、适用域和变换绑定：
 
 $$
-A_{\mathrm{domain}}=
-\mathbf{1}(x\in\Omega_{\mathrm{validated}})
-\mathbf{1}(\text{模型假设成立}).
+H_{\mathrm{handoff}}=\operatorname{SHA256}\!\left(\operatorname{CanonicalJSON}
+(M_s,M_t,q,x,u,C,R,U_s,U_m,\Omega,T)\right).
 $$
 
-### 7. 资源 Broker 准入
+值只接受有限实数标量或非空规则数组，最多六层嵌套、100,000 个标量单元。任意分布字典不会被当作数值解释。不确定度必须非负，数组形状与值一致，或明确提供一个标量界限；结构化不确定度还必须附带同量纲单位。它自己的单位会被保留，使用者必须先换算到共同单位再合成。
 
-许可证、二进制、硬件、输入和策略共同决定资源准入：
+嵌套工况、数组、不确定度和证据都会复制并冻结。调用者修改原来的列表，不会改变已经接收的记录及其摘要。`to_dict()` 与 `from_mapping()` 提供重新检查合同的序列化路径。`checked` 表示软件合同检查；`validated` 还要求外部可信审批验证这一精确科学载荷。摘要排除审查结论和签名，避免循环签名；其他数值、工况或变换上的有效签名不能移用于本记录。
 
-$$
-A_{\mathrm{resource}}=
-\mathbf{1}(L)\mathbf{1}(B)\mathbf{1}(H)
-\mathbf{1}(I)\mathbf{1}(P).
-$$
+### 7. 文本解析与执行、科学验证分开
 
-主机容量向量 $c=(c_{\mathrm{CPU}},c_{\mathrm{GPU}},c_{\mathrm{license}})$ 与各计划声明 $r_p$ 必须满足
+[`Adapter.parse`](tsao_computation/adapters/base.py) 返回明确文本中的完成/收敛观察、解析器版本、检测到的引擎版本文字或 `unknown`、输入 UTF-8 文本摘要及当前运行段偏移。识别到后续任务开始时，不会借用前一任务的成功标记让尚未结束的任务通过。否定观察优先于成功文字：
 
 $$
-\sum_{p\in\mathcal{P}_{\mathrm{active}}}r_p\preceq c.
+G_{\mathrm{text,complete}}=P_{\mathrm{complete}}\land\neg N_{\mathrm{complete}},\qquad
+G_{\mathrm{text,converged}}=G_{\mathrm{text,complete}}\land P_{\mathrm{conv}}\land\neg N_{\mathrm{conv}}.
 $$
 
-资源代理会拒绝 CPU 过度订阅、独占 GPU 冲突、CUDA/HIP/ROCR 可见设备不一致和许可证令牌超配。
+`SCF not yet converged`、`not normal termination`、`converged=false` 等输入不能被提升为成功。通用及引擎特定成功标记只描述**文本状态**；解析器不能独立证明日志是谁生成的、可执行文件是否可信或科学模型是否有效，`validated` 始终为假。原始输出字节和真实执行记录应另行保存，尤其不能把文本解码后的摘要冒充原始字节摘要。
 
-### 统一证据摘要
+### 8. 正式接受统一经过验证门禁
 
-结构化证据、执行绑定、加速计划和性能画像统一使用 `tsao_computation.hashing`。规范 JSON 固定键顺序与紧凑分隔符、采用 UTF-8 字节并拒绝 NaN/Infinity；文件摘要按受限分块流式计算。该收敛删除了各子系统重复的 SHA-256 编码逻辑，同时不改变既有证据 Schema。
+[`acceptance_gate`](tsao_computation/validation/acceptance.py)、[`ScientificStateMachine`](tsao_computation/state/machine.py) 和 [`assess_confidence`](tsao_computation/validation/confidence.py) 共用绑定制品的接受规则：
+
+$$
+G_{\mathrm{accept}}=
+\left(\bigwedge_{j=1}^{7} b_j\right)
+\land\operatorname{ValidDigest}(H)
+\land\operatorname{Verify}_{K_{\mathrm{trusted}}}(\sigma,H,\mathrm{scope},\mathrm{role},t).
+$$
+
+七项布尔条件分别为完成、解析、数值收敛、物理验证、不确定度量化、适用性确认和证据绑定。这些字段是声明的证据摘要，签名及外部审查者构成审查边界。审批必须具有 `scientific-result-acceptance` 作用域、`independent-domain-reviewer` 角色、不同的请求者/批准者标识和有效时间窗口。可信密钥来自调用环境，不能从结果载荷中自报。
+
+C0–C3 表示逐级丰富的已声明证据；C4 要求通过签名验证的科学接受；C5 还要求独立的 `engineering-decision`、`safety-review`、`independent-reproduction` 签名及对应角色，全部绑定同一制品和显式决策范围。“专家已审核”字符串、调用者布尔开关或内嵌密钥均不能让记录达到 C4/C5。
+
+禁止直接构造已接受状态。从物理验证转到科学接受，必须提供同一条已验证记录，且状态转移证据等于该制品摘要。状态和事件通过公共接口保持不可变；仅用任意文字走完整个状态序列，不能获得正式接受。
+
+### 9. 溯源和资源申请保持可审计
+
+[`hashing.py`](tsao_computation/hashing.py) 对 JSON 使用排序键、紧凑分隔及有限数规则，文件摘要按受限块读取。执行绑定包含规范化命令/工作目录、可执行文件身份、输入身份和环境。授权摘要来自结构化绑定，而不是有歧义的显示字符串拼接：
+
+$$
+H_{\mathrm{authorization}}=\operatorname{SHA256}(\operatorname{CanonicalJSON}(B)),\qquad
+H_{\mathrm{file}}=\operatorname{SHA256}(\mathrm{bytes}_{\mathrm{file}}).
+$$
+
+资源准入要求 CPU、GPU 和许可证申请兼容。对于可加资源：
+
+$$
+\sum_{p\in\mathcal P_{\mathrm{active}}}r_{p,j}\leq c_j,
+$$
+
+GPU 还需独占和设备可见性约束。这些是本地调度与证据控制；求解器性能、CPU/GPU 等价性和模型准确度，需要单独测量的工作负载及参考结果。
+
+本轮真实生产入口的回归见 [`tests/test_acceptance_repair.py`](tests/test_acceptance_repair.py)；原有接受、数值、资源分配和执行测试继续保留。
 
 ## 资格与交付示意图
 
@@ -272,6 +285,40 @@ $$
 <!-- V13_VISUAL_SYSTEM:END -->
 
 ## 使用策略
+
+### 已实现的执行协议
+
+27 个适配器条目描述路由和环境能力；检测到程序不等于所有适配器均可运行。[`Adapter.build_command()`](tsao_computation/adapters/base.py) 当前实现的输入协议如下：
+
+| 适配器路径 | 可执行文件后的参数 | 必需输入 |
+|---|---|---|
+| GROMACS | `mdrun -s system.tpr` | 已预处理的 `.tpr` 文件；预处理是独立操作 |
+| Quantum ESPRESSO | `-i scf.in` | PWscf 输入文件 |
+| ORCA | `water.inp` | ORCA 输入文件 |
+| 已声明的 Python 模块适配器 | `driver.py` | `.py` 驱动脚本及该解释器中必需的模块 |
+| 其他适配器条目 | 不生成可执行的通用参数 | 需要实现引擎特定协议并完成资格验证 |
+
+GROMACS 与 QE 参数分别对应 [GROMACS mdrun 官方文档](https://manual.gromacs.org/current/onlinehelp/gmx-mdrun.html)和 [QE 输入文件说明](https://www.quantum-espresso.org/Doc/pw_user_guide/node21.html)。生成的计划均保留 `execute_allowed=False`；执行前还需将程序/输入字节、工作目录和环境绑定授权。测试中的替身程序只能验证参数构造，不能证明外部求解器科学正确。
+
+### 现有证据的迁移策略
+
+旧记录若包含未知单位、矛盾量纲、任意换算系数、负不确定度、自由文本审批或直接构造的已接受状态，现在会被拒绝。应从真实来源重新构造记录，不能用占位审批填补缺失证据。尚未经过外部审查的常规交接使用 `checked` 或 `unvalidated`；`validated` 必须提供绑定 `handoff.digest` 的签名接受记录，并由接收环境独立提供可信密钥。
+
+```python
+from tsao_computation.validation import assess_confidence
+from tsao_computation.state import ScientificStateMachine
+
+# record 来自经过资格检查的证据包。
+# trusted_keys 由接收环境配置，不能从 record 自报字段读取。
+assessment = assess_confidence(record, trusted_approval_keys=trusted_keys)
+machine = ScientificStateMachine("physically-validated")
+machine.transition(
+    "scientifically-accepted", evidence=record["artifact_sha256"],
+    acceptance_record=record, trusted_approval_keys=trusted_keys,
+)
+```
+
+没有外部可信上下文时，置信度接口不能达到 C4。C5 还需分别签署决策、安全审查和独立复现作用域。HMAC 验证提供已配置可信域内的完整性保护；真实审查者身份、密钥保护、撤销和持久防重放策略仍由部署环境负责。
 
 ### 策略 A：没有求解器时先完成科学规划
 
@@ -390,7 +437,7 @@ python scripts/verify_all.py --profile benchmark
 专项回归命令：
 
 ```bash
-python -m pytest -q tests/test_approval_attestation_boundaries.py tests/test_validation_fail_closed.py
+python -m pytest -q tests/test_acceptance_repair.py tests/test_approval_attestation_boundaries.py tests/test_validation_fail_closed.py
 ```
 
 

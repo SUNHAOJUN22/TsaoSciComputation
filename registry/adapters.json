@@ -14,7 +14,8 @@
       "level": "A3",
       "limitations": [
         "No live third-party solver execution is claimed by this certification.",
-        "Adapter presence does not establish solver availability or model applicability."
+        "Adapter presence does not establish solver availability or model applicability.",
+        "Generic positional-input commands are disabled; this adapter needs an engine-specific execution implementation."
       ],
       "live_solver_execution": false,
       "solver_versions": [],
@@ -31,7 +32,7 @@
     "maturity": "A3",
     "name": "Gaussian",
     "parser_policy": "Conservative: unknown or incomplete output is not promoted to converged or validated.",
-    "runnable_when": "At least one declared executable is detected and all required inputs, licenses, and environment checks pass.",
+    "runnable_when": "Planning and environment probe only: no engine-specific command protocol is implemented in Adapter.build_command.",
     "slug": "gaussian",
     "workflow": "quantum-chemistry"
   },
@@ -68,7 +69,7 @@
     "maturity": "A4",
     "name": "ORCA",
     "parser_policy": "Conservative: unknown or incomplete output is not promoted to converged or validated.",
-    "runnable_when": "At least one declared executable is detected and all required inputs, licenses, and environment checks pass.",
+    "runnable_when": "Implemented engine argv protocol, declared executable, required inputs, environment and license checks must pass; hash-bound execution authorization is still required.",
     "slug": "orca",
     "workflow": "quantum-chemistry"
   },
@@ -89,7 +90,8 @@
       "level": "A4",
       "limitations": [
         "No live third-party solver execution is claimed by this certification.",
-        "Adapter presence does not establish solver availability or model applicability."
+        "Adapter presence does not establish solver availability or model applicability.",
+        "Generic positional-input commands are disabled; this adapter needs an engine-specific execution implementation."
       ],
       "live_solver_execution": false,
       "solver_versions": [],
@@ -105,7 +107,7 @@
     "maturity": "A4",
     "name": "Psi4",
     "parser_policy": "Conservative: unknown or incomplete output is not promoted to converged or validated.",
-    "runnable_when": "At least one declared executable is detected and all required inputs, licenses, and environment checks pass.",
+    "runnable_when": "Planning and environment probe only: no engine-specific command protocol is implemented in Adapter.build_command.",
     "slug": "psi4",
     "workflow": "quantum-chemistry"
   },
@@ -145,7 +147,7 @@
     "python_modules": [
       "pyscf"
     ],
-    "runnable_when": "All declared Python modules and at least one declared executable are detected, and all required inputs, licenses, data, and environment checks pass.",
+    "runnable_when": "A .py driver, declared Python interpreter, all declared modules and environment checks are required; hash-bound execution authorization is still required.",
     "slug": "pyscf",
     "workflow": "quantum-chemistry"
   },
@@ -182,7 +184,7 @@
     "maturity": "A4",
     "name": "Quantum ESPRESSO",
     "parser_policy": "Conservative: unknown or incomplete output is not promoted to converged or validated.",
-    "runnable_when": "At least one declared executable is detected and all required inputs, licenses, and environment checks pass.",
+    "runnable_when": "Implemented engine argv protocol, declared executable, required inputs, environment and license checks must pass; hash-bound execution authorization is still required.",
     "slug": "quantum-espresso",
     "workflow": "periodic-dft"
   },
@@ -203,7 +205,8 @@
       "level": "A4",
       "limitations": [
         "No live third-party solver execution is claimed by this certification.",
-        "Adapter presence does not establish solver availability or model applicability."
+        "Adapter presence does not establish solver availability or model applicability.",
+        "Generic positional-input commands are disabled; this adapter needs an engine-specific execution implementation."
       ],
       "live_solver_execution": false,
       "solver_versions": [],
@@ -219,7 +222,7 @@
     "maturity": "A4",
     "name": "CP2K",
     "parser_policy": "Conservative: unknown or incomplete output is not promoted to converged or validated.",
-    "runnable_when": "At least one declared executable is detected and all required inputs, licenses, and environment checks pass.",
+    "runnable_when": "Planning and environment probe only: no engine-specific command protocol is implemented in Adapter.build_command.",
     "slug": "cp2k",
     "workflow": "periodic-dft"
   },
@@ -238,7 +241,8 @@
       "level": "A3",
       "limitations": [
         "No live third-party solver execution is claimed by this certification.",
-        "Adapter presence does not establish solver availability or model applicability."
+        "Adapter presence does not establish solver availability or model applicability.",
+        "Generic positional-input commands are disabled; this adapter needs an engine-specific execution implementation."
       ],
       "live_solver_execution": false,
       "solver_versions": [],
@@ -254,7 +258,7 @@
     "maturity": "A3",
     "name": "VASP",
     "parser_policy": "Conservative: unknown or incomplete output is not promoted to converged or validated.",
-    "runnable_when": "At least one declared executable is detected and all required inputs, licenses, and environment checks pass.",
+    "runnable_when": "Planning and environment probe only: no engine-specific command protocol is implemented in Adapter.build_command.",
     "slug": "vasp",
     "workflow": "periodic-dft"
   },
@@ -273,7 +277,8 @@
       "level": "A3",
       "limitations": [
         "No live third-party solver execution is claimed by this certification.",
-        "Adapter presence does not establish solver availability or model applicability."
+        "Adapter presence does not establish solver availability or model applicability.",
+        "Generic positional-input commands are disabled; this adapter needs an engine-specific execution implementation."
       ],
       "live_solver_execution": false,
       "solver_versions": [],
@@ -289,7 +294,7 @@
     "maturity": "A3",
     "name": "ABACUS",
     "parser_policy": "Conservative: unknown or incomplete output is not promoted to converged or validated.",
-    "runnable_when": "At least one declared executable is detected and all required inputs, licenses, and environment checks pass.",
+    "runnable_when": "Planning and environment probe only: no engine-specific command protocol is implemented in Adapter.build_command.",
     "slug": "abacus",
     "workflow": "periodic-dft"
   },
@@ -308,7 +313,8 @@
       "level": "A3",
       "limitations": [
         "No live third-party solver execution is claimed by this certification.",
-        "Adapter presence does not establish solver availability or model applicability."
+        "Adapter presence does not establish solver availability or model applicability.",
+        "Generic positional-input commands are disabled; this adapter needs an engine-specific execution implementation."
       ],
       "live_solver_execution": false,
       "solver_versions": [],
@@ -324,7 +330,7 @@
     "maturity": "A3",
     "name": "GPAW",
     "parser_policy": "Conservative: unknown or incomplete output is not promoted to converged or validated.",
-    "runnable_when": "At least one declared executable is detected and all required inputs, licenses, and environment checks pass.",
+    "runnable_when": "Planning and environment probe only: no engine-specific command protocol is implemented in Adapter.build_command.",
     "slug": "gpaw",
     "workflow": "periodic-dft"
   },
@@ -365,7 +371,7 @@
       "ase",
       "pymatgen"
     ],
-    "runnable_when": "All declared Python modules and at least one declared executable are detected, and all required inputs, licenses, data, and environment checks pass.",
+    "runnable_when": "A .py driver, declared Python interpreter, all declared modules and environment checks are required; hash-bound execution authorization is still required.",
     "slug": "ase-pymatgen",
     "workflow": "periodic-dft"
   },
@@ -402,7 +408,7 @@
     "maturity": "A4",
     "name": "GROMACS",
     "parser_policy": "Conservative: unknown or incomplete output is not promoted to converged or validated.",
-    "runnable_when": "At least one declared executable is detected and all required inputs, licenses, and environment checks pass.",
+    "runnable_when": "Implemented engine argv protocol, declared executable, required inputs, environment and license checks must pass; hash-bound execution authorization is still required.",
     "slug": "gromacs",
     "workflow": "molecular-dynamics"
   },
@@ -442,7 +448,7 @@
     "python_modules": [
       "openmm"
     ],
-    "runnable_when": "All declared Python modules and at least one declared executable are detected, and all required inputs, licenses, data, and environment checks pass.",
+    "runnable_when": "A .py driver, declared Python interpreter, all declared modules and environment checks are required; hash-bound execution authorization is still required.",
     "slug": "openmm",
     "workflow": "molecular-dynamics"
   },
@@ -463,7 +469,8 @@
       "level": "A4",
       "limitations": [
         "No live third-party solver execution is claimed by this certification.",
-        "Adapter presence does not establish solver availability or model applicability."
+        "Adapter presence does not establish solver availability or model applicability.",
+        "Generic positional-input commands are disabled; this adapter needs an engine-specific execution implementation."
       ],
       "live_solver_execution": false,
       "solver_versions": [],
@@ -480,7 +487,7 @@
     "maturity": "A4",
     "name": "LAMMPS",
     "parser_policy": "Conservative: unknown or incomplete output is not promoted to converged or validated.",
-    "runnable_when": "At least one declared executable is detected and all required inputs, licenses, and environment checks pass.",
+    "runnable_when": "Planning and environment probe only: no engine-specific command protocol is implemented in Adapter.build_command.",
     "slug": "lammps",
     "workflow": "molecular-dynamics"
   },
@@ -501,7 +508,8 @@
       "level": "A4",
       "limitations": [
         "No live third-party solver execution is claimed by this certification.",
-        "Adapter presence does not establish solver availability or model applicability."
+        "Adapter presence does not establish solver availability or model applicability.",
+        "Generic positional-input commands are disabled; this adapter needs an engine-specific execution implementation."
       ],
       "live_solver_execution": false,
       "solver_versions": [],
@@ -517,7 +525,7 @@
     "maturity": "A4",
     "name": "PLUMED",
     "parser_policy": "Conservative: unknown or incomplete output is not promoted to converged or validated.",
-    "runnable_when": "At least one declared executable is detected and all required inputs, licenses, and environment checks pass.",
+    "runnable_when": "Planning and environment probe only: no engine-specific command protocol is implemented in Adapter.build_command.",
     "slug": "plumed",
     "workflow": "enhanced-sampling"
   },
@@ -536,7 +544,8 @@
       "level": "A3",
       "limitations": [
         "No live third-party solver execution is claimed by this certification.",
-        "Adapter presence does not establish solver availability or model applicability."
+        "Adapter presence does not establish solver availability or model applicability.",
+        "Generic positional-input commands are disabled; this adapter needs an engine-specific execution implementation."
       ],
       "live_solver_execution": false,
       "solver_versions": [],
@@ -552,7 +561,7 @@
     "maturity": "A3",
     "name": "DeePMD-kit",
     "parser_policy": "Conservative: unknown or incomplete output is not promoted to converged or validated.",
-    "runnable_when": "At least one declared executable is detected and all required inputs, licenses, and environment checks pass.",
+    "runnable_when": "Planning and environment probe only: no engine-specific command protocol is implemented in Adapter.build_command.",
     "slug": "deepmd",
     "workflow": "machine-learning-potential"
   },
@@ -590,7 +599,7 @@
     "python_modules": [
       "mace"
     ],
-    "runnable_when": "All declared Python modules and at least one declared executable are detected, and all required inputs, licenses, data, and environment checks pass.",
+    "runnable_when": "A .py driver, declared Python interpreter, all declared modules and environment checks are required; hash-bound execution authorization is still required.",
     "slug": "mace",
     "workflow": "machine-learning-potential"
   },
@@ -630,7 +639,7 @@
     "python_modules": [
       "dolfinx"
     ],
-    "runnable_when": "All declared Python modules and at least one declared executable are detected, and all required inputs, licenses, data, and environment checks pass.",
+    "runnable_when": "A .py driver, declared Python interpreter, all declared modules and environment checks are required; hash-bound execution authorization is still required.",
     "slug": "dolfinx",
     "workflow": "finite-element"
   },
@@ -649,7 +658,8 @@
       "level": "A3",
       "limitations": [
         "No live third-party solver execution is claimed by this certification.",
-        "Adapter presence does not establish solver availability or model applicability."
+        "Adapter presence does not establish solver availability or model applicability.",
+        "Generic positional-input commands are disabled; this adapter needs an engine-specific execution implementation."
       ],
       "live_solver_execution": false,
       "solver_versions": [],
@@ -665,7 +675,7 @@
     "maturity": "A3",
     "name": "MOOSE",
     "parser_policy": "Conservative: unknown or incomplete output is not promoted to converged or validated.",
-    "runnable_when": "At least one declared executable is detected and all required inputs, licenses, and environment checks pass.",
+    "runnable_when": "Planning and environment probe only: no engine-specific command protocol is implemented in Adapter.build_command.",
     "slug": "moose",
     "workflow": "multiphysics"
   },
@@ -684,7 +694,8 @@
       "level": "A3",
       "limitations": [
         "No live third-party solver execution is claimed by this certification.",
-        "Adapter presence does not establish solver availability or model applicability."
+        "Adapter presence does not establish solver availability or model applicability.",
+        "Generic positional-input commands are disabled; this adapter needs an engine-specific execution implementation."
       ],
       "live_solver_execution": false,
       "solver_versions": [],
@@ -700,7 +711,7 @@
     "maturity": "A3",
     "name": "Elmer",
     "parser_policy": "Conservative: unknown or incomplete output is not promoted to converged or validated.",
-    "runnable_when": "At least one declared executable is detected and all required inputs, licenses, and environment checks pass.",
+    "runnable_when": "Planning and environment probe only: no engine-specific command protocol is implemented in Adapter.build_command.",
     "slug": "elmer",
     "workflow": "finite-element"
   },
@@ -738,7 +749,7 @@
     "python_modules": [
       "KratosMultiphysics"
     ],
-    "runnable_when": "All declared Python modules and at least one declared executable are detected, and all required inputs, licenses, data, and environment checks pass.",
+    "runnable_when": "A .py driver, declared Python interpreter, all declared modules and environment checks are required; hash-bound execution authorization is still required.",
     "slug": "kratos",
     "workflow": "multiphysics"
   },
@@ -759,7 +770,8 @@
       "level": "A4",
       "limitations": [
         "No live third-party solver execution is claimed by this certification.",
-        "Adapter presence does not establish solver availability or model applicability."
+        "Adapter presence does not establish solver availability or model applicability.",
+        "Generic positional-input commands are disabled; this adapter needs an engine-specific execution implementation."
       ],
       "live_solver_execution": false,
       "solver_versions": [],
@@ -776,7 +788,7 @@
     "maturity": "A4",
     "name": "OpenFOAM",
     "parser_policy": "Conservative: unknown or incomplete output is not promoted to converged or validated.",
-    "runnable_when": "At least one declared executable is detected and all required inputs, licenses, and environment checks pass.",
+    "runnable_when": "Planning and environment probe only: no engine-specific command protocol is implemented in Adapter.build_command.",
     "slug": "openfoam",
     "workflow": "cfd"
   },
@@ -795,7 +807,8 @@
       "level": "A3",
       "limitations": [
         "No live third-party solver execution is claimed by this certification.",
-        "Adapter presence does not establish solver availability or model applicability."
+        "Adapter presence does not establish solver availability or model applicability.",
+        "Generic positional-input commands are disabled; this adapter needs an engine-specific execution implementation."
       ],
       "live_solver_execution": false,
       "solver_versions": [],
@@ -811,7 +824,7 @@
     "maturity": "A3",
     "name": "SU2",
     "parser_policy": "Conservative: unknown or incomplete output is not promoted to converged or validated.",
-    "runnable_when": "At least one declared executable is detected and all required inputs, licenses, and environment checks pass.",
+    "runnable_when": "Planning and environment probe only: no engine-specific command protocol is implemented in Adapter.build_command.",
     "slug": "su2",
     "workflow": "cfd"
   },
@@ -830,7 +843,8 @@
       "level": "A3",
       "limitations": [
         "No live third-party solver execution is claimed by this certification.",
-        "Adapter presence does not establish solver availability or model applicability."
+        "Adapter presence does not establish solver availability or model applicability.",
+        "Generic positional-input commands are disabled; this adapter needs an engine-specific execution implementation."
       ],
       "live_solver_execution": false,
       "solver_versions": [],
@@ -846,7 +860,7 @@
     "maturity": "A3",
     "name": "DWSIM",
     "parser_policy": "Conservative: unknown or incomplete output is not promoted to converged or validated.",
-    "runnable_when": "At least one declared executable is detected and all required inputs, licenses, and environment checks pass.",
+    "runnable_when": "Planning and environment probe only: no engine-specific command protocol is implemented in Adapter.build_command.",
     "slug": "dwsim",
     "workflow": "process-simulation"
   },
@@ -867,7 +881,8 @@
       "level": "A4",
       "limitations": [
         "No live third-party solver execution is claimed by this certification.",
-        "Adapter presence does not establish solver availability or model applicability."
+        "Adapter presence does not establish solver availability or model applicability.",
+        "Generic positional-input commands are disabled; this adapter needs an engine-specific execution implementation."
       ],
       "live_solver_execution": false,
       "solver_versions": [],
@@ -887,7 +902,7 @@
       "idaes",
       "pyomo"
     ],
-    "runnable_when": "All declared Python modules and at least one declared executable are detected, and all required inputs, licenses, data, and environment checks pass.",
+    "runnable_when": "Planning and environment probe only: no engine-specific command protocol is implemented in Adapter.build_command.",
     "slug": "idaes-pyomo",
     "workflow": "process-simulation"
   },
@@ -906,7 +921,8 @@
       "level": "A3",
       "limitations": [
         "No live third-party solver execution is claimed by this certification.",
-        "Adapter presence does not establish solver availability or model applicability."
+        "Adapter presence does not establish solver availability or model applicability.",
+        "Generic positional-input commands are disabled; this adapter needs an engine-specific execution implementation."
       ],
       "live_solver_execution": false,
       "solver_versions": [],
@@ -922,7 +938,7 @@
     "maturity": "A3",
     "name": "OpenModelica",
     "parser_policy": "Conservative: unknown or incomplete output is not promoted to converged or validated.",
-    "runnable_when": "At least one declared executable is detected and all required inputs, licenses, and environment checks pass.",
+    "runnable_when": "Planning and environment probe only: no engine-specific command protocol is implemented in Adapter.build_command.",
     "slug": "openmodelica",
     "workflow": "dynamic-control"
   },
@@ -963,7 +979,7 @@
       "cantera",
       "rmgpy"
     ],
-    "runnable_when": "All declared Python modules and at least one declared executable are detected, and all required inputs, licenses, data, and environment checks pass.",
+    "runnable_when": "A .py driver, declared Python interpreter, all declared modules and environment checks are required; hash-bound execution authorization is still required.",
     "slug": "cantera-rmg",
     "workflow": "reactor-engineering"
   },
@@ -980,7 +996,8 @@
       "level": "A2",
       "limitations": [
         "No live third-party solver execution is claimed by this certification.",
-        "Adapter presence does not establish solver availability or model applicability."
+        "Adapter presence does not establish solver availability or model applicability.",
+        "Generic positional-input commands are disabled; this adapter needs an engine-specific execution implementation."
       ],
       "live_solver_execution": false,
       "solver_versions": [],
@@ -994,7 +1011,7 @@
     "maturity": "A2",
     "name": "Aspen Plus/Dynamics/ACM",
     "parser_policy": "Conservative: unknown or incomplete output is not promoted to converged or validated.",
-    "runnable_when": "At least one declared executable is detected and all required inputs, licenses, and environment checks pass.",
+    "runnable_when": "Planning and environment probe only: no engine-specific command protocol is implemented in Adapter.build_command.",
     "slug": "aspen",
     "workflow": "process-simulation"
   }

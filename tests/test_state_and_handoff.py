@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 import pytest
+from approval_fixtures import TEST_KEYS, verified_record
 
 from tsao_computation.contracts import HandoffRecord
 from tsao_computation.errors import ContractError, StateTransitionError
@@ -41,7 +42,7 @@ def valid_handoff() -> HandoffRecord:
         model_uncertainty={"value": 150.0, "unit": "Pa*s", "method": "force-field sensitivity"},
         applicability="validated shear-rate and temperature window",
         transformation="fit Carreau-Yasuda parameters with unit conversion",
-        validation_status="validated",
+        validation_status="checked",
     )
 
 
@@ -52,7 +53,15 @@ def test_required_scientific_states_are_canonical() -> None:
 def test_complete_state_path_requires_preflight_and_evidence() -> None:
     machine = ScientificStateMachine()
     for target in REQUIRED_STATES[1:11]:
-        machine.transition(target, evidence=f"evidence:{target}")
+        if target == "scientifically-accepted":
+            machine.transition(
+                target,
+                evidence="a" * 64,
+                acceptance_record=verified_record(),
+                trusted_approval_keys=TEST_KEYS,
+            )
+        else:
+            machine.transition(target, evidence=f"evidence:{target}")
     assert machine.state == "scientifically-accepted"
     assert len(machine.events) == 10
 
@@ -68,7 +77,7 @@ def test_legacy_state_names_normalize_without_bypassing_gates() -> None:
 
 def test_handoff_requires_conditions_and_both_uncertainties() -> None:
     record = valid_handoff()
-    assert record.validation_status == "validated"
+    assert record.validation_status == "checked"
     with pytest.raises(ContractError, match="conditions"):
         HandoffRecord(
             record.source_model,

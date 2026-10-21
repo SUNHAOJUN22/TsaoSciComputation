@@ -6,6 +6,7 @@ import shutil
 import sys
 from collections.abc import Mapping
 from dataclasses import dataclass
+from hashlib import sha256
 from pathlib import Path
 from types import MappingProxyType
 from typing import Any
@@ -15,25 +16,32 @@ from ..hashing import file_sha256
 from ..immutable import freeze_json
 from ..security.process import probe_python_modules
 
+PARSER_VERSION = "tsao-conservative-status/2"
 _COMPLETION_SUCCESS = re.compile(
-    r"\bnormal\s+termination\b|"
-    r"(?:^|[;\r\n])\s*(?:(?:run|job|calculation|simulation)\s+)?"
-    r"(?:finished|completed)(?:\s+successfully)?\s*(?=$|[;\r\n])|"
-    r"\btotal\s+wall\s+time\b"
+    r"(?:^|[;\r\n])\s*(?:normal\s+termination(?:\s+of\s+gaussian[^;\r\n]*)?|"
+    r"(?:(?:run|job|calculation|simulation)\s+)?(?:finished|completed)(?:\s+successfully)?)"
+    r"\s*[.!]?\s*(?=$|[;\r\n])|\btotal\s+wall\s+time\b|"
+    r"\borca\s+terminated\s+normally\b|\bjob\s+done\.|\bfinished\s+mdrun\b"
 )
-
 _COMPLETION_FAILURE_PATTERN = (
     r"\b(?:abnormal|error|fatal)\s+termination\b|"
     r"\b(?:run|job|calculation|simulation)\s+(?:failed|aborted)\b|"
-    r"\b(?:not|never)\s+(?:finished|completed)\b|"
-    r"\bcompleted\s+with\s+(?:errors?|failures?)\b|"
-    r"\bfatal\s+error\b"
+    r"\b(?:not|never)(?:\s+yet)?\s+(?:finished|completed|normal\s+termination|terminated\s+normally)\b|"
+    r"\bcompleted\s+with\s+(?:errors?|failures?)\b|\bfatal\s+error\b|"
+    r"\b(?:completed|finished)\s*[:=]\s*(?:false|no|0)\b"
 )
-_CONVERGENCE_SUCCESS = re.compile(r"\bconverged\b|\bconvergence\s+(?:achieved|reached)\b")
+_CONVERGENCE_SUCCESS = re.compile(
+    r"(?:^|[;\r\n])\s*\**\s*(?:(?:scf|geometry|optimization|iteration|calculation)\s+)?"
+    r"(?:converged(?:\s+(?:after|in|to|within)\b[^;\r\n]*)?|"
+    r"convergence\s+(?:has\s+been\s+)?(?:achieved|reached)(?:\s+in\b[^;\r\n]*)?)"
+    r"\s*[.!*]*\s*(?=$|[;\r\n])"
+)
 _CONVERGENCE_FAILURE_PATTERN = (
-    r"\bnot(?:\s+fully)?\s+converged\b|\bfailed\s+to\s+converge\b|"
-    r"\bdid\s+not\s+converge\b|\bconvergence\s+(?:not\s+achieved|failed|failure)\b|"
-    r"\bnon[-\s]?converged\b|\bunconverged\b"
+    r"\b(?:not|never)(?:\s+(?:yet|fully|necessarily|actually))*\s+converged\b|"
+    r"\bfailed\s+to\s+converge\b|\bdid\s+not\s+converge\b|"
+    r"\bconvergence\s+(?:(?:has\s+)?not\s+(?:been\s+)?(?:achieved|reached)|failed|failure)\b|"
+    r"\bnon[-\s]?converged\b|\bunconverged\b|"
+    r"\bconverged\s*[:=?]\s*(?:false|no|0)\b"
 )
 _FAILURE_STATUS = re.compile(
     rf"(?P<completion>{_COMPLETION_FAILURE_PATTERN})|(?P<convergence>{_CONVERGENCE_FAILURE_PATTERN})"
@@ -49,6 +57,18 @@ _FAILURE_CUES = (
     "non-",
     "non ",
     "unconverged",
+    "false",
+    "=",
+    ":",
+    "?",
+)
+_JOB_START = re.compile(
+    r"(?:^|[\r\n])\s*(?:program\s+pwscf\b|job\s+start\b|run\s+start\b|o\s+r\s+c\s+a\b)",
+    re.IGNORECASE,
+)
+_VERSION = re.compile(
+    r"(?:program\s+pwscf\s+v\.?|program\s+version\s+|gromacs\s+version\s*:?\s*)([0-9][\w.+-]*)",
+    re.IGNORECASE,
 )
 
 
@@ -183,8 +203,27 @@ class Adapter:
             raise ContractError(
                 f"adapter {self.slug} is not runnable in the current environment: {probe.reason}"
             )
+        argv: tuple[str, ...]
+        if self.slug == "gromacs":
+            if source.suffix.casefold() != ".tpr":
+                raise ContractError("GROMACS mdrun requires a preprocessed .tpr input")
+            argv = (probe.executable, "mdrun", "-s", source.name)
+        elif self.slug == "quantum-espresso":
+            argv = (probe.executable, "-i", source.name)
+        elif self.slug == "orca":
+            argv = (probe.executable, source.name)
+        elif Path(probe.executable).name.casefold().startswith(("python", "pypy")) and (
+            self.python_modules or self.record.get("command_protocol") == "python-script"
+        ):
+            if source.suffix.casefold() != ".py":
+                raise ContractError("Python adapter requires a .py driver, not a solver input deck")
+            argv = (probe.executable, source.name)
+        else:
+            raise ContractError(
+                f"adapter {self.slug} has no implemented engine-specific command protocol; planning metadata only"
+            )
         return CommandPlan(
-            argv=(probe.executable, source.name),
+            argv=argv,
             cwd=source.parent,
             environment={},
             claim_boundary="Command prepared only; execution requires hash-bound authorization and scientific acceptance requires separate evidence.",
@@ -195,19 +234,36 @@ class Adapter:
         )
 
     def parse(self, output: str) -> dict[str, Any]:
-        folded = output.casefold()
+        if not isinstance(output, str):
+            raise TypeError("solver output must be text")
+        # Never borrow success from a previous run when a later recognized run is truncated.
+        last_start = 0
+        for start in _JOB_START.finditer(output):
+            last_start = start.start()
+        active_output = output[last_start:].casefold()
         completion_failed = convergence_failed = False
-        if any(cue in folded for cue in _FAILURE_CUES):
-            for match in _FAILURE_STATUS.finditer(folded):
+        if any(cue in active_output for cue in _FAILURE_CUES):
+            for match in _FAILURE_STATUS.finditer(active_output):
                 completion_failed |= match.lastgroup == "completion"
                 convergence_failed |= match.lastgroup == "convergence"
                 if completion_failed and convergence_failed:
                     break
-        completed = not completion_failed and _COMPLETION_SUCCESS.search(folded) is not None
+        completed = not completion_failed and _COMPLETION_SUCCESS.search(active_output) is not None
         converged = (
-            completed and not convergence_failed and _CONVERGENCE_SUCCESS.search(folded) is not None
+            completed
+            and not convergence_failed
+            and _CONVERGENCE_SUCCESS.search(active_output) is not None
         )
+        version = _VERSION.search(output[last_start : last_start + 65536])
         return {
+            "parser_version": PARSER_VERSION,
+            "adapter_slug": self.slug,
+            "engine_version": version.group(1) if version is not None else "unknown",
+            "source_sha256": sha256(output.encode("utf-8")).hexdigest(),
+            "evidence_scope": "text-status-only; execution, physical validation and acceptance require separate evidence",
+            "active_run_offset": last_start,
+            "completion_failure": completion_failed,
+            "convergence_failure": convergence_failed,
             "completed": completed,
             "converged": converged,
             "raw_length": len(output),

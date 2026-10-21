@@ -5,25 +5,13 @@ from pathlib import Path
 
 import jsonschema
 import pytest
+from approval_fixtures import TEST_KEYS, verified_record
 
 from tsao_computation.validation import assess_confidence
 
 
 def evidence_through_c5() -> dict[str, object]:
-    return {
-        "completed": True,
-        "parsed": True,
-        "converged": True,
-        "physically_validated": True,
-        "uncertainty_quantified": True,
-        "applicability_confirmed": True,
-        "evidence_bound": True,
-        "expert_reviewed": True,
-        "approvals": ["Dr. Reviewer — domain review"],
-        "decision_scope_confirmed": True,
-        "safety_review_completed": True,
-        "independent_reproduction": True,
-    }
+    return verified_record(governance=True)
 
 
 def test_unassessed_and_c0_are_distinct() -> None:
@@ -43,11 +31,11 @@ def test_levels_are_strictly_sequential() -> None:
     for level, changes in expected.items():
         candidate = dict(record)
         candidate.update(changes)
-        assert assess_confidence(candidate).level == level
+        assert assess_confidence(candidate, trusted_approval_keys=TEST_KEYS).level == level
 
 
 def test_c5_requires_all_decision_governance_evidence() -> None:
-    assessment = assess_confidence(evidence_through_c5())
+    assessment = assess_confidence(evidence_through_c5(), trusted_approval_keys=TEST_KEYS)
     assert assessment.level == "C5"
     assert assessment.engineering_decision_ready is True
     assert assessment.next_level is None
@@ -78,7 +66,7 @@ def test_assessment_validates_against_schema() -> None:
     schema = json.loads(
         Path("schemas/confidence-assessment.schema.json").read_text(encoding="utf-8")
     )
-    payload = assess_confidence(evidence_through_c5()).to_dict()
+    payload = assess_confidence(evidence_through_c5(), trusted_approval_keys=TEST_KEYS).to_dict()
     jsonschema.Draft202012Validator(schema, format_checker=jsonschema.FormatChecker()).validate(
         payload
     )

@@ -1,7 +1,68 @@
 {
+  "$defs": {
+    "nonnegativeValue": {
+      "oneOf": [
+        {
+          "minimum": 0,
+          "type": "number"
+        },
+        {
+          "items": {
+            "$ref": "#/$defs/nonnegativeValue"
+          },
+          "maxItems": 100000,
+          "minItems": 1,
+          "type": "array"
+        }
+      ]
+    },
+    "numericValue": {
+      "oneOf": [
+        {
+          "type": "number"
+        },
+        {
+          "items": {
+            "$ref": "#/$defs/numericValue"
+          },
+          "maxItems": 100000,
+          "minItems": 1,
+          "type": "array"
+        }
+      ]
+    }
+  },
   "$id": "https://example.org/tsao/handoff.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "validation_status": {
+            "const": "validated"
+          }
+        },
+        "required": [
+          "validation_status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "validation_evidence": {
+            "required": [
+              "artifact_sha256",
+              "approvals"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "validation_evidence"
+        ]
+      }
+    }
+  ],
   "properties": {
     "applicability": {
       "minLength": 1,
@@ -12,13 +73,86 @@
       "type": "object"
     },
     "model_uncertainty": {
-      "anyOf": [
+      "oneOf": [
         {
+          "minimum": 0,
           "type": "number"
         },
         {
-          "minProperties": 1,
+          "properties": {
+            "unit": {
+              "enum": [
+                "%",
+                "1",
+                "C",
+                "J",
+                "J/mol",
+                "K",
+                "MPa",
+                "Pa",
+                "Pa*s",
+                "Pa.s",
+                "angstrom",
+                "atm",
+                "bar",
+                "cP",
+                "cm",
+                "cm2/s",
+                "degC",
+                "degF",
+                "delta_K",
+                "delta_degC",
+                "delta_degF",
+                "eV",
+                "fraction",
+                "fs",
+                "g",
+                "g/cm3",
+                "h",
+                "hartree",
+                "kJ",
+                "kJ/mol",
+                "kPa",
+                "kcal/mol",
+                "kg",
+                "kg/m3",
+                "kmol",
+                "m",
+                "m2/s",
+                "mPa*s",
+                "mg",
+                "min",
+                "mm",
+                "mmol",
+                "mol",
+                "ms",
+                "nm",
+                "ns",
+                "percent",
+                "ppm",
+                "ps",
+                "s",
+                "um",
+                "us"
+              ],
+              "type": "string"
+            },
+            "value": {
+              "$ref": "#/$defs/nonnegativeValue"
+            }
+          },
+          "required": [
+            "value",
+            "unit"
+          ],
           "type": "object"
+        },
+        {
+          "items": {
+            "$ref": "#/$defs/nonnegativeValue"
+          },
+          "minItems": 1,
+          "type": "array"
         }
       ]
     },
@@ -35,13 +169,86 @@
       "type": "string"
     },
     "statistical_uncertainty": {
-      "anyOf": [
+      "oneOf": [
         {
+          "minimum": 0,
           "type": "number"
         },
         {
-          "minProperties": 1,
+          "properties": {
+            "unit": {
+              "enum": [
+                "%",
+                "1",
+                "C",
+                "J",
+                "J/mol",
+                "K",
+                "MPa",
+                "Pa",
+                "Pa*s",
+                "Pa.s",
+                "angstrom",
+                "atm",
+                "bar",
+                "cP",
+                "cm",
+                "cm2/s",
+                "degC",
+                "degF",
+                "delta_K",
+                "delta_degC",
+                "delta_degF",
+                "eV",
+                "fraction",
+                "fs",
+                "g",
+                "g/cm3",
+                "h",
+                "hartree",
+                "kJ",
+                "kJ/mol",
+                "kPa",
+                "kcal/mol",
+                "kg",
+                "kg/m3",
+                "kmol",
+                "m",
+                "m2/s",
+                "mPa*s",
+                "mg",
+                "min",
+                "mm",
+                "mmol",
+                "mol",
+                "ms",
+                "nm",
+                "ns",
+                "percent",
+                "ppm",
+                "ps",
+                "s",
+                "um",
+                "us"
+              ],
+              "type": "string"
+            },
+            "value": {
+              "$ref": "#/$defs/nonnegativeValue"
+            }
+          },
+          "required": [
+            "value",
+            "unit"
+          ],
           "type": "object"
+        },
+        {
+          "items": {
+            "$ref": "#/$defs/nonnegativeValue"
+          },
+          "minItems": 1,
+          "type": "array"
         }
       ]
     },
@@ -54,8 +261,67 @@
       "type": "string"
     },
     "unit": {
-      "minLength": 1,
+      "enum": [
+        "%",
+        "1",
+        "C",
+        "J",
+        "J/mol",
+        "K",
+        "MPa",
+        "Pa",
+        "Pa*s",
+        "Pa.s",
+        "angstrom",
+        "atm",
+        "bar",
+        "cP",
+        "cm",
+        "cm2/s",
+        "degC",
+        "degF",
+        "delta_K",
+        "delta_degC",
+        "delta_degF",
+        "eV",
+        "fraction",
+        "fs",
+        "g",
+        "g/cm3",
+        "h",
+        "hartree",
+        "kJ",
+        "kJ/mol",
+        "kPa",
+        "kcal/mol",
+        "kg",
+        "kg/m3",
+        "kmol",
+        "m",
+        "m2/s",
+        "mPa*s",
+        "mg",
+        "min",
+        "mm",
+        "mmol",
+        "mol",
+        "ms",
+        "nm",
+        "ns",
+        "percent",
+        "ppm",
+        "ps",
+        "s",
+        "um",
+        "us"
+      ],
       "type": "string"
+    },
+    "validation_evidence": {
+      "type": [
+        "object",
+        "null"
+      ]
     },
     "validation_status": {
       "enum": [
@@ -66,9 +332,7 @@
       ]
     },
     "value": {
-      "not": {
-        "type": "null"
-      }
+      "$ref": "#/$defs/numericValue"
     }
   },
   "required": [

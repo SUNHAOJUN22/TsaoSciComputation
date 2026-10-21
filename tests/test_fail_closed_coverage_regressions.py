@@ -63,7 +63,7 @@ def valid_handoff() -> HandoffRecord:
         model_uncertainty={"value": 150.0, "unit": "Pa*s"},
         applicability="validated temperature window",
         transformation="fit constitutive parameters",
-        validation_status="validated",
+        validation_status="checked",
     )
 
 

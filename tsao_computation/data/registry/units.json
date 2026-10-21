@@ -7,22 +7,38 @@
     ],
     "canonical": "mol"
   },
+  "density": {
+    "accepted": [
+      "kg/m3",
+      "g/cm3"
+    ],
+    "canonical": "kg/m3"
+  },
+  "diffusivity": {
+    "accepted": [
+      "m2/s",
+      "cm2/s"
+    ],
+    "canonical": "m2/s"
+  },
   "dimensionless": {
     "accepted": [
       "1",
       "fraction",
-      "percent"
+      "percent",
+      "%",
+      "ppm"
     ],
     "canonical": "1"
   },
   "energy": {
     "accepted": [
-      "J/mol",
-      "kJ/mol",
+      "J",
+      "kJ",
       "eV",
       "hartree"
     ],
-    "canonical": "J/mol"
+    "canonical": "J"
   },
   "length": {
     "accepted": [
@@ -43,6 +59,14 @@
     ],
     "canonical": "kg"
   },
+  "molar_energy": {
+    "accepted": [
+      "J/mol",
+      "kJ/mol",
+      "kcal/mol"
+    ],
+    "canonical": "J/mol"
+  },
   "pressure": {
     "accepted": [
       "Pa",
@@ -56,9 +80,19 @@
   "temperature": {
     "accepted": [
       "K",
-      "degC"
+      "degC",
+      "C",
+      "degF"
     ],
     "canonical": "K"
+  },
+  "temperature_interval": {
+    "accepted": [
+      "delta_K",
+      "delta_degC",
+      "delta_degF"
+    ],
+    "canonical": "delta_K"
   },
   "time": {
     "accepted": [
@@ -72,5 +106,14 @@
       "h"
     ],
     "canonical": "s"
+  },
+  "viscosity": {
+    "accepted": [
+      "Pa*s",
+      "Pa.s",
+      "mPa*s",
+      "cP"
+    ],
+    "canonical": "Pa*s"
   }
 }

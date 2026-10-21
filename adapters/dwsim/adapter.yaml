@@ -13,7 +13,8 @@
     "level": "A3",
     "limitations": [
       "No live third-party solver execution is claimed by this certification.",
-      "Adapter presence does not establish solver availability or model applicability."
+      "Adapter presence does not establish solver availability or model applicability.",
+      "Generic positional-input commands are disabled; this adapter needs an engine-specific execution implementation."
     ],
     "live_solver_execution": false,
     "solver_versions": [],
@@ -29,7 +30,7 @@
   "maturity": "A3",
   "name": "DWSIM",
   "parser_policy": "Conservative: unknown or incomplete output is not promoted to converged or validated.",
-  "runnable_when": "At least one declared executable is detected and all required inputs, licenses, and environment checks pass.",
+  "runnable_when": "Planning and environment probe only: no engine-specific command protocol is implemented in Adapter.build_command.",
   "slug": "dwsim",
   "workflow": "process-simulation"
 }

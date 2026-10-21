@@ -35,7 +35,7 @@
     "cantera",
     "rmgpy"
   ],
-  "runnable_when": "All declared Python modules and at least one declared executable are detected, and all required inputs, licenses, data, and environment checks pass.",
+  "runnable_when": "A .py driver, declared Python interpreter, all declared modules and environment checks are required; hash-bound execution authorization is still required.",
   "slug": "cantera-rmg",
   "workflow": "reactor-engineering"
 }

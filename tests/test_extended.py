@@ -28,12 +28,18 @@ from tsao_computation.workflows import WorkflowEngine
 
 
 def test_adapter_build_command_and_parse(tmp_path: Path) -> None:
-    source = tmp_path / "input.inp"
+    source = tmp_path / "input.py"
     source.write_text("data", encoding="utf-8")
-    adapter = Adapter({"slug": "test-python", "executables": [sys.executable]})
+    adapter = Adapter(
+        {
+            "slug": "test-python",
+            "executables": [sys.executable],
+            "command_protocol": "python-script",
+        }
+    )
     plan = adapter.build_command(source, executable=sys.executable)
     assert Path(plan.argv[0]).resolve() == Path(sys.executable).resolve()
-    assert plan.argv[1:] == ("input.inp",)
+    assert plan.argv[1:] == ("input.py",)
     assert plan.cwd == tmp_path.resolve()
     parsed = adapter.parse("Normal termination; converged")
     assert parsed["completed"] is True

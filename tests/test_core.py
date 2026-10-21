@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import pytest
+from approval_fixtures import TEST_KEYS, verified_record
 
 from tsao_computation.adapters import get_adapter, probe_all
 from tsao_computation.adapters.base import CommandPlan
@@ -52,9 +53,9 @@ def test_003_contract_empty_observable():
 def test_004_handoff_valid():
     assert (
         HandoffRecord(
-            "a", "b", "q", 1, "1", {"temperature_K": 298}, "r", 0, 0, "d", "identity", "validated"
+            "a", "b", "q", 1, "1", {"temperature_K": 298}, "r", 0, 0, "d", "identity", "checked"
         ).validation_status
-        == "validated"
+        == "checked"
     )
 
 
@@ -81,7 +82,15 @@ def test_006_state_happy_path():
         "physically-validated",
         "scientifically-accepted",
     ):
-        m.transition(state, evidence=state)
+        if state == "scientifically-accepted":
+            m.transition(
+                state,
+                evidence="a" * 64,
+                acceptance_record=verified_record(),
+                trusted_approval_keys=TEST_KEYS,
+            )
+        else:
+            m.transition(state, evidence=state)
     assert m.state == "scientifically-accepted" and len(m.events) == 10
 
 

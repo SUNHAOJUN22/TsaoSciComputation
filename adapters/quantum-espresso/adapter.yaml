@@ -31,7 +31,7 @@
   "maturity": "A4",
   "name": "Quantum ESPRESSO",
   "parser_policy": "Conservative: unknown or incomplete output is not promoted to converged or validated.",
-  "runnable_when": "At least one declared executable is detected and all required inputs, licenses, and environment checks pass.",
+  "runnable_when": "Implemented engine argv protocol, declared executable, required inputs, environment and license checks must pass; hash-bound execution authorization is still required.",
   "slug": "quantum-espresso",
   "workflow": "periodic-dft"
 }

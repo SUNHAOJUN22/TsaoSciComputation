@@ -6,15 +6,17 @@
     "temperature": "project-specific"
   },
   "model_uncertainty": {
-    "basis": "model-form or calibration assessment",
-    "value": "project-specific"
+    "basis": "synthetic placeholder; replace with measured project uncertainty before use",
+    "unit": "1",
+    "value": 0.0
   },
   "quantity": "quantity",
   "reference_state": "declared reference",
   "source_model": "source",
   "statistical_uncertainty": {
-    "basis": "sampling or fit assessment",
-    "value": "project-specific"
+    "basis": "synthetic placeholder; replace with measured project uncertainty before use",
+    "unit": "1",
+    "value": 0.0
   },
   "target_model": "target",
   "transformation": "identity or explicit conversion formula",

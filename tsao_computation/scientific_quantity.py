@@ -7,9 +7,11 @@ import re
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from decimal import Decimal, InvalidOperation
+from decimal import Decimal, InvalidOperation, localcontext
 from hashlib import sha256
 from typing import Literal, TypeAlias
+
+from .quantity_units import DIMENSION_ORDER, REGISTRY_VERSION, unit_definition
 
 QuantityBasis: TypeAlias = Literal["MEASURED", "CALCULATED", "SIMULATED", "REFERENCE", "DERIVED"]
 AcceptanceVerifier: TypeAlias = Callable[[bytes, str, str], bool]
@@ -25,6 +27,8 @@ def _decimal(value: object, *, field: str) -> Decimal:
         raise ValueError(f"{field} is not a valid decimal quantity") from exc
     if not result.is_finite():
         raise ValueError(f"{field} must be finite")
+    if result and not -308 <= result.adjusted() <= 308:
+        raise ValueError(f"{field} exceeds the supported decimal exponent range [-308, 308]")
     return result
 
 
@@ -36,26 +40,52 @@ class ScientificQuantity:
     source_id: str
     basis: QuantityBasis = "MEASURED"
     uncertainty: Decimal | None = None
+    source_quantity_digest: str | None = None
 
     def __post_init__(self) -> None:
         value = _decimal(self.value, field="value")
+        if not isinstance(self.unit, str):
+            raise ValueError("unit must be a non-empty string")
+        if not isinstance(self.source_id, str):
+            raise ValueError("source_id must be a non-empty string")
         unit = self.unit.strip()
         source_id = self.source_id.strip()
         if not unit:
             raise ValueError("unit must not be blank")
         if not source_id:
             raise ValueError("source_id must not be blank")
-        if not self.dimension or any(
-            isinstance(power, bool) or not isinstance(power, int) for power in self.dimension
+        if (
+            not isinstance(self.dimension, (list, tuple))
+            or len(self.dimension) != 7
+            or any(
+                isinstance(power, bool) or not isinstance(power, int) for power in self.dimension
+            )
         ):
-            raise ValueError("dimension must be a non-empty integer exponent vector")
-        if self.basis not in {"MEASURED", "CALCULATED", "SIMULATED", "REFERENCE", "DERIVED"}:
+            raise ValueError("dimension must be a seven-integer exponent vector")
+        definition = unit_definition(unit)
+        if tuple(self.dimension) != definition.dimension:
+            raise ValueError("unit and dimension are incompatible")
+        if definition.kind == "absolute-temperature" and value <= -definition.offset:
+            raise ValueError("absolute temperature must be above zero kelvin")
+        if self.source_quantity_digest is not None and (
+            not isinstance(self.source_quantity_digest, str)
+            or _DIGEST.fullmatch(self.source_quantity_digest) is None
+        ):
+            raise ValueError("source_quantity_digest must be a SHA-256 digest")
+        if not isinstance(self.basis, str) or self.basis not in {
+            "MEASURED",
+            "CALCULATED",
+            "SIMULATED",
+            "REFERENCE",
+            "DERIVED",
+        }:
             raise ValueError(f"unsupported quantity basis: {self.basis}")
         uncertainty = None
         if self.uncertainty is not None:
             uncertainty = _decimal(self.uncertainty, field="uncertainty")
             if uncertainty < 0:
                 raise ValueError("uncertainty must be non-negative")
+        object.__setattr__(self, "dimension", tuple(self.dimension))
         object.__setattr__(self, "value", value)
         object.__setattr__(self, "unit", unit)
         object.__setattr__(self, "source_id", source_id)
@@ -67,15 +97,23 @@ class ScientificQuantity:
         missing = sorted(required - payload.keys())
         if missing:
             raise ValueError(f"scientific quantity missing fields: {missing}")
+        if (
+            "unit_registry_version" in payload
+            and payload["unit_registry_version"] != REGISTRY_VERSION
+        ):
+            raise ValueError("unsupported unit registry version")
+        if "dimension_order" in payload and payload["dimension_order"] != list(DIMENSION_ORDER):
+            raise ValueError("unsupported dimension order")
         raw_dimension = payload["dimension"]
         if isinstance(raw_dimension, (str, bytes)) or not isinstance(raw_dimension, Sequence):
             raise TypeError("dimension must be an integer sequence")
         return cls(
             value=_decimal(payload["value"], field="value"),
-            unit=str(payload["unit"]),
+            unit=payload["unit"],  # type: ignore[arg-type]
             dimension=tuple(raw_dimension),
-            source_id=str(payload["source_id"]),
-            basis=str(payload.get("basis", "MEASURED")),  # type: ignore[arg-type]
+            source_id=payload["source_id"],  # type: ignore[arg-type]
+            basis=payload.get("basis", "MEASURED"),  # type: ignore[arg-type]
+            source_quantity_digest=payload.get("source_quantity_digest"),  # type: ignore[arg-type]
             uncertainty=(
                 None
                 if payload.get("uncertainty") is None
@@ -86,7 +124,7 @@ class ScientificQuantity:
     def convert(
         self,
         *,
-        factor: Decimal | int | float | str,
+        factor: Decimal | int | float | str | None = None,
         unit: str,
         dimension: Sequence[int],
         source_id: str | None = None,
@@ -94,16 +132,30 @@ class ScientificQuantity:
         target_dimension = tuple(dimension)
         if target_dimension != self.dimension:
             raise ValueError("cannot convert between incompatible dimensions")
-        scale = _decimal(factor, field="factor")
-        if scale <= 0:
-            raise ValueError("conversion factor must be positive")
+        source = unit_definition(self.unit)
+        target = unit_definition(unit)
+        if target.dimension != self.dimension or source.kind != target.kind:
+            raise ValueError("cannot convert between incompatible units or temperature kinds")
+        with localcontext() as context:
+            context.prec = 50
+            scale = (source.scale * target.divisor) / (source.divisor * target.scale)
+            if factor is not None:
+                requested_scale = _decimal(factor, field="factor")
+                if requested_scale <= 0:
+                    raise ValueError("conversion factor must be positive")
+                if requested_scale != scale:
+                    raise ValueError("conversion factor contradicts the controlled unit registry")
+            canonical_value = (self.value + source.offset) * source.scale / source.divisor
+            converted_value = canonical_value * target.divisor / target.scale - target.offset
+            converted_uncertainty = None if self.uncertainty is None else self.uncertainty * scale
         return ScientificQuantity(
-            value=self.value * scale,
+            value=converted_value,
             unit=unit,
             dimension=target_dimension,
-            source_id=source_id or self.source_id,
+            source_id=self.source_id if source_id is None else source_id,
             basis="DERIVED",
-            uncertainty=(None if self.uncertainty is None else self.uncertainty * scale),
+            uncertainty=converted_uncertainty,
+            source_quantity_digest=self.digest,
         )
 
     def canonical_payload(self) -> dict[str, object]:
@@ -111,6 +163,9 @@ class ScientificQuantity:
             "value": str(self.value),
             "unit": self.unit,
             "dimension": list(self.dimension),
+            "dimension_order": list(DIMENSION_ORDER),
+            "unit_registry_version": REGISTRY_VERSION,
+            "source_quantity_digest": self.source_quantity_digest,
             "source_id": self.source_id,
             "basis": self.basis,
             "uncertainty": (None if self.uncertainty is None else str(self.uncertainty)),
