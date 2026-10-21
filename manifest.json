@@ -116,9 +116,9 @@
       "sha256": "15d510e1f5228c7de316c385f6ae91044ce9fa30cbced49a30a85f6a21e9a1bb"
     },
     {
-      "bytes": 4866,
+      "bytes": 5105,
       "path": ".github/workflows/derived-artifacts.yml",
-      "sha256": "e1f657e44775332000bb8587bd7f39e27ed1aa0a7ae52625f99d73588b7ecc75"
+      "sha256": "4233ebe9353f133bf78e80d1fbfb3b3b8f1d6de87f55a724107ff3c07e5912d9"
     },
     {
       "bytes": 5555,

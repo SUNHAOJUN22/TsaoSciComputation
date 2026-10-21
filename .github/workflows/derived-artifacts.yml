@@ -94,7 +94,12 @@ jobs:
               entries.append({"path": name, "mode": "100644", "type": "blob", "sha": expected})
               files.append({"path": name, "blob_sha": expected, "sha256": hashlib.sha256(raw).hexdigest()})
           base_tree = git("rev-parse", "HEAD^{tree}")
-          tree = post("repos/" + repository + "/git/trees", {"base_tree": base_tree, "tree": entries})
+          # A clean regeneration already has the validated tree; GitHub rejects
+          # an empty tree update.  Preserve the receipt without a needless write.
+          tree = (
+              post("repos/" + repository + "/git/trees", {"base_tree": base_tree, "tree": entries})
+              if entries else {"sha": base_tree}
+          )
           if changed:
               subprocess.run(["git", "add", "--", *changed], check=True)
           if tree["sha"] != git("write-tree"):
