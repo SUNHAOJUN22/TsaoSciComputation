@@ -5,24 +5,20 @@
   },
   "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
   "file_scope_counts": {
-    "benchmark": 21,
-    "production": 2077,
-    "test": 161,
+    "benchmark": 9,
+    "production": 68,
+    "test": 80,
     "tooling": 39
   },
   "language_files": {
-    "c": 143,
-    "cpp": 11,
-    "cuda": 1,
-    "fortran": 13,
-    "python": 2130
+    "c": 1,
+    "cpp": 2,
+    "python": 193
   },
   "language_lines": {
-    "c": 29290,
-    "cpp": 266,
-    "cuda": 29,
-    "fortran": 370,
-    "python": 706427
+    "c": 70,
+    "cpp": 197,
+    "python": 26333
   },
   "opportunities": [
     {
@@ -165,10 +161,10 @@
   "opportunity_count": 4,
   "parse_failures": [],
   "python_files_analyzed": 66,
-  "python_files_excluded": 2064,
+  "python_files_excluded": 127,
   "root": ".",
   "scope": "production",
-  "source_files": 2298,
-  "source_lines": 736382,
-  "source_tree_sha256": "8a52e58e88a28581016cff88252bacc3ab31c7eb40a7a008ef0d272c5e10d1fd"
+  "source_files": 196,
+  "source_lines": 26600,
+  "source_tree_sha256": "ae1b9fb6fd1b0cf24e92769bc6272187d334b4f9c65237bd052832f7e49518bd"
 }
