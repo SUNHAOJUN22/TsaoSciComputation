@@ -246,12 +246,15 @@ def acceptance_is_verified(
     if envelope.decision != "ACCEPTED":
         return False
     try:
-        return bool(
+        # A verifier's result is a strict decision, not a truthiness protocol.
+        # In particular, "false", status objects and numeric codes cannot approve.
+        return (
             verifier(
                 envelope.canonical_bytes(),
                 envelope.signature,
                 envelope.reviewer_id,
             )
+            is True
         )
     except Exception:
         return False

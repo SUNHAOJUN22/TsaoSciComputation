@@ -254,6 +254,8 @@ C0–C3 classify progressively richer declared evidence. C4 requires verified sc
 
 Direct construction of an accepted state is rejected. Transitioning from physical validation to scientific acceptance requires the same verified record, and the transition evidence must equal its artifact digest. State and recorded events are immutable through the public interface. A complete state sequence with invented evidence strings cannot authorize acceptance.
 
+The separately exported compatibility APIs `acceptance_is_verified()` and `require_verified_acceptance()` delegate signature verification to a caller-provided trusted verifier. Only its explicit Boolean `True` result authorizes the envelope; `False`, strings such as `"false"`, numeric status codes, containers, custom truthy objects and verifier exceptions are rejected. The hook does not interpret an object's `__bool__()` method, perform cryptographic verification itself, or grant C4/C5 classification. The configured verifier must validate the canonical message, signature and reviewer against the deployment's actual trust policy.
+
 ### 9. Provenance and resource claims remain explicit
 
 [`hashing.py`](tsao_computation/hashing.py) canonicalizes JSON with sorted keys, compact separators and finite numbers; it hashes file bytes in bounded chunks. Execution bindings include normalized command/cwd, executable identity, input identities and environment. The authorization digest is a hash of that structured binding, not an ambiguous concatenation of display strings:
