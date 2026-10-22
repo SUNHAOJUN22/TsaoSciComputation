@@ -501,6 +501,8 @@ $$
 
 Events must be JSON objects; nested duplicate keys, NaN, Infinity, overflowing floating-point numbers and non-UTF-8 input are rejected. Cooperating writers serialize read–append–atomic-replace operations through an exclusive sidecar lock, preventing lost updates. This is a local-file protocol, not a distributed database transaction; explicit archival is required at the 64 MiB bound. Lock acquisition times out after 10 seconds. An abandoned lock is not stolen automatically; confirm the writer has exited and back up the ledger before recovery.
 
+On Windows, the C runtime can report a sharing or delete-pending conflict as `EACCES`. Lock creation retries that error within the same 10-second acquisition deadline, and still requires a successful exclusive create before any ledger update. Persistent access denial is re-raised as the original `PermissionError`; other permission errors and non-Windows permission failures propagate immediately. A failed acquisition never removes another writer's lock. These semantics follow the Microsoft [`_open` error mapping](https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/open-wopen?view=msvc-170) and [`CreateFile` deletion rules](https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-createfilea).
+
 Source mapping: [`tsao_computation/provenance/ledger.py`](tsao_computation/provenance/ledger.py) · [`tests/test_provenance_ledger_integrity.py`](tests/test_provenance_ledger_integrity.py)
 
 ### Usage and acceptance sequence

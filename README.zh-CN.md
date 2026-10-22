@@ -510,6 +510,8 @@ $$
 
 事件必须是 JSON 对象；嵌套重复键、NaN、Infinity、浮点溢出和非 UTF-8 输入拒绝进入账本。协作写入者通过排他侧车锁串行执行读—追加—原子替换，避免多个进程覆盖彼此的事件。此为本地文件协议，不是分布式数据库事务；64 MiB 上界到达时需要显式归档。等待锁最多 10 秒，崩溃遗留锁不会被自动抢占；维护者应确认写入者已退出并备份账本后再恢复。
 
+Windows 的 C 运行库可能将共享冲突或等待删除状态报告为 `EACCES`。创建锁遇到该错误时，只在同一个 10 秒获取期限内重试；必须成功排他创建锁后才能更新账本。持续访问拒绝仍原样抛出 `PermissionError`，其他权限错误及非 Windows 平台的权限失败立即向调用方传播。获取失败绝不删除其他写入者的锁。此行为依据微软 [`_open` 错误映射](https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/open-wopen?view=msvc-170)与 [`CreateFile` 删除语义](https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-createfilea)。
+
 源码对应: [`tsao_computation/provenance/ledger.py`](tsao_computation/provenance/ledger.py) · [`tests/test_provenance_ledger_integrity.py`](tests/test_provenance_ledger_integrity.py)
 
 ### 使用与验收顺序

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import errno
 import json
 import math
 import os
@@ -76,6 +77,13 @@ def _writer_lock(path: Path) -> Iterator[None]:
         except FileExistsError:
             if time.monotonic() >= deadline:
                 raise TimeoutError(f"event ledger is locked: {path.name}") from None
+            time.sleep(0.01)
+        except PermissionError as error:
+            # Windows CRT maps sharing/delete-pending conflicts to EACCES too.
+            # Retry only acquisition, within the same deadline; persistent access
+            # denial remains PermissionError and never authorizes or removes a lock.
+            if os.name != "nt" or error.errno != errno.EACCES or time.monotonic() >= deadline:
+                raise
             time.sleep(0.01)
     try:
         yield

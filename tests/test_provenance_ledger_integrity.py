@@ -1,12 +1,16 @@
 from __future__ import annotations
 
+import errno
 import json
 import multiprocessing
+import os
+from collections.abc import Callable
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
-from tsao_computation.provenance import append_event, read_events
+from tsao_computation.provenance import append_event, ledger, read_events
 
 
 def _write_events(path: str, worker: int) -> None:
@@ -132,3 +136,150 @@ def test_write_failure_releases_lock_and_nonobject_input_is_rejected(
         append_event(path, {"event": "new"})
     assert not path.with_name(path.name + ".lock").exists()
     assert not path.exists()
+
+
+def _install_lock_open(
+    monkeypatch: pytest.MonkeyPatch, platform: str, opener: Callable[..., int]
+) -> None:
+    # Replace only the ledger's OS boundary; pathlib and atomic replacement remain real.
+    monkeypatch.setattr(
+        ledger,
+        "os",
+        SimpleNamespace(
+            name=platform,
+            open=opener,
+            close=os.close,
+            O_CREAT=os.O_CREAT,
+            O_EXCL=os.O_EXCL,
+            O_WRONLY=os.O_WRONLY,
+        ),
+    )
+
+
+def test_windows_access_conflict_waits_for_real_exclusive_lock(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    path = tmp_path / "events.jsonl"
+    append_event(path, {"event": "prior"})
+    original = path.read_bytes()
+    lock = path.with_name(path.name + ".lock")
+    lock.write_text("another writer", encoding="utf-8")
+    attempts: list[tuple[Path, int, int]] = []
+    clock = [0.0]
+    waits: list[float] = []
+
+    def lock_open(candidate: Path, flags: int, mode: int) -> int:
+        attempts.append((candidate, flags, mode))
+        if len(attempts) == 1:
+            # The CRT error in the Windows CI trace has errno, but no winerror.
+            raise PermissionError(errno.EACCES, "delete-pending sharing conflict", str(lock))
+        return os.open(candidate, flags, mode)
+
+    def wait(delay: float) -> None:
+        waits.append(delay)
+        clock[0] += delay
+        assert path.read_bytes() == original
+        assert lock.read_text(encoding="utf-8") == "another writer"
+        if len(waits) == 2:
+            # Simulate the other owner releasing its lock, not the contender stealing it.
+            lock.unlink()
+
+    _install_lock_open(monkeypatch, "nt", lock_open)
+    monkeypatch.setattr(ledger, "time", SimpleNamespace(monotonic=lambda: clock[0], sleep=wait))
+    append_event(path, {"event": "new"})
+    assert attempts == [(lock, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)] * 3
+    assert waits == [0.01, 0.01]
+    assert [record["event"] for record in read_events(path)] == ["prior", "new"]
+    assert not lock.exists()
+
+
+def test_windows_persistent_access_denial_keeps_original_error_and_lock(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    path = tmp_path / "events.jsonl"
+    append_event(path, {"event": "prior"})
+    original = path.read_bytes()
+    lock = path.with_name(path.name + ".lock")
+    lock.write_text("another writer", encoding="utf-8")
+    denied = PermissionError(errno.EACCES, "permission remains denied", str(lock))
+    clock = [0.0]
+    attempts = [0]
+    waits: list[float] = []
+
+    def lock_open(_candidate: Path, _flags: int, _mode: int) -> int:
+        attempts[0] += 1
+        raise denied
+
+    def wait(delay: float) -> None:
+        waits.append(delay)
+        clock[0] += delay
+
+    _install_lock_open(monkeypatch, "nt", lock_open)
+    monkeypatch.setattr(ledger, "time", SimpleNamespace(monotonic=lambda: clock[0], sleep=wait))
+    monkeypatch.setattr(ledger, "LOCK_TIMEOUT_SECONDS", 0.02)
+    with pytest.raises(PermissionError) as captured:
+        append_event(path, {"event": "new"})
+    assert captured.value is denied
+    assert attempts == [3] and waits == [0.01, 0.01]
+    assert path.read_bytes() == original
+    assert lock.read_text(encoding="utf-8") == "another writer"
+
+
+def test_windows_access_retry_shares_existing_lock_deadline(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    path = tmp_path / "events.jsonl"
+    lock = path.with_name(path.name + ".lock")
+    lock.write_text("another writer", encoding="utf-8")
+    denied = PermissionError(errno.EACCES, "still denied at deadline", str(lock))
+    clock = [0.0]
+    attempts = [0]
+    waits: list[float] = []
+
+    def lock_open(candidate: Path, flags: int, mode: int) -> int:
+        attempts[0] += 1
+        if attempts[0] == 1:
+            return os.open(candidate, flags, mode)
+        raise denied
+
+    def wait(delay: float) -> None:
+        waits.append(delay)
+        clock[0] += delay
+
+    _install_lock_open(monkeypatch, "nt", lock_open)
+    monkeypatch.setattr(ledger, "time", SimpleNamespace(monotonic=lambda: clock[0], sleep=wait))
+    monkeypatch.setattr(ledger, "LOCK_TIMEOUT_SECONDS", 0.01)
+    with pytest.raises(PermissionError) as captured:
+        append_event(path, {"event": "new"})
+    assert captured.value is denied
+    assert attempts == [2] and waits == [0.01]
+    assert not path.exists()
+    assert lock.read_text(encoding="utf-8") == "another writer"
+
+
+@pytest.mark.parametrize("platform,error_number", [("posix", errno.EACCES), ("nt", errno.EPERM)])
+def test_unrelated_permission_errors_are_not_retried(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, platform: str, error_number: int
+) -> None:
+    path = tmp_path / "events.jsonl"
+    lock = path.with_name(path.name + ".lock")
+    lock.write_text("another writer", encoding="utf-8")
+    denied = PermissionError(error_number, "genuine permission error", str(lock))
+    attempts = [0]
+
+    def lock_open(_candidate: Path, _flags: int, _mode: int) -> int:
+        attempts[0] += 1
+        raise denied
+
+    def unexpected_wait(_delay: float) -> None:
+        raise AssertionError("unrelated permission errors must propagate immediately")
+
+    _install_lock_open(monkeypatch, platform, lock_open)
+    monkeypatch.setattr(
+        ledger, "time", SimpleNamespace(monotonic=lambda: 0.0, sleep=unexpected_wait)
+    )
+    with pytest.raises(PermissionError) as captured:
+        append_event(path, {"event": "new"})
+    assert captured.value is denied and attempts == [1]
+    assert not path.exists()
+    assert lock.read_text(encoding="utf-8") == "another writer"
