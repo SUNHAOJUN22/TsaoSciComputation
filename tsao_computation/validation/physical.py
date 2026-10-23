@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import math
 from functools import cache
-from typing import Any, cast
 
 from ..registries import units
+from .numerical import _finite_scalar
 
 
 @cache
@@ -21,15 +21,7 @@ def unit_known(unit: str) -> bool:
 
 
 def _number(value: object, *, name: str) -> float:
-    if isinstance(value, bool):
-        raise ValueError(f"{name} must be a finite number, not a boolean")
-    try:
-        converted = float(cast(Any, value))
-    except (TypeError, ValueError, OverflowError) as error:
-        raise ValueError(f"{name} must be a finite number") from error
-    if not math.isfinite(converted):
-        raise ValueError(f"{name} must be a finite number")
-    return converted
+    return _finite_scalar(value, name=name)
 
 
 def balance_check(
@@ -49,6 +41,8 @@ def balance_check(
         raise ValueError("balance residual must be finite")
     scale = max(abs(input_value), abs(output_value), abs(accumulation_value), 1.0)
     normalized = abs(residual) / scale
+    if residual and normalized == 0.0:
+        raise ValueError("normalized balance residual underflows the supported float range")
     return {
         "passed": normalized <= tolerance_value,
         "residual": residual,

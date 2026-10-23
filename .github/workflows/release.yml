@@ -65,7 +65,8 @@ jobs:
         run: |
           set -Eeuo pipefail
           export SOURCE_DATE_EPOCH="$(git show -s --format=%ct "$GITHUB_SHA")"
-          python -m pip install -e '.[validation,quality]'
+          python -m pip install --require-hashes --only-binary=:all: -r requirements-ci.txt
+          python -m pip install --no-index --no-deps --no-build-isolation -e '.[validation,quality]'
           python scripts/validate_skill_spec.py
           python scripts/sync_package_assets.py --check
           python scripts/build_adapter_docs.py --check

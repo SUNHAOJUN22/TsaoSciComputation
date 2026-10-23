@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import math
 from collections.abc import Iterable
+from decimal import Decimal, InvalidOperation
 from typing import SupportsFloat, SupportsIndex
 
 _SCALAR_INPUT_TYPES = (str, bytes, bytearray, memoryview, SupportsFloat, SupportsIndex)
@@ -18,6 +19,21 @@ def _finite_scalar(value: object, *, name: str) -> float:
         raise ValueError(f"{name} must be a finite real number") from error
     if not math.isfinite(converted):
         raise ValueError(f"{name} must be a finite real number")
+    if converted == 0.0:
+        # float() silently maps sufficiently small nonzero strings, Decimal and
+        # Fraction values to zero.  That must not become exact convergence or
+        # conservation evidence.  Preserve real zero, including signed zero.
+        try:
+            if isinstance(value, str):
+                nonzero_source = not Decimal(value).is_zero()
+            elif isinstance(value, (bytes, bytearray, memoryview)):
+                nonzero_source = not Decimal(bytes(value).decode("ascii")).is_zero()
+            else:
+                nonzero_source = value != 0
+        except (InvalidOperation, UnicodeError, TypeError, ValueError) as error:
+            raise ValueError(f"{name} zero conversion cannot be verified") from error
+        if nonzero_source:
+            raise ValueError(f"{name} nonzero value underflows the supported float range")
     return converted
 
 

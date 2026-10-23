@@ -11,9 +11,9 @@ Security fixes are released from the canonical `main` line. Historical tags rema
 
 ## Report a vulnerability privately
 
-First open the repository **Security** tab. When **Report a vulnerability** is available, use that private, structured reporting form. Do not disclose a suspected vulnerability in a public issue, pull request, discussion, benchmark log, or example dataset.
+First open the repository [Security tab](https://github.com/SUNHAOJUN22/TsaoSciComputation/security). When **Report a vulnerability** is available, use the [private vulnerability reporting form](https://github.com/SUNHAOJUN22/TsaoSciComputation/security/advisories/new). The button and form depend on the repository's current private-reporting configuration; this policy does not assert that the feature is enabled. Do not disclose a suspected vulnerability in a public issue, pull request, discussion, benchmark log, or example dataset.
 
-If GitHub does not display the private-reporting button, use a non-public contact route listed on the repository owner's GitHub profile and identify the message as a TsaoSciComputation security report. Do not put exploit details in a public contact form. Maintainers with repository access should create a draft repository security advisory instead of a public issue.
+If GitHub does not display the private-reporting button, use a non-public contact route listed on the [repository owner's GitHub profile](https://github.com/SUNHAOJUN22) and identify the message as a TsaoSciComputation security report. Do not put exploit details in a public contact form. Maintainers with repository access should create a draft repository security advisory instead of a public issue. GitHub documents the [private vulnerability reporting procedure](https://docs.github.com/en/code-security/security-advisories/guidance-on-reporting-and-writing-information-about-vulnerabilities/privately-reporting-a-security-vulnerability); no private email address or reporting availability is assumed here.
 
 Include only the minimum information needed to reproduce and assess the report:
 

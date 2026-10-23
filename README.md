@@ -62,7 +62,8 @@ The repository does **not** claim:
 ```bash
 git clone https://github.com/SUNHAOJUN22/TsaoSciComputation.git
 cd TsaoSciComputation
-python -m pip install -e '.[validation,quality,security]'
+python -m pip install --require-hashes --only-binary=:all: -r requirements-ci.txt
+python -m pip install --no-index --no-deps --no-build-isolation -e '.[validation,quality,security]'
 
 python -m tsao_computation route \
   "Plan a DFT-to-MD interface study with explicit uncertainty gates"
@@ -73,6 +74,8 @@ python -m tsao_computation probe
 python scripts/verify_all.py --profile all
 python scripts/verify_native_core.py
 ```
+
+[`requirements-ci.txt`](requirements-ci.txt) fixes the full validation toolchain with distribution SHA-256 hashes and platform/Python markers. CI installs those third-party wheels first, then installs this checked-out project with external dependency resolution disabled. See the bilingual [CI dependency policy](docs/CI_DEPENDENCY_POLICY.md) for controlled updates and the remaining repository-governance findings. Hash verification establishes file identity; the scheduled vulnerability audit remains a separate check.
 
 External execution is intentionally separate:
 
@@ -175,7 +178,7 @@ The converted record retains a parent digest and `DERIVED` basis. `from_mapping(
 
 ### 3. Finite scalars and the implemented convergence rule
 
-[`convergence_check`](tsao_computation/validation/numerical.py) consumes the entire supplied sequence, rejects boolean and nonfinite observations, and compares the **last two** finite values. Its actual threshold is a maximum, not a sum:
+[`convergence_check`](tsao_computation/validation/numerical.py) consumes the entire supplied sequence, rejects boolean, nonfinite and nonzero-to-zero underflowed observations, and compares the **last two** finite values. Its actual threshold is a maximum, not a sum:
 
 $$
 \Delta=|x_n-x_{n-1}|,\quad s=\max(|x_n|,|x_{n-1}|,1),\quad
@@ -183,7 +186,7 @@ $$
 G_{\mathrm{conv}}=(\Delta\leq\tau).
 $$
 
-Both tolerances must be finite and nonnegative. Fewer than two values or an invalid observation yields failure. This local test does not establish a convergence rate, stationarity, mesh independence, nonlinear residual satisfaction or a global optimum. Record those additional criteria in the calculation contract and supply their evidence separately. The trusted invocation layer converts invalid floating-point sentinels into JSON-safe failure evidence before hashing.
+Both tolerances must be finite, nonnegative and representable without nonzero-to-zero underflow. Numeric strings, `Decimal` and `Fraction` inputs follow the same conversion guard; genuine signed zero and representable subnormal floats remain valid. Fewer than two values or an invalid observation yields failure. This local test does not establish a convergence rate, stationarity, mesh independence, nonlinear residual satisfaction or a global optimum. Record those additional criteria in the calculation contract and supply their evidence separately. The trusted invocation layer converts invalid floating-point sentinels into JSON-safe failure evidence before hashing.
 
 ### 4. Conservation uses an explicit accumulation sign
 
@@ -195,7 +198,7 @@ r_{\mathrm{norm}}=\frac{|r|}{\max(|I|,|O|,|A|,1)},\qquad
 G_{\mathrm{balance}}=(r_{\mathrm{norm}}\leq\varepsilon).
 $$
 
-Here $A$ is accumulation, positive when material or energy is stored in the control volume. Inputs, outputs, accumulation and tolerance are finite; tolerance is nonnegative. The function does not infer chemistry, sum streams with different physical bases or convert mass into molar flow. A residual with incompatible units must be rejected before this scalar check.
+Here $A$ is accumulation, positive when material or energy is stored in the control volume. Inputs, outputs, accumulation and tolerance use the same finite, nonzero-underflow guard as convergence; tolerance is nonnegative. A nonzero residual whose normalization would round to zero is rejected instead of reporting an exact balance. The function does not infer chemistry, sum streams with different physical bases or convert mass into molar flow. A residual with incompatible units must be rejected before this scalar check.
 
 ### 5. Independent uncertainty and its limits
 
@@ -401,7 +404,8 @@ Architecture, CUDA-X selection rules and C++ migration gates: [`docs/accelerated
 ## Verification
 
 ```bash
-python -m pip install -e '.[validation,quality,security]'
+python -m pip install --require-hashes --only-binary=:all: -r requirements-ci.txt
+python -m pip install --no-index --no-deps --no-build-isolation -e '.[validation,quality,security]'
 python scripts/verify_all.py --profile all
 python scripts/verify_native_core.py
 python scripts/verify_all.py --profile benchmark

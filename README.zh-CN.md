@@ -59,7 +59,8 @@ TsaoSciComputation 将科学问题转化为受治理的计算程序：
 ```bash
 git clone https://github.com/SUNHAOJUN22/TsaoSciComputation.git
 cd TsaoSciComputation
-python -m pip install -e '.[validation,quality,security]'
+python -m pip install --require-hashes --only-binary=:all: -r requirements-ci.txt
+python -m pip install --no-index --no-deps --no-build-isolation -e '.[validation,quality,security]'
 
 python -m tsao_computation route \
   "规划一个带显式不确定度门禁的 DFT 到 MD 界面研究"
@@ -71,6 +72,8 @@ python -m tsao_computation probe
 python scripts/verify_all.py --profile all
 python scripts/verify_native_core.py
 ```
+
+[`requirements-ci.txt`](requirements-ci.txt) 使用发行文件 SHA-256、平台及 Python 条件标记固定完整验证工具链。CI 先安装经过哈希核验的第三方 wheel，再关闭外部依赖解析安装当前源码。受控更新方式和现有治理边界见[CI 依赖管理说明](docs/CI_DEPENDENCY_POLICY.md)。哈希验证文件身份，定时漏洞检查仍单独执行。
 
 外部执行独立进行：
 
@@ -173,7 +176,7 @@ assert pressure_pa.source_quantity_digest == pressure.digest
 
 ### 3. 有限数域与实际收敛判据
 
-[`convergence_check`](tsao_computation/validation/numerical.py) 遍历全部输入，拒绝布尔值和非有限观测，然后比较**最后两个**有效值。当前实现的阈值是取最大值，不能写成绝对项与相对项相加：
+[`convergence_check`](tsao_computation/validation/numerical.py) 遍历全部输入，拒绝布尔值、非有限观测及非零值下溢为零的转换，然后比较**最后两个**有效值。当前实现的阈值是取最大值，不能写成绝对项与相对项相加：
 
 $$
 \Delta=|x_n-x_{n-1}|,\quad s=\max(|x_n|,|x_{n-1}|,1),\quad
@@ -181,7 +184,7 @@ $$
 G_{\mathrm{conv}}=(\Delta\leq\tau).
 $$
 
-两个容差均须有限且非负。少于两个观测或任一观测非法时检查失败。这项局部检查不能证明收敛阶、稳态、网格独立性、非线性方程残差或全局最优性；需要将这些条件单独写入计算合同并提供证据。受信任调用层会在序列化和哈希前，把非法浮点哨兵转为 JSON 可表达的失败证据。
+两个容差均须有限、非负，且不得发生非零值下溢为零。数值字符串、`Decimal` 与 `Fraction` 经过同一转换守卫；真正的有符号零及可表示次正规数仍有效。少于两个观测或任一观测非法时检查失败。这项局部检查不能证明收敛阶、稳态、网格独立性、非线性方程残差或全局最优性；需要将这些条件单独写入计算合同并提供证据。受信任调用层会在序列化和哈希前，把非法浮点哨兵转为 JSON 可表达的失败证据。
 
 ### 4. 守恒残差明确累计项的符号
 
@@ -193,7 +196,7 @@ r_{\mathrm{norm}}=\frac{|r|}{\max(|I|,|O|,|A|,1)},\qquad
 G_{\mathrm{balance}}=(r_{\mathrm{norm}}\leq\varepsilon).
 $$
 
-其中 $A$ 是累计项，正值表示控制体中有物料或能量积累。输入、输出、累计项和容差都必须有限，容差不能为负。该函数不推断反应化学、不汇总不同物理基准的流量，也不自动把质量流量改成摩尔流量；单位不兼容应在进入标量残差计算前拒绝。
+其中 $A$ 是累计项，正值表示控制体中有物料或能量积累。输入、输出、累计项和容差与收敛检查共用有限数及非零下溢守卫，容差不能为负。非零残差若在归一化时舍入为零，将被拒绝，不能作为精确守恒通过。该函数不推断反应化学、不汇总不同物理基准的流量，也不自动把质量流量改成摩尔流量；单位不兼容应在进入标量残差计算前拒绝。
 
 ### 5. 独立不确定度及适用条件
 
@@ -410,7 +413,8 @@ python -m tsao_computation profile-performance \
 ## 验证与验收证据
 
 ```bash
-python -m pip install -e '.[validation,quality,security]'
+python -m pip install --require-hashes --only-binary=:all: -r requirements-ci.txt
+python -m pip install --no-index --no-deps --no-build-isolation -e '.[validation,quality,security]'
 python scripts/verify_all.py --profile all
 python scripts/verify_native_core.py
 python scripts/verify_all.py --profile benchmark
