@@ -118,7 +118,6 @@ def assess_confidence(
             nonce = approval["nonce"]
             if nonce in seen_nonces:
                 continue
-            seen_nonces.add(nonce)
             for requirement, (scope, role) in _GOVERNANCE_SCOPES.items():
                 if (
                     approval["scope"] == scope
@@ -127,6 +126,9 @@ def assess_confidence(
                     and bool(decision_scope.strip())
                     and approval.get("decision_scope") == decision_scope
                 ):
+                    # Only a proof eligible for this decision can consume a
+                    # governance nonce; unrelated signed records cannot poison it.
+                    seen_nonces.add(nonce)
                     governance.add(requirement)
 
     def requirement_satisfied(requirement: str) -> bool:

@@ -8,6 +8,7 @@ import pytest
 from approval_fixtures import TEST_KEYS, verified_record
 
 from tsao_computation.validation import assess_confidence
+from tsao_computation.validation.approval_attestation import sign_approval_attestation
 
 
 def evidence_through_c5() -> dict[str, object]:
@@ -40,6 +41,52 @@ def test_c5_requires_all_decision_governance_evidence() -> None:
     assert assessment.engineering_decision_ready is True
     assert assessment.next_level is None
     assert assessment.missing_for_next == ()
+
+
+@pytest.mark.parametrize("unrelated_first", (True, False))
+@pytest.mark.parametrize(
+    "delta",
+    (
+        {"scope": "download-artifact"},
+        {"role": "request-author"},
+        {"decision_scope": "another decision"},
+    ),
+)
+def test_ineligible_governance_approval_cannot_reserve_nonce(
+    unrelated_first: bool, delta: dict[str, str]
+) -> None:
+    record = evidence_through_c5()
+    approvals = list(record["approvals"])
+    valid = approvals[1]
+    unrelated = sign_approval_attestation(
+        {**valid, **delta}, secret_key=TEST_KEYS["synthetic-local-review"]
+    )
+    approvals.insert(1 if unrelated_first else 2, unrelated)
+    record["approvals"] = approvals
+
+    assessment = assess_confidence(record, trusted_approval_keys=TEST_KEYS)
+
+    assert assessment.level == "C5"
+    assert assessment.engineering_decision_ready is True
+
+
+@pytest.mark.parametrize("duplicate_first", (True, False))
+def test_eligible_governance_scopes_cannot_share_nonce(duplicate_first: bool) -> None:
+    record = evidence_through_c5()
+    approvals = list(record["approvals"])
+    approvals[2] = sign_approval_attestation(
+        {**approvals[2], "nonce": approvals[1]["nonce"]},
+        secret_key=TEST_KEYS["synthetic-local-review"],
+    )
+    if duplicate_first:
+        approvals[1], approvals[2] = approvals[2], approvals[1]
+    record["approvals"] = approvals
+
+    assessment = assess_confidence(record, trusted_approval_keys=TEST_KEYS)
+
+    assert assessment.level == "C4"
+    assert assessment.engineering_decision_ready is False
+    assert len(assessment.missing_for_next) == 1
 
 
 def test_malformed_approvals_fail_closed() -> None:

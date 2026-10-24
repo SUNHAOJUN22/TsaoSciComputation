@@ -29,4 +29,6 @@ Machine-readable assessments validate against `schemas/confidence-assessment.sch
 
 C5 requires three additional HMAC attestations in `approvals`: `engineering-decision` / `independent-domain-reviewer`, `safety-review` / `safety-reviewer`, and `independent-reproduction` / `independent-reproducer`. Each must verify against external trust keys, carry a unique nonce in the decision, match the artifact and include the exact `decision_scope` from the assessment record. Lower-level evidence and governance booleans remain required; the signature adds an independent verification boundary.
 
+Governance nonce uniqueness applies to proofs eligible for the current decision: signature, artifact, validity window, governance scope, role and exact `decision_scope` must all match before a nonce is reserved. An unrelated signed record does not consume that nonce. Distinct eligible governance scopes sharing a nonce still cannot both count, preserving the independent-proof requirement.
+
 Contract regressions: `tests/test_acceptance_repair.py`, `tests/test_confidence_model.py`, `tests/test_state_and_handoff.py`, and `tests/test_approval_attestation_boundaries.py`. No fixture is a claim that an external scientific result was qualified.
