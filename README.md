@@ -270,6 +270,8 @@ H_{\mathrm{authorization}}=\operatorname{SHA256}(\operatorname{CanonicalJSON}(B)
 H_{\mathrm{file}}=\operatorname{SHA256}(\mathrm{bytes}_{\mathrm{file}}).
 $$
 
+Batch execution keeps partial runtime evidence when one process times out or cannot be started: completed records remain available, `record_indices` maps them to the requested plans, and `failures`/`failed_indices` identify the tasks without a completed process record. Security and contract violations still raise; callers should not infer scientific acceptance from `completed`.
+
 Resource admission requires compatible CPU, GPU and license claims. For additive resources,
 
 $$

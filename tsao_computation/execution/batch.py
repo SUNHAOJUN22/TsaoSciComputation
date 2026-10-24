@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import subprocess  # nosec B404 - used only to classify the runner's timeout exception
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 
@@ -18,12 +19,23 @@ _DEFAULT_MAX_EXTERNAL_PLANS = 4
 
 
 @dataclass(frozen=True, slots=True)
+class BatchExecutionFailure:
+    """A process-level batch failure without copying possibly sensitive argv text."""
+
+    index: int
+    reason: str
+    error_type: str
+
+
+@dataclass(frozen=True, slots=True)
 class BatchExecutionResult:
     records: tuple[ExecutionRecord, ...]
     completed: bool
     failed_indices: tuple[int, ...]
     resource_capacity_sha256: str | None = None
     resource_claim_sha256s: tuple[str, ...] = ()
+    record_indices: tuple[int, ...] = ()
+    failures: tuple[BatchExecutionFailure, ...] = ()
 
 
 def _default_workers(plan_count: int) -> int:
@@ -41,6 +53,13 @@ def run_plan_batch(
     | None = None,
     resource_capacity: ExecutionResourceCapacity | None = None,
 ) -> BatchExecutionResult:
+    """Execute authorized plans and retain completed siblings when a process fails.
+
+    ``records`` contains processes that returned normally, in input order;
+    ``record_indices`` maps each record back to its plan. Timeouts and OS-level
+    launch failures are represented in ``failures`` and ``failed_indices``.
+    Security/contract violations still raise and are never converted to success.
+    """
     items = tuple(plans)
     if not items:
         return BatchExecutionResult((), True, ())
@@ -74,16 +93,47 @@ def run_plan_batch(
         with broker.lease(claim):
             return run_plan(plan, authorization=authorization, timeout=timeout)
 
+    outcomes: list[ExecutionRecord | BatchExecutionFailure | None] = [None] * len(items)
     with ThreadPoolExecutor(max_workers=workers, thread_name_prefix="tsao-external-plan") as pool:
         futures = [pool.submit(execute, index) for index in range(len(items))]
-        records = tuple(future.result() for future in futures)
-    failed = tuple(index for index, record in enumerate(records) if not record.completed)
+        for index, future in enumerate(futures):
+            try:
+                outcomes[index] = future.result()
+            except subprocess.TimeoutExpired as error:
+                outcomes[index] = BatchExecutionFailure(
+                    index=index,
+                    reason="timeout",
+                    error_type=type(error).__name__,
+                )
+            except OSError as error:
+                outcomes[index] = BatchExecutionFailure(
+                    index=index,
+                    reason="process_start_failed",
+                    error_type=type(error).__name__,
+                )
+    records = tuple(outcome for outcome in outcomes if isinstance(outcome, ExecutionRecord))
+    record_indices = tuple(
+        index for index, outcome in enumerate(outcomes) if isinstance(outcome, ExecutionRecord)
+    )
+    failures = tuple(outcome for outcome in outcomes if isinstance(outcome, BatchExecutionFailure))
+    failed = tuple(
+        sorted(
+            {failure.index for failure in failures}
+            | {
+                index
+                for index, record in zip(record_indices, records, strict=True)
+                if not record.completed
+            }
+        )
+    )
     return BatchExecutionResult(
         records,
         not failed,
         failed,
         None if resource_capacity is None else resource_capacity.sha256,
         tuple(claim.sha256 for claim in claim_items),
+        record_indices,
+        failures,
     )
 
 

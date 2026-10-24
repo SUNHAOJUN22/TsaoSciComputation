@@ -268,6 +268,8 @@ H_{\mathrm{authorization}}=\operatorname{SHA256}(\operatorname{CanonicalJSON}(B)
 H_{\mathrm{file}}=\operatorname{SHA256}(\mathrm{bytes}_{\mathrm{file}}).
 $$
 
+批量执行中，若某个进程超时或无法启动，其余已完成进程的回执仍会保留。`record_indices` 将回执映射回原任务；`failures` 与 `failed_indices` 标明未能生成完成回执的任务。安全或合同校验错误仍会抛出异常；调用者不能仅凭 `completed` 推断科学结论已获接受。
+
 资源准入要求 CPU、GPU 和许可证申请兼容。对于可加资源：
 
 $$

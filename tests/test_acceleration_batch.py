@@ -31,6 +31,60 @@ def test_batch_execution_preserves_order_and_failure_indices(tmp_path: Path) -> 
     assert result.failed_indices == (1,)
 
 
+def test_batch_timeout_preserves_completed_sibling_and_failure_identity(
+    tmp_path: Path,
+) -> None:
+    completed_marker = tmp_path / "completed-before-timeout.txt"
+    timed_attempt_marker = tmp_path / "timed-task-attempts.txt"
+    plans = [
+        CommandPlan(
+            (
+                sys.executable,
+                "-c",
+                f"from pathlib import Path; Path({str(completed_marker)!r}).write_text('done')",
+            ),
+            tmp_path,
+            {},
+            "quick task",
+        ),
+        CommandPlan(
+            (
+                sys.executable,
+                "-c",
+                f"from pathlib import Path; p=Path({str(timed_attempt_marker)!r}); "
+                "p.write_text((p.read_text() if p.exists() else '') + 'x'); "
+                "import time; time.sleep(2)",
+            ),
+            tmp_path,
+            {},
+            "timed task",
+        ),
+    ]
+    authorizations = [
+        authorize_plan(
+            plan,
+            authorized_by="pytest",
+            purpose="preserve partial batch evidence on timeout",
+            explicit_authorization=True,
+        )
+        for plan in plans
+    ]
+
+    result = run_plan_batch(plans, authorizations=authorizations, timeout=0.1, max_workers=2)
+
+    assert completed_marker.read_text(encoding="utf-8") == "done"
+    assert timed_attempt_marker.read_text(encoding="utf-8") == "x"
+    assert result.completed is False
+    assert result.failed_indices == (1,)
+    assert result.record_indices == (0,)
+    assert len(result.records) == 1
+    assert result.records[0].completed is True
+    assert len(result.failures) == 1
+    assert result.failures[0].index == 1
+    assert result.failures[0].reason == "timeout"
+    assert result.failures[0].error_type == "TimeoutExpired"
+
+
 def test_empty_batch_and_worker_validation() -> None:
     result = run_plan_batch([])
     assert result.completed is True

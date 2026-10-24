@@ -1,4 +1,4 @@
-from .batch import BatchExecutionResult, run_plan_batch, run_plans
+from .batch import BatchExecutionFailure, BatchExecutionResult, run_plan_batch, run_plans
 from .resources import (
     ExecutionResourceBroker,
     ExecutionResourceCapacity,
@@ -9,6 +9,7 @@ from .runner import ExecutionAuthorization, ExecutionRecord, authorize_plan, pla
 
 __all__ = [
     "BatchExecutionResult",
+    "BatchExecutionFailure",
     "ExecutionAuthorization",
     "ExecutionRecord",
     "ExecutionResourceBroker",
