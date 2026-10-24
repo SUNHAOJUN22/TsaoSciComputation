@@ -9,6 +9,7 @@ from tsao_computation.hashing import (
     canonical_json_bytes,
     canonical_json_sha256,
     file_sha256,
+    strict_json_loads,
     text_sha256,
 )
 
@@ -25,6 +26,19 @@ def test_canonical_json_digest_rejects_nonfinite_values() -> None:
         canonical_json_sha256({"value": float("nan")})
     with pytest.raises(ValueError):
         canonical_json_sha256({"value": float("inf")})
+
+
+@pytest.mark.parametrize("token", ["1e-400", "-1e-400"])
+def test_strict_json_loader_rejects_nonzero_underflow(token: str) -> None:
+    with pytest.raises(ValueError, match="underflows"):
+        strict_json_loads('{"value":' + token + "}")
+
+
+@pytest.mark.parametrize("token", ["0e-400", "-0e-400", "5e-324", "-5e-324"])
+def test_strict_json_loader_preserves_zero_and_representable_subnormal(token: str) -> None:
+    value = strict_json_loads('{"value":' + token + "}")
+    assert isinstance(value, dict)
+    assert value["value"] == float(token)
 
 
 def test_file_digest_streams_exact_bytes_and_validates_buffer(tmp_path: Path) -> None:

@@ -8,6 +8,7 @@ from pathlib import Path
 
 from . import __version__
 from .errors import TsaoError
+from .hashing import strict_json_loads
 
 
 def _json(data: object) -> None:
@@ -146,7 +147,7 @@ def build_parser() -> argparse.ArgumentParser:
 def _read_mapping(path: Path | None) -> dict[str, object]:
     if path is None:
         return {}
-    payload = json.loads(path.read_text(encoding="utf-8"))
+    payload = strict_json_loads(path.read_text(encoding="utf-8"))
     if not isinstance(payload, dict):
         raise ValueError(f"JSON payload must be an object: {path}")
     return payload

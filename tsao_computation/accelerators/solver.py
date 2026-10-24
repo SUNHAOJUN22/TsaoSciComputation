@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 import os
 import re
 import shlex
@@ -11,7 +10,7 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 
 from ..errors import ContractError, SecurityError
-from ..hashing import canonical_json_sha256, file_sha256, text_sha256
+from ..hashing import canonical_json_sha256, file_sha256, strict_json_loads, text_sha256
 from ..registries import accelerators as accelerator_records
 from ..registries import adapters as adapter_records
 from ..security.process import (
@@ -371,8 +370,8 @@ class SolverCapabilityEvidence:
 
 def load_solver_capability_evidence(path: Path) -> SolverCapabilityEvidence:
     try:
-        payload = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as error:
+        payload = strict_json_loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as error:
         raise ContractError(f"cannot read solver capability evidence: {path}") from error
     if not isinstance(payload, Mapping):
         raise ContractError("solver capability evidence must be an object")

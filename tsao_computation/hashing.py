@@ -65,6 +65,9 @@ def strict_json_loads(value: str | bytes) -> object:
         number = float(token)
         if not math.isfinite(number):
             raise ValueError("JSON number exceeds the finite float range")
+        significand = token.lower().partition("e")[0]
+        if number == 0.0 and any(character in "123456789" for character in significand):
+            raise ValueError("nonzero JSON number underflows the supported float range")
         return number
 
     def unique_object(pairs: list[tuple[str, object]]) -> dict[str, object]:

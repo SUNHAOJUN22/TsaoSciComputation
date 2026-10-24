@@ -223,3 +223,30 @@ def test_cli_exposes_methods_plans_advice_and_trusted_invocation(
     assert main(["invoke", "balance-check", "--payload", str(payload), "--execute"]) == 0
     invoked = json.loads(capsys.readouterr().out)
     assert invoked["output"]["passed"] is True
+
+
+def test_cli_convergence_invocation_rejects_json_underflow(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    payload = tmp_path / "underflow.json"
+    payload.write_text(
+        '{"values":[1e-400,0],"absolute_tolerance":0}',
+        encoding="utf-8",
+    )
+    assert main(["invoke", "convergence-check", "--payload", str(payload), "--execute"]) == 2
+    captured = capsys.readouterr()
+    assert captured.out == ""
+    assert "underflows" in captured.err
+
+
+def test_cli_convergence_invocation_preserves_true_json_zero(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    payload = tmp_path / "zero.json"
+    payload.write_text(
+        '{"values":[0e-400,0],"absolute_tolerance":0}',
+        encoding="utf-8",
+    )
+    assert main(["invoke", "convergence-check", "--payload", str(payload), "--execute"]) == 0
+    output = json.loads(capsys.readouterr().out)
+    assert output["output"]["passed"] is True

@@ -188,6 +188,8 @@ $$
 
 Both tolerances must be finite, nonnegative and representable without nonzero-to-zero underflow. Numeric scalar strings, `Decimal` and `Fraction` inputs follow the same conversion guard; genuine signed zero and representable subnormal floats remain valid. A top-level `str`, `bytes`, `bytearray` or `memoryview` is rejected as an observation sequence so its characters or byte values cannot be mistaken for separate measurements. Fewer than two values or an invalid observation yields failure. This local test does not establish a convergence rate, stationarity, mesh independence, nonlinear residual satisfaction or a global optimum. Record those additional criteria in the calculation contract and supply their evidence separately. The trusted invocation layer converts invalid floating-point sentinels into JSON-safe failure evidence before hashing.
 
+JSON files supplied to CLI commands and read through the strict provenance/evidence boundary are checked before conversion to binary floats. A nonzero decimal that would become `0.0` is rejected; exact zero and representable subnormals remain valid.
+
 ### 4. Conservation uses an explicit accumulation sign
 
 [`balance_check`](tsao_computation/validation/physical.py) implements a scalar balance using common units and a common time basis:
@@ -503,7 +505,7 @@ $$
 E_{n+1}=E_n\mathbin{\Vert}[e_{n+1}],\quad \lvert\operatorname{UTF8}(E_{n+1})\rvert\le64\times2^{20}\;\mathrm{bytes}
 $$
 
-Events must be JSON objects; nested duplicate keys, NaN, Infinity, overflowing floating-point numbers and non-UTF-8 input are rejected. Cooperating writers serialize read–append–atomic-replace operations through an exclusive sidecar lock, preventing lost updates. This is a local-file protocol, not a distributed database transaction; explicit archival is required at the 64 MiB bound. Lock acquisition times out after 10 seconds. An abandoned lock is not stolen automatically; confirm the writer has exited and back up the ledger before recovery.
+Events must be JSON objects; nested duplicate keys, NaN, Infinity, floating-point overflow or nonzero underflow to zero, and non-UTF-8 input are rejected. Cooperating writers serialize read–append–atomic-replace operations through an exclusive sidecar lock, preventing lost updates. This is a local-file protocol, not a distributed database transaction; explicit archival is required at the 64 MiB bound. Lock acquisition times out after 10 seconds. An abandoned lock is not stolen automatically; confirm the writer has exited and back up the ledger before recovery.
 
 On Windows, the C runtime can report a sharing or delete-pending conflict as `EACCES`. Lock creation retries that error within the same 10-second acquisition deadline, and still requires a successful exclusive create before any ledger update. Persistent access denial is re-raised as the original `PermissionError`; other permission errors and non-Windows permission failures propagate immediately. A failed acquisition never removes another writer's lock. These semantics follow the Microsoft [`_open` error mapping](https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/open-wopen?view=msvc-170) and [`CreateFile` deletion rules](https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-createfilea).
 

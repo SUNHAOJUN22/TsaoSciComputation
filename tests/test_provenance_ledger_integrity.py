@@ -19,7 +19,17 @@ def _write_events(path: str, worker: int) -> None:
 
 
 @pytest.mark.parametrize(
-    "text", ['{"x":1,"x":2}', '{"x":NaN}', '{"x":Infinity}', '{"x":1e400}', "null", "[]", "3"]
+    "text",
+    [
+        '{"x":1,"x":2}',
+        '{"x":NaN}',
+        '{"x":Infinity}',
+        '{"x":1e400}',
+        '{"x":1e-400}',
+        "null",
+        "[]",
+        "3",
+    ],
 )
 def test_ambiguous_or_nonobject_records_fail_closed(tmp_path: Path, text: str) -> None:
     path = tmp_path / "events.jsonl"

@@ -212,6 +212,21 @@ def test_solver_evidence_file_rejects_tampering_and_unknown_fields(tmp_path: Pat
         load_solver_capability_evidence(path)
 
 
+def test_solver_evidence_file_rejects_duplicate_json_keys(tmp_path: Path) -> None:
+    evidence = _evidence()
+    path = tmp_path / "solver-evidence.json"
+    payload = evidence.to_dict()
+    encoded = json.dumps(payload)
+    encoded = encoded.replace(
+        '"adapter_slug": "gromacs"',
+        '"adapter_slug": "orca", "adapter_slug": "gromacs"',
+        1,
+    )
+    path.write_text(encoded, encoding="utf-8")
+    with pytest.raises(ContractError, match="cannot read solver capability evidence"):
+        load_solver_capability_evidence(path)
+
+
 def test_boolean_contracts_and_conflicting_probe_sources_fail_closed() -> None:
     with pytest.raises(ContractError, match="probe_solver must be a boolean"):
         plan_acceleration(

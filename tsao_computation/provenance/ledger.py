@@ -2,39 +2,19 @@ from __future__ import annotations
 
 import errno
 import json
-import math
 import os
 import time
 from collections.abc import Iterator
 from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, NoReturn
+from typing import Any
 
+from ..hashing import strict_json_loads
 from ..security.paths import atomic_write_text
 
 MAX_LEDGER_BYTES = 64 * 1024 * 1024
 LOCK_TIMEOUT_SECONDS = 10.0
-
-
-def _reject_constant(value: str) -> NoReturn:
-    raise ValueError(f"non-finite event number is forbidden: {value}")
-
-
-def _finite_float(value: str) -> float:
-    number = float(value)
-    if not math.isfinite(number):
-        raise ValueError("event number exceeds the finite floating-point range")
-    return number
-
-
-def _unique_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
-    result: dict[str, Any] = {}
-    for key, value in pairs:
-        if key in result:
-            raise ValueError(f"duplicate event key is forbidden: {key!r}")
-        result[key] = value
-    return result
 
 
 def read_events(path: Path) -> list[dict[str, Any]]:
@@ -50,12 +30,7 @@ def read_events(path: Path) -> list[dict[str, Any]]:
             if not line.strip():
                 continue
             try:
-                value = json.loads(
-                    line,
-                    parse_constant=_reject_constant,
-                    parse_float=_finite_float,
-                    object_pairs_hook=_unique_object,
-                )
+                value = strict_json_loads(line)
                 if not isinstance(value, dict):
                     raise ValueError("event must be a JSON object")
             except ValueError as error:
