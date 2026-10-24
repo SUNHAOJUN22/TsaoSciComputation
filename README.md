@@ -186,7 +186,7 @@ $$
 G_{\mathrm{conv}}=(\Delta\leq\tau).
 $$
 
-Both tolerances must be finite, nonnegative and representable without nonzero-to-zero underflow. Numeric strings, `Decimal` and `Fraction` inputs follow the same conversion guard; genuine signed zero and representable subnormal floats remain valid. Fewer than two values or an invalid observation yields failure. This local test does not establish a convergence rate, stationarity, mesh independence, nonlinear residual satisfaction or a global optimum. Record those additional criteria in the calculation contract and supply their evidence separately. The trusted invocation layer converts invalid floating-point sentinels into JSON-safe failure evidence before hashing.
+Both tolerances must be finite, nonnegative and representable without nonzero-to-zero underflow. Numeric scalar strings, `Decimal` and `Fraction` inputs follow the same conversion guard; genuine signed zero and representable subnormal floats remain valid. A top-level `str`, `bytes`, `bytearray` or `memoryview` is rejected as an observation sequence so its characters or byte values cannot be mistaken for separate measurements. Fewer than two values or an invalid observation yields failure. This local test does not establish a convergence rate, stationarity, mesh independence, nonlinear residual satisfaction or a global optimum. Record those additional criteria in the calculation contract and supply their evidence separately. The trusted invocation layer converts invalid floating-point sentinels into JSON-safe failure evidence before hashing.
 
 ### 4. Conservation uses an explicit accumulation sign
 

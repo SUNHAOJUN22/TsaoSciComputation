@@ -29,6 +29,22 @@ def test_non_numeric_values_fail_finite_and_convergence_checks() -> None:
     assert result["delta"] == float("inf")
 
 
+@pytest.mark.parametrize(
+    "values",
+    ("11", b"11", bytearray(b"11"), memoryview(b"11")),
+)
+def test_text_like_containers_are_not_observation_sequences(values: object) -> None:
+    assert finite_values(values) is False  # type: ignore[arg-type]
+    result = convergence_check(values, absolute_tolerance=0.0)  # type: ignore[arg-type]
+    assert result == {"passed": False, "delta": float("inf"), "threshold": 0.0}
+
+
+def test_numeric_text_scalars_remain_supported_inside_observation_sequences() -> None:
+    assert finite_values(["1.0", b"1.0"]) is True  # type: ignore[list-item]
+    result = convergence_check(["1.0", b"1.0"], absolute_tolerance=0.0)  # type: ignore[list-item]
+    assert result == {"passed": True, "delta": 0.0, "threshold": 0.0}
+
+
 def test_boolean_observations_are_not_scientific_scalars() -> None:
     assert finite_values([1.0, True]) is False
     result = convergence_check([False, False], absolute_tolerance=0.0)

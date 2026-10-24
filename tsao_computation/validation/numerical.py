@@ -5,7 +5,8 @@ from collections.abc import Iterable
 from decimal import Decimal, InvalidOperation
 from typing import SupportsFloat, SupportsIndex
 
-_SCALAR_INPUT_TYPES = (str, bytes, bytearray, memoryview, SupportsFloat, SupportsIndex)
+_TEXT_INPUT_TYPES = (str, bytes, bytearray, memoryview)
+_SCALAR_INPUT_TYPES = _TEXT_INPUT_TYPES + (SupportsFloat, SupportsIndex)
 
 
 def _finite_scalar(value: object, *, name: str) -> float:
@@ -20,9 +21,9 @@ def _finite_scalar(value: object, *, name: str) -> float:
     if not math.isfinite(converted):
         raise ValueError(f"{name} must be a finite real number")
     if converted == 0.0:
-        # float() silently maps sufficiently small nonzero strings, Decimal and
-        # Fraction values to zero.  That must not become exact convergence or
-        # conservation evidence.  Preserve real zero, including signed zero.
+        # float() silently maps sufficiently small nonzero strings, Decimal,
+        # and Fraction values to zero. That must not become exact convergence
+        # or conservation evidence. Preserve real zero, including signed zero.
         try:
             if isinstance(value, str):
                 nonzero_source = not Decimal(value).is_zero()
@@ -38,6 +39,8 @@ def _finite_scalar(value: object, *, name: str) -> float:
 
 
 def finite_values(values: Iterable[float]) -> bool:
+    if isinstance(values, _TEXT_INPUT_TYPES):
+        return False
     try:
         for value in values:
             _finite_scalar(value, name="values")
@@ -61,6 +64,8 @@ def convergence_check(
 ) -> dict[str, float | bool]:
     absolute = _finite_non_negative(absolute_tolerance, name="absolute_tolerance")
     relative = _finite_non_negative(relative_tolerance, name="relative_tolerance")
+    if isinstance(values, _TEXT_INPUT_TYPES):
+        return {"passed": False, "delta": float("inf"), "threshold": absolute}
     count = 0
     previous = 0.0
     current = 0.0
