@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from itertools import permutations
 from pathlib import Path
 
 import jsonschema
@@ -86,7 +87,50 @@ def test_eligible_governance_scopes_cannot_share_nonce(duplicate_first: bool) ->
 
     assert assessment.level == "C4"
     assert assessment.engineering_decision_ready is False
-    assert len(assessment.missing_for_next) == 1
+    assert set(assessment.missing_for_next) == {
+        "decision_scope_confirmed",
+        "safety_review_completed",
+    }
+
+
+@pytest.mark.parametrize("governance_index", (1, 2, 3))
+def test_acceptance_and_governance_cannot_share_nonce_in_any_order(
+    governance_index: int,
+) -> None:
+    record = evidence_through_c5()
+    approvals = list(record["approvals"])
+    approvals[governance_index] = sign_approval_attestation(
+        {**approvals[governance_index], "nonce": approvals[0]["nonce"]},
+        secret_key=TEST_KEYS["synthetic-local-review"],
+    )
+    for ordered in permutations(approvals):
+        record["approvals"] = ordered
+        assessment = assess_confidence(record, trusted_approval_keys=TEST_KEYS)
+        assert assessment.level == "C4"
+        assert assessment.engineering_decision_ready is False
+        assert len(assessment.missing_for_next) == 1
+
+
+def test_clean_governance_proof_survives_a_conflicting_alternative() -> None:
+    record = evidence_through_c5()
+    approvals = list(record["approvals"])
+    conflicting = sign_approval_attestation(
+        {**approvals[1], "nonce": approvals[0]["nonce"]},
+        secret_key=TEST_KEYS["synthetic-local-review"],
+    )
+    for ordered in (approvals + [conflicting], [conflicting] + approvals):
+        record["approvals"] = ordered
+        assert assess_confidence(record, trusted_approval_keys=TEST_KEYS).level == "C5"
+
+
+@pytest.mark.parametrize("approval_index", (0, 1, 2, 3))
+def test_repeated_same_eligible_proof_preserves_confidence(approval_index: int) -> None:
+    record = evidence_through_c5()
+    approvals = list(record["approvals"])
+    approvals.append(dict(approvals[approval_index]))
+    record["approvals"] = approvals
+
+    assert assess_confidence(record, trusted_approval_keys=TEST_KEYS).level == "C5"
 
 
 def test_malformed_approvals_fail_closed() -> None:

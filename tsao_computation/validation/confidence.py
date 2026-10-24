@@ -102,7 +102,7 @@ def assess_confidence(
         "accepted"
     ]
     governance: set[str] = set()
-    seen_nonces: set[str] = set()
+    nonce_requirements: dict[str, set[str]] = {}
     approvals = record.get("approvals", ())
     decision_scope = record.get("decision_scope")
     if accepted and isinstance(approvals, (list, tuple)):
@@ -116,7 +116,11 @@ def assess_confidence(
             if not valid:
                 continue
             nonce = approval["nonce"]
-            if nonce in seen_nonces:
+            if (
+                approval["scope"] == "scientific-result-acceptance"
+                and approval["role"] == "independent-domain-reviewer"
+            ):
+                nonce_requirements.setdefault(nonce, set()).add("approvals")
                 continue
             for requirement, (scope, role) in _GOVERNANCE_SCOPES.items():
                 if (
@@ -126,10 +130,15 @@ def assess_confidence(
                     and bool(decision_scope.strip())
                     and approval.get("decision_scope") == decision_scope
                 ):
-                    # Only a proof eligible for this decision can consume a
-                    # governance nonce; unrelated signed records cannot poison it.
-                    seen_nonces.add(nonce)
-                    governance.add(requirement)
+                    nonce_requirements.setdefault(nonce, set()).add(requirement)
+
+        # Collect every eligible use before counting governance: a nonce reused
+        # across acceptance/governance purposes cannot count, regardless of order.
+        # Repeated proofs for one requirement remain idempotent; an independent
+        # clean proof can still satisfy a requirement with a conflicting alternative.
+        for nonce_uses in nonce_requirements.values():
+            if len(nonce_uses) == 1:
+                governance.update(nonce_uses.intersection(_GOVERNANCE_SCOPES))
 
     def requirement_satisfied(requirement: str) -> bool:
         if requirement == "approvals":
