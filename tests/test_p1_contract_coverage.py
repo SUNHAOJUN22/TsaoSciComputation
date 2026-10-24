@@ -280,6 +280,7 @@ def test_signed_receipt_validation_and_verification_paths() -> None:
         ),
         expected_request_id="request:1",
         expected_capability_id="cap:1",
+        expected_executor_id="executor:1",
     )
 
 
@@ -297,11 +298,18 @@ def test_signed_receipt_verification_is_bound_to_expected_request() -> None:
         verifier=verifier,
         expected_request_id="request:A",
         expected_capability_id="cap:1",
+        expected_executor_id="executor:1",
+    )
+    assert not record.is_verified(
+        verifier=verifier,
+        expected_request_id="request:A",
+        expected_capability_id="cap:1",
     )
     assert not record.is_verified(
         verifier=verifier,
         expected_request_id="request:B",
         expected_capability_id="cap:1",
+        expected_executor_id="executor:1",
     )
 
 
@@ -318,6 +326,7 @@ def test_execution_verifiers_require_literal_true(decision: object) -> None:
         verifier=verifier,
         expected_request_id="request:1",
         expected_capability_id="cap:1",
+        expected_executor_id="executor:1",
     )
 
 

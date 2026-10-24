@@ -206,12 +206,15 @@ class SignedExecutionReceipt:
         verifier: SignatureVerifier | None,
         expected_request_id: str,
         expected_capability_id: str,
+        expected_executor_id: str | None = None,
     ) -> bool:
-        """Verify the signature only when this receipt belongs to the expected request and capability."""
+        """Verify only when request, capability, and authorized executor all match."""
         if (
             verifier is None
             or self.request_id != expected_request_id
             or self.capability_id != expected_capability_id
+            or expected_executor_id is None
+            or self.executor_id != expected_executor_id
         ):
             return False
         try:
