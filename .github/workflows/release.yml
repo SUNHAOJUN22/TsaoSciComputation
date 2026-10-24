@@ -11,7 +11,7 @@ on:
 permissions: read-all
 
 concurrency:
-  group: release-${{ github.run_id }}
+  group: release-${{ github.workflow }}-${{ inputs.tag }}
   cancel-in-progress: false
 
 jobs:
@@ -121,15 +121,8 @@ jobs:
         run: |
           set -Eeuo pipefail
           TAG="$RELEASE_TAG"
-          cleanup_unpublished_tag() {
-            code=$?
-            set +e
-            if ! gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-              git push origin ":refs/tags/$TAG" || true
-            fi
-            exit "$code"
-          }
-          trap cleanup_unpublished_tag ERR
+          # A competing publisher may already own this tag. Even our own pushed
+          # tag is immutable and must survive a later release-upload failure.
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
@@ -141,7 +134,6 @@ jobs:
             --latest \
             --title "TsaoSciComputation $TAG" \
             --notes-file "docs/releases/v${VERSION_VALUE}.md"
-          trap - ERR
 
       - name: Verification guidance
         shell: bash

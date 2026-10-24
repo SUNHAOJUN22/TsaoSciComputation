@@ -68,6 +68,14 @@ Checksum verification proves byte integrity against the release Manifest. Attest
 
 The workflow must fail before tagging or publishing when quality, tests, security, mutation probes, packaging, SBOM generation, version consistency, or artifact integrity fails. Existing release tags and release assets are never overwritten. Corrections require a new patch version.
 
+Requests for the same tag share a concurrency group without canceling an active
+publisher. A failed tag push or release upload never deletes a remote tag. This
+also preserves a tag pushed by another publisher between preflight and publish.
+If an upload fails after a tag has been pushed, the tag and retained workflow
+evidence remain available for investigation. This workflow still rejects an
+existing tag; recovery of an incomplete release requires an explicit maintainer
+decision after inspecting its immutable tag and evidence.
+
 ## Release checklist
 
 - Changelog entry is complete and factual.

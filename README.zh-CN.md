@@ -471,6 +471,8 @@ python -m pytest -q tests/test_acceptance_repair.py tests/test_approval_attestat
 - 仓库不打包外部求解器、商业许可证或私有数据集；
 - 发布物包含可重复制品、SPDX/CycloneDX SBOM、SHA-256 校验和与 provenance。
 
+同一标签的发布请求会串行执行。标签推送或发布物上传失败时，工作流保留已存在的远程标签，避免清理另一发布者的成果。已推送但尚未完成发布的标签仍然不可重写；维护者应先核查标签与保留的运行证据，再明确决定如何恢复，详见[发布规约](docs/release.md)。
+
 ## 许可证与引用
 
 采用 MIT 许可证。引用元数据见 [`CITATION.cff`](CITATION.cff)，第三方边界见 [`THIRD_PARTY.md`](THIRD_PARTY.md)。

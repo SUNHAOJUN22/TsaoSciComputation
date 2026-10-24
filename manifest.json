@@ -121,9 +121,9 @@
       "sha256": "7d969075e4e784a585cc0a5f0ac4dd8417b8dfa19e27c0ec65a150d5099fac4a"
     },
     {
-      "bytes": 5689,
+      "bytes": 5528,
       "path": ".github/workflows/release.yml",
-      "sha256": "21a8ba0a1bcab4d36f7a3ecd734e806fb62106e42b8fd8dc991015149071eaf6"
+      "sha256": "7f24f487f1cfa39ed9fb237e1a9f808b6ebc760604ffecc13f721a8d99e36273"
     },
     {
       "bytes": 1226,
@@ -176,9 +176,9 @@
       "sha256": "a7ee003efda63b14f7f083bd16c60d1f1b80daef1de72b5eac4f1bcf9d28109c"
     },
     {
-      "bytes": 34709,
+      "bytes": 35063,
       "path": "README.zh-CN.md",
-      "sha256": "20ae44e72cc0a007d875e9256be05bb3d3260b21f29c66545d8cce9dea85b8c2"
+      "sha256": "1aa9cbf2dab52d20b61bb0720bc7e4ed6a374078e3dd5417ca80e469babf178d"
     },
     {
       "bytes": 7408,
@@ -1681,9 +1681,9 @@
       "sha256": "dd8d0c35b6a5325be2eb8b23c8f66d9aee941e86dc85034f0b4f47b6de5f4eb3"
     },
     {
-      "bytes": 3462,
+      "bytes": 3995,
       "path": "docs/release.md",
-      "sha256": "92c34fa58534fb6310cb4b7c6f3bef5e758414cea99bd32483de54ebfd2793d1"
+      "sha256": "4c0b9ad45a26579d72683b273c384ac101d28c272b7cec7625af94efafaf8fa8"
     },
     {
       "bytes": 2044,
@@ -1748,7 +1748,7 @@
     {
       "bytes": 152,
       "path": "evidence/quality-check.json",
-      "sha256": "c9a3a020789b128dd36a17254e9ce8c09d9092d9d5517af2a5dfa0812ce73b94"
+      "sha256": "61066c57fb8a5b38708a353aec316dc10735d20261d05883a21cbd74c155ffb3"
     },
     {
       "bytes": 3174,
@@ -1758,7 +1758,7 @@
     {
       "bytes": 72,
       "path": "evidence/security-scan.json",
-      "sha256": "bc58dce95dc5f55a3771423ae50fbc5df6f4562996caca02bca062b86540e591"
+      "sha256": "cf5250761df0920a63dea8db0280592ea66540052ad8d8b1656aa3a2e3e226b0"
     },
     {
       "bytes": 573,
@@ -1951,19 +1951,19 @@
       "sha256": "06c63ceb866c0853965bdc1154473e756f0a7a95de14419fe854ce981da0c9ac"
     },
     {
-      "bytes": 58693,
+      "bytes": 61572,
       "path": "reports/ACCELERATION_OPPORTUNITIES_FULL_TREE_V4.json",
-      "sha256": "ef3224f827d16cc8b181cf883a529b5312c975263a561ac3a9dd9e5751180694"
+      "sha256": "efc3d4da36367bed85f0fb135a8f4ebb43ffc5e8c92a7e76194723383816ea58"
     },
     {
       "bytes": 9421,
       "path": "reports/ACCELERATION_OPPORTUNITIES_PRODUCTION_V4.json",
-      "sha256": "d7a58bb120c1aa9906cdf0fb16616bb25baadc99eef4645d1cf4c935e45b2b89"
+      "sha256": "ba610c73aabf7bf9d297d34550dbb845bb50bbbbc15a38cadd9c1777128965d4"
     },
     {
       "bytes": 9421,
       "path": "reports/ACCELERATION_OPPORTUNITIES_V2.json",
-      "sha256": "d7a58bb120c1aa9906cdf0fb16616bb25baadc99eef4645d1cf4c935e45b2b89"
+      "sha256": "ba610c73aabf7bf9d297d34550dbb845bb50bbbbc15a38cadd9c1777128965d4"
     },
     {
       "bytes": 1196,
@@ -2809,6 +2809,11 @@
       "bytes": 2268,
       "path": "tests/test_release_governance.py",
       "sha256": "17dec6c524d5a3457419281dd3958838646d1a4ea586a328b5d8110d706def8b"
+    },
+    {
+      "bytes": 5781,
+      "path": "tests/test_release_tag_ownership.py",
+      "sha256": "60b067b7f0e4880da9821fc26eb080ae1b98839f2e7d4f508ea9d5c2c7436dce"
     },
     {
       "bytes": 1161,
