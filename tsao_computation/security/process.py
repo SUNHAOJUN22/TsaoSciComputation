@@ -1,13 +1,20 @@
 from __future__ import annotations
 
+import io
 import json
+import locale
 import os
 import re
 import shutil
+import signal
 import subprocess  # nosec B404
 import sys
+import threading
+import time
 from collections.abc import Mapping, Sequence
+from contextlib import suppress
 from pathlib import Path
+from typing import BinaryIO
 
 from ..errors import SecurityError
 
@@ -49,6 +56,32 @@ _READ_ONLY_PROBE_ARGUMENTS = frozenset(
     }
 )
 _MAX_PROBE_OUTPUT_CHARS = 65_536
+_MAX_PROCESS_CONFIG_BYTES = 1_048_576
+_PROCESS_CLEANUP_TIMEOUT_SECONDS = 5.0
+
+
+def _write_process_config(
+    channel: BinaryIO,
+    payload: bytes,
+    errors: list[OSError],
+) -> None:
+    try:
+        with channel:
+            channel.write(payload)
+    except OSError as error:
+        errors.append(error)
+
+
+def _decode_process_output(output: bytes | None) -> str | None:
+    if output is None:
+        return None
+    with io.TextIOWrapper(
+        io.BytesIO(output),
+        encoding=locale.getpreferredencoding(False),
+        newline=None,
+    ) as stream:
+        return stream.read()
+
 
 _PROBE_ARGUMENTS: dict[str, frozenset[tuple[str, ...]]] = {
     "nvidia-smi": frozenset(
@@ -160,16 +193,261 @@ def _run_prepared(
         for key, value in environment.items()
     ):
         raise SecurityError("prepared subprocess environment contains invalid entries")
-    return subprocess.run(
+    validated_cwd = _validated_cwd(cwd)
+    if os.name == "nt":
+        return _run_windows_job(
+            tuple(argv),
+            cwd=validated_cwd,
+            timeout=timeout,
+            environment=environment,
+        )
+    return _run_posix_group(
         tuple(argv),
-        cwd=_validated_cwd(cwd),
-        env=dict(environment),
-        text=True,
-        capture_output=True,
+        cwd=validated_cwd,
         timeout=timeout,
-        check=False,
-        shell=False,  # nosec B603
+        environment=environment,
     )
+
+
+def _run_posix_group(
+    argv: tuple[str, ...],
+    *,
+    cwd: Path,
+    timeout: float,
+    environment: Mapping[str, str],
+) -> subprocess.CompletedProcess[str]:
+    """Kill same-process-group descendants on timeout; setsid() can escape this boundary."""
+
+    process: subprocess.Popen[bytes] = subprocess.Popen(
+        argv,
+        cwd=cwd,
+        env=dict(environment),
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        shell=False,  # nosec B603
+        start_new_session=True,
+    )
+    try:
+        stdout, stderr = process.communicate(timeout=timeout)
+    except subprocess.TimeoutExpired as error:
+        termination_error = _terminate_posix_group(process)
+        final_stdout, final_stderr = _finish_terminated_process(process)
+        if termination_error is not None:
+            raise SecurityError(
+                "unable to terminate the timed-out process group"
+            ) from termination_error
+        raise subprocess.TimeoutExpired(
+            argv,
+            timeout,
+            output=final_stdout,
+            stderr=final_stderr,
+        ) from error
+    except BaseException:
+        termination_error = _terminate_posix_group(process)
+        _finish_terminated_process(process)
+        if termination_error is not None:
+            raise SecurityError(
+                "unable to terminate the interrupted process group"
+            ) from termination_error
+        raise
+
+    return subprocess.CompletedProcess(
+        argv,
+        process.returncode,
+        _decode_process_output(stdout),
+        _decode_process_output(stderr),
+    )
+
+
+def _terminate_posix_group(process: subprocess.Popen[bytes]) -> OSError | None:
+    try:
+        killpg = getattr(os, "killpg", None)
+        sigkill = getattr(signal, "SIGKILL", None)
+        if killpg is None or sigkill is None:
+            raise OSError("process-group termination is unavailable")
+        killpg(process.pid, sigkill)
+    except ProcessLookupError:
+        return None
+    except OSError as error:
+        with suppress(OSError):
+            process.kill()
+        return error
+    return None
+
+
+def _finish_terminated_process(
+    process: subprocess.Popen[bytes],
+) -> tuple[bytes | None, bytes | None]:
+    try:
+        return process.communicate(timeout=_PROCESS_CLEANUP_TIMEOUT_SECONDS)
+    except subprocess.TimeoutExpired as error:
+        process.kill()
+        for stream in (process.stdout, process.stderr):
+            if stream is not None:
+                stream.close()
+        try:
+            process.wait(timeout=_PROCESS_CLEANUP_TIMEOUT_SECONDS)
+        except subprocess.TimeoutExpired as wait_error:
+            raise SecurityError("timed-out process could not be reaped") from wait_error
+        raise SecurityError(
+            "process descendants retained output pipes after termination"
+        ) from error
+
+
+def _run_windows_job(
+    argv: tuple[str, ...],
+    *,
+    cwd: Path,
+    timeout: float,
+    environment: Mapping[str, str],
+) -> subprocess.CompletedProcess[str]:
+    """Run through a gated bootstrap so the solver starts inside a kill-on-close Job."""
+
+    import msvcrt
+
+    config = json.dumps(
+        {"argv": argv, "cwd": str(cwd), "environment": dict(environment)},
+        ensure_ascii=True,
+        separators=(",", ":"),
+    ).encode("ascii")
+    if len(config) > _MAX_PROCESS_CONFIG_BYTES:
+        raise SecurityError("prepared subprocess configuration exceeds its size limit")
+
+    config_read, config_write = os.pipe()
+    status_read, status_write = os.pipe()
+    inherited_handles: list[int] = []
+    process: subprocess.Popen[bytes] | None = None
+    config_writer: threading.Thread | None = None
+    config_channel: BinaryIO | None = None
+    config_write_errors: list[OSError] = []
+    remaining_fds = {config_read, config_write, status_read, status_write}
+    try:
+        config_handle = msvcrt.get_osfhandle(config_read)
+        status_handle = msvcrt.get_osfhandle(status_write)
+        for handle in (config_handle, status_handle):
+            os.set_handle_inheritable(handle, True)
+            inherited_handles.append(handle)
+
+        startup = subprocess.STARTUPINFO()
+        startup.lpAttributeList = {"handle_list": [config_handle, status_handle]}
+        bootstrap = Path(__file__).with_name("windows_process_bootstrap.py")
+        bootstrap_process = subprocess.Popen(
+            (
+                sys.executable,
+                "-I",
+                "-S",
+                str(bootstrap),
+                str(config_handle),
+                str(status_handle),
+            ),
+            cwd=cwd,
+            env=dict(environment),
+            stdin=None,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            shell=False,  # nosec B603
+            startupinfo=startup,
+            close_fds=True,
+        )
+        process = bootstrap_process
+        started = time.monotonic()
+        for handle in inherited_handles:
+            os.set_handle_inheritable(handle, False)
+        inherited_handles.clear()
+
+        os.close(config_read)
+        remaining_fds.remove(config_read)
+        os.close(status_write)
+        remaining_fds.remove(status_write)
+
+        config_channel = os.fdopen(config_write, "wb")
+        remaining_fds.remove(config_write)
+        config_writer = threading.Thread(
+            target=_write_process_config,
+            args=(config_channel, config, config_write_errors),
+            name="tsao-process-config-writer",
+            daemon=True,
+        )
+        config_writer.start()
+
+        remaining = max(0.0, timeout - (time.monotonic() - started))
+        try:
+            stdout, stderr = bootstrap_process.communicate(timeout=remaining)
+        except subprocess.TimeoutExpired as error:
+            bootstrap_process.kill()
+            final_stdout, final_stderr = _finish_terminated_process(bootstrap_process)
+            config_writer.join(timeout=_PROCESS_CLEANUP_TIMEOUT_SECONDS)
+            if config_writer.is_alive():
+                raise SecurityError("timed-out process configuration pipe did not close") from error
+            raise subprocess.TimeoutExpired(
+                argv,
+                timeout,
+                output=final_stdout,
+                stderr=final_stderr,
+            ) from error
+        config_writer.join(timeout=_PROCESS_CLEANUP_TIMEOUT_SECONDS)
+        if config_writer.is_alive():
+            raise SecurityError("completed process configuration pipe did not close")
+
+        with os.fdopen(status_read, "rb") as channel:
+            remaining_fds.remove(status_read)
+            status_bytes = channel.read(65_537)
+        if len(status_bytes) > 65_536:
+            raise SecurityError("Windows process bootstrap returned oversized status")
+        try:
+            status = json.loads(status_bytes.decode("utf-8"))
+        except (UnicodeDecodeError, json.JSONDecodeError) as error:
+            raise SecurityError("Windows process bootstrap returned invalid status") from error
+        if not isinstance(status, dict):
+            raise SecurityError("Windows process bootstrap status is not an object")
+        if config_write_errors and status.get("kind") != "containment_error":
+            raise SecurityError(
+                "Windows process configuration pipe failed"
+            ) from config_write_errors[0]
+        if status.get("kind") == "containment_error":
+            raise SecurityError(str(status.get("message", "Windows Job Object setup failed")))
+        if status.get("kind") == "launch_error":
+            raise OSError(str(status.get("message", "authorized process could not start")))
+        if bootstrap_process.returncode != 0:
+            raise SecurityError("Windows process bootstrap exited unexpectedly")
+        returncode = status.get("returncode")
+        if (
+            status.get("kind") != "result"
+            or isinstance(returncode, bool)
+            or not isinstance(returncode, int)
+        ):
+            raise SecurityError("Windows process bootstrap returned an incomplete result")
+        return subprocess.CompletedProcess(
+            argv,
+            returncode,
+            _decode_process_output(stdout),
+            _decode_process_output(stderr),
+        )
+    except subprocess.TimeoutExpired:
+        raise
+    except BaseException:
+        if process is not None and process.poll() is None:
+            process.kill()
+            try:
+                process.communicate(timeout=_PROCESS_CLEANUP_TIMEOUT_SECONDS)
+            except subprocess.TimeoutExpired:
+                for stream in (process.stdout, process.stderr):
+                    if stream is not None:
+                        stream.close()
+                process.wait(timeout=_PROCESS_CLEANUP_TIMEOUT_SECONDS)
+        if config_writer is not None and config_writer.is_alive():
+            config_writer.join(timeout=_PROCESS_CLEANUP_TIMEOUT_SECONDS)
+        raise
+    finally:
+        if config_channel is not None:
+            with suppress(OSError):
+                config_channel.close()
+        for handle in inherited_handles:
+            with suppress(OSError):
+                os.set_handle_inheritable(handle, False)
+        for fd in remaining_fds:
+            with suppress(OSError):
+                os.close(fd)
 
 
 def _run_sanitized(

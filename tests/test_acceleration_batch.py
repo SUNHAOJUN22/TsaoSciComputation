@@ -1,12 +1,15 @@
 from __future__ import annotations
 
+import subprocess
 import sys
+import time
 from pathlib import Path
 
 import pytest
 
 from tsao_computation.adapters.base import CommandPlan
-from tsao_computation.execution import authorize_plan, run_plan_batch
+from tsao_computation.execution import authorize_plan, run_plan, run_plan_batch
+from tsao_computation.hashing import text_sha256
 
 
 def test_batch_execution_preserves_order_and_failure_indices(tmp_path: Path) -> None:
@@ -83,6 +86,82 @@ def test_batch_timeout_preserves_completed_sibling_and_failure_identity(
     assert result.failures[0].index == 1
     assert result.failures[0].reason == "timeout"
     assert result.failures[0].error_type == "TimeoutExpired"
+
+
+def test_timeout_stops_descendant_process_before_it_can_write(tmp_path: Path) -> None:
+    started_path = tmp_path / "descendant-started.txt"
+    marker_path = tmp_path / "descendant-survived-timeout.txt"
+    child_code = (
+        "import time; from pathlib import Path; "
+        f"Path({str(started_path)!r}).write_text('started', encoding='utf-8'); "
+        "time.sleep(5.0); "
+        f"Path({str(marker_path)!r}).write_text('survived', encoding='utf-8'); time.sleep(0.2)"
+    )
+    parent_code = (
+        "import subprocess, sys, time; "
+        f"subprocess.Popen([sys.executable, '-c', {child_code!r}]); time.sleep(20)"
+    )
+    plan = CommandPlan((sys.executable, "-c", parent_code), tmp_path, {}, "timeout tree test")
+    authorization = authorize_plan(
+        plan,
+        authorized_by="pytest",
+        purpose="ensure timeout stops an authorized process tree",
+        explicit_authorization=True,
+    )
+
+    started = time.monotonic()
+    with pytest.raises(subprocess.TimeoutExpired):
+        run_plan(plan, authorization=authorization, timeout=3.0)
+    elapsed = time.monotonic() - started
+
+    assert started_path.is_file(), "parent process did not start its descendant"
+    deadline = time.monotonic() + 3.5
+    while time.monotonic() < deadline and not marker_path.exists():
+        time.sleep(0.02)
+    assert not marker_path.exists(), "descendant performed work after run_plan timed out"
+    assert elapsed < 8.0
+
+
+def test_timeout_expired_output_is_bytes_in_text_execution(tmp_path: Path) -> None:
+    ready_path = tmp_path / "output-ready.txt"
+    code = (
+        "import sys, time; from pathlib import Path; "
+        "print('partial stdout', flush=True); "
+        "print('partial stderr', file=sys.stderr, flush=True); "
+        f"Path({str(ready_path)!r}).write_text('ready', encoding='utf-8'); "
+        "time.sleep(20)"
+    )
+    plan = CommandPlan((sys.executable, "-c", code), tmp_path, {}, "timeout output type test")
+    authorization = authorize_plan(
+        plan,
+        authorized_by="pytest",
+        purpose="preserve TimeoutExpired output types",
+        explicit_authorization=True,
+    )
+
+    with pytest.raises(subprocess.TimeoutExpired) as captured:
+        run_plan(plan, authorization=authorization, timeout=3.0)
+
+    assert ready_path.is_file(), "authorized process did not reach the output fixture"
+    assert isinstance(captured.value.stdout, bytes)
+    assert isinstance(captured.value.stderr, bytes)
+    assert b"partial stdout" in captured.value.stdout
+    assert b"partial stderr" in captured.value.stderr
+
+
+def test_successful_execution_preserves_text_mode_newline_translation(tmp_path: Path) -> None:
+    code = "import os; os.write(1, b'alpha\\r\\nbeta\\rgamma\\n')"
+    plan = CommandPlan((sys.executable, "-c", code), tmp_path, {}, "text output test")
+    authorization = authorize_plan(
+        plan,
+        authorized_by="pytest",
+        purpose="preserve text-mode newline translation",
+        explicit_authorization=True,
+    )
+
+    result = run_plan(plan, authorization=authorization, timeout=5.0)
+
+    assert result.stdout_sha256 == text_sha256("alpha\nbeta\ngamma\n")
 
 
 def test_empty_batch_and_worker_validation() -> None:

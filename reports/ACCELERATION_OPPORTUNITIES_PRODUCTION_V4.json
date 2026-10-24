@@ -1,24 +1,24 @@
 {
   "category_counts": {
-    "external-solver-dispatch": 2,
+    "external-solver-dispatch": 4,
     "filesystem-scan": 2
   },
   "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
   "file_scope_counts": {
     "benchmark": 9,
-    "production": 68,
-    "test": 82,
+    "production": 69,
+    "test": 83,
     "tooling": 39
   },
   "language_files": {
     "c": 1,
     "cpp": 2,
-    "python": 195
+    "python": 197
   },
   "language_lines": {
     "c": 70,
     "cpp": 197,
-    "python": 27277
+    "python": 28407
   },
   "opportunities": [
     {
@@ -73,7 +73,7 @@
         "oversubscription",
         "unsupported solver backend"
       ],
-      "candidate_id": "fb464600a79bb0c2e65440717aa20f1465a15c142f8974a89f3f6aedccc83436",
+      "candidate_id": "0f371a47f4087842d5d5f57b44011f3c0b70678ea217bf617cea0e1246df76ce",
       "category": "external-solver-dispatch",
       "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
       "confidence": "high",
@@ -90,12 +90,88 @@
         "mpi",
         "nccl"
       ],
-      "line": 163,
+      "line": 221,
       "path": "tsao_computation/security/process.py",
       "runtime_status": "unprofiled",
       "score": 68,
-      "source_sha256": "b03d2796105f25355c88d056888639e54e98baeab8481b9588a90587ff844ecc",
-      "symbol": "_run_prepared"
+      "source_sha256": "ba20766de777ed99767ad33dcfad90e47a4c62d59a8abf42001214b622b2d68b",
+      "symbol": "_run_posix_group"
+    },
+    {
+      "backend_candidates": [
+        "cpu",
+        "openmp",
+        "mpi",
+        "cuda",
+        "hip",
+        "sycl"
+      ],
+      "blockers": [
+        "license or scheduler limits",
+        "oversubscription",
+        "unsupported solver backend"
+      ],
+      "candidate_id": "a51202bb3ab6590858e797270c2d425e6472b974deec2f93e0c2ce48065f1f42",
+      "category": "external-solver-dispatch",
+      "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
+      "confidence": "high",
+      "current_pattern": "external command or solver dispatch",
+      "decision": "profile",
+      "evidence_requirements": [
+        "solver build features",
+        "command provenance",
+        "same-input end-to-end timing"
+      ],
+      "file_scope": "production",
+      "first_action": "batch independent cases and prefer the solver's native MPI/GPU backend before custom kernels",
+      "library_candidates": [
+        "mpi",
+        "nccl"
+      ],
+      "line": 334,
+      "path": "tsao_computation/security/process.py",
+      "runtime_status": "unprofiled",
+      "score": 68,
+      "source_sha256": "ba20766de777ed99767ad33dcfad90e47a4c62d59a8abf42001214b622b2d68b",
+      "symbol": "_run_windows_job"
+    },
+    {
+      "backend_candidates": [
+        "cpu",
+        "openmp",
+        "mpi",
+        "cuda",
+        "hip",
+        "sycl"
+      ],
+      "blockers": [
+        "license or scheduler limits",
+        "oversubscription",
+        "unsupported solver backend"
+      ],
+      "candidate_id": "fdcfd92904bed05e5aa4d27e294485de0e116d2090653a1c9326aec169df8a91",
+      "category": "external-solver-dispatch",
+      "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
+      "confidence": "high",
+      "current_pattern": "external command or solver dispatch",
+      "decision": "profile",
+      "evidence_requirements": [
+        "solver build features",
+        "command provenance",
+        "same-input end-to-end timing"
+      ],
+      "file_scope": "production",
+      "first_action": "batch independent cases and prefer the solver's native MPI/GPU backend before custom kernels",
+      "library_candidates": [
+        "mpi",
+        "nccl"
+      ],
+      "line": 153,
+      "path": "tsao_computation/security/windows_process_bootstrap.py",
+      "runtime_status": "unprofiled",
+      "score": 68,
+      "source_sha256": "20d37b99abf5e888b461b21efdb437d7dc41f4352446798c0abcf78087560d1e",
+      "symbol": "main"
     },
     {
       "backend_candidates": [
@@ -158,13 +234,13 @@
       "symbol": "audit_repository"
     }
   ],
-  "opportunity_count": 4,
+  "opportunity_count": 6,
   "parse_failures": [],
-  "python_files_analyzed": 66,
-  "python_files_excluded": 129,
+  "python_files_analyzed": 67,
+  "python_files_excluded": 130,
   "root": ".",
   "scope": "production",
-  "source_files": 198,
-  "source_lines": 27544,
-  "source_tree_sha256": "91f365ccc82e1302a362708ae8f2b9cd29cb89a7db2921a3f125cb2002cd16e7"
+  "source_files": 200,
+  "source_lines": 28674,
+  "source_tree_sha256": "3bf63bbfa88acf4fa64947afc09b3319df676304c7025e32ba35c1c15b54b3cf"
 }

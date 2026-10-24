@@ -107,6 +107,8 @@ def verify_target_install(wheel: Path, temporary_root: Path, expected: str) -> s
         "from tsao_computation.registries import capabilities,adapters,workflows; "
         "module=Path(tsao_computation.__file__).resolve(); "
         "assert target in module.parents, (target,module); "
+        "bootstrap=module.parent/'security'/'windows_process_bootstrap.py'; "
+        "assert bootstrap.is_file(), ('missing Windows process bootstrap',bootstrap); "
         "print(__version__,len(capabilities()),len(adapters()),len(workflows()))"
     )
     return subprocess.check_output(  # nosec B603
