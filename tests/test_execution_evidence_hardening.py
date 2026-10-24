@@ -306,6 +306,6 @@ def test_authorization_dataclass_cannot_be_replaced_with_incoherent_hash(
         purpose="sealed authorization",
         explicit_authorization=True,
     )
-    forged = replace(authorization, executable_sha256="0" * 64)
-    with pytest.raises(SecurityError, match="authorized executable content changed"):
+    with pytest.raises(SecurityError, match="seal does not match"):
+        forged = replace(authorization, executable_sha256="0" * 64)
         run_plan(plan, authorization=forged)

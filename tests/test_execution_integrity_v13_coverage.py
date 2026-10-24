@@ -174,8 +174,8 @@ def test_run_plan_rejects_missing_mismatched_and_environment_stale_authorization
         purpose="plan binding",
         explicit_authorization=True,
     )
-    forged = replace(authorization, plan_sha256="0" * 64)
     with pytest.raises(SecurityError, match="does not match"):
+        forged = replace(authorization, plan_sha256="0" * 64)
         run_plan(plan, authorization=forged)
     monkeypatch.setenv("PATH", os.environ.get("PATH", "") + os.pathsep + str(tmp_path))
     with pytest.raises(SecurityError, match="does not match"):

@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import hmac
 import os
+import secrets
 import shutil
 from collections.abc import Mapping
 from dataclasses import dataclass, field
@@ -16,7 +18,31 @@ from ..security.process import (
 )
 from .typing_compat import CommandPlanLike
 
-_AUTHORIZATION_SEAL = object()
+_AUTHORIZATION_KEY = secrets.token_bytes(32)
+
+
+def _authorization_sha256(
+    plan_digest: str,
+    executable_digest: str,
+    input_digest: str | None,
+    authorized_by: str,
+    purpose: str,
+    explicit_authorization: bool,
+) -> str:
+    return canonical_json_sha256(
+        {
+            "plan_sha256": plan_digest,
+            "executable_sha256": executable_digest,
+            "input_sha256": input_digest,
+            "authorized_by": authorized_by,
+            "purpose": purpose,
+            "explicit_authorization": explicit_authorization,
+        }
+    )
+
+
+def _seal_authorization(digest: str) -> bytes:
+    return hmac.digest(_AUTHORIZATION_KEY, digest.encode("ascii"), "sha256")
 
 
 def _has_explicit_relative_prefix(value: str) -> bool:
@@ -150,20 +176,26 @@ class ExecutionAuthorization:
     _seal: object = field(repr=False, compare=False)
 
     def __post_init__(self) -> None:
-        if self._seal is not _AUTHORIZATION_SEAL:
-            raise SecurityError("execution authorizations must be created by authorize_plan")
+        self._verify_binding()
+
+    def _verify_binding(self) -> None:
+        if not isinstance(self._seal, bytes) or not hmac.compare_digest(
+            self._seal, _seal_authorization(self.authorization_sha256)
+        ):
+            raise SecurityError(
+                "execution authorization seal does not match its issued binding; "
+                "authorizations must be created by authorize_plan"
+            )
 
     @property
     def authorization_sha256(self) -> str:
-        return canonical_json_sha256(
-            {
-                "plan_sha256": self.plan_sha256,
-                "executable_sha256": self.executable_sha256,
-                "input_sha256": self.input_sha256,
-                "authorized_by": self.authorized_by,
-                "purpose": self.purpose,
-                "explicit_authorization": self.explicit_authorization,
-            }
+        return _authorization_sha256(
+            self.plan_sha256,
+            self.executable_sha256,
+            self.input_sha256,
+            self.authorized_by,
+            self.purpose,
+            self.explicit_authorization,
         )
 
 
@@ -181,6 +213,9 @@ def authorize_plan(
     if not isinstance(purpose, str) or not purpose.strip():
         raise SecurityError("authorization purpose must be a non-empty string")
     digest, _, executable_sha256, input_sha256, _, _ = _bound_plan(plan)
+    authorization_digest = _authorization_sha256(
+        digest, executable_sha256, input_sha256, authorized_by.strip(), purpose.strip(), True
+    )
     return ExecutionAuthorization(
         digest,
         executable_sha256,
@@ -188,7 +223,7 @@ def authorize_plan(
         authorized_by.strip(),
         purpose.strip(),
         True,
-        _AUTHORIZATION_SEAL,
+        _seal_authorization(authorization_digest),
     )
 
 
@@ -216,6 +251,9 @@ def run_plan(
 ) -> ExecutionRecord:
     if authorization is None:
         raise SecurityError("external process execution is plan-only until explicitly authorized")
+    if type(authorization) is not ExecutionAuthorization:
+        raise SecurityError("execution authorizations must be created by authorize_plan")
+    authorization._verify_binding()
     digest, executable, executable_sha256, input_sha256, environment, cwd = _bound_plan(plan)
     if authorization.explicit_authorization is not True or authorization.plan_sha256 != digest:
         raise SecurityError("execution authorization does not match the immutable command plan")
