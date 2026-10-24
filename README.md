@@ -103,6 +103,8 @@ The repository exposes **164 capabilities**, **23 computation methods**, **9 inv
 
 Execution is fail-closed. Relative executables and inputs resolve from normalized `CommandPlan.cwd`. Bare command names resolve once against a sanitized immutable `PATH`, become absolute paths, are hashed, and are rebound immediately before launch. The authorized normalized working directory is the directory passed to the process runner.
 
+`ExternalExecutionCapability.is_verified()` and `SignedExecutionReceipt.is_verified()` accept only the literal Boolean `True` from the configured signature verifier; truthy strings, status objects and numbers are rejected. Receipt verification also requires the caller's expected request and capability IDs to match the signed receipt before invoking the verifier, preventing a valid receipt for another request that shares a capability from being accepted in the current request's context. The verifier still owns cryptographic and executor-trust policy; signature verification does not establish scientific correctness or acceptance.
+
 Scalar-sensitive trusted callables are also fail-closed: booleans never acquire scientific meaning through Python's `bool ⊂ int` implementation detail, and non-finite failure sentinels are converted to JSON-safe structured evidence before hashing.
 <!-- SUPER_SKILL_ORCHESTRATION:END -->
 

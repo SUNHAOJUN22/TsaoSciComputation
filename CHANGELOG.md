@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Made `expected_request_id` a required keyword for public signed execution receipt verification, alongside `expected_capability_id`; request/capability mismatches and any capability/receipt verifier result other than literal Boolean `True` fail closed. Callers must provide the request context. This is a breaking public API signature change and requires major-version compatibility review and caller migration guidance under `docs/compatibility.md` before release.
+- Made the POSIX memory probe fail closed when the Unix-only `os.sysconf` API is unavailable and made the root-path mutation probe work on Windows and POSIX.
 - Rejected Python booleans as scientific scalars across finite-value, convergence and uncertainty paths; converted non-finite convergence failure sentinels into JSON-safe structured evidence and added trusted-callable regression coverage.
 - Rewrote the bilingual delivery READMEs with mathematical operating models, seven deployment and qualification strategies, strict scalar-domain equations, four acceptance-focused AI-assisted SVG diagrams, and layered qualification evidence.
 - Hardened execution identity so relative executables and inputs bind to the normalized plan working directory, sanitized PATH resolution is immutable, and runtime uses the authorized normalized directory; strengthened solver-evidence state coherence, Schema validation, strict pytest configuration, and critical branch-coverage gates.

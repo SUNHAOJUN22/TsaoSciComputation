@@ -104,7 +104,7 @@
   "evidence_id": "resource-broker-gpu-binding-v6-hardening",
   "schema_version": "1.0",
   "source_sha256": {
-    "tests/test_acceleration_batch.py": "fe904007d153b9778f7f9ed609db283b67c7025b947a50de3bc6b2d1ccd53a67",
+    "tests/test_acceleration_batch.py": "4915b9187eaefa16f781efb04ac7a22aebbec1f599761ae1a8ce37ad501a6f54",
     "tests/test_resource_broker_evidence.py": "eaa7838e5e2ed238d068db029801747e1ab89f774a85a42b42fa2013cc679e69",
     "tsao_computation/execution/resources.py": "f02502425419a65817702872b7464077c9f0a7daabd9b35c308538da0fc9227c"
   },

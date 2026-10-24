@@ -136,9 +136,12 @@ def _library_evidence(
 def _memory_gib() -> float | None:
     if os.name != "posix":
         return None
+    sysconf = getattr(os, "sysconf", None)
+    if not callable(sysconf):
+        return None
     try:
-        pages = os.sysconf("SC_PHYS_PAGES")
-        page_size = os.sysconf("SC_PAGE_SIZE")
+        pages = sysconf("SC_PHYS_PAGES")
+        page_size = sysconf("SC_PAGE_SIZE")
     except (OSError, ValueError):
         return None
     if not isinstance(pages, int) or not isinstance(page_size, int) or pages <= 0 or page_size <= 0:

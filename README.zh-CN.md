@@ -100,6 +100,8 @@ python -m tsao_computation plan-acceleration gromacs \
 | Python 模块、CLI、API、容器、调度器或其他 Skill | 在运行时、身份和证据条件满足前仅生成声明式交接 |
 
 执行采用 fail-closed。相对可执行文件和输入均以规范化后的 `CommandPlan.cwd` 为基准解析。裸命令名仅按清洗后的不可变 `PATH` 解析一次，转为绝对路径、计算哈希并在启动前重新绑定；实际进程使用的目录就是已授权的规范化工作目录。
+
+`ExternalExecutionCapability.is_verified()` 和 `SignedExecutionReceipt.is_verified()` 只接受配置签名校验器返回的字面布尔值 `True`；仅为真值的字符串、状态对象或数字都会被拒绝。回执验证还要求调用方提供预期请求 ID 和能力 ID，且与签名回执字段一致后才调用校验器，避免把共享能力的其他请求回执误用于当前请求。密码学验证及执行器信任策略仍由校验器负责；签名验证不代表科学正确性或结果已获接受。
 <!-- SUPER_SKILL_ORCHESTRATION:END -->
 
 ## 架构概览

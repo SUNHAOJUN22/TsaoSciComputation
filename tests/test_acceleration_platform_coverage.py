@@ -25,6 +25,14 @@ def test_posix_memory_probe_fails_closed_on_sysconf_error(
     assert probe_module._memory_gib() is None
 
 
+def test_memory_probe_fails_closed_when_sysconf_is_unavailable(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(probe_module.os, "name", "posix")
+    monkeypatch.delattr(probe_module.os, "sysconf", raising=False)
+    assert probe_module._memory_gib() is None
+
+
 def test_posix_memory_probe_rejects_nonpositive_values(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

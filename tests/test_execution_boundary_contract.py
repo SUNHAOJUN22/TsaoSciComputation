@@ -61,6 +61,7 @@ def test_capability_and_receipt_are_unverified_without_external_verifier() -> No
     )
     assert not receipt.is_verified(
         verifier=None,
+        expected_request_id="request:1",
         expected_capability_id=capability.capability_id,
     )
     assert receipt.is_verified(
@@ -69,6 +70,12 @@ def test_capability_and_receipt_are_unverified_without_external_verifier() -> No
             and signature == "receipt-signature"
             and executor == capability.executor_id
         ),
+        expected_request_id="request:1",
+        expected_capability_id=capability.capability_id,
+    )
+    assert not receipt.is_verified(
+        verifier=lambda *_: True,
+        expected_request_id="request:2",
         expected_capability_id=capability.capability_id,
     )
 

@@ -53,7 +53,7 @@ def test_batch_timeout_preserves_completed_sibling_and_failure_identity(
                 "-c",
                 f"from pathlib import Path; p=Path({str(timed_attempt_marker)!r}); "
                 "p.write_text((p.read_text() if p.exists() else '') + 'x'); "
-                "import time; time.sleep(2)",
+                "import time; time.sleep(3)",
             ),
             tmp_path,
             {},
@@ -70,7 +70,7 @@ def test_batch_timeout_preserves_completed_sibling_and_failure_identity(
         for plan in plans
     ]
 
-    result = run_plan_batch(plans, authorizations=authorizations, timeout=0.1, max_workers=2)
+    result = run_plan_batch(plans, authorizations=authorizations, timeout=1.0, max_workers=2)
 
     assert completed_marker.read_text(encoding="utf-8") == "done"
     assert timed_attempt_marker.read_text(encoding="utf-8") == "x"

@@ -4,6 +4,7 @@ from dataclasses import replace
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 from hashlib import sha256
+from typing import cast
 
 import pytest
 
@@ -262,15 +263,60 @@ def test_signed_receipt_validation_and_verification_paths() -> None:
         receipt(request_id="")
     record = receipt()
     assert record.canonical_bytes()
-    assert not record.is_verified(verifier=None, expected_capability_id="cap:1")
-    assert not record.is_verified(verifier=lambda *_: True, expected_capability_id="other")
     assert not record.is_verified(
-        verifier=lambda *_: (_ for _ in ()).throw(RuntimeError()), expected_capability_id="cap:1"
+        verifier=None, expected_request_id="request:1", expected_capability_id="cap:1"
+    )
+    assert not record.is_verified(
+        verifier=lambda *_: True, expected_request_id="request:1", expected_capability_id="other"
+    )
+    assert not record.is_verified(
+        verifier=lambda *_: (_ for _ in ()).throw(RuntimeError()),
+        expected_request_id="request:1",
+        expected_capability_id="cap:1",
     )
     assert record.is_verified(
         verifier=lambda message, signature, executor: (
             bool(message) and signature == "signed" and executor == "executor:1"
         ),
+        expected_request_id="request:1",
+        expected_capability_id="cap:1",
+    )
+
+
+def test_signed_receipt_verification_is_bound_to_expected_request() -> None:
+    record = receipt(request_id="request:A")
+
+    def verifier(message: bytes, signature: str, executor: str) -> bool:
+        return (
+            message == record.canonical_bytes()
+            and signature == "signed"
+            and executor == "executor:1"
+        )
+
+    assert record.is_verified(
+        verifier=verifier,
+        expected_request_id="request:A",
+        expected_capability_id="cap:1",
+    )
+    assert not record.is_verified(
+        verifier=verifier,
+        expected_request_id="request:B",
+        expected_capability_id="cap:1",
+    )
+
+
+@pytest.mark.parametrize("decision", [False, "false", 1, {"verified": True}])
+def test_execution_verifiers_require_literal_true(decision: object) -> None:
+    cap = capability()
+    record = receipt()
+
+    def verifier(_message: bytes, _signature: str, _executor: str) -> bool:
+        return cast(bool, decision)
+
+    assert not cap.is_verified(verifier=verifier, command_digest=DIGEST, now=NOW)
+    assert not record.is_verified(
+        verifier=verifier,
+        expected_request_id="request:1",
         expected_capability_id="cap:1",
     )
 

@@ -127,12 +127,13 @@ class ExternalExecutionCapability:
         if command_digest.casefold() != self.command_digest:
             return False
         try:
-            return bool(
+            return (
                 verifier(
                     self.canonical_bytes(),
                     self.signature,
                     self.executor_id,
                 )
+                is True
             )
         except Exception:
             return False
@@ -203,17 +204,24 @@ class SignedExecutionReceipt:
         self,
         *,
         verifier: SignatureVerifier | None,
+        expected_request_id: str,
         expected_capability_id: str,
     ) -> bool:
-        if verifier is None or self.capability_id != expected_capability_id:
+        """Verify the signature only when this receipt belongs to the expected request and capability."""
+        if (
+            verifier is None
+            or self.request_id != expected_request_id
+            or self.capability_id != expected_capability_id
+        ):
             return False
         try:
-            return bool(
+            return (
                 verifier(
                     self.canonical_bytes(),
                     self.signature,
                     self.executor_id,
                 )
+                is True
             )
         except Exception:
             return False

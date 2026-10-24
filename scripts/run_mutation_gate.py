@@ -157,7 +157,7 @@ def path_mutants() -> list[Probe]:
         ("path-no-absolute-check", lambda: not Path(malicious).is_absolute()),
         ("path-name-only", lambda: escaped.name == "escape"),
         ("path-dot-normalized", lambda: ".." not in escaped.parts),
-        ("path-common-root", lambda: Path("/") in escaped.parents),
+        ("path-common-root", lambda: Path(escaped.anchor) in escaped.parents),
         ("path-unconditional", lambda: True),
     ]
 
