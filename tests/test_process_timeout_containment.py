@@ -217,6 +217,7 @@ def _load_windows_bootstrap(monkeypatch: pytest.MonkeyPatch) -> types.ModuleType
     assert spec is not None and spec.loader is not None
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
+    monkeypatch.setattr(module.ctypes, "get_last_error", lambda: 5, raising=False)
     return module
 
 
