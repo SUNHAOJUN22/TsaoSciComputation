@@ -9,11 +9,42 @@ import os
 import subprocess  # nosec B404 - launches only the received authorized argv
 import sys
 from ctypes import wintypes
-from typing import Any
+from typing import Any, Protocol, cast
 
 _MAX_CONFIG_BYTES = 1_048_576
 _KILL_ON_JOB_CLOSE = 0x2000
 _JOB_OBJECT_EXTENDED_LIMIT_INFORMATION = 9
+
+
+class _WindowsMsvcrt(Protocol):
+    def open_osfhandle(self, handle: int, flags: int) -> int: ...
+
+
+class _WindowsOS(Protocol):
+    O_BINARY: int
+
+
+class _Win32Function(Protocol):
+    argtypes: Any
+    restype: Any
+
+    def __call__(self, *args: Any) -> Any: ...
+
+
+class _Kernel32(Protocol):
+    CreateJobObjectW: _Win32Function
+    SetInformationJobObject: _Win32Function
+    GetCurrentProcess: _Win32Function
+    AssignProcessToJobObject: _Win32Function
+    CloseHandle: _Win32Function
+
+
+class _WindowsCtypes(Protocol):
+    def WinDLL(self, name: str, *, use_last_error: bool) -> _Kernel32: ...
+
+    def WinError(self, code: int) -> OSError: ...
+
+    def get_last_error(self) -> int: ...
 
 
 class _BasicLimitInformation(ctypes.Structure):
@@ -53,13 +84,18 @@ class _ExtendedLimitInformation(ctypes.Structure):
 
 
 def _status(handle: int, value: dict[str, Any]) -> None:
-    descriptor = msvcrt.open_osfhandle(handle, os.O_WRONLY | os.O_BINARY)
+    # Typeshed omits these Windows-only members when tests run on POSIX.
+    windows_msvcrt = cast(_WindowsMsvcrt, msvcrt)
+    windows_os = cast(_WindowsOS, os)
+    descriptor = windows_msvcrt.open_osfhandle(handle, os.O_WRONLY | windows_os.O_BINARY)
     with os.fdopen(descriptor, "wb") as stream:
         stream.write(json.dumps(value, ensure_ascii=True, separators=(",", ":")).encode("ascii"))
 
 
 def _read_config(handle: int) -> dict[str, Any]:
-    descriptor = msvcrt.open_osfhandle(handle, os.O_RDONLY | os.O_BINARY)
+    windows_msvcrt = cast(_WindowsMsvcrt, msvcrt)
+    windows_os = cast(_WindowsOS, os)
+    descriptor = windows_msvcrt.open_osfhandle(handle, os.O_RDONLY | windows_os.O_BINARY)
     with os.fdopen(descriptor, "rb") as stream:
         payload = stream.read(_MAX_CONFIG_BYTES + 1)
     if len(payload) > _MAX_CONFIG_BYTES:
@@ -85,7 +121,8 @@ def _read_config(handle: int) -> dict[str, Any]:
 
 
 def _create_owned_job() -> int:
-    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    windows_ctypes = cast(_WindowsCtypes, ctypes)
+    kernel32 = windows_ctypes.WinDLL("kernel32", use_last_error=True)
     kernel32.CreateJobObjectW.argtypes = [ctypes.c_void_p, wintypes.LPCWSTR]
     kernel32.CreateJobObjectW.restype = wintypes.HANDLE
     kernel32.SetInformationJobObject.argtypes = [
@@ -104,7 +141,7 @@ def _create_owned_job() -> int:
 
     job = kernel32.CreateJobObjectW(None, None)
     if not job:
-        raise ctypes.WinError(ctypes.get_last_error())
+        raise windows_ctypes.WinError(windows_ctypes.get_last_error())
     limits = _ExtendedLimitInformation()
     limits.BasicLimitInformation.LimitFlags = _KILL_ON_JOB_CLOSE
     if not kernel32.SetInformationJobObject(
@@ -113,11 +150,11 @@ def _create_owned_job() -> int:
         ctypes.byref(limits),
         ctypes.sizeof(limits),
     ):
-        error = ctypes.WinError(ctypes.get_last_error())
+        error = windows_ctypes.WinError(windows_ctypes.get_last_error())
         kernel32.CloseHandle(job)
         raise error
     if not kernel32.AssignProcessToJobObject(job, kernel32.GetCurrentProcess()):
-        error = ctypes.WinError(ctypes.get_last_error())
+        error = windows_ctypes.WinError(windows_ctypes.get_last_error())
         kernel32.CloseHandle(job)
         raise error
     return job
@@ -125,11 +162,12 @@ def _create_owned_job() -> int:
 
 def _close_job(job: int | None) -> None:
     if job is not None:
-        kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+        windows_ctypes = cast(_WindowsCtypes, ctypes)
+        kernel32 = windows_ctypes.WinDLL("kernel32", use_last_error=True)
         kernel32.CloseHandle.argtypes = [wintypes.HANDLE]
         kernel32.CloseHandle.restype = wintypes.BOOL
         if not kernel32.CloseHandle(job):
-            raise ctypes.WinError(ctypes.get_last_error())
+            raise windows_ctypes.WinError(windows_ctypes.get_last_error())
 
 
 def main() -> int:

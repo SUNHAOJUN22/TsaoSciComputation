@@ -14,9 +14,26 @@ import time
 from collections.abc import Mapping, Sequence
 from contextlib import suppress
 from pathlib import Path
-from typing import BinaryIO
+from typing import BinaryIO, Protocol, cast
 
 from ..errors import SecurityError
+
+
+class _WindowsMsvcrt(Protocol):
+    def get_osfhandle(self, fd: int) -> int: ...
+
+
+class _WindowsOS(Protocol):
+    def set_handle_inheritable(self, handle: int, inheritable: bool) -> None: ...
+
+
+class _WindowsStartupInfo(Protocol):
+    lpAttributeList: dict[str, list[int]]
+
+
+class _WindowsSubprocess(Protocol):
+    def STARTUPINFO(self) -> _WindowsStartupInfo: ...
+
 
 _PORTABLE_ENVIRONMENT_KEYS = ("PATH", "HOME", "TEMP", "TMP", "TMPDIR", "LANG", "LC_ALL", "LC_CTYPE")
 _WINDOWS_ENVIRONMENT_KEYS = (
@@ -305,6 +322,11 @@ def _run_windows_job(
 
     import msvcrt
 
+    # Typeshed omits these Windows-only members when this module is checked on POSIX.
+    windows_msvcrt = cast(_WindowsMsvcrt, msvcrt)
+    windows_os = cast(_WindowsOS, os)
+    windows_subprocess = cast(_WindowsSubprocess, subprocess)
+
     config = json.dumps(
         {"argv": argv, "cwd": str(cwd), "environment": dict(environment)},
         ensure_ascii=True,
@@ -322,13 +344,13 @@ def _run_windows_job(
     config_write_errors: list[OSError] = []
     remaining_fds = {config_read, config_write, status_read, status_write}
     try:
-        config_handle = msvcrt.get_osfhandle(config_read)
-        status_handle = msvcrt.get_osfhandle(status_write)
+        config_handle = windows_msvcrt.get_osfhandle(config_read)
+        status_handle = windows_msvcrt.get_osfhandle(status_write)
         for handle in (config_handle, status_handle):
-            os.set_handle_inheritable(handle, True)
+            windows_os.set_handle_inheritable(handle, True)
             inherited_handles.append(handle)
 
-        startup = subprocess.STARTUPINFO()
+        startup = windows_subprocess.STARTUPINFO()
         startup.lpAttributeList = {"handle_list": [config_handle, status_handle]}
         bootstrap = Path(__file__).with_name("windows_process_bootstrap.py")
         bootstrap_process = subprocess.Popen(
@@ -352,7 +374,7 @@ def _run_windows_job(
         process = bootstrap_process
         started = time.monotonic()
         for handle in inherited_handles:
-            os.set_handle_inheritable(handle, False)
+            windows_os.set_handle_inheritable(handle, False)
         inherited_handles.clear()
 
         os.close(config_read)
@@ -444,7 +466,7 @@ def _run_windows_job(
                 config_channel.close()
         for handle in inherited_handles:
             with suppress(OSError):
-                os.set_handle_inheritable(handle, False)
+                windows_os.set_handle_inheritable(handle, False)
         for fd in remaining_fds:
             with suppress(OSError):
                 os.close(fd)
