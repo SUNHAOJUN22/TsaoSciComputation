@@ -3,6 +3,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import jsonschema
+
 from tsao_computation import cli
 from tsao_computation.contracts import CalculationContract
 
@@ -48,6 +50,25 @@ def test_legacy_contract_is_readable_but_not_preflight_ready() -> None:
     )
     assert "methods" in contract.specification_gaps()
     assert "validation_plan" in contract.specification_gaps()
+
+
+def test_contract_schema_rejects_unknown_versions_and_keeps_legacy_default() -> None:
+    schema_path = (
+        Path(__file__).resolve().parents[1] / "schemas" / "calculation-contract.schema.json"
+    )
+    schema = json.loads(schema_path.read_text(encoding="utf-8"))
+    validator = jsonschema.Draft202012Validator(schema)
+    legacy = {
+        "question": "q",
+        "system": {"name": "s"},
+        "conditions": {},
+        "target_observables": ["x"],
+    }
+
+    assert validator.is_valid(legacy)
+    assert CalculationContract.from_dict(legacy).schema_version == "1.0"
+    assert validator.is_valid({**legacy, "schema_version": "1.0"})
+    assert not validator.is_valid({**legacy, "schema_version": "99.0"})
 
 
 def test_scale_and_method_aliases_are_normalized() -> None:

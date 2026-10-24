@@ -57,7 +57,7 @@
     "parameter_sources": {"items": {"type": "object"}, "type": "array"},
     "question": {"minLength": 1, "type": "string"},
     "scales": {"items": {"minLength": 1, "type": "string"}, "type": "array"},
-    "schema_version": {"type": "string"},
+    "schema_version": {"const": "1.0", "type": "string"},
     "system": {"minProperties": 1, "type": "object"},
     "target_observables": {
       "items": {"minLength": 1, "type": "string"},

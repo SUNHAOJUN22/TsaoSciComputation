@@ -1953,17 +1953,17 @@
     {
       "bytes": 55786,
       "path": "reports/ACCELERATION_OPPORTUNITIES_FULL_TREE_V4.json",
-      "sha256": "2ada6e522e13991e6c5275e1de03344a09ef1e354fadd19055a29afa45168676"
+      "sha256": "732421f6424971928a69f85789c6b0fcca0324d1a3120952f06afa110c8149d0"
     },
     {
       "bytes": 6514,
       "path": "reports/ACCELERATION_OPPORTUNITIES_PRODUCTION_V4.json",
-      "sha256": "62764be72d013775a434fd391cc55dc5343ef35d325fd8dcd9988cfb3a795082"
+      "sha256": "d80908280712d734d92b4eba7bcccdc7ec46d66d05a9e50064ebb79cfcd6e32b"
     },
     {
       "bytes": 6514,
       "path": "reports/ACCELERATION_OPPORTUNITIES_V2.json",
-      "sha256": "62764be72d013775a434fd391cc55dc5343ef35d325fd8dcd9988cfb3a795082"
+      "sha256": "d80908280712d734d92b4eba7bcccdc7ec46d66d05a9e50064ebb79cfcd6e32b"
     },
     {
       "bytes": 1196,
@@ -2126,9 +2126,9 @@
       "sha256": "31a1e5caa5acc048208ebe644014e76f8ac8289abbfe986eaaedd1bb03c4109e"
     },
     {
-      "bytes": 3714,
+      "bytes": 3730,
       "path": "schemas/calculation-contract.schema.json",
-      "sha256": "6b64f3182c4f70d408b73c4a1ceb71ecf17f23a4df6bbe4a18c8776382982f2b"
+      "sha256": "f38e8784a9e931295ae0ba59d488f2b95cbd91ce26bddf6e16fbac06e43022aa"
     },
     {
       "bytes": 1679,
@@ -2651,14 +2651,14 @@
       "sha256": "f8f06c48182c670eb067d0e24842b81acc50352113cbf7b902d8708dfa656666"
     },
     {
-      "bytes": 2504,
+      "bytes": 3244,
       "path": "tests/test_contract_completeness.py",
-      "sha256": "6708c06a076eede4ee348c6ddf1111a7bf67a056c5b426d7b45a46688cc4fc61"
+      "sha256": "b5b4115436eed594426e7ea839c4bff2cf4c20c08980a410d7184e4c805146ab"
     },
     {
-      "bytes": 2878,
+      "bytes": 3214,
       "path": "tests/test_contract_fail_closed.py",
-      "sha256": "d3151c9d0a67b07dc7c114e36d5b962c8a52232796832c03177d8d1674ce44a8"
+      "sha256": "32a4d8a5466fb6f204ead8a512f56c459e937d510649d7254008231863a37ba7"
     },
     {
       "bytes": 7678,
@@ -3006,9 +3006,9 @@
       "sha256": "79f24109e2800a6479d76dab0eb80ae19d8fe988f2d710a9e3ca5ca985299c74"
     },
     {
-      "bytes": 10754,
+      "bytes": 11136,
       "path": "tsao_computation/contracts/calculation.py",
-      "sha256": "0561d0f62d9e68292d362590a6a01ce1e787fc04fbfba9ee15865ddf02d25766"
+      "sha256": "e870cb8cd789f1a369e83017fc973d97649f4507ed99ab609f8035c2bcaeac2f"
     },
     {
       "bytes": 9360,

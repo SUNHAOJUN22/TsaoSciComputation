@@ -73,6 +73,14 @@ def test_unknown_fields_are_rejected_instead_of_ignored() -> None:
         CalculationContract.from_dict(payload)
 
 
+@pytest.mark.parametrize("version", ("0.9", "2.0", "99.0"))
+def test_explicit_unsupported_schema_versions_are_rejected(version: str) -> None:
+    payload = base_contract()
+    payload["schema_version"] = version
+    with pytest.raises(ContractError, match="unsupported schema_version"):
+        CalculationContract.from_dict(payload)
+
+
 def test_mapping_keys_are_not_silently_coerced() -> None:
     payload = base_contract()
     payload["system"] = {1: "invalid JSON-style key"}

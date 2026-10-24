@@ -7,6 +7,8 @@ from typing import Any, ClassVar
 from ..errors import ContractError
 from ..immutable import FrozenDict, freeze_json, thaw_json
 
+CALCULATION_CONTRACT_SCHEMA_VERSION = "1.0"
+
 
 def _required_string(value: object, *, field_name: str) -> str:
     if not isinstance(value, str) or not value.strip():
@@ -89,7 +91,7 @@ class CalculationContract:
     compute_resources: dict[str, Any] = field(default_factory=FrozenDict)
     expected_artifacts: tuple[str, ...] = ()
     human_approval_nodes: tuple[str, ...] = ()
-    schema_version: str = "1.0"
+    schema_version: str = CALCULATION_CONTRACT_SCHEMA_VERSION
 
     PREFLIGHT_FIELDS: ClassVar[tuple[str, ...]] = (
         "assumptions",
@@ -173,6 +175,11 @@ class CalculationContract:
             ),
             "schema_version": _required_string(self.schema_version, field_name="schema_version"),
         }
+        if normalized["schema_version"] != CALCULATION_CONTRACT_SCHEMA_VERSION:
+            raise ContractError(
+                f"unsupported schema_version: {normalized['schema_version']!r}; "
+                f"supported: {CALCULATION_CONTRACT_SCHEMA_VERSION}"
+            )
         if not normalized["system"]:
             raise ContractError("system definition must be non-empty")
         if not normalized["target_observables"]:
@@ -212,7 +219,7 @@ class CalculationContract:
             compute_resources=data.get("compute_resources", {}),
             expected_artifacts=data.get("expected_artifacts", ()),
             human_approval_nodes=data.get("human_approval_nodes", ()),
-            schema_version=data.get("schema_version", "1.0"),
+            schema_version=data.get("schema_version", CALCULATION_CONTRACT_SCHEMA_VERSION),
         )
 
     def specification_gaps(self) -> tuple[str, ...]:
