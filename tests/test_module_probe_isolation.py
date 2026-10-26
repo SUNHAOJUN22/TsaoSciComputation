@@ -181,7 +181,7 @@ def test_solver_capability_binds_the_selected_python_environment(
         (0, '{"schema_version":1,"requested":["json","absent"],"missing":["absent","absent"]}'),
         (0, '{"schema_version":1,"requested":["json","absent"],"missing":["absent","json"]}'),
         (0, '{"schema_version":1,"requested":["json","absent"],"missing":[],"missing":["absent"]}'),
-        (0, " " * 65537),
+        pytest.param(0, " " * 65537, id="oversized_stdout"),
     ],
 )
 def test_probe_failures_and_unbound_responses_cannot_report_availability(
