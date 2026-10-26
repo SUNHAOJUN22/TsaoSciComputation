@@ -65,7 +65,8 @@ def _resolve_executable(candidate: str, which: Callable[[str], str | None]) -> P
         return None
     if not resolved.is_file() or (os.name != "nt" and not os.access(resolved, os.X_OK)):
         return None
-    return resolved
+    # Preserve Python venv selection while hashing/validating the target bytes.
+    return Path(found).absolute()
 
 
 def _probe_interpreter(executable: Path) -> str:

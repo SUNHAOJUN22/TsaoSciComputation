@@ -398,8 +398,14 @@ class ConcurrentProvenanceLedger:
                     "payload": dict(event.payload),
                     "event_hash": event.event_hash,
                 }
-                with self.path.open("a", encoding="utf-8") as stream:
-                    stream.write(_canonical(record).decode("utf-8") + "\n")
+                with self.path.open("a+b") as stream:
+                    stream.seek(0, os.SEEK_END)
+                    separator = b""
+                    if stream.tell():
+                        stream.seek(-1, os.SEEK_END)
+                        if stream.read(1) != b"\n":
+                            separator = b"\n"
+                    stream.write(separator + _canonical(record) + b"\n")
                     stream.flush()
                     os.fsync(stream.fileno())
                 return event

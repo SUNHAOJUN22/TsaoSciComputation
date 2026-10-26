@@ -382,26 +382,28 @@ def test_repository_audit_detects_registry_contract_faults(monkeypatch: pytest.M
         "risk_level": "bad",
         "description": "same",
     }
-    monkeypatch.setattr(
-        repository_audit, "capabilities", lambda: (malformed_capability, malformed_capability)
-    )
     malformed_adapter = {
         "slug": "duplicate-adapter",
         "workflow": "unknown",
         "live_execution_verified": True,
         "executables": "not-a-list",
     }
-    monkeypatch.setattr(
-        repository_audit, "adapters", lambda: (malformed_adapter, malformed_adapter)
-    )
     malformed_workflow = {
         "slug": "duplicate-workflow",
         "capability_ids": [],
         "recommended_adapters": ["missing"],
     }
-    monkeypatch.setattr(
-        repository_audit, "workflows", lambda: (malformed_workflow, malformed_workflow)
-    )
+    malformed = {
+        "capabilities.json": (malformed_capability, malformed_capability),
+        "adapters.json": (malformed_adapter, malformed_adapter),
+        "workflows.json": (malformed_workflow, malformed_workflow),
+    }
+    original_loader = repository_audit._registry_records
+
+    def load_registry(root: Path, name: str, problems: list[str]):
+        return malformed[name] if name in malformed else original_loader(root, name, problems)
+
+    monkeypatch.setattr(repository_audit, "_registry_records", load_registry)
     result = repository_audit.audit_repository(Path("."))
     assert result["passed"] is False
     joined = "\n".join(result["problems"])

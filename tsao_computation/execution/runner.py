@@ -96,7 +96,9 @@ def _resolve_executable(argv0: str, cwd: Path, *, search_path: str) -> Path:
         raise SecurityError(f"command plan executable is unavailable: {argv0}") from error
     if not resolved.is_file() or (os.name != "nt" and not os.access(resolved, os.X_OK)):
         raise SecurityError(f"command plan executable is not runnable: {argv0}")
-    return resolved
+    # Keep the invoked path: Python uses a venv entrypoint to select its prefix.
+    # The strict symlink target is separately bound below, in addition to bytes.
+    return Path(found).absolute()
 
 
 def _input_binding(plan: CommandPlanLike, cwd: Path) -> tuple[str | None, str | None]:
@@ -138,7 +140,8 @@ def _bound_plan(
     executable = _resolve_executable(
         plan.argv[0], cwd, search_path=normalized_environment.get("PATH", "")
     )
-    executable_sha256 = file_sha256(executable)
+    resolved_executable = executable.resolve(strict=True)
+    executable_sha256 = file_sha256(resolved_executable)
     input_path, input_sha256 = _input_binding(plan, cwd)
     normalized_argv = [str(executable), *plan.argv[1:]]
     payload = {
@@ -146,6 +149,7 @@ def _bound_plan(
         "cwd": str(cwd),
         "environment": dict(sorted(normalized_environment.items())),
         "adapter_slug": getattr(plan, "adapter_slug", None),
+        "resolved_executable_path": str(resolved_executable),
         "executable_sha256": executable_sha256,
         "input_path": input_path,
         "input_sha256": input_sha256,

@@ -107,7 +107,7 @@ def _resolve_executable(candidate: str) -> str | None:
     path = Path(candidate).expanduser()
     resolved: str | None
     if (path.is_absolute() and path.is_file()) or (path.parent != Path(".") and path.is_file()):
-        resolved = str(path.resolve())
+        resolved = str(path.absolute())
     else:
         resolved = shutil.which(candidate)
     if resolved and os.name != "nt" and not os.access(resolved, os.X_OK):

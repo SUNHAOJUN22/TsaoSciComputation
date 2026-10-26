@@ -2,24 +2,24 @@
   "category_counts": {
     "external-solver-dispatch": 20,
     "filesystem-scan": 17,
-    "numeric-python-loop": 6
+    "numeric-python-loop": 7
   },
   "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
   "file_scope_counts": {
     "benchmark": 9,
-    "production": 69,
-    "test": 84,
+    "production": 70,
+    "test": 87,
     "tooling": 39
   },
   "language_files": {
     "c": 1,
     "cpp": 2,
-    "python": 198
+    "python": 202
   },
   "language_lines": {
     "c": 70,
     "cpp": 197,
-    "python": 28643
+    "python": 29268
   },
   "opportunities": [
     {
@@ -216,6 +216,45 @@
       "score": 73,
       "source_sha256": "dd3cc620d651a2dfb0e0a2143c21ef934b0188d23194fb6fdc3dd6d5afbfed1f",
       "symbol": "steady_conduction"
+    },
+    {
+      "backend_candidates": [
+        "cpu",
+        "openmp",
+        "cuda",
+        "hip",
+        "sycl"
+      ],
+      "blockers": [
+        "Python control-flow dependence",
+        "insufficient arithmetic intensity",
+        "precision drift"
+      ],
+      "candidate_id": "b4eadce7e69f71103f7485f015f74bb914f7e919986a3e8e46228c85abb7c01f",
+      "category": "numeric-python-loop",
+      "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
+      "confidence": "medium",
+      "current_pattern": "arithmetic-heavy Python loop",
+      "decision": "profile",
+      "evidence_requirements": [
+        "scalar reference",
+        "shape and stride contract",
+        "sanitizer and race tests",
+        "size-scaled benchmark"
+      ],
+      "file_scope": "production",
+      "first_action": "establish a vectorized CPU reference, then consider C++20/OpenMP, Kokkos, Warp, or CUDA",
+      "library_candidates": [
+        "kokkos",
+        "warp",
+        "cupy"
+      ],
+      "line": 209,
+      "path": "tsao_computation/repository_audit.py",
+      "runtime_status": "unprofiled",
+      "score": 72,
+      "source_sha256": "a0de24ebabf7805c2db4e9e24cc68e128e46c1136a6b771bec1ad1f805853de6",
+      "symbol": "audit_repository"
     },
     {
       "backend_candidates": [
@@ -916,7 +955,7 @@
         "oversubscription",
         "unsupported solver backend"
       ],
-      "candidate_id": "5502456ae56329c28e3a1f8f0002e2e8d5c1845a2bf4b0d184c78828a7af9be6",
+      "candidate_id": "c20b0b78ff0cb6bb8f94fa5306e71bf2aba0565d1fe9453fd4b02e9168148006",
       "category": "external-solver-dispatch",
       "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
       "confidence": "high",
@@ -933,11 +972,11 @@
         "mpi",
         "nccl"
       ],
-      "line": 238,
+      "line": 242,
       "path": "tsao_computation/security/process.py",
       "runtime_status": "unprofiled",
       "score": 68,
-      "source_sha256": "dd0418938d86c1967ca6a3a6e245452e8057b28aac6410590af6fc70873c5cb7",
+      "source_sha256": "9f10d22f1522f990d2a45f9274642b8cb88aea203126187db4f11efa6e6f32bd",
       "symbol": "_run_posix_group"
     },
     {
@@ -954,7 +993,7 @@
         "oversubscription",
         "unsupported solver backend"
       ],
-      "candidate_id": "5f84eeb07d536c5c6c414a09eb7afbe7173b17dae5843750e3361af0b9634561",
+      "candidate_id": "4c18e2185f603db34d01bf8c441c1935e48e98235854c1df1be7ecb71c87f90f",
       "category": "external-solver-dispatch",
       "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
       "confidence": "high",
@@ -971,11 +1010,11 @@
         "mpi",
         "nccl"
       ],
-      "line": 356,
+      "line": 360,
       "path": "tsao_computation/security/process.py",
       "runtime_status": "unprofiled",
       "score": 68,
-      "source_sha256": "dd0418938d86c1967ca6a3a6e245452e8057b28aac6410590af6fc70873c5cb7",
+      "source_sha256": "9f10d22f1522f990d2a45f9274642b8cb88aea203126187db4f11efa6e6f32bd",
       "symbol": "_run_windows_job"
     },
     {
@@ -1175,7 +1214,7 @@
         "network filesystem",
         "stale cache"
       ],
-      "candidate_id": "0249bad00d7f1b2c0e2e068532b795e1b7220f192823c761a674be9cdbf9324c",
+      "candidate_id": "51625392b9c517cd863b1579c6778752c1d3149322288c632fbf40d5e1cfb1cd",
       "category": "filesystem-scan",
       "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
       "confidence": "medium",
@@ -1189,11 +1228,11 @@
       "file_scope": "production",
       "first_action": "reduce repeated passes, cache stable metadata, and stream results; GPU migration is usually unsuitable",
       "library_candidates": [],
-      "line": 301,
+      "line": 341,
       "path": "tsao_computation/repository_audit.py",
       "runtime_status": "unprofiled",
       "score": 47,
-      "source_sha256": "86079947348ede467a4cca7a431eeedfc9b8f730bf0592d6a8dcccbdd9c2208c",
+      "source_sha256": "a0de24ebabf7805c2db4e9e24cc68e128e46c1136a6b771bec1ad1f805853de6",
       "symbol": "audit_repository"
     },
     {
@@ -1527,13 +1566,13 @@
       "symbol": "test_workflows_pin_actions_and_avoid_privileged_untrusted_triggers"
     }
   ],
-  "opportunity_count": 43,
+  "opportunity_count": 44,
   "parse_failures": [],
-  "python_files_analyzed": 198,
+  "python_files_analyzed": 202,
   "python_files_excluded": 0,
   "root": ".",
   "scope": "full-tree",
-  "source_files": 201,
-  "source_lines": 28910,
-  "source_tree_sha256": "b7bef5a367ebfd368d4d6817d040e5d8ed08a403b8821c17faf3c53df17254e2"
+  "source_files": 205,
+  "source_lines": 29535,
+  "source_tree_sha256": "4e32d6273df08623fba9e0eef8a657ab6535d33210218a1c9fcc55214961bfbc"
 }

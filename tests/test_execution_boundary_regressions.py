@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -58,3 +59,53 @@ def test_capability_is_expired_at_exact_deadline() -> None:
     end = start + timedelta(seconds=1)
     capability = ExternalExecutionCapability("id", "executor", "a" * 64, start, end, "test", "test")
     assert not capability.is_verified(verifier=lambda *args: True, command_digest="a" * 64, now=end)
+
+
+@pytest.mark.parametrize("ending", [b"", b" ", b"\r", b"\r\n", b"\n"])
+def test_append_preserves_valid_chain_without_a_final_newline(
+    tmp_path: Path, ending: bytes
+) -> None:
+    ledger = ConcurrentProvenanceLedger(tmp_path / "events.jsonl")
+    first = ledger.append("first", {"name": "材料", "value": 1})
+    original = ledger.path.read_bytes().rstrip(b"\n") + ending
+    ledger.path.write_bytes(original)
+    ledger.verify(ledger.read())
+    second = ledger.append("second", {"value": 2})
+    assert ledger.path.read_bytes().startswith(original)
+    assert ledger.read() == (first, second)
+    ledger.verify(ledger.read())
+    assert second.previous_hash == first.event_hash
+    assert not ledger.lock_path.exists()
+
+
+def test_concurrent_append_repairs_only_record_separator_and_keeps_every_event(
+    tmp_path: Path,
+) -> None:
+    path = tmp_path / "events.jsonl"
+    initial = ConcurrentProvenanceLedger(path)
+    first = initial.append("first", {"value": -1})
+    original = path.read_bytes().rstrip(b"\n")
+    path.write_bytes(original)
+
+    def append(index: int) -> None:
+        ConcurrentProvenanceLedger(path).append("next", {"value": index})
+
+    with ThreadPoolExecutor(max_workers=4) as pool:
+        tuple(pool.map(append, range(8)))
+    events = initial.read()
+    initial.verify(events)
+    assert path.read_bytes().startswith(original)
+    assert events[0] == first
+    assert len(events) == 9
+    assert {event.payload["value"] for event in events[1:]} == set(range(8))
+
+
+def test_incomplete_record_is_not_repaired_or_overwritten(tmp_path: Path) -> None:
+    ledger = ConcurrentProvenanceLedger(tmp_path / "events.jsonl")
+    ledger.append("first", {"value": 1})
+    original = ledger.path.read_bytes() + b'{"sequence":1'
+    ledger.path.write_bytes(original)
+    with pytest.raises(ProvenanceIntegrityError):
+        ledger.append("second", {"value": 2})
+    assert ledger.path.read_bytes() == original
+    assert not ledger.lock_path.exists()

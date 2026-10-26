@@ -90,6 +90,10 @@ python -m tsao_computation plan-acceleration gromacs \
 
 A complete fingerprint can reach `version-probed-unqualified`; it still does not prove numerical correctness, convergence, license availability or accelerator equivalence.
 
+Python dependency probes inspect module locations in an isolated `-I -S` interpreter without importing parent packages, running `sitecustomize`, or processing `.pth` hooks. Standard-library, builtin, ordinary installed package and namespace-package locations are supported, including the selected virtual environment. User-site, `PYTHONPATH` and modules exposed only through executable import hooks remain unverified. A failed process or incomplete, malformed or mismatched response reports all requested dependencies as unavailable. The public return value remains a tuple of missing or unverified module names.
+
+Interpreter entrypoints retain their virtual-environment identity through command preparation and authorized execution. Authorization binds both the invoked absolute path and its strict resolved target, plus the executable content hash; existing plan digests must be regenerated. This does not bind the contents of every dependency or virtual-environment configuration file. Repository validation reads the registries and packaged assets under the requested `--root`. Provenance append preserves an already valid hash chain even when its final JSON record has no terminating newline; malformed or tampered records still block the append.
+
 <!-- SUPER_SKILL_ORCHESTRATION:START -->
 ## Capability and execution model
 

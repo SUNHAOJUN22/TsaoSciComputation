@@ -1,13 +1,12 @@
 from __future__ import annotations
 
-import json
+import re
 from pathlib import Path
 from typing import Any
 
 from . import __version__
-from .paths import SOURCE_REGISTRY_ROOT
+from .hashing import strict_json_loads
 from .provenance.manifest import iter_repository_entries
-from .registries import accelerators, adapters, capabilities, workflows
 
 REQUIRED_FILES = (
     "README.md",
@@ -119,12 +118,27 @@ def _parse_project_version(text: str, version_file_value: str | None = None) -> 
     raise ValueError("missing [project].version or controlled dynamic version")
 
 
-def _load_json(path: Path, problems: list[str]) -> Any:
+def _load_json(path: Path, problems: list[str], root: Path | None = None) -> Any:
+    if root is not None and (root not in path.resolve().parents or path.is_symlink()):
+        problems.append(f"JSON file is not confined to audited root: {path.name}")
+        return None
     try:
-        return json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+        return strict_json_loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError, ValueError) as exc:
         problems.append(f"invalid JSON-compatible file {path.as_posix()}: {exc}")
         return None
+
+
+def _registry_records(root: Path, name: str, problems: list[str]) -> tuple[dict[str, Any], ...]:
+    path = root / "registry" / name
+    if root not in path.resolve().parents or path.is_symlink():
+        problems.append(f"registry file is not confined to audited root: {name}")
+        return ()
+    data = _load_json(path, problems, root)
+    if not isinstance(data, list) or any(not isinstance(record, dict) for record in data):
+        problems.append(f"registry must contain an array of objects: {name}")
+        return ()
+    return tuple(data)
 
 
 def audit_repository(root: Path) -> dict[str, object]:
@@ -158,10 +172,10 @@ def audit_repository(root: Path) -> dict[str, object]:
         except (OSError, UnicodeDecodeError, ValueError) as exc:
             problems.append(f"invalid pyproject.toml: {exc}")
 
-    capability_records = capabilities()
-    adapter_records = adapters()
-    accelerator_records = accelerators()
-    workflow_records = workflows()
+    capability_records = _registry_records(root, "capabilities.json", problems)
+    adapter_records = _registry_records(root, "adapters.json", problems)
+    accelerator_records = _registry_records(root, "accelerators.json", problems)
+    workflow_records = _registry_records(root, "workflows.json", problems)
     if len(capability_records) != 164:
         problems.append("capability count is not 164")
     if len(adapter_records) != 27:
@@ -230,10 +244,20 @@ def audit_repository(root: Path) -> dict[str, object]:
         output_profiles.add(tuple(map(str, record.get("outputs", []))))
         descriptions.add(str(record.get("description", "")))
 
+        identity = (record.get("id"), record.get("slug"))
+        if any(
+            not isinstance(value, str) or re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]*", value) is None
+            for value in identity
+        ):
+            problems.append("capability file identity must contain safe non-empty path components")
+            continue
         capability_file = (
-            root / "capability-index" / "capabilities" / f"{record['id']}_{record['slug']}.yaml"
+            root / "capability-index" / "capabilities" / f"{identity[0]}_{identity[1]}.yaml"
         )
-        payload = _load_json(capability_file, problems) if capability_file.is_file() else None
+        if root not in capability_file.resolve().parents or capability_file.is_symlink():
+            problems.append(f"capability file is not confined to audited root: {identity[0]}")
+            continue
+        payload = _load_json(capability_file, problems, root) if capability_file.is_file() else None
         if payload != record:
             problems.append(f"capability file is not synchronized: {record['id']}")
 
@@ -296,19 +320,30 @@ def audit_repository(root: Path) -> dict[str, object]:
         if not isinstance(boundary, str) or len(boundary) < 40:
             problems.append(f"acceleration profile {slug} has a weak claim boundary")
 
-    source_registry = SOURCE_REGISTRY_ROOT
+    source_registry = root / "registry"
     package_registry = root / "tsao_computation" / "data" / "registry"
-    for source in sorted(source_registry.glob("*.json")):
-        target = package_registry / source.name
-        if not target.is_file() or source.read_bytes() != target.read_bytes():
-            problems.append(f"package registry asset is not synchronized: {source.name}")
+    source_names = {path.name for path in source_registry.glob("*.json")}
+    package_names = {path.name for path in package_registry.glob("*.json")}
+    for name in sorted(source_names | package_names):
+        source = source_registry / name
+        target = package_registry / name
+        if any(
+            root not in path.resolve().parents or path.is_symlink() for path in (source, target)
+        ):
+            problems.append(f"registry asset is not confined to audited root: {name}")
+        elif (
+            not source.is_file()
+            or not target.is_file()
+            or source.read_bytes() != target.read_bytes()
+        ):
+            problems.append(f"package registry asset is not synchronized: {name}")
 
     for path in sorted((root / "schemas").glob("*.json")):
-        _load_json(path, problems)
+        _load_json(path, problems, root)
     for path in sorted((root / "registry").glob("*.json")):
-        _load_json(path, problems)
+        _load_json(path, problems, root)
     for path in sorted((root / "examples").glob("*/contract.json")):
-        _load_json(path, problems)
+        _load_json(path, problems, root)
 
     symlinks = [
         path.relative_to(root).as_posix()

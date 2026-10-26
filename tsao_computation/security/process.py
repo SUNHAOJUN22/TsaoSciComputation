@@ -17,6 +17,7 @@ from pathlib import Path
 from typing import BinaryIO, Protocol, cast
 
 from ..errors import SecurityError
+from ..hashing import strict_json_loads
 
 
 class _WindowsMsvcrt(Protocol):
@@ -117,7 +118,7 @@ _PROBE_ARGUMENTS: dict[str, frozenset[tuple[str, ...]]] = {
     "sycl-ls": frozenset({()}),
     "clinfo": frozenset({("-l",)}),
 }
-_PYTHON_MODULE = re.compile(r"^[A-Za-z_][A-Za-z0-9_.]*$")
+_PYTHON_MODULE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*$")
 _PROCESS_EXECUTION_PERMIT = object()
 
 
@@ -178,7 +179,7 @@ def _validated_cwd(cwd: Path) -> Path:
     return resolved
 
 
-def _validated_executable(executable: str) -> Path:
+def _validated_executable(executable: str, *, preserve_symlink: bool = False) -> Path:
     if not isinstance(executable, str) or not executable or "\x00" in executable:
         raise SecurityError("executable must be a non-empty string")
     candidate = Path(executable).expanduser()
@@ -191,7 +192,10 @@ def _validated_executable(executable: str) -> Path:
         raise SecurityError(f"executable not detected: {executable}") from error
     if not resolved.is_file() or (os.name != "nt" and not os.access(resolved, os.X_OK)):
         raise SecurityError(f"executable is not runnable: {executable}")
-    return resolved
+    # Python derives virtual-environment identity from its invoked path. Checking
+    # the target is necessary, but replacing a venv symlink with that target
+    # would inspect the base interpreter's packages instead of the selected venv.
+    return Path(found).absolute() if preserve_symlink else resolved
 
 
 def _run_prepared(
@@ -552,37 +556,50 @@ def probe_command_output(executable: str, arguments: tuple[str, ...]) -> str:
 
 
 def probe_python_modules(executable: str, modules: tuple[str, ...]) -> tuple[str, ...]:
-    """Check module discoverability using a fixed script and sanitized environment."""
+    """Inspect installed module locations without importing packages or startup hooks.
+
+    A failed or unverifiable probe reports every requested module as unavailable;
+    an empty result is returned only for a complete, request-bound response.
+    """
 
     if not modules:
         return ()
-    if any(not isinstance(name, str) or _PYTHON_MODULE.fullmatch(name) is None for name in modules):
+    if isinstance(modules, (str, bytes)) or any(
+        not isinstance(name, str) or _PYTHON_MODULE.fullmatch(name) is None for name in modules
+    ):
         raise SecurityError("Python module probe names must be dotted identifiers")
-    resolved = _validated_executable(executable)
+    resolved = _validated_executable(executable, preserve_symlink=True)
     name = resolved.stem.casefold()
     current = Path(sys.executable).resolve(strict=True)
-    if not name.startswith(("python", "pypy")) and resolved != current:
+    if not name.startswith(("python", "pypy")) and resolved.resolve(strict=True) != current:
         raise SecurityError("Python module probes require a Python interpreter")
-    script = (
-        "import importlib.util,json,sys;"
-        "missing=[name for name in sys.argv[1:] if importlib.util.find_spec(name) is None];"
-        "print(json.dumps(missing));raise SystemExit(bool(missing))"
-    )
+    script = Path(__file__).with_name("python_module_probe.py")
     try:
         result = _run_sanitized(
-            (str(resolved), "-c", script, *modules),
+            (str(resolved), "-I", "-S", str(script), *modules),
             cwd=Path.cwd(),
             timeout=10.0,
         )
-    except (OSError, subprocess.SubprocessError):
+    except (OSError, subprocess.SubprocessError, UnicodeError):
         return modules
-    if result.returncode == 0:
-        return ()
+    if result.returncode != 0 or not result.stdout or len(result.stdout) > _MAX_PROBE_OUTPUT_CHARS:
+        return modules
     try:
-        payload = json.loads(result.stdout.strip() or "[]")
-    except json.JSONDecodeError:
+        payload = strict_json_loads(result.stdout)
+    except (ValueError, RecursionError):
         return modules
-    return tuple(str(item) for item in payload) if isinstance(payload, list) else modules
+    if (
+        not isinstance(payload, dict)
+        or set(payload) != {"schema_version", "requested", "missing"}
+        or type(payload["schema_version"]) is not int
+        or payload["schema_version"] != 1
+        or payload["requested"] != list(modules)
+        or not isinstance(payload["missing"], list)
+        or any(not isinstance(item, str) or item not in modules for item in payload["missing"])
+    ):
+        return modules
+    missing = tuple(payload["missing"])
+    return missing if missing == tuple(name for name in modules if name in missing) else modules
 
 
 def read_only_probe_arguments_allowed(arguments: tuple[str, ...]) -> bool:

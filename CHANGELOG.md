@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Isolated Python dependency discovery from working-directory imports, startup hooks and parent-package execution; require a complete request-bound response before reporting availability. Preserve selected virtual-environment entrypoints through probing and authorized execution, binding both invoked and resolved executable paths as well as content hashes.
+- Preserve valid provenance records without final newlines when appending a new hash-chained event, while continuing to reject malformed or tampered records before changing the ledger.
+- Read repository-audit registries from the requested root and compare that root's complete source/package registry file sets, so an installed package cache cannot certify a different candidate tree.
 - Made `expected_request_id` a required keyword for public signed execution receipt verification, alongside `expected_capability_id`; request/capability mismatches and any capability/receipt verifier result other than literal Boolean `True` fail closed. Callers must provide the request context. This is a breaking public API signature change and requires major-version compatibility review and caller migration guidance under `docs/compatibility.md` before release.
 - Made the POSIX memory probe fail closed when the Unix-only `os.sysconf` API is unavailable and made the root-path mutation probe work on Windows and POSIX.
 - Rejected Python booleans as scientific scalars across finite-value, convergence and uncertainty paths; converted non-finite convergence failure sentinels into JSON-safe structured evidence and added trusted-callable regression coverage.
