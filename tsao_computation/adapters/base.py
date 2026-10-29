@@ -149,6 +149,14 @@ class Adapter:
             return AdapterProbe(self.slug, False, None, f"executable not detected: {candidate}")
         interpreter = _module_probe_interpreter(candidate, found)
         missing = _missing_python_modules(interpreter, self.python_modules)
+        return self._resolved_probe_result(candidate, found, missing)
+
+    def _resolved_probe_result(
+        self, candidate: str, found: str, missing: tuple[str, ...]
+    ) -> AdapterProbe:
+        """Format an observation for the exact candidate that was inspected."""
+
+        interpreter = _module_probe_interpreter(candidate, found)
         if missing:
             return AdapterProbe(
                 self.slug,

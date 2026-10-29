@@ -562,6 +562,17 @@ def probe_python_modules(executable: str, modules: tuple[str, ...]) -> tuple[str
     an empty result is returned only for a complete, request-bound response.
     """
 
+    missing = _verified_python_modules(executable, modules)
+    return modules if missing is None else missing
+
+
+def _verified_python_modules(executable: str, modules: tuple[str, ...]) -> tuple[str, ...] | None:
+    """Distinguish a bound metadata observation from a failed inspection.
+
+    A group caller can retry individual requests after failure without treating
+    a valid observation that every module is missing as a transport failure.
+    """
+
     if not modules:
         return ()
     if isinstance(modules, (str, bytes)) or any(
@@ -581,13 +592,13 @@ def probe_python_modules(executable: str, modules: tuple[str, ...]) -> tuple[str
             timeout=10.0,
         )
     except (OSError, subprocess.SubprocessError, UnicodeError):
-        return modules
+        return None
     if result.returncode != 0 or not result.stdout or len(result.stdout) > _MAX_PROBE_OUTPUT_CHARS:
-        return modules
+        return None
     try:
         payload = strict_json_loads(result.stdout)
     except (ValueError, RecursionError):
-        return modules
+        return None
     if (
         not isinstance(payload, dict)
         or set(payload) != {"schema_version", "requested", "missing"}
@@ -597,9 +608,9 @@ def probe_python_modules(executable: str, modules: tuple[str, ...]) -> tuple[str
         or not isinstance(payload["missing"], list)
         or any(not isinstance(item, str) or item not in modules for item in payload["missing"])
     ):
-        return modules
+        return None
     missing = tuple(payload["missing"])
-    return missing if missing == tuple(name for name in modules if name in missing) else modules
+    return missing if missing == tuple(name for name in modules if name in missing) else None
 
 
 def read_only_probe_arguments_allowed(arguments: tuple[str, ...]) -> bool:

@@ -8,18 +8,18 @@
   "file_scope_counts": {
     "benchmark": 9,
     "production": 70,
-    "test": 87,
+    "test": 88,
     "tooling": 39
   },
   "language_files": {
     "c": 1,
     "cpp": 2,
-    "python": 202
+    "python": 203
   },
   "language_lines": {
     "c": 70,
     "cpp": 197,
-    "python": 29268
+    "python": 29615
   },
   "opportunities": [
     {
@@ -113,7 +113,7 @@
         "oversubscription",
         "unsupported solver backend"
       ],
-      "candidate_id": "c20b0b78ff0cb6bb8f94fa5306e71bf2aba0565d1fe9453fd4b02e9168148006",
+      "candidate_id": "fad63a0acab5266002eecfc7a3226c495c2f15406caec63a1b76a17ab15041ab",
       "category": "external-solver-dispatch",
       "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
       "confidence": "high",
@@ -134,7 +134,7 @@
       "path": "tsao_computation/security/process.py",
       "runtime_status": "unprofiled",
       "score": 68,
-      "source_sha256": "9f10d22f1522f990d2a45f9274642b8cb88aea203126187db4f11efa6e6f32bd",
+      "source_sha256": "8754c2b3270373b66f6627ec49c81f84ea0e326eff2b19eba5204914c5c138ae",
       "symbol": "_run_posix_group"
     },
     {
@@ -151,7 +151,7 @@
         "oversubscription",
         "unsupported solver backend"
       ],
-      "candidate_id": "4c18e2185f603db34d01bf8c441c1935e48e98235854c1df1be7ecb71c87f90f",
+      "candidate_id": "ed91ae3357d24035045b250447b745bb1f9c583db8292e811b420d8b9cf4f23d",
       "category": "external-solver-dispatch",
       "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
       "confidence": "high",
@@ -172,7 +172,7 @@
       "path": "tsao_computation/security/process.py",
       "runtime_status": "unprofiled",
       "score": 68,
-      "source_sha256": "9f10d22f1522f990d2a45f9274642b8cb88aea203126187db4f11efa6e6f32bd",
+      "source_sha256": "8754c2b3270373b66f6627ec49c81f84ea0e326eff2b19eba5204914c5c138ae",
       "symbol": "_run_windows_job"
     },
     {
@@ -277,10 +277,10 @@
   "opportunity_count": 7,
   "parse_failures": [],
   "python_files_analyzed": 68,
-  "python_files_excluded": 134,
+  "python_files_excluded": 135,
   "root": ".",
   "scope": "production",
-  "source_files": 205,
-  "source_lines": 29535,
-  "source_tree_sha256": "c13bc6e55786dcffb7b66ba7756a218c5d75bcf3b2ca83e3d828aa5f0d7f7213"
+  "source_files": 206,
+  "source_lines": 29882,
+  "source_tree_sha256": "d26423dd66f33d12fba043b1efab672429bb19a4a4a8794eb85f97e5ca4048db"
 }
