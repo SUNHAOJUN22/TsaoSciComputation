@@ -220,7 +220,7 @@ $$
 u_c=\sqrt{u_{\mathrm{stat}}^2+u_{\mathrm{model}}^2+u_{\mathrm{num}}^2},\qquad u_i\geq0.
 $$
 
-All components must already use the same unit and represent compatible standard uncertainties. The implementation rejects nonfinite components and an overflowing combined result. It does not estimate correlations. When correlations matter, the required mathematical model is
+All components must already use the same unit and represent compatible standard uncertainties. The implementation rejects nonfinite components, nonzero inputs that would underflow to floating-point zero, and an overflowing combined result. Exact zero and representable subnormal components remain valid. It does not estimate correlations. When correlations matter, the required mathematical model is
 
 $$
 u_y^2=\mathbf J\,\boldsymbol\Sigma\,\mathbf J^{\mathsf T},

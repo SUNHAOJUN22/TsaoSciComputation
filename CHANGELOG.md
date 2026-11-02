@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Reject nonzero uncertainty components that underflow during float conversion, including textual, Decimal and Fraction inputs; preserve exact zeros and representable subnormals in both independent combination and each uncertainty-budget field.
 - Isolated Python dependency discovery from working-directory imports, startup hooks and parent-package execution; require a complete request-bound response before reporting availability. Preserve selected virtual-environment entrypoints through probing and authorized execution, binding both invoked and resolved executable paths as well as content hashes.
 - Preserve valid provenance records without final newlines when appending a new hash-chained event, while continuing to reject malformed or tampered records before changing the ledger.
 - Read repository-audit registries from the requested root and compare that root's complete source/package registry file sets, so an installed package cache cannot certify a different candidate tree.

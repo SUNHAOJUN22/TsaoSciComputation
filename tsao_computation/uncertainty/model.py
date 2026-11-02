@@ -2,17 +2,17 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
-from typing import Any, cast
+
+from ..validation.numerical import _finite_scalar
 
 
 def _component(value: object) -> float:
     if isinstance(value, bool):
         raise ValueError("uncertainty components must be finite non-negative numbers")
-    try:
-        converted = float(cast(Any, value))
-    except (TypeError, ValueError, OverflowError) as error:
-        raise ValueError("uncertainty components must be finite non-negative numbers") from error
-    if converted < 0 or not math.isfinite(converted):
+    # Share convergence/conservation validation: float() must not erase a
+    # nonzero component and turn incomplete uncertainty into exact certainty.
+    converted = _finite_scalar(value, name="uncertainty components")
+    if converted < 0:
         raise ValueError("uncertainty components must be finite and non-negative")
     return converted
 
