@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Isolate quantity conversion from ambient Decimal precision, rounding, exponent limits and traps; compare absolute-temperature boundaries exactly so a caller's context cannot admit temperatures below zero kelvin or change conversion evidence digests.
+- Make all twelve generated scenario contracts usable by the real orchestration planner: store registered method identifiers in `methods`, preserve study-specific descriptions in `model_object.method_details`, and exercise every strict CLI planning path without external execution.
+- Rewrite both root READMEs around implemented interfaces, numerical assumptions, executable examples and diagnostic strategies; move the twelve former English landing figures into the retained 43-asset technical atlas and require a self-contained, accessible hero in the correct language for each README.
 - Reject nonzero uncertainty components that underflow during float conversion, including textual, Decimal and Fraction inputs; preserve exact zeros and representable subnormals in both independent combination and each uncertainty-budget field.
 - Isolated Python dependency discovery from working-directory imports, startup hooks and parent-package execution; require a complete request-bound response before reporting availability. Preserve selected virtual-environment entrypoints through probing and authorized execution, binding both invoked and resolved executable paths as well as content hashes.
 - Preserve valid provenance records without final newlines when appending a new hash-chained event, while continuing to reject malformed or tampered records before changing the ledger.

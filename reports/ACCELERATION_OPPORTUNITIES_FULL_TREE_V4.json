@@ -2,24 +2,24 @@
   "category_counts": {
     "external-solver-dispatch": 20,
     "filesystem-scan": 17,
-    "numeric-python-loop": 7
+    "numeric-python-loop": 8
   },
   "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
   "file_scope_counts": {
     "benchmark": 9,
     "production": 70,
-    "test": 88,
+    "test": 89,
     "tooling": 39
   },
   "language_files": {
     "c": 1,
     "cpp": 2,
-    "python": 203
+    "python": 204
   },
   "language_lines": {
     "c": 70,
     "cpp": 197,
-    "python": 29661
+    "python": 29888
   },
   "opportunities": [
     {
@@ -138,6 +138,45 @@
       "score": 75,
       "source_sha256": "064c42c3bd60a0539acb2357aaab5422c7cef672c7cf6f0be381e71ea7f77780",
       "symbol": "validate"
+    },
+    {
+      "backend_candidates": [
+        "cpu",
+        "openmp",
+        "cuda",
+        "hip",
+        "sycl"
+      ],
+      "blockers": [
+        "Python control-flow dependence",
+        "insufficient arithmetic intensity",
+        "precision drift"
+      ],
+      "candidate_id": "ab931040a704639f8b46b93c96e9556bdf74652865d15eabbd6715c8db86abeb",
+      "category": "numeric-python-loop",
+      "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
+      "confidence": "medium",
+      "current_pattern": "arithmetic-heavy Python loop",
+      "decision": "diagnostic-only",
+      "evidence_requirements": [
+        "scalar reference",
+        "shape and stride contract",
+        "sanitizer and race tests",
+        "size-scaled benchmark"
+      ],
+      "file_scope": "test",
+      "first_action": "establish a vectorized CPU reference, then consider C++20/OpenMP, Kokkos, Warp, or CUDA",
+      "library_candidates": [
+        "kokkos",
+        "warp",
+        "cupy"
+      ],
+      "line": 191,
+      "path": "tests/test_readme_visuals.py",
+      "runtime_status": "unprofiled",
+      "score": 75,
+      "source_sha256": "1d1a8996fee00c66552deb4dd8477947a5d0fa74ee38a2acceda97f4ad26ab82",
+      "symbol": "test_localized_readme_hero_is_accessible_and_has_no_active_or_external_content"
     },
     {
       "backend_candidates": [
@@ -1514,7 +1553,7 @@
         "network filesystem",
         "stale cache"
       ],
-      "candidate_id": "4fe8932d1907c948b00f51f1b672aae7a2133ed981792dc973096e1379aa3633",
+      "candidate_id": "3df52a618d6dae6afd2e8bcb6aae7088dbb566a3cba2cfe3bd4f2060fd649ef4",
       "category": "filesystem-scan",
       "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
       "confidence": "medium",
@@ -1528,11 +1567,11 @@
       "file_scope": "test",
       "first_action": "reduce repeated passes, cache stable metadata, and stream results; GPU migration is usually unsuitable",
       "library_candidates": [],
-      "line": 103,
+      "line": 101,
       "path": "tests/test_readme_visuals.py",
       "runtime_status": "unprofiled",
       "score": 45,
-      "source_sha256": "cd0e783c8f4f2e9382a082216123cd96bd8a015a0ea699122d46dd6960dfc85c",
+      "source_sha256": "1d1a8996fee00c66552deb4dd8477947a5d0fa74ee38a2acceda97f4ad26ab82",
       "symbol": "test_readme_visuals_are_readable_accessible_and_self_contained"
     },
     {
@@ -1566,13 +1605,13 @@
       "symbol": "test_workflows_pin_actions_and_avoid_privileged_untrusted_triggers"
     }
   ],
-  "opportunity_count": 44,
+  "opportunity_count": 45,
   "parse_failures": [],
-  "python_files_analyzed": 203,
+  "python_files_analyzed": 204,
   "python_files_excluded": 0,
   "root": ".",
   "scope": "full-tree",
-  "source_files": 206,
-  "source_lines": 29928,
-  "source_tree_sha256": "adb58b6d15c84cc11cf20870a3f5e373aa66e782477a2bb53b495867682473e9"
+  "source_files": 207,
+  "source_lines": 30155,
+  "source_tree_sha256": "7e9d9cdf1c76a5642cdfbfb0921674672e6fe652c324aa5e7300006a624b1c3a"
 }

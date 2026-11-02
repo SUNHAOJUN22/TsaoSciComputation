@@ -36,12 +36,15 @@
     "original_task": "immutable parameter and provenance snapshot"
   },
   "methods": [
-    "deterministic failure classifier",
-    "bounded recovery policy",
-    "human approval gate"
+    "hpc-execution"
   ],
   "model_object": {
-    "description": "Failure classification, bounded recovery, and human-approval workflow"
+    "description": "Failure classification, bounded recovery, and human-approval workflow",
+    "method_details": [
+      "deterministic failure classifier",
+      "bounded recovery policy",
+      "human approval gate"
+    ]
   },
   "parameter_sources": [
     {

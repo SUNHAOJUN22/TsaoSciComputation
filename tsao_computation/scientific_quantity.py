@@ -7,7 +7,15 @@ import re
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from decimal import Decimal, InvalidOperation, localcontext
+from decimal import (
+    ROUND_HALF_EVEN,
+    Context,
+    Decimal,
+    DivisionByZero,
+    InvalidOperation,
+    Overflow,
+    localcontext,
+)
 from hashlib import sha256
 from typing import Literal, TypeAlias
 
@@ -16,6 +24,15 @@ from .quantity_units import DIMENSION_ORDER, REGISTRY_VERSION, unit_definition
 QuantityBasis: TypeAlias = Literal["MEASURED", "CALCULATED", "SIMULATED", "REFERENCE", "DERIVED"]
 AcceptanceVerifier: TypeAlias = Callable[[bytes, str, str], bool]
 _DIGEST = re.compile(r"[0-9a-f]{64}")
+_CONVERSION_CONTEXT = Context(
+    prec=50,
+    rounding=ROUND_HALF_EVEN,
+    Emin=-999999,
+    Emax=999999,
+    capitals=1,
+    clamp=0,
+    traps=[InvalidOperation, DivisionByZero, Overflow],
+)
 
 
 def _decimal(value: object, *, field: str) -> Decimal:
@@ -65,7 +82,7 @@ class ScientificQuantity:
         definition = unit_definition(unit)
         if tuple(self.dimension) != definition.dimension:
             raise ValueError("unit and dimension are incompatible")
-        if definition.kind == "absolute-temperature" and value <= -definition.offset:
+        if definition.kind == "absolute-temperature" and value <= definition.offset.copy_negate():
             raise ValueError("absolute temperature must be above zero kelvin")
         if self.source_quantity_digest is not None and (
             not isinstance(self.source_quantity_digest, str)
@@ -136,8 +153,9 @@ class ScientificQuantity:
         target = unit_definition(unit)
         if target.dimension != self.dimension or source.kind != target.kind:
             raise ValueError("cannot convert between incompatible units or temperature kinds")
-        with localcontext() as context:
-            context.prec = 50
+        # Decimal arithmetic must not inherit a caller's rounding, exponent
+        # limits or traps: they would change both scientific values and digests.
+        with localcontext(_CONVERSION_CONTEXT):
             scale = (source.scale * target.divisor) / (source.divisor * target.scale)
             if factor is not None:
                 requested_scale = _decimal(factor, field="factor")

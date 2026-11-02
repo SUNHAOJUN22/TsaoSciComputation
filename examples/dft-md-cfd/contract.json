@@ -35,13 +35,19 @@
     "upstream_evidence": "validated before each downstream handoff"
   },
   "methods": [
-    "DFT parameterization",
-    "MD transport/rheology",
-    "CFD equipment model",
-    "uncertainty propagation"
+    "periodic-dft",
+    "molecular-dynamics",
+    "computational-fluid-dynamics",
+    "uncertainty-quantification"
   ],
   "model_object": {
-    "description": "DFT-to-MD-to-CFD multiscale handoff workflow"
+    "description": "DFT-to-MD-to-CFD multiscale handoff workflow",
+    "method_details": [
+      "DFT parameterization",
+      "MD transport/rheology",
+      "CFD equipment model",
+      "uncertainty propagation"
+    ]
   },
   "parameter_sources": [
     {

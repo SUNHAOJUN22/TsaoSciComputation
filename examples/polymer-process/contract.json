@@ -36,12 +36,16 @@
     "tear_streams_and_guesses": "bounded and recorded"
   },
   "methods": [
-    "DWSIM or IDAES/Pyomo",
-    "property-package qualification",
-    "steady-state optimization"
+    "process-simulation",
+    "nonlinear-optimization"
   ],
   "model_object": {
-    "description": "DWSIM/IDAES polymer-process workflow"
+    "description": "DWSIM/IDAES polymer-process workflow",
+    "method_details": [
+      "DWSIM or IDAES/Pyomo",
+      "property-package qualification",
+      "steady-state optimization"
+    ]
   },
   "parameter_sources": [
     {

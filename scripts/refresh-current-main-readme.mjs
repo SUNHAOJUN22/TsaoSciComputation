@@ -100,13 +100,13 @@ function mathSection(lang) {
   }).join('\n\n');
 }
 function section(lang, markers = true) {
-  const zh = lang === 'zh', t = PROFILE[lang];
-  return [markers ? START : '', `## ${zh ? '当前实现：代码、数学与使用策略' : 'Current implementation: code, mathematics and usage'}`, '',
-    `![${zh ? '中文代码与数学合同概念图' : 'English code and mathematical-contract concept'}](docs/current-main/${PROFILE.slug}-current-main-${lang}.svg)`, '',
-    `> ${t.boundary}`, '', mathSection(lang), '', `### ${zh ? '使用与验收顺序' : 'Usage and acceptance sequence'}`, '',
-    ...t.strategy.map((item, index) => `${index + 1}. ${item}`), '', '```bash', ...PROFILE.commands, '```', '',
-    zh ? '每次修复均须绑定新提交重新测试。基线回归、两段各三小时的重复回归、浏览器图形检查和外部工程认证是不同证据，不可互相替代。没有原始回执时，不宣称已完成六小时验收。' : 'Retest every changed commit. Baseline regression, two three-hour regression segments, browser visual checks and external engineering qualification are distinct evidence classes. Without original receipts, no six-hour completion is claimed.', '',
-    `${zh ? '源码锚点' : 'Implementation anchors'}: ${PROFILE.code.map((path) => `[\`${path}\`](${path})`).join(' · ')}`, '', markers ? END : '',
+  const zh = lang === 'zh';
+  const links = zh
+    ? '[适配器与解析](tsao_computation/adapters/base.py) · [执行记录](tsao_computation/execution/runner.py) · [收敛](tsao_computation/validation/numerical.py) · [不确定度](tsao_computation/uncertainty/model.py) · [历史中文架构图](docs/current-main/tsao-scicomputation-current-main-zh.svg)'
+    : '[Adapter and parser](tsao_computation/adapters/base.py) · [Execution record](tsao_computation/execution/runner.py) · [Convergence](tsao_computation/validation/numerical.py) · [Uncertainty](tsao_computation/uncertainty/model.py) · [Legacy localized architecture](docs/current-main/tsao-scicomputation-current-main-en.svg)';
+  return [markers ? START : '', `### ${zh ? '维护中的源码索引' : 'Maintained source index'}`, '', links, '',
+    zh ? '上文公式与策略描述当前实现。概念图和历史工件不是执行证明，源码变化后必须重新取得资格证据。' : 'The equations and strategies above describe current code. Concept figures and historical artifacts are not execution attestations. Changed source requires fresh qualification.',
+    markers ? END : '',
   ].join('\n').trim();
 }
 function inject(original, generated) {

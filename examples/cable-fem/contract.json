@@ -35,12 +35,16 @@
     "temperature_and_mechanical_state": "declared with preload history"
   },
   "methods": [
-    "finite element",
-    "electro-thermal coupling",
-    "thermo-mechanical coupling"
+    "finite-element",
+    "multiphysics"
   ],
   "model_object": {
-    "description": "Cable thermo-electro-mechanical finite-element workflow"
+    "description": "Cable thermo-electro-mechanical finite-element workflow",
+    "method_details": [
+      "finite element",
+      "electro-thermal coupling",
+      "thermo-mechanical coupling"
+    ]
   },
   "parameter_sources": [
     {

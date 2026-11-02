@@ -37,12 +37,16 @@
     "packing": "multiple independent packings with overlap checks"
   },
   "methods": [
-    "LAMMPS molecular dynamics",
-    "interface-energy analysis",
-    "morphology statistics"
+    "molecular-dynamics",
+    "statistical-inference"
   ],
   "model_object": {
-    "description": "Polymer-carbon-black LAMMPS interface workflow"
+    "description": "Polymer-carbon-black LAMMPS interface workflow",
+    "method_details": [
+      "LAMMPS molecular dynamics",
+      "interface-energy analysis",
+      "morphology statistics"
+    ]
   },
   "parameter_sources": [
     {

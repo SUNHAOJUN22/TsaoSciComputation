@@ -1,0 +1,89 @@
+{
+  "schema": "tsao.readme-concept-art/v1",
+  "repository": "TsaoSciComputation",
+  "generation_date_utc": "2026-11-02",
+  "artwork_tool": "OpenAI image_gen",
+  "artwork_scope": "Synthetic artistic concept. Not measured scientific data, a product screenshot, or engineering certification.",
+  "artwork_sha256": "5ba410d19d1264aaa5be6f5894824c54bd0e54969220db6b1836898cc2c7ac4c",
+  "composition": "Original AI PNG embedded without raster modification; exact localized facts and formulas are SVG outlines.",
+  "fonts": [
+    "Noto Sans CJK SC Regular",
+    "DejaVu Sans"
+  ],
+  "font_independent_rendering": true,
+  "implementation_references": [
+    "tsao_computation/scientific_quantity.py",
+    "tsao_computation/quantity_units.py",
+    "tsao_computation/uncertainty/model.py",
+    "tsao_computation/orchestration/planner.py",
+    "tsao_computation/validation/acceptance.py"
+  ],
+  "localized_assets": [
+    {
+      "locale": "zh-CN",
+      "path": "docs/assets/readme-vnext/hero.zh-CN.svg",
+      "bytes": 2736219,
+      "sha256": "3c20003ad5a7e4620019e9227e607a7bd464967f53c4beb622db19333b41b613",
+      "outlined_glyphs": 151,
+      "visible_text": {
+        "eyebrow": "跨尺度计算 · 数学合同 · 执行证据",
+        "headline": [
+          "让每一次跨尺度计算",
+          "可解释、可复核、可追溯"
+        ],
+        "features": [
+          "科学问题、方法路由与计算合同",
+          "受限执行、解析与收敛检查",
+          "不确定度、适用域与证据审批"
+        ],
+        "scope": "本地算法可验证；外部求解器保持 EXTERNAL_HOLD",
+        "cards": [
+          [
+            "绝对温度：物理边界先于数值转换",
+            "T_K = T_°C + 273.15",
+            "本接口要求 T > 0 K；温差转换不使用偏移"
+          ],
+          [
+            "独立分量的合成标准不确定度",
+            "u_c = √(u_stat² + u_model² + u_num²)",
+            "统计、模型与数值分量须有依据；相关性需另行建模"
+          ]
+        ]
+      },
+      "synthetic_label": "AI 合成概念示意 · 非测量结果"
+    },
+    {
+      "locale": "en",
+      "path": "docs/assets/readme-vnext/hero.en.svg",
+      "bytes": 2721866,
+      "sha256": "d4da7d94055a2acdee62008b8a3082e3cc198a16fa6997f7fd16bf3162bdef70",
+      "outlined_glyphs": 65,
+      "visible_text": {
+        "eyebrow": "MULTISCALE COMPUTATION / CONTRACTS / EVIDENCE",
+        "headline": [
+          "Computation across scales.",
+          "Traceable at every step."
+        ],
+        "features": [
+          "Scientific questions, methods and contracts",
+          "Guarded execution, parsing and convergence",
+          "Uncertainty, validity domains and review"
+        ],
+        "scope": "Local algorithms are testable; external solvers stay EXTERNAL_HOLD",
+        "cards": [
+          [
+            "Absolute temperature: preserve the physical boundary",
+            "T_K = T_°C + 273.15",
+            "This API requires T > 0 K; temperature differences have no offset"
+          ],
+          [
+            "Combined standard uncertainty for independent terms",
+            "u_c = √(u_stat² + u_model² + u_num²)",
+            "Statistical, model and numerical terms need evidence; model correlations separately"
+          ]
+        ]
+      },
+      "synthetic_label": "SYNTHETIC CONCEPT / AI ARTWORK / NOT MEASURED DATA"
+    }
+  ]
+}

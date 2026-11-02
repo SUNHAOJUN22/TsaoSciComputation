@@ -36,12 +36,16 @@
     "species_and_population": "feed and catalyst states declared"
   },
   "methods": [
-    "Eyring or fitted rate constants",
-    "ODE microkinetics",
-    "population balance or moments"
+    "numerical-integration",
+    "process-simulation"
   ],
   "model_object": {
-    "description": "Polymerization microkinetic and population-balance workflow"
+    "description": "Polymerization microkinetic and population-balance workflow",
+    "method_details": [
+      "Eyring or fitted rate constants",
+      "ODE microkinetics",
+      "population balance or moments"
+    ]
   },
   "parameter_sources": [
     {

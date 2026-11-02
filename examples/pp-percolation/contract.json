@@ -37,13 +37,18 @@
     "morphologies": "multiple statistically independent realizations"
   },
   "methods": [
-    "stochastic morphology",
-    "percolation network",
-    "effective transport",
-    "rheology-structure linkage"
+    "mesoscale-simulation",
+    "monte-carlo",
+    "analytical-model"
   ],
   "model_object": {
-    "description": "PP semiconductor shielding percolation workflow"
+    "description": "PP semiconductor shielding percolation workflow",
+    "method_details": [
+      "stochastic morphology",
+      "percolation network",
+      "effective transport",
+      "rheology-structure linkage"
+    ]
   },
   "parameter_sources": [
     {

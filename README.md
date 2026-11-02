@@ -1,543 +1,330 @@
-<div align="center">
-
-<img src="assets/visuals/hero-multiscale.svg" alt="TsaoSciComputation evidence-governed multiscale architecture" width="100%">
-
 # TsaoSciComputation
 
-**Evidence-governed scientific-computation orchestration from equations and solver identity to reproducible delivery.**
+**Traceable computation across scales: connect a scientific question, a calculation contract, controlled execution and evidence that can be reviewed.**
 
-![version](https://img.shields.io/badge/version-3.0.4-2563eb) ![capabilities](https://img.shields.io/badge/capabilities-164-7c3aed) ![adapters](https://img.shields.io/badge/adapters-27-ea580c) ![workflows](https://img.shields.io/badge/workflows-20-0891b2) ![tests](https://img.shields.io/badge/tests-exact%20commit%20CI-16a34a) ![coverage policy](https://img.shields.io/badge/coverage%20minimum-95%25-0891b2)
+[简体中文](README.zh-CN.md) · [Root Skill](SKILL.md) · [Architecture](docs/architecture.md) · [Capability index](capability-index/README.md) · [Validation](docs/scientific-validation.md)
 
-[中文说明](README.zh-CN.md) · [Root Skill](SKILL.md) · [Capabilities](capability-index/README.md) · [Visual atlas](assets/visuals/README.md) · [Validation](docs/scientific-validation.md) · [Architecture](docs/architecture.md) · [Delivery prompt](docs/autonomous-software-hardening-prompt.md)
+![version](https://img.shields.io/badge/version-3.0.4-2563eb)
 
-</div>
+![English concept design: traceable scientific computation, mathematical checks and evidence boundaries](docs/assets/readme-vnext/hero.en.svg)
 
-<!-- LOCALIZED_VISION_EN:START -->
-## Project vision: from governing equations to reproducible computation
+*AI-assisted concept illustration with deterministic typography. It is not a solver screenshot, a measured curve, or evidence of external execution. The mathematical contracts below identify their implementations and limitations.*
 
-<p align="center">
-  <img src="docs/assets/vision-en.png" width="100%" alt="TsaoSciComputation English multiscale computation vision and mathematical architecture">
-</p>
+## 1. What you can deliver with this repository
 
-> The equations map to contract, execution-identity, convergence, uncertainty and acceptance modules. The figure does not claim that VASP, Gaussian, GROMACS, OpenFOAM or Aspen has run.
+TsaoSciComputation is a Python scientific-computation **control plane**. It creates explicit calculation contracts, selects declared methods and workflows, prepares bounded execution plans, parses supplied outputs and keeps numerical checks separate from scientific acceptance. External DFT, MD, CFD, FEM and process engines remain separately installed and qualified.
 
-<!-- LOCALIZED_VISION_EN:END -->
+| Implemented capability | Main implementation | Concrete output and boundary |
+|---|---|---|
+| Question routing and strict contract validation | [routing](tsao_computation/routing/router.py), [CalculationContract](tsao_computation/contracts/calculation.py) | Routing decision, missing contract fields and machine-readable plan; a valid plan is not a computed result |
+| Registered local functions | [orchestration planner](tsao_computation/orchestration/planner.py) | Seven allowlisted functions for balance, convergence, uncertainty, references, unit lookup and evidence gates |
+| External adapter protocols | [Adapter](tsao_computation/adapters/base.py) | Resolved command/input protocol and text observations; unsupported execution protocols remain unavailable |
+| Bounded, authorized local execution | [runner](tsao_computation/execution/runner.py), [resource broker](tsao_computation/execution/resources.py) | Process record, file identities, partial batch evidence, CPU/GPU/license admission and timeout containment |
+| Dimensioned quantities and model handoffs | [ScientificQuantity](tsao_computation/scientific_quantity.py), [HandoffRecord](tsao_computation/contracts/handoff.py) | Controlled units, source-bound conversion and immutable handoff payloads |
+| Scientific confidence and approval | [acceptance](tsao_computation/validation/acceptance.py), [confidence](tsao_computation/validation/confidence.py) | Missing evidence, verified approval counts and C0–C5 classification |
+| Reproducible software delivery | [verify_all.py](scripts/verify_all.py), [native core](native/README.md) | Original quality gates, source/wheel reproducibility, SBOMs and native C ABI checks |
 
-## Delivery status
+<!-- SUPER_SKILL_ORCHESTRATION:START -->
+### Inventory is a routing contract
 
-TsaoSciComputation is a deliverable software control plane with an explicit boundary between **repository qualification** and **external scientific execution**.
+The current registries contain **164 capabilities, 27 external adapters and 20 workflows**. The orchestration layer declares **23 methods, 13 acceleration strategies and seven trusted local functions**. Inspect them with `list capabilities`, `list adapters`, `list workflows`, `list methods` and `list invocations`.
 
-- **164 capabilities**, **27 external adapters**, **20 machine-readable workflows**, **23 methods**, **13 acceleration strategies** and **7 trusted local functions**;
-- test counts and measured coverage are taken from the complete CI run for the exact commit being reviewed; the enforced total-coverage floor is **95.00%**;
-- Ruff, Mypy, Bandit, repository security scanning, controlled mutation, Schema, Manifest, reproducible source/Wheel, isolated installation, SBOM and native C ABI checks remain the release gates;
-- `main` is the sole authoritative branch;
-- real third-party solver correctness remains **`EXTERNAL_HOLD`** until binaries, licenses, fixed inputs, hardware fingerprints, reference values and scientific tolerances are supplied.
+These counts describe registered contracts and integration paths. They do not mean that 27 numerical engines or 23 numerical algorithms are bundled. Generic service, container, scheduler and Skill targets are plan-only until an independently authorized implementation supplies execution evidence. See [orchestration documentation](docs/orchestration.md) and its [machine-readable audit](reports/ULTIMATE_COMPUTATION_SUPER_SKILL_AUDIT.json).
+<!-- SUPER_SKILL_ORCHESTRATION:END -->
 
-No exit code, version string, GPU visibility variable or benchmark microsecond is promoted into a scientific claim by itself.
+## 2. Install and obtain a first result
 
-## What the repository is
-
-TsaoSciComputation turns a scientific question into a governed calculation program:
-
-```text
-question → contract → method/scale route → preflight → bounded execution
-         → parse → convergence → numerical/physical validation
-         → uncertainty/applicability → accept, reject or hold
-```
-
-It is a **control plane and qualification framework**, not a bundled DFT, MD, CFD, FEM or process simulator. Python owns contracts, routing, policy, provenance and acceptance. A source-only C++20/OpenMP layer exposes a versioned C ABI for measured software hotspots. External engines remain separately installed, licensed and qualified.
-
-### Claim boundary
-
-The repository does **not** claim:
-
-- fabricated VASP, Quantum ESPRESSO, Gaussian, GROMACS, OpenFOAM, Aspen or commercial-solver execution;
-- GPU/MPI numerical equivalence without a trusted CPU reference;
-- production speedup from orchestration-only benchmarks;
-- convergence or physical validity from process completion;
-- a boolean value as a valid scientific real scalar.
-
-## Quick start
+Python **3.10+** is required. The permanent CI matrix covers **Windows and Linux**, using Python 3.10 and 3.13. The package has no mandatory third-party runtime dependencies; validation and release tooling are installed separately from the hash-locked toolchain.
 
 ```bash
 git clone https://github.com/SUNHAOJUN22/TsaoSciComputation.git
 cd TsaoSciComputation
-python -m pip install --require-hashes --only-binary=:all: -r requirements-ci.txt
-python -m pip install --no-index --no-deps --no-build-isolation -e '.[validation,quality,security]'
-
-python -m tsao_computation route \
-  "Plan a DFT-to-MD interface study with explicit uncertainty gates"
-python -m tsao_computation validate-contract \
-  templates/calculation-contract.json --strict
-python -m tsao_computation probe
-
-python scripts/verify_all.py --profile all
-python scripts/verify_native_core.py
+python -m venv .venv
 ```
 
-[`requirements-ci.txt`](requirements-ci.txt) fixes the full validation toolchain with distribution SHA-256 hashes and platform/Python markers. CI installs those third-party wheels first, then installs this checked-out project with external dependency resolution disabled. See the bilingual [CI dependency policy](docs/CI_DEPENDENCY_POLICY.md) for controlled updates and the remaining repository-governance findings. Hash verification establishes file identity; the scheduled vulnerability audit remains a separate check.
-
-External execution is intentionally separate:
+Activate with `source .venv/bin/activate` on Linux or `.venv\Scripts\Activate.ps1` in Windows PowerShell, then run:
 
 ```bash
-python -m tsao_computation probe-solver gromacs \
-  --output .tsao-computation/gromacs-capability-evidence.json
-
-python -m tsao_computation plan-acceleration gromacs \
-  --solver-evidence .tsao-computation/gromacs-capability-evidence.json \
-  --require-solver-evidence
+python -m pip install --require-hashes --only-binary=:all: -r requirements-ci.txt
+python -m pip install --no-index --no-deps --no-build-isolation -e '.[validation,quality,security]'
+python -m tsao_computation --version
+python -m tsao_computation route "DFT to MD to CFD with explicit uncertainty and handoff validation"
+python -m tsao_computation validate-contract examples/dft-md-cfd/contract.json --strict
+python -m tsao_computation plan examples/dft-md-cfd/contract.json --strict
+python -m tsao_computation invoke scientific-benchmarks --execute
 ```
 
-A complete fingerprint can reach `version-probed-unqualified`; it still does not prove numerical correctness, convergence, license availability or accelerator equivalence.
+The example contract is a **preparation template**. It contains methodological intentions and placeholders requiring real material, geometry, parameter and reference data. Strict validation checks the contract's completeness and structure; it does not establish the truth of those inputs. The final command executes eight repository-local analytical/invariant checks, not a third-party solver.
 
-Python dependency probes inspect module locations in an isolated `-I -S` interpreter without importing parent packages, running `sitecustomize`, or processing `.pth` hooks. Standard-library, builtin, ordinary installed package and namespace-package locations are supported, including the selected virtual environment. User-site, `PYTHONPATH` and modules exposed only through executable import hooks remain unverified. A failed process or incomplete, malformed or mismatched response reports all requested dependencies as unavailable. The public return value remains a tuple of missing or unverified module names.
-
-**Implemented discovery batching:** within one `probe` invocation, single-executable adapters using the exact same invoked Python path share a bounded module-location request. Each adapter is evaluated against its own declared modules. Distinct virtual-environment paths remain separate even when they point to the same binary, multi-executable adapters retain their ordered fallback, and later invocations inspect the environment again. An unverifiable combined response retries the original individual probes through the same bounded worker pool, so one failed inspection does not disqualify healthy peers. Cancellation propagates without launching retries; isolation flags, response validation and process-tree cleanup remain in effect.
-
-**Optional configuration:** `probe --workers N` controls the existing worker limit; batching installs no dependency and adds no persistent availability cache. **External hold:** these observations establish discovery availability only. Solver capability fingerprints, execution authorization, numerical validation and scientific acceptance retain their separate evidence requirements; batching does not qualify or accelerate an external solver.
-
-Interpreter entrypoints retain their virtual-environment identity through command preparation and authorized execution. Authorization binds both the invoked absolute path and its strict resolved target, plus the executable content hash; existing plan digests must be regenerated. This does not bind the contents of every dependency or virtual-environment configuration file. Repository validation reads the registries and packaged assets under the requested `--root`. Provenance append preserves an already valid hash chain even when its final JSON record has no terminating newline; malformed or tampered records still block the append.
-
-<!-- SUPER_SKILL_ORCHESTRATION:START -->
-## Capability and execution model
-
-The repository exposes **164 capabilities**, **23 computation methods**, **9 invocation types**, **7 trusted local functions**, **27 external adapters**, **20 workflows**, **13 acceleration strategies** and a **9-stage orchestration plan**.
-
-| Invocation mode | Default behavior |
-|---|---|
-| Registered trusted local function | Validate payload, execute a bounded implementation, and hash request/result evidence |
-| External solver or adapter | Probe identity and build a command plan; execution requires separate authorization |
-| Python module, CLI, API, container, scheduler or Skill | Produce a declarative handoff until runtime, identity and evidence conditions are satisfied |
-
-Execution is fail-closed. Relative executables and inputs resolve from normalized `CommandPlan.cwd`. Bare command names resolve once against a sanitized immutable `PATH`, become absolute paths, are hashed, and are rebound immediately before launch. The authorized normalized working directory is the directory passed to the process runner.
-
-`ExternalExecutionCapability.is_verified()` and `SignedExecutionReceipt.is_verified()` accept only the literal Boolean `True` from the configured signature verifier; truthy strings, status objects and numbers are rejected. Receipt verification also requires the caller's expected request and capability IDs and the executor ID from the already-verified capability to match the signed receipt before invoking the verifier. Omitting the expected executor fails closed, preventing a trusted but differently authorized executor from supplying a receipt for the same request and capability. The verifier still owns cryptographic and executor-trust policy; signature verification does not establish scientific correctness or acceptance.
-
-Scalar-sensitive trusted callables are also fail-closed: booleans never acquire scientific meaning through Python's `bool ⊂ int` implementation detail, and non-finite failure sentinels are converted to JSON-safe structured evidence before hashing.
-<!-- SUPER_SKILL_ORCHESTRATION:END -->
-
-## Architecture at a glance
-
-<table>
-<tr>
-<td width="50%"><img src="assets/visuals/agent-orchestration.svg" alt="Governed scientific agent orchestration" width="100%"></td>
-<td width="50%"><img src="assets/visuals/capability-landscape.svg" alt="Contract, capability, workflow and evidence landscape" width="100%"></td>
-</tr>
-<tr>
-<td align="center"><strong>Governed scientific agent</strong></td>
-<td align="center"><strong>Contract-based capability system</strong></td>
-</tr>
-</table>
-
-| Layer | Responsibility | Acceptance boundary |
-|---|---|---|
-| Python control plane | contracts, routing, evidence, provenance, policy, parsers, UQ and decisions | deterministic repository qualification |
-| Native interoperability plane | C++20/OpenMP discovery and measured kernels through a versioned C ABI | ABI, build, CTest and equivalence gates |
-| External solver plane | DFT/MD/CFD/FEM/process execution | real installation, license, fixed input, reference and tolerance evidence |
-
-## Mathematical operating model
-
-The equations in this section describe the Python implementations linked below. The external DFT, MD, CFD, FEM and process equations shown in the vision artwork express the intended application domains; the repository orchestrates those engines rather than solving their governing equations itself.
-
-### 1. Explicit calculation contracts
-
-[`CalculationContract`](tsao_computation/contracts/calculation.py) records the question, system, conditions and observables together with assumptions, model objects, scales, methods, boundary and initial conditions, parameter sources, convergence and validation plans, uncertainties, resources, expected artifacts, review nodes and acceptance criteria. Its structural preflight requires all declared preflight fields to be populated:
-
-$$
-G_{\mathrm{preflight}}=\bigwedge_{f\in F_{\mathrm{required}}}\operatorname{present}(f).
-$$
-
-This is a completeness check. A nonempty assumption or validation plan still needs domain review. The planning layer does not convert an empirical closure into a physical law or supply missing solver data.
-
-### 2. Quantities bind values, units and dimensions
-
-[`ScientificQuantity`](tsao_computation/scientific_quantity.py) binds a finite Decimal value, controlled unit, seven-integer dimension vector, source identifier, basis and optional nonnegative uncertainty. The dimension order is **length, mass, time, temperature, amount, electric current, luminous intensity**:
-
-$$
-\mathbf d=(d_L,d_M,d_T,d_{\Theta},d_N,d_I,d_J),\qquad
-[\mathrm{Pa}]=L^{-1}MT^{-2},\qquad [\mathrm{Pa\,s}]=L^{-1}MT^{-1}.
-$$
-
-The versioned [unit registry](tsao_computation/quantity_units.py) determines dimension and conversion coefficients together. Energy (`J`, `eV`, `hartree`) and molar energy (`J/mol`, `kJ/mol`) have different dimensions. Changing an energy into a molar energy requires an explicit physical amount or particle-count model, not a unit relabel.
-
-For affine canonical conversions $x_c=a_s(x_s+b_s)$ and $x_c=a_t(x_t+b_t)$, the code applies
-
-$$
-x_t=\frac{a_s(x_s+b_s)}{a_t}-b_t,\qquad
-u_t=\left|\frac{a_s}{a_t}\right|u_s.
-$$
-
-Offsets do not apply to standard uncertainty. Rational Fahrenheit coefficients preserve the distinction between absolute temperature and temperature intervals. For example, $32\,{}^\circ\mathrm F=273.15\,\mathrm K$ and an uncertainty of $1.8\,{}^\circ\mathrm F$ becomes $1\,\mathrm K$. Absolute values at or below zero kelvin are rejected; negative temperature differences remain valid. Unknown units, contradictory supplied conversion factors, booleans, nonfinite values and nonzero Decimal exponents outside $[-308,308]$ are rejected.
+For a small, fully local Python calculation:
 
 ```python
 from decimal import Decimal
-from tsao_computation.scientific_quantity import ScientificQuantity
+
+from tsao_computation import ScientificQuantity
+from tsao_computation.uncertainty import combine_independent
+from tsao_computation.validation import balance_check, convergence_check
 
 pressure = ScientificQuantity(
-    value=Decimal("1.25"), unit="MPa",
+    value=Decimal("1.25"),
+    unit="MPa",
     dimension=(-1, 1, -2, 0, 0, 0, 0),
-    source_id="instrument:pressure-01", uncertainty=Decimal("0.05"),
+    source_id="synthetic-readme-example",
+    basis="REFERENCE",
+    uncertainty=Decimal("0.05"),
 )
-pressure_pa = pressure.convert(unit="Pa", dimension=pressure.dimension)
-assert pressure_pa.value == Decimal("1250000")
-assert pressure_pa.uncertainty == Decimal("50000")
-assert pressure_pa.source_quantity_digest == pressure.digest
+converted = pressure.convert(unit="Pa", dimension=pressure.dimension)
+assert converted.value == Decimal("1250000")
+assert converted.uncertainty == Decimal("50000")
+assert converted.source_quantity_digest == pressure.digest
+assert balance_check(10.0, 7.0, 3.0, tolerance=1e-12)["passed"]
+assert convergence_check([1.0, 1.0000001], absolute_tolerance=1e-6)["passed"]
+assert combine_independent(3.0, 4.0, 0.0) == 5.0
 ```
 
-The converted record retains a parent digest and `DERIVED` basis. `from_mapping()` revalidates units, dimensions and registry metadata instead of trusting deserialized labels.
+Hash-locked dependencies and update policy are documented in [CI_DEPENDENCY_POLICY.md](docs/CI_DEPENDENCY_POLICY.md). A dependency hash proves file identity; vulnerability assessment is a separate release concern.
 
-### 3. Finite scalars and the implemented convergence rule
+## 3. Choose an execution strategy
 
-[`convergence_check`](tsao_computation/validation/numerical.py) consumes the entire supplied sequence, rejects boolean, nonfinite and nonzero-to-zero underflowed observations, and compares the **last two** finite values. Its actual threshold is a maximum, not a sum:
+| Your situation | Recommended path | Evidence needed before proceeding |
+|---|---|---|
+| A scientific question with no installed solver | `route` → strict contract → `plan` | Observable, units, conditions, assumptions, parameter sources, convergence and validation plans |
+| A small local mathematical check | `invoke` one of the seven registered functions, or use its Python API | Admitted finite inputs, explicit tolerance/unit interpretation and complete result record |
+| An existing GROMACS, QE or ORCA installation | Probe identity → prepare input protocol → authorize exact plan → execute | Binary and input hashes, invocation path, environment, working directory and resource claim |
+| A Python-module adapter | Use the interpreter that owns the required modules and a declared `.py` driver | Module-location probe and interpreter identity; another environment is not interchangeable |
+| A multiscale study | Stage upstream calculation → immutable handoff → downstream model | Units, reference state, conditions, uncertainty, overlapping applicability and review of each transfer |
+| A proposed GPU/MPI or native acceleration | Profile → trusted CPU reference → equivalence → same-problem performance | Solver capability fingerprint, numerical tolerance and workload/environment identities |
+
+### Supported command construction
+
+[`Adapter.build_command()`](tsao_computation/adapters/base.py) implements these specific input protocols:
+
+| Adapter | Arguments after the resolved executable | Input requirement |
+|---|---|---|
+| GROMACS | `mdrun -s system.tpr` | Preprocessed `.tpr`; preprocessing is separate |
+| Quantum ESPRESSO | `-i scf.in` | PWscf input deck |
+| ORCA | `water.inp` | ORCA input file |
+| Declared Python-module adapter | `driver.py` | Python driver and required modules in that interpreter |
+| Other adapter records | No generic runnable command | Implement and qualify the engine-specific protocol first |
+
+Constructed plans begin with `execute_allowed=False`. The execution layer binds authorization to the plan rather than treating an installed executable as permission. `invoke --execute` is restricted to registered repository-local callables; it does not launch arbitrary shell commands or turn every adapter into an executable service.
+
+```bash
+python -m tsao_computation probe --workers 4
+python -m tsao_computation probe-solver gromacs --output .tsao-computation/gromacs-evidence.json
+python -m tsao_computation plan-acceleration gromacs --solver-evidence .tsao-computation/gromacs-evidence.json --require-solver-evidence
+```
+
+These are availability and bounded version-discovery operations. `version-probed-unqualified` and `evidence-bound-unqualified` still require numerical qualification. Missing executables, incomplete evidence or unsupported protocols remain explicit holds.
+
+Python module discovery uses an isolated `-I -S` subprocess without importing parent packages, executing `sitecustomize` or processing `.pth` hooks. Requests may be grouped only for adapters using the same invocation interpreter; different virtual-environment entry points remain separate. Grouped discovery has no cross-call availability cache. See [isolation tests](tests/test_module_probe_isolation.py), [grouped probe tests](tests/test_grouped_adapter_probe.py) and [interpreter execution tests](tests/test_python_environment_execution.py).
+
+## 4. Mathematical contracts implemented in code
+
+Every numerical formula here has a code reference. Method-selection records and scientific-approval rules are identified as contracts rather than fitted numerical models.
+
+### 4.1 Quantities, dimensions and controlled affine conversion
+
+A quantity records value $x$, unit $u$, seven-dimensional exponent vector $\mathbf d$, source $s$, basis $b$ and optional uncertainty $u_x$:
 
 $$
-\Delta=|x_n-x_{n-1}|,\quad s=\max(|x_n|,|x_{n-1}|,1),\quad
-\tau=\max(\tau_{\mathrm{abs}},\tau_{\mathrm{rel}}s),\quad
-G_{\mathrm{conv}}=(\Delta\leq\tau).
+Q=(x,u,\mathbf d,s,b,u_x),\qquad
+\mathbf d=(d_L,d_M,d_T,d_\Theta,d_N,d_I,d_J).
 $$
 
-Both tolerances must be finite, nonnegative and representable without nonzero-to-zero underflow. Numeric scalar strings, `Decimal` and `Fraction` inputs follow the same conversion guard; genuine signed zero and representable subnormal floats remain valid. A top-level `str`, `bytes`, `bytearray` or `memoryview` is rejected as an observation sequence so its characters or byte values cannot be mistaken for separate measurements. Fewer than two values or an invalid observation yields failure. This local test does not establish a convergence rate, stationarity, mesh independence, nonlinear residual satisfaction or a global optimum. Record those additional criteria in the calculation contract and supply their evidence separately. The trusted invocation layer converts invalid floating-point sentinels into JSON-safe failure evidence before hashing.
-
-JSON files supplied to CLI commands and read through the strict provenance/evidence boundary are checked before conversion to binary floats. A nonzero decimal that would become `0.0` is rejected; exact zero and representable subnormals remain valid.
-
-### 4. Conservation uses an explicit accumulation sign
-
-[`balance_check`](tsao_computation/validation/physical.py) implements a scalar balance using common units and a common time basis:
+The vector order is length, mass, time, temperature, amount of substance, electric current and luminous intensity. The controlled [unit registry](tsao_computation/quantity_units.py) supplies scale $a$, divisor $d$ and pre-scale offset $o$:
 
 $$
-r=I-O-A,\qquad
-r_{\mathrm{norm}}=\frac{|r|}{\max(|I|,|O|,|A|,1)},\qquad
-G_{\mathrm{balance}}=(r_{\mathrm{norm}}\leq\varepsilon).
+x_{\mathrm{SI}}=(x_s+o_s)\frac{a_s}{d_s},\qquad
+x_t=x_{\mathrm{SI}}\frac{d_t}{a_t}-o_t,
+\qquad
+u_t=u_s\left|\frac{a_s d_t}{d_s a_t}\right|.
 $$
 
-Here $A$ is accumulation, positive when material or energy is stored in the control volume. Inputs, outputs, accumulation and tolerance use the same finite, nonzero-underflow guard as convergence; tolerance is nonnegative. A nonzero residual whose normalization would round to zero is rejected instead of reporting an exact balance. The function does not infer chemistry, sum streams with different physical bases or convert mass into molar flow. A residual with incompatible units must be rejected before this scalar check.
+For example, `degC` uses $o_s=273.15$, while `degF` uses $o_s=459.67$, $a_s=5$, $d_s=9$. Temperature intervals use the `delta_` units and zero offset. Absolute temperatures and intervals cannot be interconverted. An uncertainty magnitude is scaled, never shifted by an absolute-temperature offset.
 
-### 5. Independent uncertainty and its limits
+[`ScientificQuantity.convert`](tsao_computation/scientific_quantity.py) uses a fully specified **50-significant-digit, round-half-even Decimal context**, independent of the caller's precision, rounding mode, exponent limits and traps. Absolute-temperature admission uses an exact zero-kelvin boundary and requires $T>0\,\mathrm K$. The supported nonzero decimal exponent range is $[-308,308]$. A conversion can still round at 50 digits or fail when its resulting quantity violates that range or physical boundary; it is not arbitrary-precision symbolic arithmetic.
 
-[`combine_independent`](tsao_computation/uncertainty/model.py) uses `math.hypot` for a stable root-sum-of-squares calculation:
+Boolean values, unknown units, incompatible dimensions, negative uncertainty and a supplied factor contradicting the registry are rejected. Conversion records `basis="DERIVED"` and the original quantity digest. A digest identifies the canonical recorded representation, not equivalence between all differently formatted or differently unitized quantities. Regression: [Decimal context isolation](tests/test_decimal_context_isolation.py).
+
+### 4.2 Finite scalar admission and final-pair convergence
+
+[`convergence_check`](tsao_computation/validation/numerical.py) admits each observation, then compares the final two values:
 
 $$
-u_c=\sqrt{u_{\mathrm{stat}}^2+u_{\mathrm{model}}^2+u_{\mathrm{num}}^2},\qquad u_i\geq0.
+\Delta=|x_n-x_{n-1}|,\quad
+s=\max(|x_n|,|x_{n-1}|,1),\quad
+\tau=\max(a,r s),\quad
+G_{\mathrm{conv}}=(\Delta\le\tau).
 $$
 
-All components must already use the same unit and represent compatible standard uncertainties. The implementation rejects nonfinite components, nonzero inputs that would underflow to floating-point zero, and an overflowing combined result. Exact zero and representable subnormal components remain valid. It does not estimate correlations. When correlations matter, the required mathematical model is
+$a\ge0$ has the observation's unit; $r\ge0$ is dimensionless. The numeric scale floor of one is expressed in the chosen input basis: normalize units or nondimensionalize before selecting tolerances. The implemented threshold is a **maximum**, not $a+r s$.
+
+Booleans, nonfinite values and nonzero inputs that convert to floating-point zero are rejected. Numeric strings, `Decimal` and `Fraction` inputs follow that conversion guard; exact signed zero and representable subnormals remain valid. Fewer than two observations or an invalid observation fails. This test alone does not prove whole-trajectory convergence, sufficient sampling, mesh independence or a global optimum. Direct failure results can contain an infinite diagnostic sentinel; trusted invocation converts such diagnostics into JSON-safe evidence before hashing. See [underflow regression](tests/test_nonzero_underflow_contract.py).
+
+### 4.3 Conservation with explicit accumulation
+
+[`balance_check`](tsao_computation/validation/physical.py) evaluates quantities already in common units and a common time basis:
+
+$$
+r_b=\operatorname{fsum}(I,-O,-A),\qquad
+s_b=\max(|I|,|O|,|A|,1),\qquad
+e_b=\frac{|r_b|}{s_b},\qquad G_b=(e_b\le\varepsilon).
+$$
+
+$I$ is input, $O$ output and $A$ accumulation, positive when the control volume stores material or energy. The supplied tolerance $\varepsilon\ge0$ is dimensionless. Compensated summation preserves representable cancellation residuals. Overflow, nonfinite inputs and a nonzero normalized residual that underflows to zero are errors. Unit conversion, component stoichiometry and reaction-model validity must be established before calling this scalar function; they cannot be inferred from a small residual.
+
+### 4.4 Independent standard uncertainty
+
+[`combine_independent`](tsao_computation/uncertainty/model.py) computes
+
+$$
+u_c=\operatorname{hypot}(u_1,\ldots,u_k)
+=\sqrt{\sum_{i=1}^k u_i^2},\qquad u_i\ge0.
+$$
+
+`UncertaintyBudget` names statistical, model and numerical components. Components must share one unit and compatible standard-uncertainty interpretations; the quadrature assumes uncorrelated contributions. `math.hypot` avoids avoidable intermediate square overflow, while a nonfinite final result or an underflowed nonzero input is rejected. An empty component list yields zero mathematically; it must not be used as evidence that all uncertainty sources were assessed.
+
+For a correlated model the required first-order relationship is
 
 $$
 u_y^2=\mathbf J\,\boldsymbol\Sigma\,\mathbf J^{\mathsf T},
 $$
 
-where $\mathbf J$ is the sensitivity row and $\boldsymbol\Sigma$ the input covariance matrix. That covariance propagation is a model-specific extension, not a computation performed by `combine_independent`. Preserve sampling, model-form and numerical uncertainty separately until their interpretation is established.
+with sensitivity row $\mathbf J$ and covariance matrix $\boldsymbol\Sigma$. This equation explains the **limitation**: covariance propagation is not performed by `combine_independent`. Supply a separately validated model when correlations matter. See [result-range regression](tests/test_uncertainty_result_range.py).
 
-### 6. Cross-model handoff is a numerical and evidence contract
+### 4.5 Model handoffs preserve scientific meaning
 
-[`HandoffRecord`](tsao_computation/contracts/handoff.py) binds source/receiving model, observable, value, unit, conditions, reference state, statistical/model uncertainty, applicability and transformation:
-
-$$
-H_{\mathrm{handoff}}=\operatorname{SHA256}\!\left(\operatorname{CanonicalJSON}
-(M_s,M_t,q,x,u,C,R,U_s,U_m,\Omega,T)\right).
-$$
-
-Values must be finite numeric scalars or nonempty rectangular arrays, up to six nesting levels and 100,000 scalar cells. Arbitrary distribution dictionaries are not silently interpreted as numbers. Uncertainty magnitudes are nonnegative and must have a matching array shape or be an explicitly supplied scalar bound. A structured uncertainty also requires a unit with the same physical dimension; its own unit is preserved and must be converted before combining uncertainties.
-
-Nested conditions, values, uncertainty and evidence are copied and frozen. Mutating the caller's original list cannot change an admitted record or digest. `to_dict()` and `from_mapping()` provide a serialization path that rechecks the contract. `checked` describes software contract checks; `validated` additionally requires external trusted approval over this exact scientific payload. The digest excludes the review decision and signatures to avoid circular signing. A valid signature for another value, condition or transformation is rejected.
-
-### 7. Parser observations remain separate from execution and science
-
-[`Adapter.parse`](tsao_computation/adapters/base.py) reports explicit textual completion and convergence, parser version, detected engine-version text (or `unknown`), SHA-256 of the supplied UTF-8 text and the active run offset. A recognized later run start prevents an earlier run's success from qualifying a truncated later run. Negative observations override positive ones:
+[`HandoffRecord`](tsao_computation/contracts/handoff.py) binds source and receiving models, observable, values, units, conditions, reference state, statistical/model uncertainty, applicability and transformation. Its identity is
 
 $$
-G_{\mathrm{text,complete}}=P_{\mathrm{complete}}\land\neg N_{\mathrm{complete}},\qquad
-G_{\mathrm{text,converged}}=G_{\mathrm{text,complete}}\land P_{\mathrm{conv}}\land\neg N_{\mathrm{conv}}.
+H_H=\operatorname{SHA256}\!\left(\operatorname{CanonicalJSON}(P_H)\right),
 $$
 
-Examples such as `SCF not yet converged`, `not normal termination` and `converged=false` stay false. Generic or engine-specific success markers describe **text status only**. The parser does not independently prove who produced a log, verify executable bytes or validate a scientific model; `validated` stays false. Preserve the original output bytes and execution record separately, especially if decoding changes the text.
+where $P_H$ is exactly `canonical_payload()`. The review decision and signature are excluded from this payload to avoid circular signing. A review must bind to this exact digest; approval of another value or transformation is insufficient.
 
-### 8. Accepted states share one verification gate
+Values are finite scalars or nonempty rectangular arrays, at most six nesting levels and 100,000 scalar cells. Uncertainty is nonnegative and either shape-matched or an explicitly supplied scalar bound. Structured uncertainty includes a dimension-compatible unit; it is preserved in its own unit and must be converted before combination. Nested data are copied and frozen, so caller mutation cannot change the admitted record. `checked` is a software-contract status; `validated` additionally requires artifact-bound external approval.
 
-[`acceptance_gate`](tsao_computation/validation/acceptance.py), [`ScientificStateMachine`](tsao_computation/state/machine.py) and [`assess_confidence`](tsao_computation/validation/confidence.py) use the same artifact-bound acceptance rule:
+### 4.6 Parsing observes supplied text
 
-$$
-G_{\mathrm{accept}}=
-\left(\bigwedge_{j=1}^{7} b_j\right)
-\land\operatorname{ValidDigest}(H)
-\land\operatorname{Verify}_{K_{\mathrm{trusted}}}(\sigma,H,\mathrm{scope},\mathrm{role},t).
-$$
-
-The seven flags cover completion, parsing, numerical convergence, physical validation, quantified uncertainty, confirmed applicability and bound evidence. They are declared evidence summaries; the signature and external reviewer establish the review boundary. Approved artifacts require scope `scientific-result-acceptance`, role `independent-domain-reviewer`, distinct requester/approver identifiers and a valid time window. Trust keys come from the calling environment, never from the result payload.
-
-C0–C3 classify progressively richer declared evidence. C4 requires verified scientific acceptance. C5 also requires separate signed `engineering-decision`, `safety-review` and `independent-reproduction` attestations with their required roles, all bound to the same artifact and explicit decision scope. Strings such as “reviewed by an expert,” caller boolean flags or embedded keys cannot raise a record to C4/C5.
-
-Direct construction of an accepted state is rejected. Transitioning from physical validation to scientific acceptance requires the same verified record, and the transition evidence must equal its artifact digest. State and recorded events are immutable through the public interface. A complete state sequence with invented evidence strings cannot authorize acceptance.
-
-The separately exported compatibility APIs `acceptance_is_verified()` and `require_verified_acceptance()` delegate signature verification to a caller-provided trusted verifier. Only its explicit Boolean `True` result authorizes the envelope; `False`, strings such as `"false"`, numeric status codes, containers, custom truthy objects and verifier exceptions are rejected. The hook does not interpret an object's `__bool__()` method, perform cryptographic verification itself, or grant C4/C5 classification. The configured verifier must validate the canonical message, signature and reviewer against the deployment's actual trust policy.
-
-### 9. Provenance and resource claims remain explicit
-
-[`hashing.py`](tsao_computation/hashing.py) canonicalizes JSON with sorted keys, compact separators and finite numbers; it hashes file bytes in bounded chunks. Execution bindings include normalized command/cwd, executable identity, input identities and environment. The authorization digest is a hash of that structured binding, not an ambiguous concatenation of display strings:
+[`Adapter.parse`](tsao_computation/adapters/base.py) retains the text digest, parser version, detected engine-version text and the start of the active run. A later run start prevents an earlier success marker from certifying a truncated new run. Conceptually, its positive and negative observations obey
 
 $$
-H_{\mathrm{authorization}}=\operatorname{SHA256}(\operatorname{CanonicalJSON}(B)),\qquad
-H_{\mathrm{file}}=\operatorname{SHA256}(\mathrm{bytes}_{\mathrm{file}}).
+G_{\mathrm{complete}}=P_c\land\neg N_c,\qquad
+G_{\mathrm{converged}}=G_{\mathrm{complete}}\land P_v\land\neg N_v.
 $$
 
-Batch execution keeps partial runtime evidence when one process times out or cannot be started: completed records remain available, `record_indices` maps them to the requested plans, and `failures`/`failed_indices` identify the tasks without a completed process record. Security and contract violations still raise; callers should not infer scientific acceptance from `completed`.
+$P_c,P_v$ denote recognized positive completion/convergence markers; $N_c,N_v$ denote their negative counterparts. Examples such as `not normal termination`, `SCF not yet converged` and `converged=false` do not become successes. These are text observations, not independent proof of executable identity or physics; parser `validated` stays false. Retain original output bytes and the execution record separately, especially when decoding changes text. See [parser regression](tests/test_performance_optimizations.py).
 
-Resource admission requires compatible CPU, GPU and license claims. For additive resources,
+### 4.7 Resource admission and execution identity
+
+The local [resource broker](tsao_computation/execution/resources.py) admits a set of concurrent jobs $\mathcal P$ only within declared additive capacities:
 
 $$
-\sum_{p\in\mathcal P_{\mathrm{active}}}r_{p,j}\leq c_j,
+\sum_{p\in\mathcal P}r_{p,j}\le c_j.
 $$
 
-with additional exclusivity and device-visibility checks for GPUs. These are local scheduling and evidence controls. Solver performance, CPU/GPU equivalence and model accuracy need separately measured workloads and reference results.
+$r_{p,j}$ is job $p$'s CPU or license claim and $c_j$ the corresponding capacity. GPUs additionally require device membership, exclusivity and consistent visibility. The broker is local; it does not replace an external cluster scheduler or prove license-server availability.
 
-Regression coverage for the repaired production entrances is in [`tests/test_acceptance_repair.py`](tests/test_acceptance_repair.py); the original acceptance, numerical, resource-broker and execution suites remain active.
+The [runner](tsao_computation/execution/runner.py) binds the exact command, executable invocation path and resolved target, executable/input bytes, working directory and environment into an authorized plan. File identity follows
 
-## Qualification and delivery diagrams
+$$
+H_f=\operatorname{SHA256}(\mathrm{bytes}_f).
+$$
 
-The following AI-assisted information designs are deterministic repository-owned SVG sources. They explain code and qualification logic; they are not fabricated solver output.
+Timeout containment terminates process trees. Batch failures retain completed records and identify their original request indices; a missing process record remains a failure, not a synthetic success. Resource release does not establish convergence or acceptance. See [execution boundary tests](tests/test_execution_boundary_contract.py) and [timeout tests](tests/test_process_timeout_containment.py).
 
-<img src="assets/visuals/uncertainty-sensitivity.svg" alt="Scientific scalar admission and correctness-first qualification ladder" width="100%">
-<img src="assets/visuals/acceleration-opportunity-pipeline.svg" alt="Fail-closed solver evidence state machine" width="100%">
-<img src="assets/visuals/hpc-execution-provenance.svg" alt="Resource broker admission barriers and escalation" width="100%">
-<img src="assets/visuals/process-optimization-uq.svg" alt="Reproducible build, evidence and delivery feedback loop" width="100%">
+### 4.8 Acceptance is an evidence gate
 
-<!-- V13_VISUAL_SYSTEM:START -->
-The repository contains **43 self-contained SVGs** using **Scientific Research Console V13**. The root READMEs showcase **12 representative diagrams**; the complete inventory is in [`assets/visuals/README.md`](assets/visuals/README.md), with design and trust rules in [`assets/visuals/DESIGN_SYSTEM.md`](assets/visuals/DESIGN_SYSTEM.md).
-<!-- V13_VISUAL_SYSTEM:END -->
+[`acceptance_gate`](tsao_computation/validation/acceptance.py) requires seven strict boolean conditions:
 
-## Usage strategies
+$$
+G_S=C\land P\land V\land F\land U\land D\land E,
+\qquad
+G_A=G_S\land H\land A_{\mathrm{verified}}.
+$$
 
-### Implemented execution protocols
+$C$: completed; $P$: parsed; $V$: converged; $F$: physically validated; $U$: uncertainty quantified; $D$: applicability confirmed; $E$: evidence bound. $H$ is a valid artifact SHA-256 and $A_{\mathrm{verified}}$ is at least one valid, time-bounded external attestation with the required scope and role. These flags are declared evidence inputs, not an autonomous scientific truth detector.
 
-The 27 adapter entries describe routing and environment capabilities; executable presence alone does not make every adapter runnable. [`Adapter.build_command()`](tsao_computation/adapters/base.py) currently implements these input protocols:
+The built-in gate verifies HMAC-SHA256 attestations using trusted keys supplied **outside** the result record. It requires scope `scientific-result-acceptance`, role `independent-domain-reviewer`, and distinct requester/approver identities. C5 additionally requires signed decision-scope, safety-review and independent-reproduction evidence. Duplicate eligible nonces cannot count for different governance purposes. The implementation is not a persistent cross-request replay database, institutional identity service or key-revocation system; deployments must supply those controls where required. The separate public `acceptance_is_verified` API delegates signature verification to a consumer-provided verifier and accepts only the literal result `True`.
 
-| Adapter path | Prepared argv after the resolved executable | Required input |
+### 4.9 Local provenance has a finite storage contract
+
+The [hash-linked provenance ledger](tsao_computation/provenance/ledger.py) verifies existing records before append. Strict JSON rejects duplicate keys, nonfinite values and nonzero decimal-to-float underflow. The separate [concurrent event ledger](tsao_computation/execution_boundary.py) uses an exclusive sidecar lock and atomic replacement, with a 64 MiB bound:
+
+$$
+|\operatorname{UTF8}(E_{n+1})|\le64\times2^{20}\;\mathrm{bytes}.
+$$
+
+This is a cooperating local-file protocol. A lock timeout or corrupted previous ledger fails; an abandoned lock is not silently stolen. Confirm the writer has exited and preserve the ledger before recovery. Hash linkage establishes record integrity, not the truth of the measurements inside it.
+
+## 5. Analytical reference checks and their assumptions
+
+[`scientific_benchmarks.py`](tsao_computation/validation/scientific_benchmarks.py) executes eight deterministic software references:
+
+| Reference | Mathematical target | Assumption or scope |
 |---|---|---|
-| GROMACS | `mdrun -s system.tpr` | A preprocessed `.tpr` file; preprocessing is a separate operation |
-| Quantum ESPRESSO | `-i scf.in` | A PWscf input deck |
-| ORCA | `water.inp` | An ORCA input file |
-| Declared Python-module adapter | `driver.py` | A `.py` driver plus the declared modules in that interpreter |
-| Other adapter entries | No runnable generic argv | Engine-specific protocol implementation and qualification required |
+| 1D steady conduction | $T(x)=T_L+(T_R-T_L)x/L$ | Constant properties, no source; finite-difference profile |
+| Poiseuille flow | $Q=\pi\Delta p R^4/(8\mu L)$ | Steady laminar Newtonian pipe flow; radial integration |
+| First-order CSTR | $C=C_{in}/(1+k\tau)$ | Ideal steady mixing; reaction balance closure |
+| First-order PFR | $C/C_0=e^{-k\tau}$ | Constant first-order rate; RK4 reference integration |
+| Harmonic oscillator | $E=(x^2+v^2)/2$ | Unit mass and stiffness; velocity-Verlet energy drift |
+| Gaussian chain | $\langle R^2\rangle=Nb^2$ | Ideal isotropic independent segments |
+| Parallel plates | $\lvert\mathcal E\rvert=V/d$ | Linear potential, neglected fringing; central difference |
+| Electrothermal balance | $VI=I^2R=G\Delta T$ | Steady lumped removal; constant resistance/conductance |
 
-The GROMACS and QE argument forms follow the [GROMACS mdrun reference](https://manual.gromacs.org/current/onlinehelp/gmx-mdrun.html) and [QE input-file guidance](https://www.quantum-espresso.org/Doc/pw_user_guide/node21.html). Every constructed plan still has `execute_allowed=False`; authorization binds executable/input bytes, cwd and environment before launch. A stub executable can verify argument shape in tests, but it cannot certify the external solver.
+$k$ is rate constant, $\tau$ residence time, $\mu$ viscosity, $R$ pipe radius or electrical resistance as specified by the row, $G$ thermal conductance, and $b$ segment length. Each function fixes its reference parameters and tolerance in code. A pass verifies that fixture and numerical invariant; it does not validate an arbitrary material, constitutive law or external engine.
 
-### Migrate existing evidence safely
-
-Older records that supplied unknown unit labels, conflicting dimensions, arbitrary conversion factors, negative uncertainty, free-form approval strings or an accepted-state constructor now fail validation. Rebuild them from their actual source data; do not fill missing evidence with placeholder approvals. Ordinary handoffs without external review use `checked` or `unvalidated`. A `validated` handoff needs a signed acceptance record bound to `handoff.digest` and consumer-provisioned trust keys.
-
-```python
-from tsao_computation.validation import assess_confidence
-from tsao_computation.state import ScientificStateMachine
-
-# record comes from a qualified evidence package; trusted_keys is provisioned
-# by the receiving environment, never extracted from record itself.
-assessment = assess_confidence(record, trusted_approval_keys=trusted_keys)
-machine = ScientificStateMachine("physically-validated")
-machine.transition(
-    "scientifically-accepted", evidence=record["artifact_sha256"],
-    acceptance_record=record, trusted_approval_keys=trusted_keys,
-)
-```
-
-Without the external trust context, the confidence interface remains below C4. C5 additionally needs separately signed decision, safety and reproduction scopes. HMAC verification protects integrity within the configured trust domain; deployments remain responsible for reviewer identity, key protection, revocation and persistent replay policy.
-
-### Strategy A — planning without solver access
-
-Use routing, contract validation and capability inspection to produce a defensible calculation plan. Keep it plan-only or `EXTERNAL_HOLD`; do not invent runtime evidence.
-
-### Strategy B — strict scalar ingestion
-
-Validate every observation, tolerance and uncertainty component before calculation. Reject booleans, NaN and infinity. Preserve failure as JSON-safe structured evidence so request/result hashes remain deterministic.
-
-### Strategy C — external solver onboarding
-
-```text
-qualification-bundle/
-├── solver-identity.json        # path, size, SHA-256, bounded version output
-├── environment.json            # OS, runtime, libraries, scheduler, devices
-├── inputs/                     # fixed canonical inputs
-├── references/                 # trusted CPU or analytical references
-├── tolerances.json             # observable-specific limits
-├── license-evidence.json       # availability and authorization boundary
-└── provenance.json             # bundle hash and review authority
-```
-
-Qualify identity, CPU correctness, GPU/MPI equivalence and performance in that order.
-
-### Strategy D — edge deployment
-
-Pre-package registries and Schemas; default to CPU-only unless the accelerator is fingerprinted; cap workers and memory; transfer only hash-bound evidence bundles to larger solver hosts.
-
-### Strategy E — shared HPC deployment
-
-Map immutable claims to scheduler CPU/GPU/license requests; separate scratch, checkpoint and evidence directories; bind scheduler metadata to provenance; retry only classified transient failures.
-
-### Strategy F — acceleration engineering
-
-1. inventory and profile a real workload;
-2. distinguish orchestration from numerical-kernel cost;
-3. prefer solver-native parallelism and mature libraries;
-4. establish a trusted CPU reference;
-5. prove GPU/MPI equivalence with declared observables and tolerances;
-6. measure same-problem performance with uncertainty.
-
-### Strategy G — acceptance and audit
-
-Require a reference, tolerance, evidence identity and approving authority for every claim. A successful process without those items remains unaccepted.
-
-## Multiscale scientific visual map
-
-<img src="assets/visuals/quantum-to-md.svg" alt="Electronic-structure to molecular-dynamics handoff" width="100%">
-<img src="assets/visuals/reaction-kinetics-network.svg" alt="Reaction pathways, kinetic evidence and reactor handoff" width="100%">
-<img src="assets/visuals/polymer-process.svg" alt="Polymer multiscale transfer from molecular architecture to processing" width="100%">
-<img src="assets/visuals/continuum-multiphysics.svg" alt="Continuum multiphysics coupling" width="100%">
-
-## Acceleration and native interoperability
-
-Python remains the control plane. A hotspot crosses into C++/OpenMP/CUDA only after profiling demonstrates material value and equivalence can be tested independently.
-
-<img src="assets/visuals/hpc-failure-recovery.svg" alt="HPC checkpointing and bounded recovery" width="100%">
+## 6. Verification and release evidence
 
 ```bash
-python scripts/build_acceleration_audits.py
-python -m tsao_computation audit-acceleration \
-  --root . --scope production --limit 50 --min-score 40 \
-  --output reports/ACCELERATION_OPPORTUNITIES_PRODUCTION_V4.json
-python -m tsao_computation profile-performance \
-  --workload routing-hot --workload acceleration-plan \
-  --repeats 7 --warmups 1 \
-  --output .tsao-computation/performance-profile.json
-```
-
-<!-- ACCELERATION_AUDIT_SUMMARY:START -->
-The [production audit](reports/ACCELERATION_OPPORTUNITIES_PRODUCTION_V4.json) and [full-tree audit](reports/ACCELERATION_OPPORTUNITIES_FULL_TREE_V4.json) contain the generated source counts and hashes. Unprofiled code is not evidence of external-solver or GPU speedup.
-<!-- ACCELERATION_AUDIT_SUMMARY:END -->
-
-Architecture, CUDA-X selection rules and C++ migration gates: [`docs/accelerated-native-backend.md`](docs/accelerated-native-backend.md). Native verification: `python scripts/verify_native_core.py`.
-
-## Verification
-
-```bash
-python -m pip install --require-hashes --only-binary=:all: -r requirements-ci.txt
-python -m pip install --no-index --no-deps --no-build-isolation -e '.[validation,quality,security]'
 python scripts/verify_all.py --profile all
 python scripts/verify_native_core.py
 python scripts/verify_all.py --profile benchmark
+python -m pytest -q tests/test_performance_v9.py tests/test_performance_optimizations.py
+python scripts/run_large_parser_regression.py
+python scripts/final_acceptance_preflight.py --json
 ```
 
-`all` covers linting, formatting, typing, security, pytest, coverage, mutation, analytical fixtures, Schema/registry checks, generated-file consistency, reproducible source/Wheel builds, isolated installation, SBOMs, checksums and release manifests. `benchmark` is orchestration telemetry, not external-solver performance evidence.
+`all` executes the original quality, core and package profiles. It includes Ruff, formatting, Mypy, Bandit, repository security scanning, controlled mutation, the complete pytest suite, **95% total coverage**, critical-module coverage, scientific references, Schema/registry audits, generated-file checks, reproducible source/wheel builds, isolated installation, SBOMs and checksums. Native C ABI and benchmark/performance commands remain additional gates. The large-parser regression uses generated local text, not measured solver output.
 
 <!-- CURRENT_MAIN_VERIFICATION:START -->
-### Exact-commit qualification
+### Qualification belongs to an exact commit
 
 | Metadata | Value |
 |---|---|
 | Version | 3.0.4 |
 
-Use the permanent [CI workflow](.github/workflows/ci.yml) and its run artifacts for the SHA being deployed. Historical reports under `reports/` are snapshots, not certificates for a newer commit. Full pytest, the 95% coverage floor, critical-module coverage, generated-file checks, Ruff, mypy, Bandit, mutation probes, source/Wheel reproducibility, native C ABI and platform matrices remain mandatory. No narrow contract run or previous successful commit substitutes for this chain.
+Use the permanent [CI workflow](.github/workflows/ci.yml) and original artifacts for the commit being deployed. Historical files under `reports/` are snapshots. Neither a previous green run nor focused tests qualify a newer commit. Six-hour regression requires original receipts binding the exact source SHA, elapsed successful test-process time and all failure evidence; this README does not predeclare its completion. External engines remain **EXTERNAL_HOLD** until their independent evidence is provided.
 <!-- CURRENT_MAIN_VERIFICATION:END -->
 
-### External approval contract
+## 7. Diagnose and recover without losing evidence
 
-`software_ready` aggregates the declared completion, parsing, convergence, physical-validation, uncertainty, applicability and evidence flags. It is not independently issued scientific approval.
+| Observation | Meaning | Next action |
+|---|---|---|
+| Strict contract rejects an example-derived study | Required scientific fields are absent or invalid | Replace placeholders with justified data and regenerate the plan |
+| `candidate-only` / `detected-incomplete` | Registry or environment discovery is incomplete | Install/configure the intended engine separately and probe again |
+| `version-probed-unqualified` | Binary/version evidence exists | Add fixed reference inputs, numerical tolerances and qualification outputs |
+| `execute_allowed=False` | A prepared plan has not been authorized | Review the exact executable/input/environment identity and authorize in the receiving environment |
+| Nonfinite/underflow/temperature-boundary error | Numerical or physical input is unsupported | Correct source units/range or model assumptions; retain the rejected original |
+| Completed but not converged/validated | Execution or parsing alone succeeded | Inspect native diagnostics and execute the declared convergence/physical checks |
+| Acceptance missing approvals or artifact binding | Scientific review evidence is absent or mismatched | Obtain an independently verified approval over the actual artifact digest |
+| Manifest or derived-report drift | Checked-in evidence no longer describes the source | Regenerate using repository scripts, review the diff and rerun unchanged gates |
 
-`accepted` additionally requires a valid artifact SHA-256 and at least one time-valid HMAC-SHA256 attestation verified with a trusted key supplied outside the record. The acceptance gate requires scope `scientific-result-acceptance` and role `independent-domain-reviewer`; approver and requester identifiers must differ. Deployments must provision trusted keys and resolve those identities independently.
+Do not repair missing evidence by writing `accepted=true`, inventing values or replacing unknowns with zero. When changing a model, unit transformation, input or executable, rebuild the affected plan and evidence chain.
 
-Malformed JSON payloads, non-finite values, circular references and serializer failures return structured rejection reasons. Invalid signatures or unrelated scopes/roles cannot reserve a nonce and suppress a later valid approval. C5 collects eligible scientific-acceptance and current-decision governance proofs before counting governance nonces. An ineligible scope, role or decision cannot consume a nonce. A nonce used for different eligible purposes, including scientific acceptance, cannot count toward governance, regardless of approval order; repeated copies for the same purpose count once. An independent clean proof can still satisfy a requirement with a conflicting alternative. Duplicate valid approvals count once **within one decision**. This is not a persistent cross-request replay database, key-revocation service, or proof of institutional identity; integrations requiring those controls must supply them externally. Verification is intentionally repeatable for an unchanged artifact during its approval window.
+## 8. Documentation, visual archive and project policy
 
-Focused regression command:
+The two root READMEs use their respective language-specific concept designs. The **43 legacy Scientific Research Console V13 SVGs** remain available in the [technical visual atlas](assets/visuals/README.md), with their original [design and safety policy](assets/visuals/DESIGN_SYSTEM.md). They explain methods and integration ambitions; they do not assert live external solver execution. The original source assets remain inspectable and safety-checked rather than being silently replaced.
 
-```bash
-python -m pytest -q tests/test_acceptance_repair.py tests/test_approval_attestation_boundaries.py tests/test_validation_fail_closed.py
-```
+Useful deeper references: [adapter documents](adapters), [workflow documents](skills/workflows), [scenario examples](examples), [release policy](docs/release.md), [acceptance guide](README_ACCEPTANCE.md), [native ABI](native/README.md) and [third-party boundaries](THIRD_PARTY.md).
 
-
-## Trust states
-
-| State | Meaning |
-|---|---|
-| `candidate-only` | registry candidate; no executable detected |
-| `detected-incomplete` | executable detected but required evidence is incomplete |
-| `fingerprinted-unqualified` | exact binary identity recorded; no numerical qualification |
-| `version-probed-unqualified` | bounded version output recorded; still scientifically unqualified |
-| `evidence-bound-unqualified` | evidence is bound into a plan; correctness/equivalence still pending |
-| `EXTERNAL_HOLD` | a required external fact or artifact is missing |
-
-## Platform and repository policy
-
-- Windows is a core supported workflow; Linux is CI-validated.
-- `main` is the sole authoritative remote branch.
-- No external solver, commercial license or private dataset is bundled.
-- Releases include reproducible artifacts, SPDX/CycloneDX SBOMs, SHA-256 checksums and provenance.
-
-## License and citation
-
-MIT licensed. Citation metadata is in [`CITATION.cff`](CITATION.cff); third-party boundaries are documented in [`THIRD_PARTY.md`](THIRD_PARTY.md).
+`main` is the sole authoritative long-lived branch. Windows and Linux are the supported delivery platforms. No commercial solver, license or private dataset is bundled. MIT license: [LICENSE](LICENSE); citation metadata: [CITATION.cff](CITATION.cff).
 
 <!-- CURRENT_MAIN_ACCEPTANCE_V2:START -->
-## Current implementation: code, mathematics and usage
+### Maintained source index
 
-![English code and mathematical-contract concept](docs/current-main/tsao-scicomputation-current-main-en.svg)
+[Adapter and parser](tsao_computation/adapters/base.py) · [Execution record](tsao_computation/execution/runner.py) · [Convergence](tsao_computation/validation/numerical.py) · [Uncertainty](tsao_computation/uncertainty/model.py) · [Legacy localized architecture](docs/current-main/tsao-scicomputation-current-main-en.svg)
 
-> The repository is a computation control plane and qualification framework; third-party DFT, MD, CFD, FEM and process solvers remain EXTERNAL_HOLD.
-
-#### Independent uncertainty
-
-$$
-u_c=\sqrt{u_{\mathrm{stat}}^2+u_{\mathrm{model}}^2+u_{\mathrm{num}}^2}
-$$
-
-Components must be finite, nonnegative and expressed in the same output units. Quadrature assumes uncorrelated contributions. The implementation uses math.hypot to avoid intermediate squaring overflow and rejects unrepresentable totals. Correlated contributions require covariance propagation, not this interface.
-
-Source mapping: [`tsao_computation/uncertainty/model.py`](tsao_computation/uncertainty/model.py)
-
-#### Last-pair convergence
-
-$$
-\Delta=|x_n-x_{n-1}|,\qquad \tau=\max\!\left(a,r\max(|x_n|,|x_{n-1}|,1)\right),\qquad\Delta\le\tau
-$$
-
-This gate compares the final two finite values using absolute tolerance a and relative tolerance r. Its threshold uses max, not an additive tolerance. The scale floor of one is expressed in the chosen input units, so normalize units or nondimensionalize first. Passing the last pair does not prove global trajectory convergence or adequate sampling.
-
-Source mapping: [`tsao_computation/validation/numerical.py`](tsao_computation/validation/numerical.py)
-
-#### Control-plane contract
-
-$$
-C_{\mathrm{accept}}=C_{\mathrm{identity}}\land C_{\mathrm{input}}\land C_{\mathrm{finite}}\land C_{\mathrm{policy}}
-$$
-
-This is an explanatory composition of runner and adapter requirements, not a fitted score or a single function shared by every engine. Preserve engine versions, input hashes, parser evidence and applicable acceptance policies separately. Software discovery, generated inputs and parsed examples are not external scientific execution.
-
-Source mapping: [`tsao_computation/adapters/base.py`](tsao_computation/adapters/base.py) · [`tsao_computation/execution/runner.py`](tsao_computation/execution/runner.py)
-
-#### Serialized provenance append
-
-$$
-E_{n+1}=E_n\mathbin{\Vert}[e_{n+1}],\quad \lvert\operatorname{UTF8}(E_{n+1})\rvert\le64\times2^{20}\;\mathrm{bytes}
-$$
-
-Events must be JSON objects; nested duplicate keys, NaN, Infinity, floating-point overflow or nonzero underflow to zero, and non-UTF-8 input are rejected. Cooperating writers serialize read–append–atomic-replace operations through an exclusive sidecar lock, preventing lost updates. This is a local-file protocol, not a distributed database transaction; explicit archival is required at the 64 MiB bound. Lock acquisition times out after 10 seconds. An abandoned lock is not stolen automatically; confirm the writer has exited and back up the ledger before recovery.
-
-On Windows, the C runtime can report a sharing or delete-pending conflict as `EACCES`. Lock creation retries that error within the same 10-second acquisition deadline, and still requires a successful exclusive create before any ledger update. Persistent access denial is re-raised as the original `PermissionError`; other permission errors and non-Windows permission failures propagate immediately. A failed acquisition never removes another writer's lock. These semantics follow the Microsoft [`_open` error mapping](https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/open-wopen?view=msvc-170) and [`CreateFile` deletion rules](https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-createfilea).
-
-Source mapping: [`tsao_computation/provenance/ledger.py`](tsao_computation/provenance/ledger.py) · [`tests/test_provenance_ledger_integrity.py`](tests/test_provenance_ledger_integrity.py)
-
-### Usage and acceptance sequence
-
-1. Check the installation environment, input structure, units, applicability and execution permissions.
-2. Use the source mappings above to distinguish native implementation, explanatory contracts and external execution requirements.
-3. Run focused regression and full quality gates before long-duration testing of pinned commits.
-4. Preserve original logs, machine-readable reports and limitations; missing evidence must never be reported as PASS.
-
-```bash
-python scripts/verify_all.py --profile core
-python scripts/verify_all.py --profile quality
-python scripts/verify_native_core.py
-```
-
-Retest every changed commit. Baseline regression, two three-hour regression segments, browser visual checks and external engineering qualification are distinct evidence classes. Without original receipts, no six-hour completion is claimed.
-
-Implementation anchors: [`tsao_computation/adapters/base.py`](tsao_computation/adapters/base.py) · [`tsao_computation/execution/runner.py`](tsao_computation/execution/runner.py) · [`tsao_computation/validation/numerical.py`](tsao_computation/validation/numerical.py)
-
+The equations and strategies above describe current code. Concept figures and historical artifacts are not execution attestations. Changed source requires fresh qualification.
 <!-- CURRENT_MAIN_ACCEPTANCE_V2:END -->

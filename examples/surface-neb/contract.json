@@ -36,12 +36,16 @@
     "images": "interpolated from validated endpoints without atomic overlap"
   },
   "methods": [
-    "periodic DFT",
-    "adsorption-site screening",
-    "climbing-image NEB"
+    "periodic-dft",
+    "nonlinear-optimization"
   ],
   "model_object": {
-    "description": "Catalyst-surface adsorption and NEB workflow"
+    "description": "Catalyst-surface adsorption and NEB workflow",
+    "method_details": [
+      "periodic DFT",
+      "adsorption-site screening",
+      "climbing-image NEB"
+    ]
   },
   "parameter_sources": [
     {

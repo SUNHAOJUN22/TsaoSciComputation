@@ -1,6 +1,6 @@
 # README visual assets
 
-This directory contains the complete visual atlas for TsaoSciComputation. The root READMEs showcase 12 representative diagrams and link to this complete inventory.
+This directory contains the complete visual atlas for TsaoSciComputation. The root READMEs now contain language-specific AI-assisted hero designs in `docs/assets/readme-vnext/`. This atlas preserves the original 43 technical SVGs, including the 12 former README figures below.
 
 ## Design and trust policy
 
@@ -18,7 +18,7 @@ All 43 assets declare `data-design-system="uiux-pro-max-scientific-console-v4"`.
 - One line-icon system and explicit labels reinforce meaning beyond color.
 - SVG body text is at least 16 px.
 - No external fonts, scripts, raster images, gradients, filters, event handlers or tracking are permitted.
-- The root READMEs show 12 representative images and link to this complete inventory for progressive disclosure.
+- The 12 former README images are shown in the gallery below; the two root READMEs link here for progressive disclosure.
 
 See [`DESIGN_SYSTEM.md`](DESIGN_SYSTEM.md) for the complete specification.
 
@@ -69,3 +69,31 @@ See [`DESIGN_SYSTEM.md`](DESIGN_SYSTEM.md) for the complete specification.
 - `acceleration-opportunity-pipeline.svg` — fail-closed solver evidence state machine
 
 Run `python -m pytest tests/test_readme_visuals.py -q` to validate the asset inventory, design metadata and bilingual README references.
+
+## Historical README gallery
+
+These English technical diagrams remain conceptual. They are not scientific execution or acceptance evidence. See the current bilingual READMEs for implemented command protocols and limitations.
+
+![Historical technical concept: hero multiscale](hero-multiscale.svg)
+
+![Historical technical concept: agent orchestration](agent-orchestration.svg)
+
+![Historical technical concept: capability landscape](capability-landscape.svg)
+
+![Historical technical concept: quantum to md](quantum-to-md.svg)
+
+![Historical technical concept: reaction kinetics network](reaction-kinetics-network.svg)
+
+![Historical technical concept: polymer process](polymer-process.svg)
+
+![Historical technical concept: continuum multiphysics](continuum-multiphysics.svg)
+
+![Historical technical concept: process optimization uq](process-optimization-uq.svg)
+
+![Historical technical concept: uncertainty sensitivity](uncertainty-sensitivity.svg)
+
+![Historical technical concept: hpc execution provenance](hpc-execution-provenance.svg)
+
+![Historical technical concept: hpc failure recovery](hpc-failure-recovery.svg)
+
+![Historical technical concept: acceleration opportunity pipeline](acceleration-opportunity-pipeline.svg)

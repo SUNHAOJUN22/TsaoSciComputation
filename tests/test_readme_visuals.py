@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+import base64
 import re
 import xml.etree.ElementTree as ET
 from collections import Counter
 from pathlib import Path
+
+import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 ENTRY = re.compile(r"^- `([^`]+\.svg)` — ", re.MULTILINE)
@@ -59,8 +62,9 @@ def _inventory_names() -> tuple[str, ...]:
     return names
 
 
-def test_readme_showcases_featured_visuals_and_links_full_atlas() -> None:
+def test_readme_links_full_atlas_and_preserves_the_featured_gallery() -> None:
     names = _inventory_names()
+    atlas = (ROOT / "assets/visuals/README.md").read_text(encoding="utf-8")
     readmes = [
         (ROOT / "README.md").read_text(encoding="utf-8"),
         (ROOT / "README.zh-CN.md").read_text(encoding="utf-8"),
@@ -70,24 +74,18 @@ def test_readme_showcases_featured_visuals_and_links_full_atlas() -> None:
         assert "V12_VISUAL_SYSTEM" not in readme
         assert "V11_VISUAL_SYSTEM" not in readme
         assert "VISUAL_SYSTEM_V10" not in readme
-        assert readme.count("assets/visuals/hero-multiscale.svg") == 1
-        assert readme.count('<td width="50%"><img src="assets/visuals/') == 2
         assert len(FEATURED_FILES) == 12
         assert "assets/visuals/README.md" in readme
         assert "assets/visuals/DESIGN_SYSTEM.md" in readme
         for name in names:
             relative = f"assets/visuals/{name}"
-            if name in FEATURED_FILES:
-                assert readme.count(relative) == 1
-            else:
-                assert relative not in readme
+            assert relative not in readme
+    embedded = re.findall(r"!\[[^\]]+\]\(([^)]+\.svg)\)", atlas)
+    assert set(embedded) == FEATURED_FILES
+    assert len(embedded) == len(FEATURED_FILES)
 
 
 def test_readme_visuals_are_readable_accessible_and_self_contained() -> None:
-    readmes = [
-        (ROOT / "README.md").read_text(encoding="utf-8"),
-        (ROOT / "README.zh-CN.md").read_text(encoding="utf-8"),
-    ]
     manifest_in = (ROOT / "MANIFEST.in").read_text(encoding="utf-8")
     design_system = (ROOT / "assets" / "visuals" / "DESIGN_SYSTEM.md").read_text(encoding="utf-8")
     assert "recursive-include assets *.md *.svg" in manifest_in
@@ -160,10 +158,45 @@ def test_readme_visuals_are_readable_accessible_and_self_contained() -> None:
         titles.add(title.text.strip())
         descriptions.add(description.text.strip())
 
-        relative = f"assets/visuals/{name}"
-        if name in FEATURED_FILES:
-            assert all(relative in readme for readme in readmes)
-        else:
-            assert all(relative not in readme for readme in readmes)
-
     assert dict(layouts) == EXPECTED_LAYOUTS
+
+
+@pytest.mark.parametrize("locale", ["en", "zh-CN"])
+def test_localized_readme_hero_is_accessible_and_has_no_active_or_external_content(
+    locale: str,
+) -> None:
+    readme_name = "README.md" if locale == "en" else "README.zh-CN.md"
+    readme = (ROOT / readme_name).read_text(encoding="utf-8")
+    relative = f"docs/assets/readme-vnext/hero.{locale}.svg"
+    references = re.findall(r"!\[[^\]]+\]\((docs/assets/readme-vnext/[^)]+)\)", readme)
+    assert references == [relative]
+    text = (ROOT / relative).read_text(encoding="utf-8")
+    assert "\ufffd" not in text
+    root = ET.fromstring(text)
+    assert root.tag == "{http://www.w3.org/2000/svg}svg"
+    assert root.attrib.get("role") == "img"
+    assert "viewBox" in root.attrib
+    assert (
+        root.attrib.get("lang", root.attrib.get("{http://www.w3.org/XML/1998/namespace}lang"))
+        == locale
+    )
+    namespace = {"svg": "http://www.w3.org/2000/svg"}
+    for tag in ("title", "desc"):
+        element = root.find(f"svg:{tag}", namespace)
+        assert element is not None and element.text and element.text.strip()
+        assert bool(re.search(r"[\u3400-\u9fff]", element.text)) == (locale == "zh-CN")
+    embedded_rasters = 0
+    for element in root.iter():
+        assert element.tag.rsplit("}", 1)[-1].lower() not in {"script", "foreignobject"}
+        for name, value in element.attrib.items():
+            local_name = name.rsplit("}", 1)[-1].lower()
+            assert not local_name.startswith("on")
+            if local_name == "href" and not value.startswith("#"):
+                assert value.startswith(("data:image/png;base64,", "data:image/jpeg;base64,"))
+                content = base64.b64decode(value.split(",", 1)[1], validate=True)
+                assert content.startswith((b"\x89PNG\r\n\x1a\n", b"\xff\xd8\xff"))
+                embedded_rasters += 1
+        if element.tag.rsplit("}", 1)[-1].lower() == "style":
+            assert "@import" not in (element.text or "").lower()
+            assert not re.search(r"url\(\s*['\"]?(?:https?:|//)", element.text or "", re.I)
+    assert embedded_rasters >= 1

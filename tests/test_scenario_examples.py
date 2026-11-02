@@ -3,7 +3,10 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
 from scripts.build_examples import SCENARIOS
+from tsao_computation.cli import main
 from tsao_computation.contracts import CalculationContract
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -43,3 +46,16 @@ def test_every_scenario_explains_preparation_only_boundary() -> None:
         assert "does not claim" in text
         assert "validate-contract" in text
         assert "--strict" in text
+
+
+@pytest.mark.parametrize("name", sorted(EXPECTED))
+def test_scenario_contracts_build_real_plans_without_external_execution(
+    name: str, capsys: pytest.CaptureFixture[str]
+) -> None:
+    path = ROOT / "examples" / name / "contract.json"
+    assert main(["plan", str(path), "--strict"]) == 0
+    plan = json.loads(capsys.readouterr().out)
+    assert plan["workflow"] == SCENARIOS[name]["workflow"]
+    assert [method["slug"] for method in plan["methods"]] == SCENARIOS[name]["methods"]
+    assert len(plan["steps"]) == 9
+    assert "External" in plan["claim_boundary"]

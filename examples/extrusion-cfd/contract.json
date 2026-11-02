@@ -37,12 +37,16 @@
     "fields": "bounded initialization with restart policy"
   },
   "methods": [
-    "OpenFOAM CFD",
-    "non-Newtonian constitutive model",
-    "conjugate heat transfer where required"
+    "computational-fluid-dynamics",
+    "multiphysics"
   ],
   "model_object": {
-    "description": "Non-Newtonian OpenFOAM extrusion eccentricity workflow"
+    "description": "Non-Newtonian OpenFOAM extrusion eccentricity workflow",
+    "method_details": [
+      "OpenFOAM CFD",
+      "non-Newtonian constitutive model",
+      "conjugate heat transfer where required"
+    ]
   },
   "parameter_sources": [
     {

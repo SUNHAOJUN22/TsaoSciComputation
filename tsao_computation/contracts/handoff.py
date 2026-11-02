@@ -132,7 +132,9 @@ class HandoffRecord:
                 if isinstance(item, (list, tuple)):
                     for child in item:
                         check_temperature(child)
-                elif Decimal(str(item)) <= -definition.offset:
+                # Unary minus rounds in the ambient Decimal context. A rounded
+                # zero-kelvin boundary can admit an impossible temperature.
+                elif Decimal(str(item)) <= definition.offset.copy_negate():
                     raise ContractError("absolute handoff temperature must be above zero kelvin")
 
             check_temperature(self.value)

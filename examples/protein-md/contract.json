@@ -38,13 +38,17 @@
     "velocities": "seeded and recorded"
   },
   "methods": [
-    "GROMACS preparation",
-    "minimization",
-    "NVT/NPT equilibration",
-    "replicated production MD"
+    "molecular-dynamics",
+    "statistical-inference"
   ],
   "model_object": {
-    "description": "Protein-nucleic-acid GROMACS 100 ns workflow"
+    "description": "Protein-nucleic-acid GROMACS 100 ns workflow",
+    "method_details": [
+      "GROMACS preparation",
+      "minimization",
+      "NVT/NPT equilibration",
+      "replicated production MD"
+    ]
   },
   "parameter_sources": [
     {

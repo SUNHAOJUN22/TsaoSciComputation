@@ -36,12 +36,17 @@
     "steady_state_and_controller_state": "validated before transients"
   },
   "methods": [
-    "lawful Aspen adapter guidance",
-    "dynamic validation",
-    "state estimation and drift detection"
+    "process-simulation",
+    "dynamic-control",
+    "digital-twin"
   ],
   "model_object": {
-    "description": "Aspen dynamic digital-twin handoff workflow"
+    "description": "Aspen dynamic digital-twin handoff workflow",
+    "method_details": [
+      "lawful Aspen adapter guidance",
+      "dynamic validation",
+      "state estimation and drift detection"
+    ]
   },
   "parameter_sources": [
     {

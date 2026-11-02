@@ -18,6 +18,7 @@ def contract(
     observables: list[str],
     scales: list[str],
     methods: list[str],
+    method_slugs: list[str],
     assumptions: list[str],
     boundary: dict[str, Any],
     initial: dict[str, Any],
@@ -40,8 +41,8 @@ def contract(
         "expected_artifacts": artifacts,
         "human_approval_nodes": approvals,
         "initial_conditions": initial,
-        "methods": methods,
-        "model_object": {"description": title},
+        "methods": method_slugs,
+        "model_object": {"description": title, "method_details": methods},
         "parameter_sources": sources,
         "question": question,
         "scales": scales,
@@ -56,6 +57,7 @@ def contract(
 
 SCENARIOS: dict[str, dict[str, Any]] = {
     "organic-dft": contract(
+        method_slugs=["quantum-chemistry", "nonlinear-optimization"],
         title="Organic-molecule DFT optimization and frequency workflow",
         question="Which conformer and electronic method give a stable optimized structure and defensible thermochemical corrections for the target organic molecule?",
         workflow="quantum-chemistry",
@@ -113,6 +115,7 @@ SCENARIOS: dict[str, dict[str, Any]] = {
         acceptance={"stable_minimum": True, "method_and_conformer_sensitivity_documented": True},
     ),
     "surface-neb": contract(
+        method_slugs=["periodic-dft", "nonlinear-optimization"],
         title="Catalyst-surface adsorption and NEB workflow",
         question="What are the validated adsorption state and minimum-energy barrier for the selected elementary surface reaction?",
         workflow="reaction-path",
@@ -159,6 +162,7 @@ SCENARIOS: dict[str, dict[str, Any]] = {
         acceptance={"converged_path": True, "reference_states_consistent": True},
     ),
     "protein-md": contract(
+        method_slugs=["molecular-dynamics", "statistical-inference"],
         title="Protein-nucleic-acid GROMACS 100 ns workflow",
         question="Is the protein-nucleic-acid complex structurally stable and sufficiently sampled over the nominal 100 ns production profile?",
         workflow="molecular-dynamics",
@@ -227,6 +231,7 @@ SCENARIOS: dict[str, dict[str, Any]] = {
         acceptance={"equilibrated": True, "sampling_convergence_demonstrated": True},
     ),
     "polymer-carbon-black": contract(
+        method_slugs=["molecular-dynamics", "statistical-inference"],
         title="Polymer-carbon-black LAMMPS interface workflow",
         question="How do dispersion, selective localization, and interface interactions control the morphology of the polymer-carbon-black system?",
         workflow="polymer-composite",
@@ -284,6 +289,7 @@ SCENARIOS: dict[str, dict[str, Any]] = {
         acceptance={"equilibrated": True, "replica_uncertainty_reported": True},
     ),
     "polymerization-pbe": contract(
+        method_slugs=["numerical-integration", "process-simulation"],
         title="Polymerization microkinetic and population-balance workflow",
         question="Which elementary kinetic parameters reproduce conversion, composition, molecular-weight distribution, and branching over the target operating window?",
         workflow="polymerization",
@@ -350,6 +356,7 @@ SCENARIOS: dict[str, dict[str, Any]] = {
         },
     ),
     "pp-percolation": contract(
+        method_slugs=["mesoscale-simulation", "monte-carlo", "analytical-model"],
         title="PP semiconductor shielding percolation workflow",
         question="How do carbon-black loading, dispersion, and selective localization govern conductivity, rheology, and temperature stability in PP-based shielding material?",
         workflow="polymer-composite",
@@ -422,6 +429,7 @@ SCENARIOS: dict[str, dict[str, Any]] = {
         acceptance={"finite_size_converged": True, "experimental_validation": True},
     ),
     "extrusion-cfd": contract(
+        method_slugs=["computational-fluid-dynamics", "multiphysics"],
         title="Non-Newtonian OpenFOAM extrusion eccentricity workflow",
         question="Which die, rheology, thermal, and operating conditions control pressure drop, temperature, residence time, and cable-extrusion eccentricity?",
         workflow="extrusion",
@@ -480,6 +488,7 @@ SCENARIOS: dict[str, dict[str, Any]] = {
         },
     ),
     "cable-fem": contract(
+        method_slugs=["finite-element", "multiphysics"],
         title="Cable thermo-electro-mechanical finite-element workflow",
         question="How do coupled temperature, electric field, stress, and deformation evolve across the cable insulation and interfaces under the target duty cycle?",
         workflow="multiphysics",
@@ -533,6 +542,7 @@ SCENARIOS: dict[str, dict[str, Any]] = {
         acceptance={"mesh_time_coupling_converged": True, "physical_validation": True},
     ),
     "polymer-process": contract(
+        method_slugs=["process-simulation", "nonlinear-optimization"],
         title="DWSIM/IDAES polymer-process workflow",
         question="Which property method, reactor model, recycle strategy, and operating variables reproduce and optimize the polymer process flowsheet?",
         workflow="process-simulation",
@@ -594,6 +604,7 @@ SCENARIOS: dict[str, dict[str, Any]] = {
         acceptance={"balances_closed": True, "property_method_validated": True},
     ),
     "aspen-dynamic": contract(
+        method_slugs=["process-simulation", "dynamic-control", "digital-twin"],
         title="Aspen dynamic digital-twin handoff workflow",
         question="Can the lawful Aspen dynamic model reproduce transients and support bounded, human-reviewed digital-twin decisions?",
         workflow="digital-twin",
@@ -660,6 +671,12 @@ SCENARIOS: dict[str, dict[str, Any]] = {
         acceptance={"dynamic_holdout_validated": True, "applicability_and_fail_safe_defined": True},
     ),
     "dft-md-cfd": contract(
+        method_slugs=[
+            "periodic-dft",
+            "molecular-dynamics",
+            "computational-fluid-dynamics",
+            "uncertainty-quantification",
+        ],
         title="DFT-to-MD-to-CFD multiscale handoff workflow",
         question="Can traceable lower-scale interaction, transport, and rheology parameters predict the target equipment-scale flow response with propagated uncertainty?",
         workflow="multiscale-coupling",
@@ -728,6 +745,7 @@ SCENARIOS: dict[str, dict[str, Any]] = {
         acceptance={"all_handoffs_validated": True, "uncertainty_propagated": True},
     ),
     "failure-gate": contract(
+        method_slugs=["hpc-execution"],
         title="Failure classification, bounded recovery, and human-approval workflow",
         question="How should a failed scientific task be classified, recovered within bounded policy, or escalated without altering the scientific claim silently?",
         workflow="hpc-execution",
@@ -788,10 +806,19 @@ def render_readme(name: str, payload: dict[str, Any]) -> str:
 
 This is a preparation and validation example for `{payload["workflow"]}`. It does not claim that any external solver, license, database, cluster, or production calculation is available or has run.
 
+## Registered methods and study details
+
+The `methods` field uses registered orchestration identifiers: {", ".join(f"`{item}`" for item in payload["methods"])}. These select method families; they do not implement or execute the detailed engine operations.
+
+The original study-specific method descriptions are retained in `model_object.method_details`:
+
+{chr(10).join(f"- {item}" for item in payload["model_object"]["method_details"])}
+
 ## Use
 
 ```bash
 python -m tsao_computation validate-contract examples/{name}/contract.json --strict
+python -m tsao_computation plan examples/{name}/contract.json --strict
 python -m tsao_computation probe
 ```
 

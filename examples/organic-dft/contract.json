@@ -36,12 +36,16 @@
     "geometry": "user, experiment, or traceable conformer-search output"
   },
   "methods": [
-    "conformer screening",
-    "DFT geometry optimization",
-    "harmonic frequency analysis"
+    "quantum-chemistry",
+    "nonlinear-optimization"
   ],
   "model_object": {
-    "description": "Organic-molecule DFT optimization and frequency workflow"
+    "description": "Organic-molecule DFT optimization and frequency workflow",
+    "method_details": [
+      "conformer screening",
+      "DFT geometry optimization",
+      "harmonic frequency analysis"
+    ]
   },
   "parameter_sources": [
     {
