@@ -1,0 +1,39 @@
+name: Public refinement dependencies - one shot
+on:
+  push:
+    branches: [research/public-model-transfer-20261104]
+    paths: [.github/workflows/public-refinement-deps-20261104.yml]
+permissions:
+  contents: read
+jobs:
+  retrieve-dependencies:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Download public CPU packages only
+        shell: bash
+        run: |
+          mkdir public-refinement-deps
+          python3 -m pip download --no-deps --only-binary=:all: --python-version 3.13 --implementation cp --abi cp313 --platform manylinux_2_34_x86_64 --platform manylinux_2_17_x86_64 --dest public-refinement-deps openmm==8.4.0
+          python3 - <<'PY'
+          import datetime, hashlib, json, pathlib, urllib.request
+          out=pathlib.Path('public-refinement-deps')
+          url='https://api.github.com/repos/openmm/pdbfixer/tarball/199f03df6c50f7cf6120de766f4ccce426fda4e9'
+          req=urllib.request.Request(url,headers={'User-Agent':'TsaoSciComputation-public-asset-retrieval/1.0'})
+          with urllib.request.urlopen(req,timeout=90) as response:
+              data=response.read(40_000_001)
+          if len(data)>40_000_000: raise RuntimeError('size limit')
+          (out/'pdbfixer-1.11-source.tar.gz').write_bytes(data)
+          rec={'utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'private_inputs_received':False,'purpose':'Public dependencies only; no candidate sequence or structure.', 'pdbfixer_source':url, 'files':{p.name:{'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()} for p in out.iterdir() if p.is_file()}}
+          (out/'retrieval.json').write_text(json.dumps(rec,indent=2)+'\n')
+          print(json.dumps(rec,indent=2))
+          PY
+      - name: Retain dependency bytes for one day
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: public-refinement-dependencies-20261104
+          path: public-refinement-deps/
+          if-no-files-found: error
+          retention-days: 1
+          compression-level: 1
