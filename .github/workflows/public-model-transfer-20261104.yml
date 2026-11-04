@@ -1,0 +1,85 @@
+name: Public scientific model assets - one shot
+
+on:
+  push:
+    branches: [research/public-model-transfer-20261104]
+    paths: [.github/workflows/public-model-transfer-20261104.yml]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: public-model-transfer-20261104
+  cancel-in-progress: false
+
+jobs:
+  retrieve-public-assets:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Retrieve author-hosted assets and verify published checksums
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import concurrent.futures, datetime, hashlib, json, pathlib, platform, sys, urllib.request
+          out = pathlib.Path('public-model-assets')
+          out.mkdir()
+          assets = [
+              {'name':'v_48_020.pt', 'url':'https://raw.githubusercontent.com/dauparas/ProteinMPNN/8907e6671bfbfc92303b5f79c4b5e6ce47cdef57/vanilla_model_weights/v_48_020.pt', 'sha256':'c9cb4a671d79604111231f8dbfc7c590e06f1197453b7a6854ac6661a642f5bd'},
+              {'name':'nanobody_model_1', 'url':'https://zenodo.org/records/7258553/files/nanobody_model_1?download=1', 'md5':'4591075f467ca9f76a37a5d1d3cfe591'},
+              {'name':'ImmuneBuilder-source.tar.gz', 'url':'https://api.github.com/repos/oxpig/ImmuneBuilder/tarball/0df4e2ad82a1aa60f37ea9dae335d1198159ef78'},
+              {'name':'ProteinMPNN-source.tar.gz', 'url':'https://api.github.com/repos/dauparas/ProteinMPNN/tarball/8907e6671bfbfc92303b5f79c4b5e6ce47cdef57'},
+          ]
+          def retrieve(item):
+              record = dict(item)
+              path = out / item['name']
+              temporary = path.with_name(path.name + '.partial')
+              try:
+                  request = urllib.request.Request(item['url'], headers={'User-Agent':'TsaoSciComputation-public-asset-retrieval/1.0'})
+                  with urllib.request.urlopen(request, timeout=120) as response, temporary.open('wb') as handle:
+                      record['http_status'] = response.status
+                      record['resolved_url'] = response.geturl()
+                      digest = hashlib.sha256()
+                      legacy = hashlib.md5()
+                      count = 0
+                      while True:
+                          block = response.read(1024*1024)
+                          if not block:
+                              break
+                          count += len(block)
+                          if count > 160_000_000:
+                              raise RuntimeError('Asset exceeds declared retrieval size budget')
+                          digest.update(block)
+                          legacy.update(block)
+                          handle.write(block)
+                  observed = {'sha256':digest.hexdigest(), 'md5':legacy.hexdigest()}
+                  for key in ('sha256','md5'):
+                      if key in item and item[key] != observed[key]:
+                          raise RuntimeError('Published checksum mismatch: '+key)
+                  temporary.replace(path)
+                  record.update(status='retrieved', bytes=count, observed_hashes=observed)
+              except Exception as exc:
+                  record.update(status='failed', error=type(exc).__name__+': '+str(exc))
+                  if temporary.exists():
+                      temporary.unlink()
+              return record
+          with concurrent.futures.ThreadPoolExecutor(max_workers=3) as pool:
+              records = list(pool.map(retrieve, assets))
+          report = {'utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),
+                    'python':sys.version, 'platform':platform.platform(),
+                    'private_inputs_received':False, 'model_inference_runs':0,
+                    'purpose':'Retrieve published author-hosted model weights and source only; no private sequences or structures.',
+                    'assets':records}
+          (out/'retrieval.json').write_text(json.dumps(report, indent=2)+'\n')
+          print(json.dumps(report, indent=2))
+          (out/'README.txt').write_text('Public author-hosted research assets. Original licenses remain in source archives. No scientific candidate sequences, structures, credentials, or predictions were uploaded. Source revisions and checksum evidence are in retrieval.json.\n')
+          PY
+      - name: Retain exact bytes for one day
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: public-scientific-model-assets-20261104
+          path: public-model-assets/
+          if-no-files-found: error
+          retention-days: 1
+          compression-level: 1
