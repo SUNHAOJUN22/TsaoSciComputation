@@ -10,6 +10,25 @@
 
 *AI-assisted concept illustration with deterministic typography. It is not a solver screenshot, a measured curve, or evidence of external execution. The mathematical contracts below identify their implementations and limitations.*
 
+## An auditable computation, in six gates
+
+```mermaid
+flowchart LR
+  Q["Scientific question"] --> C["Units + calculation contract"]
+  C --> P["Method and resource plan"]
+  P --> X["Authorized local / external execution"]
+  X --> O["Parsed observations + identity"]
+  O --> V{"Numerical and scientific review"}
+  V -->|"Hold"| C
+  V -->|"Scoped evidence"| D["Reviewable deliverable"]
+  classDef contract fill:#155E75,color:#fff,stroke:#67E8F9;
+  classDef decision fill:#9A3412,color:#fff,stroke:#FDBA74;
+  class C,P,O contract;
+  class V decision;
+```
+
+**How to interpret each gate:** routing is not execution; a process exit code is not convergence; parsing is not a claim of physical correctness; a software PASS is not scientific acceptance. Start with `python scripts/verify_all.py --profile core`, then examine the exact commit's GitHub Actions evidence before using results in a decision. External solvers and their licenses remain independent.
+
 ## 1. What you can deliver with this repository
 
 TsaoSciComputation is a Python scientific-computation **control plane**. It creates explicit calculation contracts, selects declared methods and workflows, prepares bounded execution plans, parses supplied outputs and keeps numerical checks separate from scientific acceptance. External DFT, MD, CFD, FEM and process engines remain separately installed and qualified.
