@@ -10,6 +10,12 @@
 
 *AI-assisted concept illustration with deterministic typography. It is not a solver screenshot, a measured curve, or evidence of external execution. The mathematical contracts below identify their implementations and limitations.*
 
+## Visual architecture: traceable science boundary
+
+![TsaoSciComputation editable architecture overview](docs/assets/atlas-v2/architecture-en.svg)
+
+Editable architecture schematic, not a solver result or experimental measurement. Verification must be tied to source code, declared conditions and exact-commit test evidence.
+
 ## An auditable computation, in six gates
 
 ```mermaid
