@@ -171,14 +171,14 @@
       "sha256": "aa709ba05322d96de939d79725b565ce3f591fc0a9f4ae3152b526c527073e92"
     },
     {
-      "bytes": 28078,
+      "bytes": 28403,
       "path": "README.md",
-      "sha256": "2daf1b4f16fa467f7d9c00f8d5809ddd9d41978afde6e36116cc22d4f22618ab"
+      "sha256": "a372a1e938bc7352250e7856d43300dda3f43e2f62190947ba91fb3307b30521"
     },
     {
-      "bytes": 24034,
+      "bytes": 24293,
       "path": "README.zh-CN.md",
-      "sha256": "4e109446ef5f17f47409dcb0802543d34bc5aba08d6e38c83d3a426f2369d6bf"
+      "sha256": "0efbf2d843cd2672b1566f69f95f75b08a82beb8f800431be76d2b96c851e7f3"
     },
     {
       "bytes": 7408,
@@ -1611,6 +1611,21 @@
       "sha256": "62ebd82dc9a44d2d5d5bf1ce1763806119010f9b98441ef1e171389c7b20a8c1"
     },
     {
+      "bytes": 343,
+      "path": "docs/assets/atlas-v2/SOURCE.md",
+      "sha256": "ca3beca2456abaddfa63c95ff4981bea7de285349a996d95bdc9c908e8dce557"
+    },
+    {
+      "bytes": 10754,
+      "path": "docs/assets/atlas-v2/architecture-en.svg",
+      "sha256": "6f8d0bfa4b87efa9f5160d0de60f1e590585c0868be37bfa72075cc4fd9b7049"
+    },
+    {
+      "bytes": 10807,
+      "path": "docs/assets/atlas-v2/architecture-zh.svg",
+      "sha256": "3cd5844f3d22f79ee7a127583d8ed08a31ea259eedbfb13a70e330c07d372d99"
+    },
+    {
       "bytes": 3429,
       "path": "docs/assets/readme-vnext/artwork-provenance.json",
       "sha256": "8578a2f0b6c254c8394b892c4899cc0d617e5ae6b8477679d36027c99568b06b"
@@ -1773,7 +1788,7 @@
     {
       "bytes": 72,
       "path": "evidence/security-scan.json",
-      "sha256": "a101183381393e640401101e961275c5590256f48d476f443f45734b89b94d22"
+      "sha256": "42011145c5f6adc571de73689a3ed2b99167f205bf7a62f814eb6d769d1b7ed1"
     },
     {
       "bytes": 1097,
