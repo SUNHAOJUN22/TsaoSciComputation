@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-import math
 from dataclasses import asdict, dataclass
 
 from ..hashing import canonical_json_sha256
+from ..validation.numerical import _finite_scalar
 
 
 def canonical_sha256(value: object) -> str:
@@ -13,10 +13,19 @@ def canonical_sha256(value: object) -> str:
 
 
 def _finite_non_negative(value: float, field_name: str) -> float:
-    parsed = float(value)
-    if not math.isfinite(parsed) or parsed < 0:
+    try:
+        parsed = _finite_scalar(value, name=field_name)
+    except ValueError as error:
+        raise ValueError(f"{field_name} must be a finite non-negative number") from error
+    if parsed < 0:
         raise ValueError(f"{field_name} must be a finite non-negative number")
     return parsed
+
+
+def _integer_count(value: int, field_name: str, *, minimum: int) -> None:
+    if isinstance(value, bool) or not isinstance(value, int) or value < minimum:
+        qualifier = "positive" if minimum == 1 else "non-negative"
+        raise ValueError(f"{field_name} must be a {qualifier} integer")
 
 
 @dataclass(frozen=True, slots=True)
@@ -52,10 +61,8 @@ class WorkloadSample:
             "cpu_seconds",
             _finite_non_negative(self.cpu_seconds, "cpu_seconds"),
         )
-        if isinstance(self.peak_bytes, bool) or self.peak_bytes < 0:
-            raise ValueError("peak_bytes must be non-negative")
-        if isinstance(self.operations, bool) or self.operations < 1:
-            raise ValueError("operations must be positive")
+        _integer_count(self.peak_bytes, "peak_bytes", minimum=0)
+        _integer_count(self.operations, "operations", minimum=1)
 
     def to_dict(self) -> dict[str, object]:
         return asdict(self)

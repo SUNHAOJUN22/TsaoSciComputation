@@ -11,11 +11,13 @@ from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from typing import Any
 
+from ..validation.numerical import _finite_scalar
 from .model import (
     PerformanceEnvironment,
     PerformanceProfile,
     WorkloadProfile,
     WorkloadSample,
+    _integer_count,
     canonical_sha256,
 )
 
@@ -76,18 +78,21 @@ def _run_sample(spec: WorkloadSpec) -> WorkloadSample:
     )
 
 
+def _validate_workload_counts(spec: WorkloadSpec, *, repeats: int, warmups: int) -> None:
+    _integer_count(repeats, "repeats", minimum=1)
+    _integer_count(warmups, "warmups", minimum=0)
+    _integer_count(spec.operations_per_sample, "operations_per_sample", minimum=1)
+    # Throughput arithmetic needs a finite float, but evidence keeps the integer.
+    _finite_scalar(spec.operations_per_sample, name="operations_per_sample")
+
+
 def profile_workload(
     spec: WorkloadSpec,
     *,
     repeats: int = 7,
     warmups: int = 1,
 ) -> WorkloadProfile:
-    if repeats < 1:
-        raise ValueError("repeats must be positive")
-    if warmups < 0:
-        raise ValueError("warmups must be non-negative")
-    if spec.operations_per_sample < 1:
-        raise ValueError("operations_per_sample must be positive")
+    _validate_workload_counts(spec, repeats=repeats, warmups=warmups)
     for _ in range(warmups):
         if spec.setup is not None:
             spec.setup()
@@ -101,6 +106,8 @@ def profile_workload(
     median_peak = int(statistics.median(peaks))
     mad = statistics.median(abs(item - median_wall) for item in walls)
     throughput = spec.operations_per_sample / median_wall if median_wall > 0 else float(sys.maxsize)
+    # A finite count can still overflow when divided by a short measured time.
+    throughput = _finite_scalar(throughput, name="median_operations_per_second")
     input_identity = {
         "slug": spec.slug,
         "description": spec.description,
@@ -136,6 +143,8 @@ def profile_workloads(
     selected = tuple(specs)
     if not selected:
         raise ValueError("at least one workload is required")
+    for spec in selected:
+        _validate_workload_counts(spec, repeats=repeats, warmups=warmups)
     profiles = tuple(profile_workload(spec, repeats=repeats, warmups=warmups) for spec in selected)
     return PerformanceProfile(
         environment=performance_environment(),

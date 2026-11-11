@@ -1,0 +1,85 @@
+{
+  "schema": "tsao.ai-generated-prompts.r2/v1",
+  "images": [
+    {
+      "id": "r2-computation-architecture-v1",
+      "asset": "architecture",
+      "method": "text-to-image",
+      "prompt_exact": "Use case: scientific-educational. Create ONE complete landscape 16:9 scientific illustration for TsaoSciComputation, suitable for a sophisticated journal-style README. Light ivory paper background, refined navy typography, teal/turquoise accents, fine rules, restrained 3D physical motifs, clear mathematical typesetting, coherent whole image. This is an illustrative scientific schematic, not a measured data chart. No collage, no code-drawn overlay, no empty bottom half, no glowing science-fiction clutter, no robots, no fake logos or performance numbers. English text must be accurate and readable at README width. Each panel needs a meaningful short caption. Place visible small text \"AI-generated schematic • illustrative, not measured data\".\nTitle: \"TsaoSciComputation · From question to evidence\".\nSubtitle: \"Scientific-computation control plane · external engines remain separate\".\nUse six elegant panels in two rows of three, joined by thin directional arrows:\n1 \"Question + contract\" with a notebook and dimensional symbols. Text \"Observable • units • conditions • assumptions\".\n2 \"Route + plan\" with a clean branching network. Text \"Weighted keyword routing; declared methods\". Small text \"Routing score is not a probability\".\n3 \"Authorized execution\" with processor, file and lock motifs. Text \"Exact executable + inputs + environment\". Small text \"CPU / GPU / license admission\".\n4 \"Parse observations\" with a text log, not a fake measured graph. Text \"Completion and convergence stay separate\". Small text \"Preserve output bytes and parser identity\".\n5 \"Numerical + physical checks\" with a pipe and polymer-chain motif. Show exact compact equations \"r = fsum(I, −O, −A)\" and \"u_c = hypot(u_1, …, u_k)\". Small caption \"Common units; independent standard uncertainties\".\n6 \"Reviewable evidence\" with linked hashed records and a review checklist. Text \"Artifact identity • applicability • verified approval\". Small text \"Software PASS does not certify external science\".\nAcross the lower area place a full-width boxed strip labelled \"Implemented local references\" with four small motifs and short labels \"Conduction\", \"Pipe flow\", \"Reaction balance\", \"Ideal chain\".\nUnder that, a narrow footer line: \"External protocols: GROMACS · Quantum ESPRESSO · ORCA · declared Python drivers\".\nFinal lower line \"Other integration records remain plan-only until implemented and qualified\".\nMake it a clear, compact whole composition with no unsupported claims of external or GPU execution.",
+      "selected": false,
+      "referenced_image_paths": [],
+      "referenced_images": [],
+      "original_tool_output_path": "/workspace/scratch/6d2818a329a1/generated_images/exec-9459181f-4b2d-4324-b384-4957e6085208.png"
+    },
+    {
+      "id": "r2-computation-algorithm-v1",
+      "asset": "algorithm",
+      "method": "text-to-image",
+      "prompt_exact": "Use case: scientific-educational. Create ONE complete landscape 16:9 scientific illustration for TsaoSciComputation, suitable for a sophisticated journal-style README. Light ivory paper background, refined navy typography, teal/turquoise accents, fine rules, restrained 3D physical motifs, clear mathematical typesetting, coherent whole image. This is an illustrative scientific schematic, not a measured data chart. No collage, no code-drawn overlay, no empty bottom half, no glowing science-fiction clutter, no robots, no fake logos or performance numbers. English text must be accurate and readable at README width. Each panel needs a meaningful short caption. Place visible small text \"AI-generated schematic • illustrative, not measured data\".\nTitle: \"TsaoSciComputation · Physics reference checks\".\nSubtitle: \"Deterministic software references with stated assumptions\".\nUse four balanced spacious main panels, two by two, with elegant teal numbered labels and physical motifs.\nPanel1 \"Ideal isotropic chain\". Draw a single stylized polymer coil with end-to-end arrow, no empirical data. Main equation \"⟨R²⟩ = N b²\". Supporting equation \"tr(Cov(R)) = 3(Nb²/3)\". Caption \"Independent isotropic segments; covariance identity, no random sampling\". Define \"N: segment count; b: segment length\".\nPanel2 \"Laminar pipe flow\". Draw a pipe cutaway with smooth parallel flow arrows, not a plotted dataset. Main equation \"Q = π Δp R⁴ / (8 μ L)\". Supporting equation \"Q = 2π ∫₀ᴿ u(r) r dr\". Caption \"Steady • incompressible • Newtonian • fully developed • no slip\". Define \"R: radius; L: length; μ: viscosity\".\nPanel3 \"Dimensionless oscillator\". Draw an elegant mass-spring motif with position and velocity arrows. Main equation \"H = (x² + v²)/2\". Supporting equation \"ẍ = −x\". Caption \"Unit mass and stiffness; velocity-Verlet energy-drift check\". Small text \"Fixed reference trajectory, not a material simulation\".\nPanel4 \"Independent standard uncertainty\". Draw three clearly separated error-component tokens feeding one combined token, no real measurement values. Main equation \"u_c = hypot(u_1, …, u_k)\". Supporting equation \"u_c² = Σ_i u_i²\". Caption \"Same unit • nonnegative • uncorrelated components\". Small text \"Correlated covariance propagation requires a separate model\".\nBottom full-width mathematical note: \"Reference error: |y − y_ref| / |y_ref| if y_ref ≠ 0; absolute error if y_ref = 0\".\nBelow it: \"Each reference has its own fixed parameters and tolerance. A passing fixture does not qualify an external solver.\"\nAll formulas large, legible and correct; no blank footer or speculative acceleration claims.",
+      "selected": true,
+      "referenced_image_paths": [],
+      "referenced_images": [],
+      "original_tool_output_path": "/workspace/scratch/6d2818a329a1/generated_images/exec-d9d1cf66-8af0-4406-a472-c25a8f74c941.png"
+    },
+    {
+      "id": "r2-computation-roadmap-v1",
+      "asset": "roadmap",
+      "method": "text-to-image",
+      "prompt_exact": "Use case: scientific-educational. Create ONE complete landscape 16:9 scientific illustration for TsaoSciComputation, suitable for a sophisticated journal-style README. Light ivory paper background, refined navy typography, teal/turquoise accents, fine rules, restrained 3D physical motifs, clear mathematical typesetting, coherent whole image. This is an illustrative scientific schematic, not a measured data chart. No collage, no code-drawn overlay, no empty bottom half, no glowing science-fiction clutter, no robots, no fake logos or performance numbers. English text must be accurate and readable at README width. Each panel needs a meaningful short caption. Place visible small text \"AI-generated schematic • illustrative, not measured data\".\nTitle: \"TsaoSciComputation · Concise technical route\".\nSubtitle: \"Declare → authorize → execute → verify → review\".\nDesign a compact readable workflow in two rows of three numbered stages, connected by teal arrows.\n1 \"Declare\" — \"Quantity, unit, source, conditions\".\n2 \"Prepare\" — \"Strict contract + method + resource plan\".\n3 \"Authorize / execute\" — \"Bind exact plan identity; external tools need separate evidence\".\n4 \"Parse\" — \"Keep raw outputs; detect incomplete or negative markers\".\n5 \"Check\" — \"Finite values, numerical criteria, balances, uncertainty\".\n6 \"Review\" — \"Applicability + artifact-bound independent approval\".\nUse restrained motifs: dimensioned record, workflow graph, execution lock, output log, physical balance, evidence folder. Under stage3 and stage6 include small amber stop indicators with text \"Missing evidence → HOLD\"; arrows do not bypass these stop conditions.\nAcross the lower third place three adjacent clear equation boxes:\nA heading \"Final-pair convergence\", equation \"Δ = |x_n − x_(n−1)|\", then \"τ = max(a, r max(|x_n|, |x_(n−1)|, 1))\", then \"Accept this check when Δ ≤ τ\".\nB heading \"Scalar conservation\", equation \"e_b = |fsum(I, −O, −A)| / max(|I|, |O|, |A|, 1)\", then \"Accept this check when e_b ≤ ε\".\nC heading \"Evidence identity\", equation \"H_f = SHA256(bytes_f)\", then \"Identity is not experimental truth\".\nAt bottom a complete two-line note: \"Normalize units or nondimensionalize first; scale floor 1 uses the chosen input basis.\"\n\"Positive A means accumulation. A local check does not establish global convergence or scientific acceptance.\"\nNo generic additive a+r tolerance, no unseen execution claims, no measured charts. Entire image one coherent polished raster.",
+      "selected": false,
+      "referenced_image_paths": [],
+      "referenced_images": [],
+      "original_tool_output_path": "/workspace/scratch/6d2818a329a1/generated_images/exec-1ec012d4-6c89-4c00-824e-4e67175d3e43.png"
+    },
+    {
+      "id": "r2-computation-architecture-v2",
+      "asset": "architecture",
+      "method": "image-to-image",
+      "prompt_exact": "Edit this complete TsaoSciComputation scientific schematic. Preserve the full 16:9 composition, all panels, all equations, all typography and every correct caption exactly; preserve light paper, navy and teal visual style. Correct ONLY the small lower strip motif labelled Reaction balance, because the existing molecular icon depicts an unbalanced chemical reaction. Replace that single molecule reaction motif with a compact, clearly depicted continuous stirred tank: inlet arrow I enters a small teal tank, outlet arrow O leaves, and a tiny A inside denotes accumulation. Put a small mathematically correct formula I − O = A directly associated with this tank, maintaining the Reaction balance label beneath. The positive accumulation convention is I minus O equals A. Do not draw a molecule stoichiometry example. Retain all other artwork and the visible AI-generated schematic • illustrative, not measured data label. Return one complete coherent image, no crop, no montage.",
+      "selected": true,
+      "referenced_image_paths": [
+        "/workspace/scratch/6d2818a329a1/generated_images/exec-9459181f-4b2d-4324-b384-4957e6085208.png"
+      ],
+      "referenced_images": [
+        {
+          "path": "/workspace/scratch/6d2818a329a1/generated_images/exec-9459181f-4b2d-4324-b384-4957e6085208.png",
+          "sha256": "ea24c9fd92f421b8c885c29728651eed789831e600a81d8d6076aad0fe59b642"
+        }
+      ],
+      "original_tool_output_path": "/workspace/scratch/6d2818a329a1/generated_images/exec-f1988009-9f19-4575-b61e-0dcce37687a1.png"
+    },
+    {
+      "id": "r2-computation-roadmap-v2",
+      "asset": "roadmap",
+      "method": "image-to-image",
+      "prompt_exact": "Edit this complete TsaoSciComputation technical route schematic. Preserve the full 16:9 composition, all workflow stages, all equations, typography, captions and exact light paper teal/navy style. Correct ONLY the physical balance motif inside stage 5 Check. The current left pan reads I + A and right pan O; this contradicts positive accumulation convention. Replace the left-pan label with I and right-pan label with O + A, so the balanced scale means I = O + A. Keep both pans level. All other mathematical formulas and captions must stay exactly unchanged, particularly fsum(I, −O, −A), the maximum tolerance rule, and Positive A means accumulation. Keep the visible AI-generated schematic • illustrative, not measured data label. Return the complete image, no crop or montage.",
+      "selected": true,
+      "referenced_image_paths": [
+        "/workspace/scratch/6d2818a329a1/generated_images/exec-1ec012d4-6c89-4c00-824e-4e67175d3e43.png"
+      ],
+      "referenced_images": [
+        {
+          "path": "/workspace/scratch/6d2818a329a1/generated_images/exec-1ec012d4-6c89-4c00-824e-4e67175d3e43.png",
+          "sha256": "fe892e0c23afa4d957792e17ea22a339baf5758ebf743ee9b321a1c0f2f6180a"
+        }
+      ],
+      "original_tool_output_path": "/workspace/scratch/6d2818a329a1/generated_images/exec-e27aeff1-ddf4-4944-84ea-04484161bd72.png"
+    },
+    {
+      "id": "r2-seven-repo-roadmap-v1",
+      "asset": "seven-repo-roadmap",
+      "method": "text-to-image",
+      "prompt_exact": "Use case: scientific-educational.\nCreate ONE complete, polished landscape 16:9 scientific roadmap illustration for the seven SUNHAOJUN22 repositories. This is an AI-generated explanatory schematic, not a data plot. It must look like a clear publication figure with an elegant light ivory background, fine dark typography, subtle physical 3D motifs, compact editorial composition, and color-coded panels. All areas, including the bottom, must contain meaningful organized content; no empty lower half. Avoid glowing sci-fi clutter, robot faces, fake numerical plots, fake logos, or collages.\nTitle, exact: \"PHYSICS-GUIDED SCIENTIFIC WORKFLOW\"\nSubtitle, exact: \"Seven independent repositories • proposed interfaces\"\nUse seven distinct readable cards, in two balanced rows (four above, three below), with thin DOTTED connecting lines identified by the small legend \"Dotted links: proposed handoffs\". Do not imply these integrations are already implemented.\nCards and exact body text:\n1 \"TsaoSciResearcher\" in burgundy/rose. \"Question → evidence → qualified claim\". Small motif: connected evidence records.\n2 \"TsaoSciComputation\" in teal/navy. \"Model → execution → verification\". Small motif: continuum mesh and molecule.\n3 \"TsaoDFT_skill\" in violet/blue. \"Electronic structure → reaction energetics\". Small motif: electron-density-inspired orbital.\n4 \"ResinDB-Pro-by-SunHJ\" in amber/petrol. \"Quantity + unit + condition → materials decision\". Small motif: polymer chain and database.\n5 \"AspenOps-Agent\" in cobalt/cyan. \"Validated process intent → licensed solver → engineering review\". Small motif: restrained reactor/column flowsheet.\n6 \"TSAO-PROCESSING-SKILL\" in emerald/copper. \"Kinetics → transport → processing reference\". Small motif: flow channel and polymer chains.\n7 \"OpenDeepMind_skill\" in indigo/gold. \"Foundations → first principles → validation\". Add small text \"TRIZ: explicit opt-in\". Small motif: clean branching hypothesis lattice.\nBelow the cards, a beautiful full-width slim mathematical ribbon headed \"Equilibrium context · fixed N, V, T\". Set these four short equations precisely and legibly:\n\"β = 1/(k_B T)\"\n\"Z = Σ_i exp(−β E_i)\"\n\"p_i = exp(−β E_i)/Z\"\n\"F = −k_B T ln Z\"\nA small line directly below defines \"T > 0; E_i: state energy; k_B: Boltzmann constant\".\nA second very compact footer text strip: \"Units • finite values • conservation • uncertainty • traceable evidence\".\nA final small clearly readable footer at bottom right: \"AI-generated schematic • illustrative, not measured data\".\nThe formulas are theoretical context; do not place fake benchmark claims or scores. Draw the entire figure as one coherent generated raster. Every card has a concise caption, no blank panels. English spelling must be exact; legible at README width. Hierarchy: title, seven cards, equation ribbon, footer. Keep the roadmap simple with ample breathing room inside this compact structure.",
+      "selected": true,
+      "referenced_image_paths": [],
+      "referenced_images": [],
+      "original_tool_output_path": "/workspace/scratch/6d2818a329a1/generated_images/exec-5e0f50e1-21e0-4444-850b-16b361056248.png"
+    }
+  ],
+  "selected_ids": [
+    "r2-computation-algorithm-v1",
+    "r2-computation-architecture-v2",
+    "r2-computation-roadmap-v2",
+    "r2-seven-repo-roadmap-v1"
+  ]
+}

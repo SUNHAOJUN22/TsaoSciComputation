@@ -1,0 +1,155 @@
+{
+  "schema": "tsao.ai-generated-assets.r2/v1",
+  "repository": "TsaoSciComputation",
+  "images": [
+    {
+      "id": "r2-computation-algorithm-v1",
+      "asset": "algorithm",
+      "tool": "image_gen.imagegen",
+      "method": "text-to-image",
+      "model_identifier": null,
+      "model_id": null,
+      "prompt_exact": "Use case: scientific-educational. Create ONE complete landscape 16:9 scientific illustration for TsaoSciComputation, suitable for a sophisticated journal-style README. Light ivory paper background, refined navy typography, teal/turquoise accents, fine rules, restrained 3D physical motifs, clear mathematical typesetting, coherent whole image. This is an illustrative scientific schematic, not a measured data chart. No collage, no code-drawn overlay, no empty bottom half, no glowing science-fiction clutter, no robots, no fake logos or performance numbers. English text must be accurate and readable at README width. Each panel needs a meaningful short caption. Place visible small text \"AI-generated schematic • illustrative, not measured data\".\nTitle: \"TsaoSciComputation · Physics reference checks\".\nSubtitle: \"Deterministic software references with stated assumptions\".\nUse four balanced spacious main panels, two by two, with elegant teal numbered labels and physical motifs.\nPanel1 \"Ideal isotropic chain\". Draw a single stylized polymer coil with end-to-end arrow, no empirical data. Main equation \"⟨R²⟩ = N b²\". Supporting equation \"tr(Cov(R)) = 3(Nb²/3)\". Caption \"Independent isotropic segments; covariance identity, no random sampling\". Define \"N: segment count; b: segment length\".\nPanel2 \"Laminar pipe flow\". Draw a pipe cutaway with smooth parallel flow arrows, not a plotted dataset. Main equation \"Q = π Δp R⁴ / (8 μ L)\". Supporting equation \"Q = 2π ∫₀ᴿ u(r) r dr\". Caption \"Steady • incompressible • Newtonian • fully developed • no slip\". Define \"R: radius; L: length; μ: viscosity\".\nPanel3 \"Dimensionless oscillator\". Draw an elegant mass-spring motif with position and velocity arrows. Main equation \"H = (x² + v²)/2\". Supporting equation \"ẍ = −x\". Caption \"Unit mass and stiffness; velocity-Verlet energy-drift check\". Small text \"Fixed reference trajectory, not a material simulation\".\nPanel4 \"Independent standard uncertainty\". Draw three clearly separated error-component tokens feeding one combined token, no real measurement values. Main equation \"u_c = hypot(u_1, …, u_k)\". Supporting equation \"u_c² = Σ_i u_i²\". Caption \"Same unit • nonnegative • uncorrelated components\". Small text \"Correlated covariance propagation requires a separate model\".\nBottom full-width mathematical note: \"Reference error: |y − y_ref| / |y_ref| if y_ref ≠ 0; absolute error if y_ref = 0\".\nBelow it: \"Each reference has its own fixed parameters and tolerance. A passing fixture does not qualify an external solver.\"\nAll formulas large, legible and correct; no blank footer or speculative acceleration claims.",
+      "source_image": "/workspace/scratch/6d2818a329a1/generated_images/exec-d9d1cf66-8af0-4406-a472-c25a8f74c941.png",
+      "referenced_image_paths": [],
+      "observed_completion_time_asia_shanghai": "2026-11-11T23:26:30.849865+08:00",
+      "time_basis": "Observer receipt after imagegen batch completion; the provider did not return an image creation timestamp.",
+      "selected": true,
+      "sha256": "10343b6886328a43b9f738aec14667a9a6649b3347a68f443e2559912bb6ca94",
+      "bytes": 1770982,
+      "width": 1672,
+      "height": 941,
+      "repository_path": "docs/assets/ai-generated/algorithm.png",
+      "copy_sha256": "10343b6886328a43b9f738aec14667a9a6649b3347a68f443e2559912bb6ca94",
+      "reviewed": true,
+      "review_note": "Four panels inspected: ideal-chain covariance identity/no sampling, Poiseuille conditions, dimensionless oscillator and independent same-unit standard uncertainty; case-dependent reference error rule correct.",
+      "original_tool_output_path": "/workspace/scratch/6d2818a329a1/generated_images/exec-d9d1cf66-8af0-4406-a472-c25a8f74c941.png",
+      "generated_at_asia_shanghai": "2026-11-11T23:26:30.849865+08:00",
+      "generation_time_basis": "Observer receipt after imagegen batch completion; the provider did not return an image creation timestamp.",
+      "path": "docs/assets/ai-generated/algorithm.png",
+      "postprocessing": "none; full tool PNG copied byte-for-byte when selected",
+      "visually_reviewed": true,
+      "generator_claim": "Generated with built-in image_gen.imagegen; no model identifier returned.",
+      "referenced_images": []
+    },
+    {
+      "id": "r2-computation-architecture-v2",
+      "asset": "architecture",
+      "tool": "image_gen.imagegen",
+      "method": "image-to-image",
+      "model_identifier": null,
+      "model_id": null,
+      "prompt_exact": "Edit this complete TsaoSciComputation scientific schematic. Preserve the full 16:9 composition, all panels, all equations, all typography and every correct caption exactly; preserve light paper, navy and teal visual style. Correct ONLY the small lower strip motif labelled Reaction balance, because the existing molecular icon depicts an unbalanced chemical reaction. Replace that single molecule reaction motif with a compact, clearly depicted continuous stirred tank: inlet arrow I enters a small teal tank, outlet arrow O leaves, and a tiny A inside denotes accumulation. Put a small mathematically correct formula I − O = A directly associated with this tank, maintaining the Reaction balance label beneath. The positive accumulation convention is I minus O equals A. Do not draw a molecule stoichiometry example. Retain all other artwork and the visible AI-generated schematic • illustrative, not measured data label. Return one complete coherent image, no crop, no montage.",
+      "source_image": "/workspace/scratch/6d2818a329a1/generated_images/exec-f1988009-9f19-4575-b61e-0dcce37687a1.png",
+      "referenced_image_paths": [
+        "/workspace/scratch/6d2818a329a1/generated_images/exec-9459181f-4b2d-4324-b384-4957e6085208.png"
+      ],
+      "observed_completion_time_asia_shanghai": "2026-11-11T23:30:42.291915+08:00",
+      "time_basis": "Observer receipt after imagegen batch completion; the provider did not return an image creation timestamp.",
+      "selected": true,
+      "sha256": "eb6ce26c0f9c5e522bf2744c49db3d7d907b2f10d9c390ca1f38dc5f759bd961",
+      "bytes": 2063181,
+      "width": 1672,
+      "height": 941,
+      "repository_path": "docs/assets/ai-generated/architecture.png",
+      "copy_sha256": "eb6ce26c0f9c5e522bf2744c49db3d7d907b2f10d9c390ca1f38dc5f759bd961",
+      "reviewed": true,
+      "review_note": "All six stages and equations inspected; imagegen correction replaces the unbalanced molecular icon with I-O=A reactor bookkeeping. Full untouched output selected.",
+      "original_tool_output_path": "/workspace/scratch/6d2818a329a1/generated_images/exec-f1988009-9f19-4575-b61e-0dcce37687a1.png",
+      "generated_at_asia_shanghai": "2026-11-11T23:30:42.291915+08:00",
+      "generation_time_basis": "Observer receipt after imagegen batch completion; the provider did not return an image creation timestamp.",
+      "path": "docs/assets/ai-generated/architecture.png",
+      "postprocessing": "none; full tool PNG copied byte-for-byte when selected",
+      "visually_reviewed": true,
+      "generator_claim": "Generated with built-in image_gen.imagegen; no model identifier returned.",
+      "referenced_images": [
+        {
+          "path": "/workspace/scratch/6d2818a329a1/generated_images/exec-9459181f-4b2d-4324-b384-4957e6085208.png",
+          "sha256": "ea24c9fd92f421b8c885c29728651eed789831e600a81d8d6076aad0fe59b642"
+        }
+      ]
+    },
+    {
+      "id": "r2-computation-roadmap-v2",
+      "asset": "roadmap",
+      "tool": "image_gen.imagegen",
+      "method": "image-to-image",
+      "model_identifier": null,
+      "model_id": null,
+      "prompt_exact": "Edit this complete TsaoSciComputation technical route schematic. Preserve the full 16:9 composition, all workflow stages, all equations, typography, captions and exact light paper teal/navy style. Correct ONLY the physical balance motif inside stage 5 Check. The current left pan reads I + A and right pan O; this contradicts positive accumulation convention. Replace the left-pan label with I and right-pan label with O + A, so the balanced scale means I = O + A. Keep both pans level. All other mathematical formulas and captions must stay exactly unchanged, particularly fsum(I, −O, −A), the maximum tolerance rule, and Positive A means accumulation. Keep the visible AI-generated schematic • illustrative, not measured data label. Return the complete image, no crop or montage.",
+      "source_image": "/workspace/scratch/6d2818a329a1/generated_images/exec-e27aeff1-ddf4-4944-84ea-04484161bd72.png",
+      "referenced_image_paths": [
+        "/workspace/scratch/6d2818a329a1/generated_images/exec-1ec012d4-6c89-4c00-824e-4e67175d3e43.png"
+      ],
+      "observed_completion_time_asia_shanghai": "2026-11-11T23:30:42.291915+08:00",
+      "time_basis": "Observer receipt after imagegen batch completion; the provider did not return an image creation timestamp.",
+      "selected": true,
+      "sha256": "3b55de798e039e38b97694930f1a2e05cc323dcfdeb1780fefd95be60deb632e",
+      "bytes": 2089954,
+      "width": 1672,
+      "height": 941,
+      "repository_path": "docs/assets/ai-generated/roadmap.png",
+      "copy_sha256": "3b55de798e039e38b97694930f1a2e05cc323dcfdeb1780fefd95be60deb632e",
+      "reviewed": true,
+      "review_note": "All stages and equations inspected; imagegen correction makes balance pans I and O+A, matching positive accumulation and fsum(I,-O,-A). Full untouched output selected.",
+      "original_tool_output_path": "/workspace/scratch/6d2818a329a1/generated_images/exec-e27aeff1-ddf4-4944-84ea-04484161bd72.png",
+      "generated_at_asia_shanghai": "2026-11-11T23:30:42.291915+08:00",
+      "generation_time_basis": "Observer receipt after imagegen batch completion; the provider did not return an image creation timestamp.",
+      "path": "docs/assets/ai-generated/roadmap.png",
+      "postprocessing": "none; full tool PNG copied byte-for-byte when selected",
+      "visually_reviewed": true,
+      "generator_claim": "Generated with built-in image_gen.imagegen; no model identifier returned.",
+      "referenced_images": [
+        {
+          "path": "/workspace/scratch/6d2818a329a1/generated_images/exec-1ec012d4-6c89-4c00-824e-4e67175d3e43.png",
+          "sha256": "fe892e0c23afa4d957792e17ea22a339baf5758ebf743ee9b321a1c0f2f6180a"
+        }
+      ]
+    },
+    {
+      "id": "r2-seven-repo-roadmap-v1",
+      "tool": "image_gen.imagegen",
+      "method": "text-to-image",
+      "model_identifier": null,
+      "prompt_exact": "Use case: scientific-educational.\nCreate ONE complete, polished landscape 16:9 scientific roadmap illustration for the seven SUNHAOJUN22 repositories. This is an AI-generated explanatory schematic, not a data plot. It must look like a clear publication figure with an elegant light ivory background, fine dark typography, subtle physical 3D motifs, compact editorial composition, and color-coded panels. All areas, including the bottom, must contain meaningful organized content; no empty lower half. Avoid glowing sci-fi clutter, robot faces, fake numerical plots, fake logos, or collages.\nTitle, exact: \"PHYSICS-GUIDED SCIENTIFIC WORKFLOW\"\nSubtitle, exact: \"Seven independent repositories • proposed interfaces\"\nUse seven distinct readable cards, in two balanced rows (four above, three below), with thin DOTTED connecting lines identified by the small legend \"Dotted links: proposed handoffs\". Do not imply these integrations are already implemented.\nCards and exact body text:\n1 \"TsaoSciResearcher\" in burgundy/rose. \"Question → evidence → qualified claim\". Small motif: connected evidence records.\n2 \"TsaoSciComputation\" in teal/navy. \"Model → execution → verification\". Small motif: continuum mesh and molecule.\n3 \"TsaoDFT_skill\" in violet/blue. \"Electronic structure → reaction energetics\". Small motif: electron-density-inspired orbital.\n4 \"ResinDB-Pro-by-SunHJ\" in amber/petrol. \"Quantity + unit + condition → materials decision\". Small motif: polymer chain and database.\n5 \"AspenOps-Agent\" in cobalt/cyan. \"Validated process intent → licensed solver → engineering review\". Small motif: restrained reactor/column flowsheet.\n6 \"TSAO-PROCESSING-SKILL\" in emerald/copper. \"Kinetics → transport → processing reference\". Small motif: flow channel and polymer chains.\n7 \"OpenDeepMind_skill\" in indigo/gold. \"Foundations → first principles → validation\". Add small text \"TRIZ: explicit opt-in\". Small motif: clean branching hypothesis lattice.\nBelow the cards, a beautiful full-width slim mathematical ribbon headed \"Equilibrium context · fixed N, V, T\". Set these four short equations precisely and legibly:\n\"β = 1/(k_B T)\"\n\"Z = Σ_i exp(−β E_i)\"\n\"p_i = exp(−β E_i)/Z\"\n\"F = −k_B T ln Z\"\nA small line directly below defines \"T > 0; E_i: state energy; k_B: Boltzmann constant\".\nA second very compact footer text strip: \"Units • finite values • conservation • uncertainty • traceable evidence\".\nA final small clearly readable footer at bottom right: \"AI-generated schematic • illustrative, not measured data\".\nThe formulas are theoretical context; do not place fake benchmark claims or scores. Draw the entire figure as one coherent generated raster. Every card has a concise caption, no blank panels. English spelling must be exact; legible at README width. Hierarchy: title, seven cards, equation ribbon, footer. Keep the roadmap simple with ample breathing room inside this compact structure.",
+      "source_image": "/workspace/scratch/6d2818a329a1/generated_images/exec-5e0f50e1-21e0-4444-850b-16b361056248.png",
+      "sha256": "96972f1b0966151abc38c9d784ac30cef25335a17a45bab636f2d70382405016",
+      "bytes": 1947186,
+      "width": 1672,
+      "height": 941,
+      "reviewed": true,
+      "review_note": "Seven independent repository cards, proposed dotted interfaces, NVT equations and illustrative AI label visually checked.",
+      "repository_path": "docs/assets/ai-generated/seven-repo-roadmap.png",
+      "copy_sha256": "96972f1b0966151abc38c9d784ac30cef25335a17a45bab636f2d70382405016",
+      "model_id": null,
+      "generation_time": null,
+      "generation_time_basis": "Original tool output file modification time; not a provider-returned generation timestamp.",
+      "asset": "seven-repo-roadmap",
+      "path": "docs/assets/ai-generated/seven-repo-roadmap.png",
+      "original_tool_output_path": "/workspace/scratch/6d2818a329a1/generated_images/exec-5e0f50e1-21e0-4444-850b-16b361056248.png",
+      "generated_at_asia_shanghai": "2026-11-11T23:02:17.818891+08:00",
+      "postprocessing": "none; full tool PNG copied byte-for-byte",
+      "visually_reviewed": true,
+      "generator_claim": "Generated with built-in image_gen.imagegen; no model identifier returned."
+    }
+  ],
+  "wrappers": [
+    {
+      "path": "docs/assets/readme-vnext/hero.en.svg",
+      "sha256": "f5504d9976aa89357e654c8d6094fe073901ab418bec54f64ce477ce7ec9eec6",
+      "embedded_png_sha256": "eb6ce26c0f9c5e522bf2744c49db3d7d907b2f10d9c390ca1f38dc5f759bd961",
+      "embedded_png_path": "docs/assets/ai-generated/architecture.png",
+      "rendered_content": "One complete unchanged PNG; no SVG geometry or rendered text.",
+      "localized_title_and_description": "en"
+    },
+    {
+      "path": "docs/assets/readme-vnext/hero.zh-CN.svg",
+      "sha256": "911800d1567932005744411c175ed078d964238a21162827aeba86173c81fc5a",
+      "embedded_png_sha256": "eb6ce26c0f9c5e522bf2744c49db3d7d907b2f10d9c390ca1f38dc5f759bd961",
+      "embedded_png_path": "docs/assets/ai-generated/architecture.png",
+      "rendered_content": "One complete unchanged PNG; no SVG geometry or rendered text.",
+      "localized_title_and_description": "zh-CN"
+    }
+  ],
+  "boundary": "Illustrative artwork; no execution, measurement, performance or scientific certification claim."
+}

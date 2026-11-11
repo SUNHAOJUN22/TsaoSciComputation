@@ -1,6 +1,8 @@
 # README visual assets
 
-This directory contains the complete visual atlas for TsaoSciComputation. The root READMEs now contain language-specific AI-assisted hero designs in `docs/assets/readme-vnext/`. This atlas preserves the original 43 technical SVGs, including the 12 former README figures below.
+This directory is the historical Scientific Research Console V13 visual atlas. It preserves the original 43 code-drawn technical SVGs, including the 12 former README figures below. Current scientific illustrations are four complete AI-generated PNGs: see the [current asset index](../../docs/assets/ai-generated/README.md) and [generation manifest](../../docs/assets/ai-generated/manifest.json). The two hero SVG paths are accessibility wrappers around one unchanged generated PNG; they add no rendered vector text or geometry.
+
+本目录是历史图谱，保留原始 SVG 和原有安全契约。下方图库明确属于历史资料，不是当前 AI 生成科学示意图，也不构成外部执行证明。
 
 ## Design and trust policy
 
