@@ -166,9 +166,9 @@
       "sha256": "9acba57d409668de2d706b513c755a6f8d90e277efcae4f91e8be1531f0ee606"
     },
     {
-      "bytes": 647,
+      "bytes": 654,
       "path": "MANIFEST.in",
-      "sha256": "aa709ba05322d96de939d79725b565ce3f591fc0a9f4ae3152b526c527073e92"
+      "sha256": "fccb237188973f7f6577f7245003eaf3902682e5962f559911781511e0580da7"
     },
     {
       "bytes": 18958,
@@ -1696,9 +1696,9 @@
       "sha256": "0f51f2350c4d151670181aa65156fe9ef5ca727a1952ed4208e779d16b6da9fe"
     },
     {
-      "bytes": 462,
+      "bytes": 991,
       "path": "docs/branch-policy.md",
-      "sha256": "b1dd2cc5ef6945ffe4462e168f86a5ea01a0f94906599b17e08f03eeaf433a49"
+      "sha256": "b4d3970f52c31889820666616f56a46203fcae12142eb47f68a6319869707be4"
     },
     {
       "bytes": 1477,
@@ -1744,6 +1744,11 @@
       "bytes": 1443,
       "path": "docs/performance.md",
       "sha256": "dd8d0c35b6a5325be2eb8b23c8f66d9aee941e86dc85034f0b4f47b6de5f4eb3"
+    },
+    {
+      "bytes": 4488,
+      "path": "docs/public-model-assets.json",
+      "sha256": "6552c97649e94480a9636cf7dd7edcc9de81caf0c45a1feafc59813a42ff415a"
     },
     {
       "bytes": 3995,
@@ -1833,7 +1838,7 @@
     {
       "bytes": 72,
       "path": "evidence/security-scan.json",
-      "sha256": "2f722d836eec37ea2d1e0f29c91987350832fd8b17fdfe68f29f42eb8fa8e9b3"
+      "sha256": "298f4ddeaa230d58d9358beacc901c7e81b1b76b5ea39f16799951dd304262db"
     },
     {
       "bytes": 1097,

@@ -1,0 +1,117 @@
+{
+  "schema_version": "1.0",
+  "review_date": "2026-11-15",
+  "main_before": "c3850484e6ea81128bfdaab508b0edeb982eb616",
+  "retained_branch": "main",
+  "integration_policy": "Preserve all source commits through merge ancestry; integrate distinct reusable materials; retain one-shot jobs and transport state in history only.",
+  "external_downloads_performed_in_this_review": false,
+  "model_or_cloud_jobs_run_in_this_review": false,
+  "checksum_status": "Source-recorded expected values only. No external model bytes were downloaded or independently hashed during consolidation.",
+  "source_branches": [
+    {
+      "name": "research/public-model-transfer-20261104",
+      "head": "d71f0cdb7686de3cba82c8ff5e6443e7ebc7c214",
+      "merge_base": "fc9a0894e6fdeea97770036ef71a05ab325c82b7",
+      "commits_not_in_original_main": 2
+    }
+  ],
+  "distinct_source_commits_not_in_original_main": [
+    "a4b78f86c51415c8c55b8861db172bf18db92e2b",
+    "d71f0cdb7686de3cba82c8ff5e6443e7ebc7c214"
+  ],
+  "source_files": [
+    {
+      "path": ".github/workflows/public-model-transfer-20261104.yml",
+      "blob": "377c3e07836e4a286e033666f514ae2095078b9b",
+      "bytes": 4624,
+      "sha256": "d2cd38c1efa691ccc06a6da3bd653ff6426bab64dc927b72e7afbedf03297960",
+      "heads": [
+        {
+          "branch": "research/public-model-transfer-20261104",
+          "commit": "d71f0cdb7686de3cba82c8ff5e6443e7ebc7c214"
+        }
+      ],
+      "disposition": "Original one-shot workflow retained in merge ancestry; fixed asset versions consolidated into public_assets below.",
+      "destination": "docs/public-model-assets.json"
+    },
+    {
+      "path": ".github/workflows/public-refinement-deps-20261104.yml",
+      "blob": "53197a2f8ee1d4fdefbc26d492bdff1ad98487a3",
+      "bytes": 2095,
+      "sha256": "b3b17577a49ebd0d4c2151b7b8f2ba807fa16c2cad232a83f2d93bf72a3971d4",
+      "heads": [
+        {
+          "branch": "research/public-model-transfer-20261104",
+          "commit": "d71f0cdb7686de3cba82c8ff5e6443e7ebc7c214"
+        }
+      ],
+      "disposition": "Original one-shot workflow retained in merge ancestry; fixed asset versions consolidated into public_assets below.",
+      "destination": "docs/public-model-assets.json"
+    }
+  ],
+  "public_assets": [
+    {
+      "id": "proteinmpnn-v48-020",
+      "url": "https://raw.githubusercontent.com/dauparas/ProteinMPNN/8907e6671bfbfc92303b5f79c4b5e6ce47cdef57/vanilla_model_weights/v_48_020.pt",
+      "source_paths": [
+        ".github/workflows/public-model-transfer-20261104.yml"
+      ],
+      "revision": "8907e6671bfbfc92303b5f79c4b5e6ce47cdef57",
+      "source_recorded_checksums": {
+        "sha256": "c9cb4a671d79604111231f8dbfc7c590e06f1197453b7a6854ac6661a642f5bd"
+      }
+    },
+    {
+      "id": "nanobody-model-1",
+      "url": "https://zenodo.org/records/7258553/files/nanobody_model_1?download=1",
+      "source_paths": [
+        ".github/workflows/public-model-transfer-20261104.yml"
+      ],
+      "source_recorded_checksums": {
+        "md5": "4591075f467ca9f76a37a5d1d3cfe591"
+      }
+    },
+    {
+      "id": "immunebuilder-source",
+      "url": "https://api.github.com/repos/oxpig/ImmuneBuilder/tarball/0df4e2ad82a1aa60f37ea9dae335d1198159ef78",
+      "source_paths": [
+        ".github/workflows/public-model-transfer-20261104.yml"
+      ],
+      "revision": "0df4e2ad82a1aa60f37ea9dae335d1198159ef78"
+    },
+    {
+      "id": "proteinmpnn-source",
+      "url": "https://api.github.com/repos/dauparas/ProteinMPNN/tarball/8907e6671bfbfc92303b5f79c4b5e6ce47cdef57",
+      "source_paths": [
+        ".github/workflows/public-model-transfer-20261104.yml"
+      ],
+      "revision": "8907e6671bfbfc92303b5f79c4b5e6ce47cdef57"
+    },
+    {
+      "id": "pdbfixer-source",
+      "url": "https://api.github.com/repos/openmm/pdbfixer/tarball/199f03df6c50f7cf6120de766f4ccce426fda4e9",
+      "source_paths": [
+        ".github/workflows/public-refinement-deps-20261104.yml"
+      ],
+      "revision": "199f03df6c50f7cf6120de766f4ccce426fda4e9"
+    },
+    {
+      "id": "openmm-wheel",
+      "requirement": "openmm==8.4.0",
+      "source_paths": [
+        ".github/workflows/public-refinement-deps-20261104.yml"
+      ],
+      "original_download_constraints": {
+        "python_version": "3.13",
+        "implementation": "cp",
+        "abi": "cp313",
+        "platforms": [
+          "manylinux_2_34_x86_64",
+          "manylinux_2_17_x86_64"
+        ],
+        "only_binary": true,
+        "no_deps": true
+      }
+    }
+  ]
+}
