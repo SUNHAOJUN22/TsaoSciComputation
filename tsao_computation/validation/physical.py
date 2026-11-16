@@ -39,8 +39,8 @@ def balance_check(
         raise ValueError("balance residual must be finite") from error
     if not math.isfinite(residual):
         raise ValueError("balance residual must be finite")
-    scale = max(abs(input_value), abs(output_value), abs(accumulation_value), 1.0)
-    normalized = abs(residual) / scale
+    scale = max(abs(input_value), abs(output_value), abs(accumulation_value))
+    normalized = abs(residual) / scale if scale else 0.0
     if residual and normalized == 0.0:
         raise ValueError("normalized balance residual underflows the supported float range")
     return {

@@ -1,0 +1,213 @@
+{
+  "baseline_commit": "7ddba2ab86c373bcc2fea9664579492b00406003",
+  "claim_boundary": "Local arithmetic, orchestration contracts, native discovery ABI and packaging only. No external solver, licensed simulator, physical scientific acceptance, GPU speedup or Windows qualification is claimed.",
+  "commands": [
+    {
+      "command": [
+        ".venv/bin/python",
+        "-m",
+        "pip",
+        "install",
+        "--require-hashes",
+        "--only-binary=:all:",
+        "-r",
+        "requirements-ci.txt"
+      ],
+      "elapsed_seconds": 6.056,
+      "label": "pinned-dependencies",
+      "returncode": 0,
+      "started_at": "2026-11-16T04:51:54.309198+00:00"
+    },
+    {
+      "command": [
+        ".venv/bin/python",
+        "-m",
+        "pip",
+        "install",
+        "--no-index",
+        "--no-deps",
+        "--no-build-isolation",
+        "-e",
+        ".[validation,quality,security]"
+      ],
+      "elapsed_seconds": 1.045,
+      "label": "editable-install",
+      "returncode": 0,
+      "started_at": "2026-11-16T04:55:11.406537+00:00"
+    },
+    {
+      "command": [
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_relative_validation_scale.py"
+      ],
+      "elapsed_seconds": 0.304,
+      "label": "baseline-relative-corrected",
+      "returncode": 1,
+      "started_at": "2026-11-16T04:50:57.371528+00:00"
+    },
+    {
+      "command": [
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_relative_validation_scale.py",
+        "tests/test_nonzero_underflow_contract.py",
+        "tests/test_validation_fail_closed.py",
+        "tests/test_math_performance_v10.py",
+        "tests/test_scientific_benchmarks.py"
+      ],
+      "elapsed_seconds": 0.567,
+      "label": "targeted-relative",
+      "returncode": 0,
+      "started_at": "2026-11-16T04:51:45.337165+00:00"
+    },
+    {
+      "command": [
+        ".venv/bin/python",
+        "scripts/verify_all.py",
+        "--profile",
+        "core",
+        "--timing-json",
+        "/workspace/scratch/8c4dfa282d4f/audit-2026-11-16/TsaoSciComputation/core-timing.json"
+      ],
+      "elapsed_seconds": 33.55,
+      "label": "core",
+      "returncode": 0,
+      "started_at": "2026-11-16T04:57:13.957925+00:00"
+    },
+    {
+      "command": [
+        ".venv/bin/python",
+        "scripts/verify_all.py",
+        "--profile",
+        "quality",
+        "--timing-json",
+        "/workspace/scratch/8c4dfa282d4f/audit-2026-11-16/TsaoSciComputation/quality-timing.json"
+      ],
+      "elapsed_seconds": 2.384,
+      "label": "quality",
+      "returncode": 0,
+      "started_at": "2026-11-16T04:56:40.320572+00:00"
+    },
+    {
+      "command": [
+        ".venv/bin/python",
+        "scripts/verify_native_core.py"
+      ],
+      "elapsed_seconds": 1.323,
+      "label": "native-core-configured",
+      "returncode": 0,
+      "started_at": "2026-11-16T05:01:22.062272+00:00"
+    },
+    {
+      "command": [
+        ".venv/bin/python",
+        "scripts/verify_all.py",
+        "--profile",
+        "benchmark",
+        "--timing-json",
+        "/workspace/scratch/8c4dfa282d4f/audit-2026-11-16/TsaoSciComputation/benchmark-timing.json"
+      ],
+      "elapsed_seconds": 4.705,
+      "label": "benchmark",
+      "returncode": 0,
+      "started_at": "2026-11-16T04:59:05.124015+00:00"
+    },
+    {
+      "command": [
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_performance_v9.py",
+        "tests/test_performance_optimizations.py"
+      ],
+      "elapsed_seconds": 0.558,
+      "label": "performance-regressions",
+      "returncode": 0,
+      "started_at": "2026-11-16T05:01:22.066868+00:00"
+    },
+    {
+      "command": [
+        ".venv/bin/python",
+        "scripts/run_large_parser_regression.py"
+      ],
+      "elapsed_seconds": 2.223,
+      "label": "large-parser",
+      "returncode": 0,
+      "started_at": "2026-11-16T05:01:22.066824+00:00"
+    },
+    {
+      "command": [
+        ".venv/bin/python",
+        "scripts/verify_all.py",
+        "--profile",
+        "package",
+        "--timing-json",
+        "/workspace/scratch/8c4dfa282d4f/audit-2026-11-16/TsaoSciComputation/package-timing.json"
+      ],
+      "elapsed_seconds": 4.0,
+      "label": "package",
+      "returncode": 0,
+      "started_at": "2026-11-16T05:02:12.646355+00:00"
+    }
+  ],
+  "date": "2026-11-16",
+  "environment": {
+    "cmake": "4.4.5",
+    "cxx": "GNU C++ 14.2.0",
+    "dependencies": "unchanged requirements-ci.txt, --require-hashes --only-binary=:all:",
+    "platform": "Linux",
+    "python": "3.12.14"
+  },
+  "environment_resolution": "Initial native gate found cmake/ctest absent from PATH; rerun used existing CMake 4.4.5 tools, with no source or dependency-constraint change.",
+  "full_suite": {
+    "coverage": {
+      "covered_branches": 1484,
+      "covered_lines": 4905,
+      "excluded_lines": 23,
+      "missing_branches": 132,
+      "missing_lines": 164,
+      "num_branches": 1616,
+      "num_partial_branches": 124,
+      "num_statements": 5069,
+      "percent_branches_covered": 91.83168316831683,
+      "percent_branches_covered_display": "92",
+      "percent_covered": 95.5721765145849,
+      "percent_covered_display": "96",
+      "percent_statements_covered": 96.76464785953837,
+      "percent_statements_covered_display": "97"
+    },
+    "passed": 1435,
+    "skipped": 0
+  },
+  "mutation_probes": {
+    "killed": 64,
+    "survived": 0
+  },
+  "native_ctest": {
+    "failed": 0,
+    "passed": 1
+  },
+  "regressions": {
+    "baseline_failed": 14,
+    "baseline_passed": 15,
+    "new_cases": 29,
+    "targeted_passed": 92
+  },
+  "schema_version": "1.0",
+  "scientific_reference_cases": {
+    "failed": 0,
+    "passed": 8
+  },
+  "source_sha256": {
+    "requirements-ci.txt": "4815aa1195741283dbab2798a51607cf2a244e2f4109b8012dedd9ae666b1b29",
+    "tests/test_relative_validation_scale.py": "6388cb6e1b709fab2d30485a5148918097866c65a033c412ea35ab121a92f913",
+    "tsao_computation/validation/numerical.py": "abe15b7d1c0ee1b7dd725bd6a579ab6fedfd03ce03ffa9a828d11314577eb789",
+    "tsao_computation/validation/physical.py": "5c4933be3927c83c185093d7742a0eb3d82a8a26d3ea7dc0d4c3216b8481f1f7"
+  }
+}

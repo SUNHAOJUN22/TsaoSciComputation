@@ -35,19 +35,19 @@ $P_{plan}$ 的实际字段是规范化 argv、工作目录、排序后的环境�
 
 \[
 \Delta=|x_n-x_{n-1}|,\quad
-s=\max(|x_n|,|x_{n-1}|,1),\quad
+s=\max(|x_n|,|x_{n-1}|),\quad
 \tau=\max(a,rs),\quad G_{conv}=(\Delta\le\tau).
 \]
 
-$a$ 与观测值同单位，$r$ 无量纲，二者有限且非负。尺度下限 1 采用输入基准，先统一单位或无量纲化。函数先检查全部观测值，再比较末两个值；通过不能证明全轨迹收敛、网格无关、平衡采样或全局最优。
+$a$ 与观测值同单位，$r$ 无量纲，二者有限且非负。相对容差不含隐式的一个单位下限，近零所需的绝对容差应显式设置；全零观测对精确通过。函数先检查全部观测值，再比较末两个值；通过不能证明全轨迹收敛、网格无关、平衡采样或全局最优。
 
 [守恒检查](tsao_computation/validation/physical.py)要求输入 $I$、输出 $O$ 与正积累 $A$ 使用共同单位及时间基准：
 
 \[
-e_b=\frac{|\operatorname{fsum}(I,-O,-A)|}{\max(|I|,|O|,|A|,1)},\qquad G_b=(e_b\le\varepsilon).
+e_b=\frac{|\operatorname{fsum}(I,-O,-A)|}{\max(|I|,|O|,|A|)},\qquad G_b=(e_b\le\varepsilon).
 \]
 
-$\varepsilon$ 有限、非负且无量纲。补偿求和不是自动单位换算或化学计量验证；非有限值、算术溢出、非零输入/残差被下溢抹成零时保持拒绝。
+$\varepsilon$ 有限、非负且无量纲；全零衡算定义 $e_b=0$，非零量使用实际尺度归一化。补偿求和不是自动单位换算或化学计量验证；非有限值、算术溢出、非零输入/残差被下溢抹成零时保持拒绝。
 
 [固定科学参考](tsao_computation/validation/scientific_benchmarks.py)采用其各自参数与容差：参考非零时比较相对误差，参考为零时比较绝对误差。八项本地算例不是八种已执行外部求解器。[固定参数与假设表](docs/scientific-contracts.zh-CN.md#参考夹具)。
 
@@ -118,9 +118,9 @@ New plans start with `execute_allowed=False`. Implemented protocols cover GROMAC
 
 ### Numerical, physical and parser gates
 
-The [final-pair convergence check](tsao_computation/validation/numerical.py) uses $\Delta=|x_n-x_{n-1}|$ and $\tau=\max(a,r\max(|x_n|,|x_{n-1}|,1))$, accepting this check when $\Delta\le\tau$. Absolute tolerance $a$ has the observable's unit; relative tolerance $r$ is dimensionless. Normalize units or nondimensionalize before interpreting the numeric scale floor 1. The whole sequence is admitted, but only the final pair is compared; trajectory convergence, grid independence and sampling adequacy are separate scientific questions.
+The [final-pair convergence check](tsao_computation/validation/numerical.py) uses $\Delta=|x_n-x_{n-1}|$ and $\tau=\max(a,r\max(|x_n|,|x_{n-1}|))$, accepting this check when $\Delta\le\tau$. Absolute tolerance $a$ has the observable's unit; relative tolerance $r$ is dimensionless. There is no implicit one-unit absolute floor: supply the absolute tolerance explicitly for near-zero observations. A zero pair passes exactly. The whole sequence is admitted, but only the final pair is compared; trajectory convergence, grid independence and sampling adequacy are separate scientific questions.
 
-The [balance check](tsao_computation/validation/physical.py) computes $|\operatorname{fsum}(I,-O,-A)|/\max(|I|,|O|,|A|,1)$ with **positive accumulation** $A$, common units/time basis and finite nonnegative dimensionless tolerance. It does not perform unit conversion or stoichiometric validation. Nonfinite values, overflow and nonzero-to-zero underflow are not silently successful.
+The [balance check](tsao_computation/validation/physical.py) computes $|\operatorname{fsum}(I,-O,-A)|/\max(|I|,|O|,|A|)$ with **positive accumulation** $A$, common units/time basis and finite nonnegative dimensionless tolerance. For an all-zero balance the normalized residual is defined as zero; otherwise the actual magnitude supplies its scale. It does not perform unit conversion or stoichiometric validation. Nonfinite values, overflow and nonzero-to-zero underflow are not silently successful.
 
 The [eight fixed reference cases](tsao_computation/validation/scientific_benchmarks.py) use their own parameters and tolerances: relative error for a nonzero reference and absolute error for a zero reference. They are local deterministic software fixtures, not external engine qualification. [Exact fixture table](docs/scientific-contracts.md#reference-fixtures).
 

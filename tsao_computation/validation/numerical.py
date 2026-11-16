@@ -82,9 +82,12 @@ def convergence_check(
     delta = abs(current - previous)
     if not math.isfinite(delta):
         return {"passed": False, "delta": float("inf"), "threshold": absolute}
-    scale = max(abs(current), abs(previous), 1.0)
+    scale = max(abs(current), abs(previous))
     relative_threshold = relative * scale
     if not math.isfinite(relative_threshold):
         raise ValueError("relative tolerance produces a non-finite convergence threshold")
     threshold = max(absolute, relative_threshold)
-    return {"passed": delta <= threshold, "delta": delta, "threshold": threshold}
+    # Compare dimensionless quantities directly: multiplying a subnormal scale
+    # by the relative tolerance can round upward to an inadmissible threshold.
+    passed = delta <= absolute or (scale > 0.0 and delta / scale <= relative)
+    return {"passed": passed, "delta": delta, "threshold": threshold}

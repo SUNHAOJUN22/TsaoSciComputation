@@ -79,12 +79,12 @@ Boolean values, unknown units, incompatible dimensions, negative uncertainty and
 
 $$
 \Delta=|x_n-x_{n-1}|,\quad
-s=\max(|x_n|,|x_{n-1}|,1),\quad
+s=\max(|x_n|,|x_{n-1}|),\quad
 \tau=\max(a,r s),\quad
 G_{\mathrm{conv}}=(\Delta\le\tau).
 $$
 
-$a\ge0$ has the observation's unit; $r\ge0$ is dimensionless. The numeric scale floor of one is expressed in the chosen input basis: normalize units or nondimensionalize before selecting tolerances. The implemented threshold is a **maximum**, not $a+r s$.
+$a\ge0$ has the observation's unit; $r\ge0$ is dimensionless. There is no implicit one-unit absolute floor: a relative tolerance must not change its meaning when the same observations are rescaled into another unit. Specify $a$ explicitly when a near-zero absolute tolerance is needed. The threshold is a **maximum**, not $a+r s$. Two zero observations pass exactly. The floating-point decision evaluates $\Delta\le a$ or, for $s>0$, $\Delta/s\le r$; this avoids upward rounding of a subnormal product admitting an excessive relative change. The returned `threshold` is a rounded diagnostic. See [unit-scale regressions](../tests/test_relative_validation_scale.py).
 
 Booleans, nonfinite values and nonzero inputs that convert to floating-point zero are rejected. Numeric strings, `Decimal` and `Fraction` inputs follow that conversion guard; exact signed zero and representable subnormals remain valid. Fewer than two observations or an invalid observation fails. This test alone does not prove whole-trajectory convergence, sufficient sampling, mesh independence or a global optimum. Direct failure results can contain an infinite diagnostic sentinel; trusted invocation converts such diagnostics into JSON-safe evidence before hashing. See [underflow regression](../tests/test_nonzero_underflow_contract.py).
 
@@ -94,11 +94,11 @@ Booleans, nonfinite values and nonzero inputs that convert to floating-point zer
 
 $$
 r_b=\operatorname{fsum}(I,-O,-A),\qquad
-s_b=\max(|I|,|O|,|A|,1),\qquad
-e_b=\frac{|r_b|}{s_b},\qquad G_b=(e_b\le\varepsilon).
+s_b=\max(|I|,|O|,|A|),\qquad
+e_b=\begin{cases}|r_b|/s_b&s_b>0\\0&s_b=0\end{cases},\qquad G_b=(e_b\le\varepsilon).
 $$
 
-$I$ is input, $O$ output and $A$ accumulation, positive when the control volume stores material or energy. The supplied tolerance $\varepsilon\ge0$ is dimensionless. Compensated summation preserves representable cancellation residuals. Overflow, nonfinite inputs and a nonzero normalized residual that underflows to zero are errors. Unit conversion, component stoichiometry and reaction-model validity must be established before calling this scalar function; they cannot be inferred from a small residual.
+$I$ is input, $O$ output and $A$ accumulation, positive when the control volume stores material or energy. The supplied tolerance $\varepsilon\ge0$ is dimensionless. The normalization has no hidden absolute floor; complete loss of a nonzero trace flow is a relative residual of one in any common unit basis. The all-zero balance has zero residual and passes. Compensated summation preserves representable cancellation residuals. Overflow, nonfinite inputs and a nonzero normalized residual that underflows to zero are errors. Unit conversion, component stoichiometry and reaction-model validity must be established before calling this scalar function; they cannot be inferred from a small residual.
 
 ### 4.4 Independent standard uncertainty
 

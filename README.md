@@ -116,16 +116,16 @@ The implemented scalar gates are compact, but their preconditions matter:
 
 $$
 \Delta=|x_n-x_{n-1}|,\quad
-\tau=\max\!\left(a,r\max(|x_n|,|x_{n-1}|,1)\right),\quad
+\tau=\max\!\left(a,r\max(|x_n|,|x_{n-1}|)\right),\quad
 \Delta\le\tau,
 $$
 
 $$
-e_b=\frac{|\operatorname{fsum}(I,-O,-A)|}{\max(|I|,|O|,|A|,1)}\le\varepsilon,
+e_b=\frac{|\operatorname{fsum}(I,-O,-A)|}{\max(|I|,|O|,|A|)}\le\varepsilon,
 \qquad u_c=\operatorname{hypot}(u_1,\ldots,u_k).
 $$
 
-[`convergence_check`](tsao_computation/validation/numerical.py) checks finite admitted values and compares the **final pair**; it does not prove global convergence, grid independence or adequate mixing. The threshold uses `max`, not an additive rule. [`balance_check`](tsao_computation/validation/physical.py) uses **positive accumulation** $A$ in $I-O-A$ and common units/time basis. The numeric scale floor 1 requires an explicit unit basis or nondimensionalization. [`combine_independent`](tsao_computation/uncertainty/model.py) does not propagate covariance. The [implementation guide](docs/scientific-contracts.md) retains the full quantity, parser, handoff, resource, ledger and approval contracts.
+[`convergence_check`](tsao_computation/validation/numerical.py) checks finite admitted values and compares the **final pair**; it does not prove global convergence, grid independence or adequate mixing. The threshold uses `max`, not an additive rule. [`balance_check`](tsao_computation/validation/physical.py) uses **positive accumulation** $A$ in $I-O-A$ and common units/time basis. Relative tolerances have no implicit one-unit floor; an all-zero balance is exact, and near-zero convergence tolerance must be supplied explicitly as an absolute tolerance. [`combine_independent`](tsao_computation/uncertainty/model.py) does not propagate covariance. The [implementation guide](docs/scientific-contracts.md) retains the full quantity, parser, handoff, resource, ledger and approval contracts.
 
 ## Choose an execution path
 

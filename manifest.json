@@ -171,19 +171,19 @@
       "sha256": "fccb237188973f7f6577f7245003eaf3902682e5962f559911781511e0580da7"
     },
     {
-      "bytes": 18958,
+      "bytes": 19043,
       "path": "README.md",
-      "sha256": "aec36c5b81170cedbd533f57bf7bc88b260bf2b4f7b349f101d3e72a0b4e2d98"
+      "sha256": "9a1f9f25316c80e8fa86a456996a27515e0310370875c3bd45be00d090bbfc7a"
     },
     {
-      "bytes": 16712,
+      "bytes": 16774,
       "path": "README.zh-CN.md",
-      "sha256": "1fac550c385b843921177d872d76af23db6bcce84358c3cc0548dccd511c03a0"
+      "sha256": "f0a932d51ea91b79076fee636019c52ca48325efbfd10cd02aa28ab9aa5b1105"
     },
     {
-      "bytes": 15451,
+      "bytes": 15743,
       "path": "README_ACCEPTANCE.md",
-      "sha256": "ac2e37c3fbd3416bce5cbb90ae20956f564de72022d5b69518ccd4721009b3f8"
+      "sha256": "cafe9536115f77829c40f8fc8a19ca4bd2db9adcccc2bf93b4b91ed75f5ecfbf"
     },
     {
       "bytes": 699,
@@ -1691,6 +1691,16 @@
       "sha256": "b5ee63d5378745be9468a692ef2b3b9c94fbc61a5bcccf547b25803577627301"
     },
     {
+      "bytes": 6892,
+      "path": "docs/audit-2026-11-16/AUDIT.md",
+      "sha256": "75276b45c511a92675dcbfc08a82173e8dd1cf34bfdf01e783094e200ab1faa2"
+    },
+    {
+      "bytes": 6214,
+      "path": "docs/audit-2026-11-16/validation.json",
+      "sha256": "e018e714e58561079f121820d7ea9a6e3cb8c10693e49e18f1b1b75be66b4a13"
+    },
+    {
       "bytes": 2664,
       "path": "docs/autonomous-software-hardening-prompt.md",
       "sha256": "c44264cd39c11a8330e4de04330010f365db16453d31929f34fa339cc5a8eb87"
@@ -1781,14 +1791,14 @@
       "sha256": "e4a9292538287340f0dcc8caec686c8b10d2a7110f5e65ec87adc1009ded2c5e"
     },
     {
-      "bytes": 27676,
+      "bytes": 28306,
       "path": "docs/scientific-contracts.md",
-      "sha256": "c5d1401c0584b5cf160abc5615cb3b5cd1777a4cf124d36d38c3f503cc12674a"
+      "sha256": "eddf2ec52403dc11156f15aaf7d155c58a8a3764c368957b459c571f68810584"
     },
     {
-      "bytes": 23727,
+      "bytes": 24292,
       "path": "docs/scientific-contracts.zh-CN.md",
-      "sha256": "8697e968c736c9d3ab8ee8689fafdc81a4440c5caa9b80b942763b29aa3efa1a"
+      "sha256": "cc2ee4e4cd045d5621b7e2d4319b03c0dd36b0e2a68fabc3b4b3e92ded3950df"
     },
     {
       "bytes": 695,
@@ -1833,7 +1843,7 @@
     {
       "bytes": 152,
       "path": "evidence/quality-check.json",
-      "sha256": "69bfa74067c3f61d61b2ea0d0ffa1ca0b2f0f442d32a1f62c9ddb755ce61752d"
+      "sha256": "0ad4fd2cee1350c7c64448a5717378de9798c4935765d90f4f6ad15e47a517d1"
     },
     {
       "bytes": 3174,
@@ -1843,7 +1853,7 @@
     {
       "bytes": 72,
       "path": "evidence/security-scan.json",
-      "sha256": "097548aed48e8fab9f8160b01657b6c46d9159543e305030185b8c6a146866ec"
+      "sha256": "9fc649219672b02815bc62f95fb9f7b5535d7ff055904c6de34ac56aebd3a705"
     },
     {
       "bytes": 1097,
@@ -2038,17 +2048,17 @@
     {
       "bytes": 64584,
       "path": "reports/ACCELERATION_OPPORTUNITIES_FULL_TREE_V4.json",
-      "sha256": "4b2a5698bc071f87b890e14725ce2cbaf50e21cf83126c4ba198be85d492b550"
+      "sha256": "095a601892b4ffcf22c52e0b49696c6489526fe84fe55c03f2abcac00c3c58c4"
     },
     {
       "bytes": 10929,
       "path": "reports/ACCELERATION_OPPORTUNITIES_PRODUCTION_V4.json",
-      "sha256": "451ae30abcf8085b4a440abd86fa1da9ce2c9615cf20b65201b408421802eb0d"
+      "sha256": "744a8dbd6547ff880a41469b49525206cbd0f586646a6eea3920b1f0856cdeab"
     },
     {
       "bytes": 10929,
       "path": "reports/ACCELERATION_OPPORTUNITIES_V2.json",
-      "sha256": "451ae30abcf8085b4a440abd86fa1da9ce2c9615cf20b65201b408421802eb0d"
+      "sha256": "744a8dbd6547ff880a41469b49525206cbd0f586646a6eea3920b1f0856cdeab"
     },
     {
       "bytes": 1196,
@@ -2921,6 +2931,11 @@
       "sha256": "1d1a8996fee00c66552deb4dd8477947a5d0fa74ee38a2acceda97f4ad26ab82"
     },
     {
+      "bytes": 3388,
+      "path": "tests/test_relative_validation_scale.py",
+      "sha256": "6388cb6e1b709fab2d30485a5148918097866c65a033c412ea35ab121a92f913"
+    },
+    {
       "bytes": 2268,
       "path": "tests/test_release_governance.py",
       "sha256": "17dec6c524d5a3457419281dd3958838646d1a4ea586a328b5d8110d706def8b"
@@ -3401,14 +3416,14 @@
       "sha256": "c550c522bcfbf11ca7095c3ece6566354a0011056b3bedee2545ec9f55f252cd"
     },
     {
-      "bytes": 3826,
+      "bytes": 4045,
       "path": "tsao_computation/validation/numerical.py",
-      "sha256": "7df2a02f166f7cd25598f5c72b2053ae5bc488b39af5c867bbb29841af4e85e6"
+      "sha256": "abe15b7d1c0ee1b7dd725bd6a579ab6fedfd03ce03ffa9a828d11314577eb789"
     },
     {
-      "bytes": 1766,
+      "bytes": 1779,
       "path": "tsao_computation/validation/physical.py",
-      "sha256": "5f2ca0795df06c3d268a868c62e6ce219d428039bcd2ef7eebc16fe90cd2d9f6"
+      "sha256": "5c4933be3927c83c185093d7742a0eb3d82a8a26d3ea7dc0d4c3216b8481f1f7"
     },
     {
       "bytes": 9010,

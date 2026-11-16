@@ -116,16 +116,16 @@ $N$ 是链段数，$b$ 是链段长度，$\mu$ 是黏度，$k$ 是速率常数�
 
 $$
 \Delta=|x_n-x_{n-1}|,\quad
-\tau=\max\!\left(a,r\max(|x_n|,|x_{n-1}|,1)\right),\quad
+\tau=\max\!\left(a,r\max(|x_n|,|x_{n-1}|)\right),\quad
 \Delta\le\tau,
 $$
 
 $$
-e_b=\frac{|\operatorname{fsum}(I,-O,-A)|}{\max(|I|,|O|,|A|,1)}\le\varepsilon,
+e_b=\frac{|\operatorname{fsum}(I,-O,-A)|}{\max(|I|,|O|,|A|)}\le\varepsilon,
 \qquad u_c=\operatorname{hypot}(u_1,\ldots,u_k).
 $$
 
-[`convergence_check`](tsao_computation/validation/numerical.py) 先检查有限输入，再比较**末两点**；不能证明全局收敛、网格无关或充分混合。阈值取 `max`，不是相加。[`balance_check`](tsao_computation/validation/physical.py) 在 $I-O-A$ 中使用**正积累** $A$，要求共同单位与时间基准；尺度下限 1 需要明确单位基准或先无量纲化。[`combine_independent`](tsao_computation/uncertainty/model.py) 不实现协方差传播。[实现指南](docs/scientific-contracts.zh-CN.md) 保留完整物理量、解析器、交接、资源、账本和审批合同。
+[`convergence_check`](tsao_computation/validation/numerical.py) 先检查有限输入，再比较**末两点**；不能证明全局收敛、网格无关或充分混合。阈值取 `max`，不是相加。[`balance_check`](tsao_computation/validation/physical.py) 在 $I-O-A$ 中使用**正积累** $A$，要求共同单位与时间基准；相对容差不含隐式的一个单位下限；全零衡算精确通过，近零收敛所需的绝对容差应显式设置。[`combine_independent`](tsao_computation/uncertainty/model.py) 不实现协方差传播。[实现指南](docs/scientific-contracts.zh-CN.md) 保留完整物理量、解析器、交接、资源、账本和审批合同。
 
 ## 选择执行路径
 
