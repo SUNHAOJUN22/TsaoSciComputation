@@ -116,8 +116,13 @@ def _manifest_from_entries(root: Path, entries: Iterator[Path]) -> list[dict[str
     records: list[dict[str, str | int]] = []
     for path in entries:
         relative = path.relative_to(root)
-        if path.is_symlink():
-            raise ValueError(f"repository manifest contains symlink: {relative.as_posix()}")
+        # Git's index can still name nested/file after nested is replaced by a
+        # symlink. Check every component before following it to read file bytes.
+        candidate = root
+        for part in relative.parts:
+            candidate = candidate / part
+            if candidate.is_symlink():
+                raise ValueError(f"repository manifest contains symlink: {relative.as_posix()}")
         if not path.is_file():
             continue
         size, digest = _file_size_and_sha256(path)

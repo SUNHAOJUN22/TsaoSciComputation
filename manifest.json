@@ -1686,6 +1686,11 @@
       "sha256": "57611782c2d521b23323f3bea4adf8194e7d82aa318ac8d69a44d596004a308e"
     },
     {
+      "bytes": 4576,
+      "path": "docs/audit-2026-11-15/REVIEW.md",
+      "sha256": "b5ee63d5378745be9468a692ef2b3b9c94fbc61a5bcccf547b25803577627301"
+    },
+    {
       "bytes": 2664,
       "path": "docs/autonomous-software-hardening-prompt.md",
       "sha256": "c44264cd39c11a8330e4de04330010f365db16453d31929f34fa339cc5a8eb87"
@@ -1828,7 +1833,7 @@
     {
       "bytes": 152,
       "path": "evidence/quality-check.json",
-      "sha256": "915ebc5fc712b2dea4c645787fd19844366574386310ae5381e269f2fa5b327c"
+      "sha256": "69bfa74067c3f61d61b2ea0d0ffa1ca0b2f0f442d32a1f62c9ddb755ce61752d"
     },
     {
       "bytes": 3174,
@@ -1838,7 +1843,7 @@
     {
       "bytes": 72,
       "path": "evidence/security-scan.json",
-      "sha256": "298f4ddeaa230d58d9358beacc901c7e81b1b76b5ea39f16799951dd304262db"
+      "sha256": "097548aed48e8fab9f8160b01657b6c46d9159543e305030185b8c6a146866ec"
     },
     {
       "bytes": 1097,
@@ -2033,17 +2038,17 @@
     {
       "bytes": 64584,
       "path": "reports/ACCELERATION_OPPORTUNITIES_FULL_TREE_V4.json",
-      "sha256": "d8d64233559f94a3b932728b8566cb13c97e5b0715bae22a5ef43b38c3b36f62"
+      "sha256": "4b2a5698bc071f87b890e14725ce2cbaf50e21cf83126c4ba198be85d492b550"
     },
     {
       "bytes": 10929,
       "path": "reports/ACCELERATION_OPPORTUNITIES_PRODUCTION_V4.json",
-      "sha256": "1760b2aca2f55768c91b59df1046069d9c4a9c0e9a62e1e15e0e8817f7031d47"
+      "sha256": "451ae30abcf8085b4a440abd86fa1da9ce2c9615cf20b65201b408421802eb0d"
     },
     {
       "bytes": 10929,
       "path": "reports/ACCELERATION_OPPORTUNITIES_V2.json",
-      "sha256": "1760b2aca2f55768c91b59df1046069d9c4a9c0e9a62e1e15e0e8817f7031d47"
+      "sha256": "451ae30abcf8085b4a440abd86fa1da9ce2c9615cf20b65201b408421802eb0d"
     },
     {
       "bytes": 1196,
@@ -2271,9 +2276,9 @@
       "sha256": "5f3e763ad2d86381a3b72f25240cd12758cb44babd39d5ba702c0e71984b7f0b"
     },
     {
-      "bytes": 1717,
+      "bytes": 1875,
       "path": "scripts/build_acceleration_audits.py",
-      "sha256": "b8d152f0c12418e79170d007f374f891f87a83398c6018521e856c731d574106"
+      "sha256": "fdaf1f398058c61e588a856ade5187e875efd7db330ff50941ef3d6959ef6f66"
     },
     {
       "bytes": 10295,
@@ -2611,6 +2616,11 @@
       "sha256": "d0a5179e44e0206108b1fd09e2ecc8c792aae09903c85a3cd4cbf4aaf2335bd9"
     },
     {
+      "bytes": 1019,
+      "path": "tests/test_acceleration_audit_output_root.py",
+      "sha256": "50840a539accff703b0bbe57d288201f1b218cfb2fa81965a15a7da1f2d5dbf0"
+    },
+    {
       "bytes": 16803,
       "path": "tests/test_acceleration_batch.py",
       "sha256": "ad165a82f533b0eee3c81449b148b9096f7d3822b2db10f620940befdcdae8b0"
@@ -2921,9 +2931,9 @@
       "sha256": "60b067b7f0e4880da9821fc26eb080ae1b98839f2e7d4f508ea9d5c2c7436dce"
     },
     {
-      "bytes": 3500,
+      "bytes": 6650,
       "path": "tests/test_repository_audit_root_identity.py",
-      "sha256": "d02d35d49f0a5bb0054b927c6eda35d8e33b6d132ced80b8851225df4784bbf0"
+      "sha256": "1f2dced7427f19920ea918b7478a378825520c50407251d7f13793ee2d3d9d52"
     },
     {
       "bytes": 1161,
@@ -3006,9 +3016,9 @@
       "sha256": "50abaefe9c29e50f39a90e7b940475cedd1adf4bc580eda00f975686bb5ad554"
     },
     {
-      "bytes": 1296,
+      "bytes": 2366,
       "path": "tests/test_tracked_manifest.py",
-      "sha256": "b0e401ce22ef24f789b9879f84acea0e04308d05192a0c9921e36405faf3072d"
+      "sha256": "47dd61a7506be90f2e58a5a3caaa23a7e7acbe443f85ad0dda09fbdfdde042e8"
     },
     {
       "bytes": 2704,
@@ -3281,9 +3291,9 @@
       "sha256": "781ff2317fc5b1ef771f6321e99f418baf6a115c8fd9fd90da5826946469be8f"
     },
     {
-      "bytes": 4737,
+      "bytes": 5012,
       "path": "tsao_computation/provenance/manifest.py",
-      "sha256": "84dc93ba433ac5fbcee07a1a810d2873375d7d7d71b131de6505ceac8f3aecd4"
+      "sha256": "ffa87e9c5876884e5056b4aeb9c1fa0f73d4add51c6929b77d24d466eed45737"
     },
     {
       "bytes": 0,
@@ -3306,9 +3316,9 @@
       "sha256": "456a6acbe944d11692143a6cad0ba20989c1853f7fa2ee5f9bd0e3c4f3e3c775"
     },
     {
-      "bytes": 15246,
+      "bytes": 17949,
       "path": "tsao_computation/repository_audit.py",
-      "sha256": "a0de24ebabf7805c2db4e9e24cc68e128e46c1136a6b771bec1ad1f805853de6"
+      "sha256": "33b635dc3f4c5857f8d2189f4c54b2433e7791e0a6894adc32419a28dab42fce"
     },
     {
       "bytes": 97,

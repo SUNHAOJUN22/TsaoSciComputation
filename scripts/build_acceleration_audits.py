@@ -46,11 +46,15 @@ def main() -> int:
     parser.add_argument("--root", type=Path, default=Path("."))
     parser.add_argument("--check", action="store_true")
     args = parser.parse_args()
-    outputs = render_all(args.root)
+    root = args.root.expanduser().resolve()
+    outputs = {root / relative: text for relative, text in render_all(root).items()}
     if args.check:
         return (
             0
-            if all(path.read_text(encoding="utf-8") == text for path, text in outputs.items())
+            if all(
+                path.is_file() and path.read_text(encoding="utf-8") == text
+                for path, text in outputs.items()
+            )
             else 1
         )
     for path, text in outputs.items():

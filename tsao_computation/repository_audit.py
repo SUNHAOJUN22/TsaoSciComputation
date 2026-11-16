@@ -77,6 +77,43 @@ ACCELERATOR_REQUIRED = {
     "limitations",
     "claim_boundary",
 }
+_REGISTRY_ARRAY_FIELDS = {
+    "capabilities.json": (
+        "triggers",
+        "inputs",
+        "outputs",
+        "validators",
+        "required_evidence",
+        "failure_modes",
+        "recommended_adapters",
+    ),
+    "adapters.json": ("executables",),
+    "accelerators.json": (
+        "interfaces",
+        "implementation_languages",
+        "parallel_strategies",
+        "candidate_backends",
+        "preferred_backends",
+        "library_candidates",
+        "probe_hints",
+        "limitations",
+    ),
+    "workflows.json": ("capability_ids", "recommended_adapters", "keywords", "required_gates"),
+}
+_REGISTRY_TEXT_FIELDS = {
+    "capabilities.json": (
+        "id",
+        "slug",
+        "workflow",
+        "description",
+        "maturity",
+        "implementation_level",
+        "risk_level",
+    ),
+    "adapters.json": ("slug", "workflow"),
+    "accelerators.json": ("slug", "workflow", "claim_boundary"),
+    "workflows.json": ("slug",),
+}
 
 
 def _parse_project_version(text: str, version_file_value: str | None = None) -> str:
@@ -118,8 +155,22 @@ def _parse_project_version(text: str, version_file_value: str | None = None) -> 
     raise ValueError("missing [project].version or controlled dynamic version")
 
 
+def _is_confined_file(path: Path, root: Path) -> bool:
+    """Reject symlinked path components before resolving or reading metadata."""
+    try:
+        relative = path.relative_to(root)
+        candidate = root
+        for part in relative.parts:
+            candidate = candidate / part
+            if candidate.is_symlink():
+                return False
+        return root in path.resolve().parents
+    except (OSError, RuntimeError, ValueError):
+        return False
+
+
 def _load_json(path: Path, problems: list[str], root: Path | None = None) -> Any:
-    if root is not None and (root not in path.resolve().parents or path.is_symlink()):
+    if root is not None and not _is_confined_file(path, root):
         problems.append(f"JSON file is not confined to audited root: {path.name}")
         return None
     try:
@@ -129,16 +180,50 @@ def _load_json(path: Path, problems: list[str], root: Path | None = None) -> Any
         return None
 
 
+def _metadata_text(root: Path, name: str, problems: list[str]) -> str | None:
+    path = root / name
+    try:
+        if not _is_confined_file(path, root):
+            problems.append(f"metadata file is not confined to audited root: {name}")
+            return None
+        if not path.is_file():
+            return None
+        return path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError, RuntimeError) as exc:
+        problems.append(f"invalid {name}: {exc}")
+        return None
+
+
 def _registry_records(root: Path, name: str, problems: list[str]) -> tuple[dict[str, Any], ...]:
     path = root / "registry" / name
-    if root not in path.resolve().parents or path.is_symlink():
+    if not _is_confined_file(path, root):
         problems.append(f"registry file is not confined to audited root: {name}")
         return ()
     data = _load_json(path, problems, root)
     if not isinstance(data, list) or any(not isinstance(record, dict) for record in data):
         problems.append(f"registry must contain an array of objects: {name}")
         return ()
-    return tuple(data)
+    records: list[dict[str, Any]] = []
+    for index, record in enumerate(data):
+        invalid = False
+        # A repository audit consumes untrusted metadata. Diagnose malformed
+        # nested fields before iteration or set membership can raise TypeError.
+        for field in _REGISTRY_ARRAY_FIELDS.get(name, ()):
+            if field not in record:
+                continue
+            value = record[field]
+            if not isinstance(value, list) or any(
+                not isinstance(item, str) or not item.strip() for item in value
+            ):
+                problems.append(f"{name}[{index}].{field} must be an array of non-empty strings")
+                invalid = True
+        for field in _REGISTRY_TEXT_FIELDS.get(name, ()):
+            if field in record and not isinstance(record[field], str):
+                problems.append(f"{name}[{index}].{field} must be a string")
+                invalid = True
+        if not invalid:
+            records.append(record)
+    return tuple(records)
 
 
 def audit_repository(root: Path) -> dict[str, object]:
@@ -155,18 +240,13 @@ def audit_repository(root: Path) -> dict[str, object]:
         if (root / item).exists():
             problems.append(f"forbidden transfer path: {item}")
 
-    version_path = root / "VERSION"
-    version_value = (
-        version_path.read_text(encoding="utf-8").strip() if version_path.is_file() else ""
-    )
+    version_value = (_metadata_text(root, "VERSION", problems) or "").strip()
     if version_value and version_value != __version__:
         problems.append("VERSION and package __version__ differ")
-    pyproject_path = root / "pyproject.toml"
-    if pyproject_path.is_file():
+    project_text = _metadata_text(root, "pyproject.toml", problems)
+    if project_text is not None:
         try:
-            project_version = _parse_project_version(
-                pyproject_path.read_text(encoding="utf-8"), version_value
-            )
+            project_version = _parse_project_version(project_text, version_value)
             if project_version != __version__:
                 problems.append("pyproject version source and package __version__ differ")
         except (OSError, UnicodeDecodeError, ValueError) as exc:
@@ -254,7 +334,7 @@ def audit_repository(root: Path) -> dict[str, object]:
         capability_file = (
             root / "capability-index" / "capabilities" / f"{identity[0]}_{identity[1]}.yaml"
         )
-        if root not in capability_file.resolve().parents or capability_file.is_symlink():
+        if not _is_confined_file(capability_file, root):
             problems.append(f"capability file is not confined to audited root: {identity[0]}")
             continue
         payload = _load_json(capability_file, problems, root) if capability_file.is_file() else None
@@ -327,9 +407,7 @@ def audit_repository(root: Path) -> dict[str, object]:
     for name in sorted(source_names | package_names):
         source = source_registry / name
         target = package_registry / name
-        if any(
-            root not in path.resolve().parents or path.is_symlink() for path in (source, target)
-        ):
+        if any(not _is_confined_file(path, root) for path in (source, target)):
             problems.append(f"registry asset is not confined to audited root: {name}")
         elif (
             not source.is_file()
