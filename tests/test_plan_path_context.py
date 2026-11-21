@@ -121,9 +121,9 @@ def test_path_override_obeys_platform_environment_name_rules(
 
 
 def test_path_directory_spaces_are_literal(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    expected = _executable(tmp_path / " spaced directory " / "solver", b"literal spaces\n")
+    expected = _executable(tmp_path / " spaced directory" / "solver", b"literal spaces\n")
     monkeypatch.chdir(tmp_path)
 
-    authorization = _authorize(tmp_path, {"PATH": str(expected.parent)})
+    authorization = _authorize(tmp_path, {"PATH": expected.parent.name})
 
     assert authorization.executable_sha256 == hashlib.sha256(expected.read_bytes()).hexdigest()
