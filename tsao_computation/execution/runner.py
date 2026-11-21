@@ -50,6 +50,19 @@ def _has_explicit_relative_prefix(value: str) -> bool:
     return normalized.startswith("./") or normalized.startswith("../")
 
 
+def _path_directories(search_path: str, cwd: Path | None = None) -> tuple[Path, ...]:
+    directories: list[Path] = []
+    for raw_entry in search_path.split(os.pathsep):
+        entry = raw_entry.strip('"')
+        if not entry.strip():
+            continue
+        directory = Path(entry).expanduser()
+        if cwd is not None and not directory.is_absolute():
+            directory = cwd / directory
+        directories.append(directory)
+    return tuple(directories)
+
+
 def _search_exact_path_entry(argv0: str, search_path: str) -> str | None:
     """Resolve an exact filename from the immutable plan PATH.
 
@@ -59,13 +72,8 @@ def _search_exact_path_entry(argv0: str, search_path: str) -> str | None:
     checks only literal PATH entries and never consults the ambient process PATH.
     """
 
-    if not search_path:
-        return None
-    for raw_entry in search_path.split(os.pathsep):
-        entry = raw_entry.strip().strip('"')
-        if not entry:
-            continue
-        candidate = Path(entry).expanduser() / argv0
+    for directory in _path_directories(search_path):
+        candidate = directory / argv0
         try:
             if candidate.is_file():
                 return str(candidate)
@@ -85,9 +93,19 @@ def _resolve_executable(argv0: str, cwd: Path, *, search_path: str) -> Path:
     elif explicit_relative:
         found = str(cwd / candidate)
     else:
-        found = shutil.which(argv0, path=search_path)
+        directories = _path_directories(search_path, cwd)
+        # Resolve each declared directory against the plan, never the caller's
+        # cwd (including Windows' implicit current-directory executable lookup).
+        found = next(
+            (
+                match
+                for directory in directories
+                if (match := shutil.which(str(directory / argv0), path="")) is not None
+            ),
+            None,
+        )
         if found is None:
-            found = _search_exact_path_entry(argv0, search_path)
+            found = _search_exact_path_entry(argv0, os.pathsep.join(map(str, directories)))
     if not found:
         raise SecurityError(f"command plan executable is unavailable: {argv0}")
     try:
@@ -137,9 +155,15 @@ def _bound_plan(
     if not cwd.is_dir():
         raise SecurityError(f"command plan working directory is unavailable: {plan.cwd}")
     normalized_environment = _subprocess_environment(plan.environment)
-    executable = _resolve_executable(
-        plan.argv[0], cwd, search_path=normalized_environment.get("PATH", "")
+    search_path = next(
+        (
+            value
+            for key, value in normalized_environment.items()
+            if key == "PATH" or (os.name == "nt" and key.casefold() == "path")
+        ),
+        "",
     )
+    executable = _resolve_executable(plan.argv[0], cwd, search_path=search_path)
     resolved_executable = executable.resolve(strict=True)
     executable_sha256 = file_sha256(resolved_executable)
     input_path, input_sha256 = _input_binding(plan, cwd)
