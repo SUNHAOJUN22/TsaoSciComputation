@@ -1,6 +1,6 @@
 {
   "category_counts": {
-    "external-solver-dispatch": 20,
+    "external-solver-dispatch": 21,
     "filesystem-scan": 17,
     "numeric-python-loop": 8
   },
@@ -8,18 +8,18 @@
   "file_scope_counts": {
     "benchmark": 9,
     "production": 70,
-    "test": 92,
+    "test": 93,
     "tooling": 39
   },
   "language_files": {
     "c": 1,
     "cpp": 2,
-    "python": 207
+    "python": 208
   },
   "language_lines": {
     "c": 70,
     "cpp": 197,
-    "python": 30477
+    "python": 30580
   },
   "opportunities": [
     {
@@ -789,6 +789,44 @@
       "score": 68,
       "source_sha256": "63f6c9a49e95b845cb56a01519003b9331f6d3569f389dfbf03158f65f342825",
       "symbol": "verify_target_install"
+    },
+    {
+      "backend_candidates": [
+        "cpu",
+        "openmp",
+        "mpi",
+        "cuda",
+        "hip",
+        "sycl"
+      ],
+      "blockers": [
+        "license or scheduler limits",
+        "oversubscription",
+        "unsupported solver backend"
+      ],
+      "candidate_id": "ab9243359ffcb5df11eb38fc505144f18feb85fc593921754d9958b7dc1718fc",
+      "category": "external-solver-dispatch",
+      "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
+      "confidence": "high",
+      "current_pattern": "external command or solver dispatch",
+      "decision": "diagnostic-only",
+      "evidence_requirements": [
+        "solver build features",
+        "command provenance",
+        "same-input end-to-end timing"
+      ],
+      "file_scope": "test",
+      "first_action": "batch independent cases and prefer the solver's native MPI/GPU backend before custom kernels",
+      "library_candidates": [
+        "mpi",
+        "nccl"
+      ],
+      "line": 22,
+      "path": "tests/test_release_output_boundary.py",
+      "runtime_status": "unprofiled",
+      "score": 68,
+      "source_sha256": "65ce5bd374de8f8fe0857da9a146b5e8fc39004799d0eea332f6f76408662c78",
+      "symbol": "_build"
     },
     {
       "backend_candidates": [
@@ -1605,13 +1643,13 @@
       "symbol": "test_workflows_pin_actions_and_avoid_privileged_untrusted_triggers"
     }
   ],
-  "opportunity_count": 45,
+  "opportunity_count": 46,
   "parse_failures": [],
-  "python_files_analyzed": 207,
+  "python_files_analyzed": 208,
   "python_files_excluded": 0,
   "root": ".",
   "scope": "full-tree",
-  "source_files": 210,
-  "source_lines": 30744,
-  "source_tree_sha256": "c9643dfc9b5a671fc180c0b8cb73c7729b41a9587a0763f6d39785c47b7415eb"
+  "source_files": 211,
+  "source_lines": 30847,
+  "source_tree_sha256": "46fa0554063066cc2351ceea0f59d91169def7bbe16e286f8433dacbdeef4f58"
 }

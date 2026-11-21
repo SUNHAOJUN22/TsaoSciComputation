@@ -14,10 +14,15 @@ import _bootstrap  # noqa: F401
 from tsao_computation.provenance.manifest import iter_repository_entries
 
 
-def release_files(root: Path) -> list[Path]:
+def release_files(root: Path, *, output_dir: Path | None = None) -> list[Path]:
     root = root.resolve()
+    excluded = None if output_dir is None else output_dir.resolve()
+    if excluded is not None and root not in excluded.parents:
+        excluded = None
     files: list[Path] = []
     for path in iter_repository_entries(root):
+        if excluded is not None and (path == excluded or excluded in path.parents):
+            continue
         relative = path.relative_to(root)
         if path.is_symlink():
             raise ValueError(f"release tree contains symlink: {relative.as_posix()}")
@@ -77,8 +82,10 @@ def main() -> int:
     root = Path(".").resolve()
     epoch = int(os.environ.get("SOURCE_DATE_EPOCH", "1700000000"))
     output_dir = args.output_dir.resolve()
+    if output_dir == root:
+        raise ValueError("release output directory must not be the source root")
     output_dir.mkdir(parents=True, exist_ok=True)
-    files = release_files(root)
+    files = release_files(root, output_dir=output_dir)
     zip_path = output_dir / f"TsaoSciComputation-{args.version}.zip"
     tar_path = output_dir / f"TsaoSciComputation-{args.version}.tar.gz"
     build_zip(root, files, zip_path, args.version, epoch)

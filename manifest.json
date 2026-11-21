@@ -1843,7 +1843,7 @@
     {
       "bytes": 152,
       "path": "evidence/quality-check.json",
-      "sha256": "0ad4fd2cee1350c7c64448a5717378de9798c4935765d90f4f6ad15e47a517d1"
+      "sha256": "79412616b841583ec37506d94be6fec2b15963abe15aea64e589d647fc6b162c"
     },
     {
       "bytes": 3174,
@@ -1853,7 +1853,7 @@
     {
       "bytes": 72,
       "path": "evidence/security-scan.json",
-      "sha256": "9fc649219672b02815bc62f95fb9f7b5535d7ff055904c6de34ac56aebd3a705"
+      "sha256": "f2cc519338acfc3acbd647fe43bfb34c5451191c99a919456dc47fc05086a177"
     },
     {
       "bytes": 1097,
@@ -2046,19 +2046,19 @@
       "sha256": "06c63ceb866c0853965bdc1154473e756f0a7a95de14419fe854ce981da0c9ac"
     },
     {
-      "bytes": 64584,
+      "bytes": 66025,
       "path": "reports/ACCELERATION_OPPORTUNITIES_FULL_TREE_V4.json",
-      "sha256": "bd3a08003563b63afd7ba557eef81840c476114436c28562fa568daff12b3595"
+      "sha256": "8a88c33c16466b9e2b51ee116ba14f0cc484ef9859f9f7a8431707b9b004f8b1"
     },
     {
       "bytes": 10929,
       "path": "reports/ACCELERATION_OPPORTUNITIES_PRODUCTION_V4.json",
-      "sha256": "1667b87842fc978b777d506570fbac03360f7fc9f720b5c09c6d0a232f84d517"
+      "sha256": "c67a5e2aa053112304312d383ab02062e099c3577b2151f6a023bcff4b63cbc2"
     },
     {
       "bytes": 10929,
       "path": "reports/ACCELERATION_OPPORTUNITIES_V2.json",
-      "sha256": "1667b87842fc978b777d506570fbac03360f7fc9f720b5c09c6d0a232f84d517"
+      "sha256": "c67a5e2aa053112304312d383ab02062e099c3577b2151f6a023bcff4b63cbc2"
     },
     {
       "bytes": 1196,
@@ -2376,9 +2376,9 @@
       "sha256": "d52e0bbfd5448b71ccb34d6299ff9ac50c9d11009db1e8cf29933658bfa42009"
     },
     {
-      "bytes": 3984,
+      "bytes": 4409,
       "path": "scripts/package_release.py",
-      "sha256": "d8dd53ab3fcca3c5e504c20d275c6c75638f2ada934dc34aba64c0d85f1270ed"
+      "sha256": "fc514a40a5eb3bb06383d8cc4e478b83b9117a695858c335aae406738e8cab4f"
     },
     {
       "bytes": 863,
@@ -2939,6 +2939,11 @@
       "bytes": 2268,
       "path": "tests/test_release_governance.py",
       "sha256": "17dec6c524d5a3457419281dd3958838646d1a4ea586a328b5d8110d706def8b"
+    },
+    {
+      "bytes": 3493,
+      "path": "tests/test_release_output_boundary.py",
+      "sha256": "65ce5bd374de8f8fe0857da9a146b5e8fc39004799d0eea332f6f76408662c78"
     },
     {
       "bytes": 5781,
