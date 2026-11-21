@@ -19,7 +19,7 @@
   "language_lines": {
     "c": 70,
     "cpp": 197,
-    "python": 30470
+    "python": 30477
   },
   "opportunities": [
     {
@@ -113,7 +113,7 @@
         "oversubscription",
         "unsupported solver backend"
       ],
-      "candidate_id": "fad63a0acab5266002eecfc7a3226c495c2f15406caec63a1b76a17ab15041ab",
+      "candidate_id": "c318fab050bc528706cedb9e45651468b6dd5d9bd1dfff2aa4e565193f8ce422",
       "category": "external-solver-dispatch",
       "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
       "confidence": "high",
@@ -134,7 +134,7 @@
       "path": "tsao_computation/security/process.py",
       "runtime_status": "unprofiled",
       "score": 68,
-      "source_sha256": "8754c2b3270373b66f6627ec49c81f84ea0e326eff2b19eba5204914c5c138ae",
+      "source_sha256": "e5e310d97ca3571791833c6693128fff95241267b05210ea7815f5e2eb945e61",
       "symbol": "_run_posix_group"
     },
     {
@@ -151,7 +151,7 @@
         "oversubscription",
         "unsupported solver backend"
       ],
-      "candidate_id": "ed91ae3357d24035045b250447b745bb1f9c583db8292e811b420d8b9cf4f23d",
+      "candidate_id": "e8f2aba1f18f4b2a5c5c2a5a03ec9f853bc1f090bc47e8f8b394eee8b2271fa7",
       "category": "external-solver-dispatch",
       "claim_boundary": "Static source evidence only. A candidate does not establish that code is a material hotspot, that an accelerator is available, or that performance, numerical equivalence, convergence, physical validity, applicability, energy use, or deployment safety will improve.",
       "confidence": "high",
@@ -172,7 +172,7 @@
       "path": "tsao_computation/security/process.py",
       "runtime_status": "unprofiled",
       "score": 68,
-      "source_sha256": "8754c2b3270373b66f6627ec49c81f84ea0e326eff2b19eba5204914c5c138ae",
+      "source_sha256": "e5e310d97ca3571791833c6693128fff95241267b05210ea7815f5e2eb945e61",
       "symbol": "_run_windows_job"
     },
     {
@@ -281,6 +281,6 @@
   "root": ".",
   "scope": "production",
   "source_files": 210,
-  "source_lines": 30737,
-  "source_tree_sha256": "f2b901cfc01f19831fe54f3ef099e144d4e017d4d7c0d83b4c66a7c945641226"
+  "source_lines": 30744,
+  "source_tree_sha256": "c9643dfc9b5a671fc180c0b8cb73c7729b41a9587a0763f6d39785c47b7415eb"
 }

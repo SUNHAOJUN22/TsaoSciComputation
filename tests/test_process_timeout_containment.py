@@ -167,15 +167,22 @@ def test_finish_terminated_process_fails_closed_when_child_cannot_be_reaped() ->
         ([], 1.0, {}),
         (["solver", ""], 1.0, {}),
         (["solver"], 0.0, {}),
+        (["solver"], float("nan"), {}),
         (["solver"], 1.0, {"BAD": ""}),
     ],
 )
 def test_prepared_runner_rejects_invalid_command_contract(
+    monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
     argv: list[str],
     timeout: float,
     environment: dict[str, str],
 ) -> None:
+    def unexpected_dispatch(*_args: Any, **_kwargs: Any) -> None:
+        pytest.fail("an invalid command contract reached process execution")
+
+    monkeypatch.setattr(process_module, "_run_posix_group", unexpected_dispatch)
+    monkeypatch.setattr(process_module, "_run_windows_job", unexpected_dispatch)
     with pytest.raises(SecurityError):
         process_module._run_prepared(argv, cwd=tmp_path, timeout=timeout, environment=environment)
 

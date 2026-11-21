@@ -207,7 +207,7 @@ def _run_prepared(
 ) -> subprocess.CompletedProcess[str]:
     if not argv or any(not isinstance(item, str) or not item or "\x00" in item for item in argv):
         raise SecurityError("argv must be a non-empty sequence of non-empty strings")
-    if timeout <= 0 or timeout > 86400:
+    if not 0 < timeout <= 86400:
         raise SecurityError("timeout must be within (0, 86400] seconds")
     if any(
         not key or not value or "\x00" in key or "\x00" in value
