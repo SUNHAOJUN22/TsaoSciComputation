@@ -1,12 +1,17 @@
 from __future__ import annotations
 
+import errno
 import json
+import os
+from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
+from tsao_computation import execution_boundary
 from tsao_computation.execution_boundary import (
     ConcurrentProvenanceLedger,
     ExternalExecutionCapability,
@@ -109,3 +114,163 @@ def test_incomplete_record_is_not_repaired_or_overwritten(tmp_path: Path) -> Non
         ledger.append("second", {"value": 2})
     assert ledger.path.read_bytes() == original
     assert not ledger.lock_path.exists()
+
+
+def _lock_platform(
+    monkeypatch: pytest.MonkeyPatch, platform: str, opener: Callable[..., int]
+) -> None:
+    monkeypatch.setattr(
+        execution_boundary,
+        "os",
+        SimpleNamespace(
+            name=platform,
+            open=opener,
+            close=os.close,
+            fsync=os.fsync,
+            O_CREAT=os.O_CREAT,
+            O_EXCL=os.O_EXCL,
+            O_WRONLY=os.O_WRONLY,
+            SEEK_END=os.SEEK_END,
+        ),
+    )
+
+
+def test_hash_chain_windows_sharing_conflict_waits_for_owned_lock_release(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    ledger = ConcurrentProvenanceLedger(tmp_path / "events.jsonl", lock_timeout=1.0)
+    first = ledger.append("prior", {"value": "材料"})
+    original = ledger.path.read_bytes()
+    ledger.lock_path.write_text("another writer", encoding="utf-8")
+    clock = [0.0]
+    attempts: list[tuple[Path, int, int]] = []
+    waits: list[float] = []
+
+    def acquire(path: Path, flags: int, mode: int) -> int:
+        attempts.append((path, flags, mode))
+        if len(attempts) == 1:
+            raise PermissionError(errno.EACCES, "sharing/delete-pending conflict", str(path))
+        return os.open(path, flags, mode)
+
+    def wait(delay: float) -> None:
+        waits.append(delay)
+        clock[0] += delay
+        assert ledger.path.read_bytes() == original
+        assert ledger.lock_path.read_text(encoding="utf-8") == "another writer"
+        if len(waits) == 2:
+            ledger.lock_path.unlink()  # The prior owner releases its lock.
+
+    _lock_platform(monkeypatch, "nt", acquire)
+    monkeypatch.setattr(
+        execution_boundary, "time", SimpleNamespace(monotonic=lambda: clock[0], sleep=wait)
+    )
+    second = ledger.append("next", {"value": 2})
+    assert attempts == [(ledger.lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)] * 3
+    assert waits == [0.01, 0.01]
+    assert ledger.path.read_bytes().startswith(original)
+    assert ledger.read() == (first, second)
+    ledger.verify(ledger.read())
+    assert second.previous_hash == first.event_hash
+    assert not ledger.lock_path.exists()
+
+
+@pytest.mark.parametrize("first_error", ["access", "exists"])
+def test_hash_chain_lock_conflicts_share_one_deadline(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, first_error: str
+) -> None:
+    ledger = ConcurrentProvenanceLedger(tmp_path / "events.jsonl", lock_timeout=0.01)
+    ledger.append("prior", {"value": 1})
+    original = ledger.path.read_bytes()
+    ledger.lock_path.write_text("another writer", encoding="utf-8")
+    denied = PermissionError(errno.EACCES, "still unavailable", str(ledger.lock_path))
+    clock = [0.0]
+    attempts = [0]
+    waits: list[float] = []
+
+    def acquire(path: Path, flags: int, mode: int) -> int:
+        attempts[0] += 1
+        if (attempts[0] == 1) == (first_error == "access"):
+            raise denied
+        return os.open(path, flags, mode)
+
+    def wait(delay: float) -> None:
+        waits.append(delay)
+        clock[0] += delay
+
+    _lock_platform(monkeypatch, "nt", acquire)
+    monkeypatch.setattr(
+        execution_boundary, "time", SimpleNamespace(monotonic=lambda: clock[0], sleep=wait)
+    )
+    with pytest.raises(TimeoutError if first_error == "access" else PermissionError):
+        ledger.append("next", {"value": 2})
+    assert attempts == [2] and waits == [0.01]
+    assert ledger.path.read_bytes() == original
+    assert ledger.lock_path.read_text(encoding="utf-8") == "another writer"
+
+
+def test_hash_chain_persistent_windows_access_denial_preserves_original_evidence(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    ledger = ConcurrentProvenanceLedger(tmp_path / "events.jsonl", lock_timeout=0.02)
+    ledger.append("prior", {"value": 1})
+    original = ledger.path.read_bytes()
+    ledger.lock_path.write_text("another writer", encoding="utf-8")
+    denied = PermissionError(errno.EACCES, "permanent denial", str(ledger.lock_path))
+    clock = [0.0]
+    attempts = [0]
+    waits: list[float] = []
+
+    def acquire(_path: Path, _flags: int, _mode: int) -> int:
+        attempts[0] += 1
+        raise denied
+
+    def wait(delay: float) -> None:
+        waits.append(delay)
+        clock[0] += delay
+
+    _lock_platform(monkeypatch, "nt", acquire)
+    monkeypatch.setattr(
+        execution_boundary, "time", SimpleNamespace(monotonic=lambda: clock[0], sleep=wait)
+    )
+    with pytest.raises(PermissionError) as captured:
+        ledger.append("next", {"value": 2})
+    assert captured.value is denied
+    assert attempts == [3] and waits == [0.01, 0.01]
+    assert ledger.path.read_bytes() == original
+    assert ledger.lock_path.read_text(encoding="utf-8") == "another writer"
+
+
+@pytest.mark.parametrize(
+    "platform,error_number,timeout",
+    [("posix", errno.EACCES, 1.0), ("nt", errno.EPERM, 1.0), ("nt", errno.EACCES, 0.0)],
+)
+def test_hash_chain_unrelated_or_zero_deadline_denial_is_immediate(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    platform: str,
+    error_number: int,
+    timeout: float,
+) -> None:
+    ledger = ConcurrentProvenanceLedger(tmp_path / "events.jsonl", lock_timeout=timeout)
+    ledger.lock_path.write_text("another writer", encoding="utf-8")
+    denied = PermissionError(error_number, "denied", str(ledger.lock_path))
+    attempts = [0]
+
+    def acquire(_path: Path, _flags: int, _mode: int) -> int:
+        attempts[0] += 1
+        raise denied
+
+    def unexpected_wait(_delay: float) -> None:
+        raise AssertionError("this error must not be retried")
+
+    _lock_platform(monkeypatch, platform, acquire)
+    monkeypatch.setattr(
+        execution_boundary,
+        "time",
+        SimpleNamespace(monotonic=lambda: 0.0, sleep=unexpected_wait),
+    )
+    with pytest.raises(PermissionError) as captured:
+        ledger.append("next", {"value": 2})
+    assert captured.value is denied and attempts == [1]
+    assert not ledger.path.exists()
+    assert ledger.lock_path.read_text(encoding="utf-8") == "another writer"

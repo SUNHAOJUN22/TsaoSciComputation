@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import errno
 import math
 import os
 import threading
@@ -305,6 +306,13 @@ class ConcurrentProvenanceLedger:
             except FileExistsError as exc:
                 if time.monotonic() >= deadline:
                     raise TimeoutError("provenance ledger lock timed out") from exc
+                time.sleep(0.01)
+            except PermissionError as exc:
+                # Windows may report sharing/delete-pending lock conflicts as
+                # EACCES. Retry acquisition only, within the original deadline;
+                # never remove a lock or hide persistent/unrelated denial.
+                if os.name != "nt" or exc.errno != errno.EACCES or time.monotonic() >= deadline:
+                    raise
                 time.sleep(0.01)
 
     def _release_file_lock(self, descriptor: int) -> None:
